@@ -5,7 +5,7 @@ import type { NextRequest } from "next/server";
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Always allow NextAuth
+  // ✅ Always allow NextAuth routes
   if (pathname.startsWith("/api/auth")) {
     return NextResponse.next();
   }
@@ -29,6 +29,6 @@ export async function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     "/admin/:path*",
-    "/api/(?!auth/:path*)",
+    "/api/:path*",
   ],
 };

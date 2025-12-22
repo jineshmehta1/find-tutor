@@ -25,7 +25,7 @@ import WhyChooseUsSection from "@/components/ui/whyprimary"
 import { prisma } from "@/lib/data"; // Verify this matches your lib path
 
 async function getPrimaryPageData() {
-  const pageKey = "primary"; // Ensure this matches the category/pageKey in your DB
+  const pageKey = "promaty"; // Ensure this matches the category/pageKey in your DB
 
   try {
     const [courses, gallery, reviews, stories] = await Promise.all([

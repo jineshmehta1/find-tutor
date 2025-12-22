@@ -1,4 +1,4 @@
-"use client"
+export const revalidate = 10; 
 
 import { Button } from "@/components/ui/button"
 import { 

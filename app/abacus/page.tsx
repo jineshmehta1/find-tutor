@@ -20,7 +20,7 @@ export default function AbacusPage() {
     <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-amber-100 selection:text-amber-900">
 
       {/* -------------------------------------------------------------------------- */
-      /*                               1. HERO SECTION                             */
+      /*                               1. HERO SECTION                              */
       /* -------------------------------------------------------------------------- */}
       <section className="pt-14 pb-20 relative overflow-hidden bg-gradient-to-b from-amber-50 to-white">
         

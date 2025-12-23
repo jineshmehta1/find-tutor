@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils"
 const sidebarItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { label: "Gallery", href: "/admin/gallery", icon: Image },
-  { label: "Reviews", href: "/admin/review", icon: Star },
+  { label: "Reviews", href: "/admin/reviews", icon: Star },
   { label: "Success Stories", href: "/admin/stories", icon: Trophy },
   { label: "Courses", href: "/admin/courses", icon: BookOpen },
 ]

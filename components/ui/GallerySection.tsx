@@ -19,7 +19,7 @@ import {
 const galleryData = [
   {
     id: 1,
-    src: "https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=800",
+    src: "/pic15.webp",
     category: "Academics",
     title: "Classroom Focus",
     description: "Students engaged in interactive learning session.",
@@ -27,7 +27,7 @@ const galleryData = [
   },
   {
     id: 2,
-    src: "https://images.unsplash.com/photo-1529699211952-734e80c4d42b?q=80&w=800",
+    src: "pic16.webp",
     category: "Chess",
     title: "National Championship",
     description: "Our U-12 team securing the gold medal.",
@@ -35,7 +35,7 @@ const galleryData = [
   },
   {
     id: 3,
-    src: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?q=80&w=800",
+    src: "pic14.webp",
     category: "Robotics",
     title: "Bot Building",
     description: "Final touches on the line-follower robot.",
@@ -43,7 +43,7 @@ const galleryData = [
   },
   {
     id: 4,
-    src: "https://images.unsplash.com/photo-1560785496-3c9d27877182?q=80&w=800",
+    src: "pic17.webp",
     category: "Events",
     title: "Annual Day",
     description: "Cultural performances by primary students.",
@@ -51,7 +51,7 @@ const galleryData = [
   },
   {
     id: 5,
-    src: "https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=800",
+    src: "/gallery15.jpg",
     category: "Academics",
     title: "Science Fair",
     description: "Demonstrating physics experiments.",
@@ -59,7 +59,7 @@ const galleryData = [
   },
   {
     id: 6,
-    src: "https://images.unsplash.com/photo-1588058365548-9feb53b818e0?q=80&w=800",
+    src: "pic18.webp",
     category: "Chess",
     title: "Grandmaster Visit",
     description: "Guest lecture on opening strategies.",
@@ -67,7 +67,7 @@ const galleryData = [
   },
   {
     id: 7,
-    src: "https://images.unsplash.com/photo-1485546246426-74dc88dec4d9?q=80&w=800",
+    src: "central.jpg",
     category: "Robotics",
     title: "Tech Expo Winner",
     description: "Receiving the innovation award.",
@@ -75,7 +75,7 @@ const galleryData = [
   },
   {
     id: 8,
-    src: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800",
+    src: "champion.webp",
     category: "Events",
     title: "Graduation Day",
     description: "Celebrating our outgoing batch.",

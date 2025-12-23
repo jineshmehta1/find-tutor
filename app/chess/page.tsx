@@ -28,7 +28,7 @@ async function getChessPageData() {
     const [courses, gallery, reviews, stories] = await Promise.all([
       prisma.course.findMany({
         where: { pageKey },
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: "asc" },
       }),
       prisma.galleryItem.findMany({
         where: { pageKey },

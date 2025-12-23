@@ -52,7 +52,7 @@ const ContactSection: React.FC = () => {
                         </div>
                         <div>
                            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Call Us</p>
-                           <p className="text-lg font-medium text-white hover:text-amber-400 transition-colors cursor-pointer">+91 81306 27389</p>
+                           <p className="text-lg font-medium text-white hover:text-amber-400 transition-colors cursor-pointer">+91 80741 03400</p>
                         </div>
                      </div>
 
@@ -75,7 +75,7 @@ const ContactSection: React.FC = () => {
                         <div>
                            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Main Campus</p>
                            <p className="text-lg font-medium text-white leading-snug">
-                              Sector 45, Gurgaon, <br /> Haryana - 122003
+                              Lalitha Nagar Road, Swathi Theatre Rd, opposite Indrakeeladri Apartment, near Sivalayam Center, Chittinagar, Bhavanipuram, V D Puram, Vijayawada, Andhra Pradesh 520012
                            </p>
                         </div>
                      </div>

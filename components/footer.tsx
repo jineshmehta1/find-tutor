@@ -150,13 +150,12 @@ export default function Footer() {
               <div className="flex items-start gap-3 text-sm">
                 <MapPin className="w-5 h-5 text-yellow-400 shrink-0 mt-0.5" />
                 <span>
-                  123 Knowledge Park,<br />
-                  Education City, State 400001
+                  Lalitha Nagar Road, Swathi Theatre Rd, opposite Indrakeeladri Apartment, near Sivalayam Center, Chittinagar, Bhavanipuram, V D Puram, Vijayawada, Andhra Pradesh 520012
                 </span>
               </div>
               <div className="flex items-center gap-3 text-sm">
                 <Phone className="w-5 h-5 text-yellow-400 shrink-0" />
-                <span>+91 98765 43210</span>
+                <span>+91 80741 03400</span>
               </div>
               <div className="flex items-center gap-3 text-sm">
                 <Mail className="w-5 h-5 text-yellow-400 shrink-0" />

@@ -32,7 +32,7 @@ const courses: Course[] = [
   {
     title: "Intermediate",
     subtitle: "Master Chess Like a Pro",
-    image: "https://checkmatesenseiacademy.com/images/md2.png",
+    image: "https://aacharyaacademy.com/images/md2.png",
     goals: "Gain the confidence to participate in competitive chess tournaments. Progress towards earning a FIDE rating.",
     schedule: "Weekly: 2 sessions, each lasting 45 minutes.",
     groupSize: "Determined based on the coach's recommendation.",

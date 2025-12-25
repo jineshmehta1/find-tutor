@@ -334,7 +334,7 @@ export default function CoursesPage() {
             ))}
           </div>
 
-          {/* Courses Grid */}
+          {/* Courses Grid*/}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {filteredCourses.map((course, index) => (
               <div

@@ -20,7 +20,7 @@ export default function WhyChooseUsSection() {
   const benefits = [
     {
       title: 'All-in-One Learning Campus',
-      description: 'Preschool, Tuition, Chess, Abacus & Robotics — complete academic and skill-based development in one place.',
+      description: 'Pre school, Tuition, Chess, Abacus & Robotics — complete academic and skill-based development in one place.',
       icon: <LayoutGrid className="w-6 h-6 md:w-8 md:h-8 text-blue-600" />, 
       bgClass: 'bg-blue-50', 
     },

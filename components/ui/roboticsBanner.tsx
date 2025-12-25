@@ -62,7 +62,7 @@ const RoboticsBanner: React.FC = () => {
           <ChevronRight className="w-4 h-4 text-slate-300" strokeWidth={3} />
           
           <span className="text-slate-900 font-bold text-sm">
-            Primary School
+            Pre Primary School
           </span>
         </nav>
 

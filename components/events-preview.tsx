@@ -44,7 +44,7 @@ const programs = [
   },
   {
     id: "school",
-    title: "Primary School",
+    title: "Pre Primary School",
     description: "A complete CBSE-aligned academic program focusing on holistic growth, curiosity, and strong foundational values.",
     icon: <Backpack className="w-8 h-8 text-indigo-600" />,
     features: ["CBSE Curriculum", "Value Education", "Activity Based"],

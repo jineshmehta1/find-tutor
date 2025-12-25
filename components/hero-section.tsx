@@ -24,7 +24,7 @@ export default function HeroSection() {
   const programs = [
     { 
       icon: GraduationCap, 
-      label: "Primary Schooling", 
+      label: "Pre Primary Schooling", 
       path: "/programs/primary",
       // Solid Blue Theme
       theme: "bg-blue-600 border-blue-600 text-white hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-200"
@@ -143,12 +143,12 @@ export default function HeroSection() {
             {/* Floating Info Cards */}
             <div className="absolute top-10 -left-6 bg-white p-4 rounded-xl shadow-lg border border-slate-50 flex items-center gap-3 animate-bounce shadow-blue-100" style={{ animationDuration: '3s' }}>
                 <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600"><GraduationCap size={20} /></div>
-                <div className="text-sm font-bold text-slate-800">Primary School</div>
+                <div className="text-sm font-bold text-slate-800">Pre Primary School</div>
             </div>
 
             <div className="absolute bottom-20 -right-6 bg-white p-4 rounded-xl shadow-lg border border-slate-50 flex items-center gap-3 animate-bounce shadow-amber-100" style={{ animationDuration: '4s' }}>
                 <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center text-amber-600"><Bot size={20} /></div>
-                <div className="text-sm font-bold text-slate-800">Robotics & AI</div>
+                <div className="text-sm font-bold text-slate-800">Robotics, AI & IOT</div>
             </div>
 
             <div className="absolute bottom-6 left-8 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg border border-slate-100 flex items-center gap-2">

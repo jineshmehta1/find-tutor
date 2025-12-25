@@ -14,7 +14,7 @@ export default function CoachesAndMethodology() {
   const programs = {
     primary: {
       id: 'primary',
-      label: 'Primary Schooling',
+      label: 'Pre Primary Schooling',
       icon: <BookOpen className="w-5 h-5" />,
       title: "Foundational Literacy & Curiosity",
       description: "We focus on building strong reading habits, logical questioning, and emotional intelligence before moving to complex subjects.",

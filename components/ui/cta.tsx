@@ -77,7 +77,7 @@ const VisitCampusCTA: React.FC = () => {
                       <div className="w-4 h-4 bg-amber-500 rounded-full relative z-10 border-2 border-white"></div>
                     </div>
                     <div className="bg-white px-3 py-1 rounded-lg shadow-lg mt-2 transform transition-transform group-hover:scale-110">
-                       <span className="text-xs font-bold text-slate-900">Aacharya Academy</span>
+                       <span className="text-xs font-bold text-slate-900">Aacharya</span>
                     </div>
                  </div>
               </div>

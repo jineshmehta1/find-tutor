@@ -118,7 +118,7 @@ export default function TestimonialsSection() {
         {/* --- Bottom CTA --- */}
         <div className="text-center mt-12">
             <p className="text-slate-500 text-sm">
-                Join 500+ happy families at Aacharya Academy.
+                Join 500+ happy families at Aacharya.
             </p>
         </div>
 

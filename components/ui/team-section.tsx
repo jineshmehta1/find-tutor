@@ -67,7 +67,7 @@ export default function TeachingPhilosophySection() {
           </h2>
           
           <p className="text-lg text-slate-600 leading-relaxed">
-            At Aacharya Academy, our philosophy is rooted in the belief that education should be holistic, engaging, and future-ready. We nurture the intellect and character simultaneously.
+            At Aacharya, our philosophy is rooted in the belief that education should be holistic, engaging, and future-ready. We nurture the intellect and character simultaneously.
           </p>
         </div>
 

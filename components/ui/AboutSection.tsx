@@ -69,7 +69,7 @@ const AboutSection: React.FC = () => {
             <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-6 rounded-full bg-amber-50 border border-amber-100">
               <Sparkles className="w-4 h-4 text-amber-500" />
               <span className="text-xs font-bold text-amber-800 uppercase tracking-wider">
-                About Aacharya Academy
+                About Aacharya
               </span>
             </div>
 
@@ -84,7 +84,7 @@ const AboutSection: React.FC = () => {
             {/* Description Text */}
             <div className="space-y-6 text-slate-600 text-lg leading-relaxed mb-8">
               <p>
-                At Aacharya Academy, we believe education goes beyond textbooks. We fuse the rigour of the <strong className="text-slate-900">CBSE Curriculum</strong> with the creativity of modern skills like <strong className="text-slate-900">Robotics, Chess, and Abacus</strong>.
+                At Aacharya, we believe education goes beyond textbooks. We fuse the rigour of the <strong className="text-slate-900">CBSE Curriculum</strong> with the creativity of modern skills like <strong className="text-slate-900">Robotics, Chess, and Abacus</strong>.
               </p>
               <p>
                 Our mission is to nurture well-rounded individuals who are not only academic toppers but also critical thinkers and problem solvers.

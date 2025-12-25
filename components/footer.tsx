@@ -65,9 +65,6 @@ export default function Footer() {
                 <span className="font-black text-2xl text-white leading-none tracking-tight">
                   AACHARYA
                 </span>
-                <span className="text-[10px] font-bold text-yellow-400 tracking-[0.2em] uppercase">
-                  ACADEMY
-                </span>
               </div>
             </a>
             <p className="text-sm leading-relaxed text-slate-400">
@@ -168,7 +165,7 @@ export default function Footer() {
 
         {/* BOTTOM BAR */}
         <div className="border-t border-slate-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
-          <p>© {new Date().getFullYear()} Aacharya Academy. All Rights Reserved.</p>
+          <p>© {new Date().getFullYear()} Aacharya. All Rights Reserved.</p>
           <div className="flex gap-6">
             <a href="/privacy" className="hover:text-yellow-400 transition-colors">Privacy Policy</a>
             <a href="/terms" className="hover:text-yellow-400 transition-colors">Terms of Service</a>

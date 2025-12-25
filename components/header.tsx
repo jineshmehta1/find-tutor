@@ -63,17 +63,11 @@ const Header: React.FC = () => {
       name: "Programs",
       hasDropdown: true,
       subMenu: [
+        { name: "Primary School (CBSE)", href: "/school" },
+        { name: "Coaching Classes", href: "/coaching" },
         { name: "Chess Coaching", href: "/chess" },
         { name: "Abacus Training", href: "/abacus" },
         { name: "Robotics Program", href: "/robotics" },
-      ],
-    },
-    {
-      name: "Academics",
-      hasDropdown: true,
-      subMenu: [
-        { name: "Primary School (CBSE)", href: "/school" },
-        { name: "Coaching Classes", href: "/coaching" },
       ],
     },
     { name: "Instructors", href: "/coaches" },
@@ -105,9 +99,6 @@ const Header: React.FC = () => {
   <div className="flex flex-col">
     <span className="font-black text-xl md:text-2xl text-slate-900 leading-none">
       AACHARYA
-    </span>
-    <span className="text-[10px] md:text-xs font-bold text-yellow-600 tracking-[0.2em] uppercase">
-      ACADEMY
     </span>
   </div>
 </a>

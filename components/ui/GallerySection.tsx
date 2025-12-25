@@ -141,7 +141,7 @@ export default function GallerySection() {
             Our Campus <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-600">Life</span>
           </h1>
           <p className="text-slate-600 max-w-2xl mx-auto text-lg leading-relaxed">
-            From intense chess battles to breakthrough robotics projects—explore the vibrant moments that define Aacharya Academy.
+            From intense chess battles to breakthrough robotics projects—explore the vibrant moments that define Aacharya.
           </p>
         </div>
 
@@ -264,7 +264,7 @@ export default function GallerySection() {
 
               <div className="pt-6 border-t border-slate-100 mt-6">
                  <p className="text-xs text-slate-400 uppercase tracking-wider font-bold mb-1">Captured At</p>
-                 <p className="text-sm font-semibold text-slate-700">Aacharya Academy Campus</p>
+                 <p className="text-sm font-semibold text-slate-700">Aacharya Campus</p>
               </div>
             </div>
           </div>

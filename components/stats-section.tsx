@@ -11,7 +11,7 @@ import {
 // --- FAQ Data ---
 const faqData = [
   {
-    question: "Why choose Aacharya Academy over others?",
+    question: "Why choose Aacharya over others?",
     answer:
       "We offer a unique blend of holistic education (Robotics, Abacus, Chess) along with core academics (CBSE). Our certified trainers, small batch sizes, and proven track record of national winners set us apart.",
   },

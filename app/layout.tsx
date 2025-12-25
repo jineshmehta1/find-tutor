@@ -9,7 +9,7 @@ import  Footer  from "@/components/footer"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: " Aacharya Academy - Professional Chess Training",
+  title: " Aacharya - Professional Chess Training",
   description:
     "Professional chess training academy with FIDE rated coaches. Learn chess from beginners to advanced levels with online and offline classes.",
   generator: "v0.app",

@@ -70,6 +70,14 @@ const Header: React.FC = () => {
         { name: "Robotics Program", href: "/robotics" },
       ],
     },
+    {
+      name: "Academics",
+      hasDropdown: true,
+      subMenu: [
+        { name: "Primary School (CBSE)", href: "/school" },
+        { name: "Coaching Classes", href: "/coaching" },
+      ],
+    },
     { name: "Instructors", href: "/coaches" },
     { name: "Gallery", href: "/gallery" },
     { name: "Contact", href: "/contact" },

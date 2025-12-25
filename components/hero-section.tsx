@@ -25,35 +25,35 @@ export default function HeroSection() {
     { 
       icon: GraduationCap, 
       label: "Pre Primary Schooling", 
-      path: "/programs/primary",
+      path: "/school",
       // Solid Blue Theme
       theme: "bg-blue-600 border-blue-600 text-white hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-200"
     },
     { 
       icon: BrainCircuit, 
       label: "Abacus & Mental Math", 
-      path: "/programs/abacus",
+      path: "/abacus",
       // Solid Amber Theme
       theme: "bg-amber-500 border-amber-500 text-white hover:bg-amber-600 hover:shadow-lg hover:shadow-amber-200"
     },
     { 
       icon: Bot, 
       label: "Robotics & AI", 
-      path: "/programs/robotics",
+      path: "/robotics",
       // Solid Purple Theme
       theme: "bg-purple-600 border-purple-600 text-white hover:bg-purple-700 hover:shadow-lg hover:shadow-purple-200"
     },
     { 
       icon: Gamepad2, 
       label: "Professional Chess", 
-      path: "/programs/chess",
+      path: "/chess",
       // Solid Emerald Theme
       theme: "bg-emerald-600 border-emerald-600 text-white hover:bg-emerald-700 hover:shadow-lg hover:shadow-emerald-200"
     },
     { 
       icon: BookOpen, 
       label: "CBSE Coaching", 
-      path: "/programs/cbse",
+      path: "/coaching",
       // Solid Rose Theme
       theme: "bg-rose-600 border-rose-600 text-white hover:bg-rose-700 hover:shadow-lg hover:shadow-rose-200"
     },

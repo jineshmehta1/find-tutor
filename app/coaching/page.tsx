@@ -8,24 +8,25 @@ import {
   CheckCircle2, Clock, FileText, BrainCircuit, Target, Sparkles
 } from "lucide-react"
 
-// Dynamic Components (Ensure these are ready to receive data as props)
+// Dynamic Components
 import { DynamicGallery } from "@/components/dynamicgallery"
 import { DynamicReviews } from "@/components/dynamicreviews"
 import { DynamicCourses } from "@/components/dynamiccourses"
 import { SuccessStoriesSection } from "@/components/dynamicsucess"
+import DynamicPageBanner from "@/components/dynamicbanner"
 
 // Static UI Sections
 import WhyChooseCoachingSection from "@/components/ui/whycoaching"
 import CBSEFAQSection from "@/components/ui/coachingfaq"
 
 // 2. DATA FETCHING FROM PRISMA
-import { prisma } from "@/lib/data"; // Verify this matches your lib/prisma setup path
+import { prisma } from "@/lib/data"; 
 
 async function getCoachingPageData() {
-  const pageKey = "coaching"; // The identifier used in your Admin Panel
+  const pageKey = "coaching"; 
 
   try {
-    const [courses, gallery, reviews, stories] = await Promise.all([
+    const [courses, gallery, reviews, stories, banner] = await Promise.all([
       prisma.course.findMany({
         where: { pageKey },
         orderBy: { createdAt: "asc" },
@@ -42,18 +43,48 @@ async function getCoachingPageData() {
         where: { pageKey },
         orderBy: { createdAt: "desc" },
       }),
+      prisma.banner.findUnique({
+        where: { pageKey },
+      }),
     ]);
 
-    // Parse features JSON if stored as a string in DB
-    const parsedCourses = courses.map((c) => ({
-      ...c,
-      features: typeof c.features === 'string' ? JSON.parse(c.features) : (c.features || []),
-    }));
+    /**
+     * Robust Feature Parsing
+     */
+    const parsedCourses = courses.map((c) => {
+      let featuresArray = [];
+      try {
+        if (Array.isArray(c.features)) {
+          featuresArray = c.features;
+        } else if (typeof c.features === 'string' && c.features.trim() !== "") {
+          featuresArray = JSON.parse(c.features);
+        }
+      } catch (err) {
+        console.error(`Failed to parse features for course ${c.id}:`, err);
+        featuresArray = [];
+      }
+      return {
+        ...c,
+        features: Array.isArray(featuresArray) ? featuresArray : [],
+      };
+    });
 
-    return { courses: parsedCourses, gallery, reviews, stories };
+    return { 
+      courses: parsedCourses, 
+      gallery, 
+      reviews, 
+      stories,
+      banner: banner || {
+        // Fallback in case Admin hasn't uploaded banner data yet
+        title: "Master Your Syllabus",
+        subtitle: "Comprehensive coaching for Grades 6 to 10. We focus on concept clarity, regular practice, and building exam confidence.",
+        imageUrl: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=2070&auto=format&fit=crop",
+        breadcrumb: "CBSE Coaching"
+      }
+    };
   } catch (error) {
     console.error("Error fetching coaching data:", error);
-    return { courses: [], gallery: [], reviews: [], stories: [] };
+    return { courses: [], gallery: [], reviews: [], stories: [], banner: null };
   }
 }
 
@@ -64,45 +95,8 @@ export default async function CBSECoachingPage() {
   return (
     <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-amber-100 selection:text-amber-900">
 
-      {/* ------------------- HERO SECTION ------------------- */}
-      <section className="pt-14 pb-20 relative overflow-hidden bg-gradient-to-b from-amber-50 to-white">
-        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%230f172a' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E")` }}></div>
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-amber-200/30 rounded-full blur-[100px] -z-10"></div>
-
-        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center relative z-10">
-          <div className="space-y-8 text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-amber-200 shadow-sm text-amber-700 font-bold text-sm uppercase tracking-wider">
-              <Award size={18} className="text-amber-500" /> Excellence in Education
-            </div>
-            <h1 className="text-5xl md:text-7xl font-black leading-[1.1] text-slate-900">
-              Master Your <br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-600">Syllabus</span> 📚
-            </h1>
-            <p className="text-xl text-slate-600 leading-relaxed max-w-lg mx-auto lg:mx-0 font-medium">
-              Comprehensive coaching for Grades 6 to 10. We focus on concept clarity, regular practice, and building exam confidence.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Button className="h-14 px-8 bg-amber-500 hover:bg-amber-600 text-white rounded-full font-black text-lg shadow-lg">Book Free Trial</Button>
-              <Button variant="outline" className="h-14 px-8 bg-white border-2 border-slate-900 text-slate-900 rounded-full font-bold text-lg">Download Brochure</Button>
-            </div>
-          </div>
-          
-          <div className="relative group perspective-1000">
-             <div className="absolute inset-0 bg-amber-200 rounded-[2.5rem] rotate-3 scale-105 opacity-60 -z-10 group-hover:rotate-0 transition-all duration-500"></div>
-             <div className="relative rounded-[2.5rem] overflow-hidden border-8 border-white shadow-2xl bg-white">
-               <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=2070&auto=format&fit=crop" alt="Student Studying" className="w-full h-[500px] object-cover hover:scale-105 transition-transform duration-700" />
-               <div className="absolute top-6 left-6 bg-white/95 backdrop-blur-md px-4 py-2 rounded-xl shadow-lg border border-slate-100 flex items-center gap-2 animate-bounce-slow">
-                 <CheckCircle2 size={20} className="text-green-500" />
-                 <span className="text-xs font-bold text-slate-700 uppercase">100% Pass Rate</span>
-               </div>
-               <div className="absolute bottom-6 right-6 bg-white/95 backdrop-blur-md p-4 rounded-xl shadow-lg border border-slate-100 flex items-center gap-4">
-                 <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center text-amber-600"><TrendingUp size={24} /></div>
-                 <div><p className="text-xs text-slate-400 uppercase font-bold">Average Score</p><p className="text-xl font-black text-slate-900">92% +</p></div>
-               </div>
-             </div>
-          </div>
-        </div>
-      </section>
+      {/* ------------------- DYNAMIC BANNER (Replaced Hero) ------------------- */}
+      <DynamicPageBanner data={data.banner} />
 
       {/* ------------------- ACADEMIC STATS ------------------- */}
       <section className="bg-white py-12 border-b border-slate-100">

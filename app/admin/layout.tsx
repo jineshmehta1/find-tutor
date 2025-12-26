@@ -13,6 +13,7 @@ const sidebarItems = [
   { label: "Reviews", href: "/admin/reviews", icon: Star },
   { label: "Success Stories", href: "/admin/stories", icon: Trophy },
   { label: "Courses", href: "/admin/courses", icon: BookOpen },
+  { label: "Banner", href: "/admin/banner", icon: BookOpen },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

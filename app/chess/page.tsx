@@ -3,29 +3,31 @@ export const dynamic = "force-dynamic";
 
 import { Button } from "@/components/ui/button"
 import { 
-  Crown, Trophy, Users, TrendingUp, Globe, GraduationCap
+  Crown, Trophy, Users, TrendingUp, Globe, GraduationCap,
+  Target, Zap, Lightbulb, BookOpen, ChevronRight, Star
 } from "lucide-react"
 
-// Dynamic Components (Ensure these handle props in their files)
+// Dynamic Components
 import { DynamicGallery } from "@/components/dynamicgallery"
 import { DynamicReviews } from "@/components/dynamicreviews"
 import { DynamicCourses } from "@/components/dynamiccourses"
 import { SuccessStoriesSection } from "@/components/dynamicsucess"
+import DynamicPageBanner from "@/components/dynamicbanner"
 
-// UI Sections
+// UI Sections (Static)
 import BenefitsSection from "@/components/ui/chess1"
 import WhyChooseUsSection from "@/components/ui/whychess"
 import MethodologySection from "@/components/ui/method"
 import ChessFAQSection from "@/components/ui/chessfaq"
 
-// 2. DATA FETCHING FROM PRISMA
-import { prisma } from "@/lib/data"; // Verify this path matches your robotics setup
+// 2. DATA FETCHING (MATCHING ROBOTICS LOGIC)
+import { prisma } from "@/lib/data";
 
 async function getChessPageData() {
-  const pageKey = "chess"; // Matches the category in your database
+  const pageKey = "chess";
 
   try {
-    const [courses, gallery, reviews, stories] = await Promise.all([
+    const [courses, gallery, reviews, stories, banner] = await Promise.all([
       prisma.course.findMany({
         where: { pageKey },
         orderBy: { createdAt: "asc" },
@@ -42,91 +44,69 @@ async function getChessPageData() {
         where: { pageKey },
         orderBy: { createdAt: "desc" },
       }),
+      prisma.banner.findUnique({
+        where: { pageKey },
+      }),
     ]);
 
-    // Parse JSON features if your database stores them as strings
-    const parsedCourses = courses.map((c) => ({
-      ...c,
-      features: typeof c.features === 'string' ? JSON.parse(c.features) : (c.features || []),
-    }));
+    // Robust Feature Parsing
+    const parsedCourses = courses.map((c) => {
+      let featuresArray = [];
+      try {
+        if (Array.isArray(c.features)) {
+          featuresArray = c.features;
+        } else if (typeof c.features === 'string' && c.features.trim() !== "") {
+          featuresArray = JSON.parse(c.features);
+        }
+      } catch (err) {
+        console.error(`Failed to parse features for course ${c.id}:`, err);
+        featuresArray = [];
+      }
+      return {
+        ...c,
+        features: Array.isArray(featuresArray) ? featuresArray : [],
+      };
+    });
 
-    return { courses: parsedCourses, gallery, reviews, stories };
+    return { 
+      courses: parsedCourses, 
+      gallery, 
+      reviews, 
+      stories,
+      banner: banner || {
+        title: "Master the Game of Kings",
+        subtitle: "From first moves to grandmaster strategies. We build concentration, logic, and confidence in young minds.",
+        imageUrl: "/pic20.webp",
+        breadcrumb: "Chess Academy"
+      }
+    };
   } catch (error) {
-    console.error("Error fetching chess data:", error);
-    return { courses: [], gallery: [], reviews: [], stories: [] };
+    console.error("Critical Error fetching chess data:", error);
+    return { courses: [], gallery: [], reviews: [], stories: [], banner: null };
   }
 }
 
-// 3. SERVER COMPONENT
+// 3. PAGE COMPONENT
 export default async function ChessAcademyPage() {
   const data = await getChessPageData();
 
   return (
     <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-amber-100 selection:text-amber-900">
 
-      {/* ------------------- HERO SECTION ------------------- */}
-      <section className="pt-14 pb-20 relative overflow-hidden bg-gradient-to-b from-amber-50 to-white">
-        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000), repeating-linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000)', backgroundPosition: '0 0, 10px 10px', backgroundSize: '20px 20px' }}></div>
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-amber-200/30 rounded-full blur-[100px] -z-10"></div>
+      {/* ------------------- DYNAMIC BANNER ------------------- */}
+      <DynamicPageBanner data={data.banner} />
 
-        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center relative z-10">
-          <div className="space-y-8 text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-amber-200 shadow-sm text-amber-700 font-bold text-sm uppercase tracking-wider">
-              <Crown size={16} className="text-amber-500 fill-amber-500" /> FIDE Rated Coaches
-            </div>
-            <h1 className="text-5xl md:text-6xl font-black leading-[1.1] text-slate-900">
-              Kids are the real <br/>
-              <span className="text-amber-500">Kings & Queens</span> ♟️
-            </h1>
-            <p className="text-xl text-slate-600 leading-relaxed max-w-lg mx-auto lg:mx-0 font-medium">
-              From first moves to checkmate. We build concentration, strategy, and confidence in young minds through professional chess training.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Button className="h-14 px-8 bg-amber-500 hover:bg-[#b08d21] text-white rounded-full font-black text-lg shadow-[0_10px_20px_rgba(201,162,39,0.3)] hover:-translate-y-1 transition-all">
-                Book Free Trial
-              </Button>
-              <Button variant="outline" className="h-14 px-8 bg-white border-2 border-slate-900 text-slate-900 rounded-full font-bold text-lg hover:bg-slate-900 hover:text-white transition-all">
-                View Syllabus
-              </Button>
-            </div>
-          </div>
-          
-          <div className="relative group perspective-1000">
-             <div className="absolute inset-0 bg-amber-200 rounded-[2rem] rotate-3 scale-105 opacity-60 -z-10 group-hover:rotate-0 transition-all duration-500"></div>
-             <div className="relative rounded-[2rem] overflow-hidden border-8 border-white shadow-2xl bg-white">
-               <img src="/pic20.webp" alt="Kid playing chess" className="w-full h-[500px] object-cover hover:scale-105 transition-transform duration-700" />
-               <div className="absolute bottom-6 left-6 right-6 bg-white/95 backdrop-blur-md p-4 rounded-xl shadow-lg border border-slate-100 flex justify-between items-center">
-                 <div className="flex items-center gap-3">
-                   <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center text-amber-600">
-                     <Trophy size={24} />
-                   </div>
-                   <div>
-                     <p className="text-xs text-slate-400 uppercase font-bold">Success Rate</p>
-                     <p className="text-lg font-black text-slate-900">150+ Trophies</p>
-                   </div>
-                 </div>
-                 <div className="h-8 w-[1px] bg-slate-200"></div>
-                 <div className="text-right">
-                    <p className="text-amber-500 font-black text-2xl">2200+</p>
-                    <p className="text-[10px] text-slate-400 uppercase font-bold">Max Rating</p>
-                 </div>
-               </div>
-             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ------------------- STATS ------------------- */}
+      {/* ------------------- QUICK STATS ------------------- */}
       <section className="bg-white py-12 border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-6 flex flex-wrap justify-around items-center gap-8 text-center">
           {[
             { label: "Active Students", val: "500+", icon: Users },
             { label: "FIDE Instructors", val: "10+", icon: GraduationCap },
-            { label: "Online & Offline", val: "Hybrid", icon: Globe },
+            { label: "Tournaments Won", val: "150+", icon: Trophy },
             { label: "Avg Rating Boost", val: "+400", icon: TrendingUp },
           ].map((item, i) => (
-            <div key={i} className="flex items-center gap-4 group p-4 rounded-xl hover:bg-slate-50 transition-colors">
-              <div className="w-14 h-14 rounded-full bg-amber-50 group-hover:bg-amber-500 border border-amber-100 flex items-center justify-center text-amber-500 group-hover:text-white transition-colors">
+            <div key={i} className="flex items-center gap-4 group cursor-default p-4 rounded-xl hover:bg-amber-50/50 transition-colors">
+              <div className="w-14 h-14 rounded-2xl bg-amber-50 group-hover:bg-amber-500 border border-amber-100 flex items-center justify-center text-amber-600 group-hover:text-white transition-colors duration-300">
                 <item.icon size={24} />
               </div>
               <div className="text-left">
@@ -138,58 +118,135 @@ export default async function ChessAcademyPage() {
         </div>
       </section>
 
-      <WhyChooseUsSection/>
-      <BenefitsSection/>
+      {/* ------------------- CORE VALUES & BENEFITS ------------------- */}
+      <WhyChooseUsSection />
+      <BenefitsSection />
 
-      {/* ------------------- CURRICULUM (Data from Server) ------------------- */}
-      <div className="bg-white py-16">
+      {/* ------------------- THE GRANDMASTER'S PATH ------------------- */}
+      <section className="py-24 bg-slate-50 relative overflow-hidden">
+        <div className="absolute top-10 left-10 text-amber-200 opacity-50 rotate-12"><Crown size={120} /></div>
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="text-center mb-16">
+            <span className="text-amber-600 font-bold uppercase tracking-widest text-sm bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+              Training Methodology
+            </span>
+            <h2 className="text-4xl font-black text-slate-900 mt-4">The Strategic Mindset 🧠</h2>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="space-y-8">
+              <h2 className="text-3xl font-bold text-slate-900 leading-tight">
+                "Winning is a <span className="text-amber-500 bg-amber-50 px-2 rounded-lg">Habit</span>, not an accident."
+              </h2>
+              <p className="text-slate-600 text-lg leading-relaxed font-medium">
+                Our curriculum follows the professional FIDE standards, blending theoretical depth with practical tournament-style play.
+              </p>
+              
+              <div className="bg-white p-6 rounded-3xl border-2 border-amber-100 shadow-lg relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-4 opacity-10"><Target size={80} /></div>
+                <h4 className="font-black text-slate-900 mb-6 flex items-center gap-2 text-lg">
+                   The Professional Loop
+                </h4>
+                <div className="space-y-4">
+                  {[
+                    { step: "Theory & Analysis", icon: BookOpen },
+                    { step: "Tactical Drills", icon: Zap },
+                    { step: "Game Simulation", icon: Trophy },
+                    { step: "Review & Refine", icon: Lightbulb },
+                  ].map((item, index) => (
+                    <div key={index} className="flex items-center gap-4 bg-slate-50 p-3 rounded-xl border border-slate-100 group">
+                      <div className="w-8 h-8 bg-amber-500 text-white rounded-lg flex items-center justify-center font-bold text-sm shadow-sm group-hover:rotate-6 transition-transform">
+                        {index + 1}
+                      </div>
+                      <span className="text-slate-800 font-bold text-sm flex-1">{item.step}</span>
+                      <item.icon className="w-5 h-5 text-amber-400" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-6">
+              {[
+                { icon: Crown, title: "FIDE Coaches", desc: "Learn from the best", color: "text-amber-600", bg: "bg-amber-50", border: "hover:border-amber-300" },
+                { icon: Target, title: "Tactical Vision", desc: "Spot every winning move", color: "text-blue-600", bg: "bg-blue-50", border: "hover:border-blue-300" },
+                { icon: Star, title: "Psychology", desc: "Build mental resilience", color: "text-purple-600", bg: "bg-purple-50", border: "hover:border-purple-300" },
+                { icon: Globe, title: "Global Network", desc: "Play in rated events", color: "text-green-600", bg: "bg-green-50", border: "hover:border-green-300" }
+              ].map((item, i) => (
+                <div key={i} className={`group p-6 rounded-[2rem] bg-white border-2 border-slate-100 shadow-sm hover:shadow-xl ${item.border} transition-all duration-300 hover:-translate-y-1 text-center`}>
+                  <div className={`w-14 h-14 ${item.bg} ${item.color} rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:rotate-12 transition-transform`}>
+                    <item.icon size={28} />
+                  </div>
+                  <h4 className="text-lg font-black text-slate-900 mb-1">{item.title}</h4>
+                  <p className="text-slate-500 text-sm font-medium">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ------------------- CURRICULUM (DYNAMIC) ------------------- */}
+      <div className="bg-white py-24">
         <div className="text-center mb-10">
            <span className="text-slate-400 font-bold uppercase tracking-widest text-sm">Learning Path</span>
            <h2 className="text-4xl font-black text-slate-900 mt-2">Choose Your Level</h2>
         </div>
-        <DynamicCourses courses={data.courses} />
+        <DynamicCourses courses={data?.courses || []} />
       </div>
 
       <MethodologySection/>
 
-      {/* ------------------- SUCCESS STORIES ------------------- */}
-      <div className="py-12">
+      {/* ------------------- SUCCESS STORIES (DYNAMIC) ------------------- */}
+      <div className="py-20 bg-slate-50">
         <SuccessStoriesSection 
             badge="Champions"
             title="Our Wall of"
             titleHighlight="Fame"
             subtitle="Meet the students who redefined their limits."
-            stories={data.stories}
+            stories={data?.stories || []}
         />
       </div>
 
-      {/* ------------------- GALLERY ------------------- */}
-      <div className="py-12 bg-white">
+      {/* ------------------- GALLERY (DYNAMIC) ------------------- */}
+      <div className="py-20 bg-white">
         <DynamicGallery 
-            images={data.gallery}
+            images={data?.gallery || []}
             title="Tournaments & Training" 
             subtitle="Capturing the intensity and joy of the game."
             badge="Chess Gallery"
         />
       </div>
 
-      {/* ------------------- REVIEWS ------------------- */}
-      <div className="bg-slate-50 py-12 border-y border-slate-100">
-         <DynamicReviews reviews={data.reviews} />
+      {/* ------------------- REVIEWS (DYNAMIC) ------------------- */}
+      <div className="bg-slate-50 py-20 border-y border-slate-100">
+         <DynamicReviews reviews={data?.reviews || []} />
       </div>
 
       <ChessFAQSection/>
 
-      {/* ------------------- CTA ------------------- */}
-      <section className="py-20 px-4 bg-white">
+      {/* ------------------- FINAL CTA (ROBOTICS STYLE) ------------------- */}
+      <section className="py-24 px-4 bg-white">
         <div className="max-w-5xl mx-auto">
-          <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-100 shadow-xl">
-            <div className="relative z-10 p-10 md:p-16 text-center">
-               <Crown className="w-16 h-16 text-amber-500 mx-auto mb-6" />
-               <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-6">Ready to Make Your Move?</h2>
-               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                 <Button className="h-14 px-10 bg-amber-500 text-white font-bold text-lg rounded-full shadow-lg">Join the Club</Button>
-               </div>
+          <div className="relative overflow-hidden rounded-[3rem] bg-gradient-to-r from-amber-600 to-yellow-600 shadow-2xl shadow-amber-200">
+            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, white 1.5px, transparent 1.5px)', backgroundSize: '20px 20px' }}></div>
+            
+            <div className="relative z-10 p-12 md:p-20 text-center">
+              <div className="bg-white/20 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-8 backdrop-blur-sm border border-white/30">
+                <Crown className="w-10 h-10 text-white animate-bounce" />
+              </div>
+              <h2 className="text-4xl md:text-6xl font-black text-white mb-6">Ready to Play?</h2>
+              <p className="text-amber-50 text-xl font-medium mb-12 max-w-2xl mx-auto">
+                Join the club where champions are born. Book a free demo class to assess your level and start your journey!
+              </p>
+              <div className="flex flex-col sm:flex-row gap-6 justify-center">
+                <Button className="h-16 px-12 bg-white text-amber-600 hover:bg-slate-50 font-black text-xl rounded-full shadow-xl transition-all active:scale-95">
+                  Join the Club
+                </Button>
+                <Button variant="outline" className="h-16 px-12 bg-transparent border-2 border-white text-white font-bold text-xl rounded-full hover:bg-white hover:text-amber-600 transition-all">
+                  Contact Us
+                </Button>
+              </div>
             </div>
           </div>
         </div>

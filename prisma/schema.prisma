@@ -56,3 +56,10 @@ model SuccessStory {
   stats          String
   createdAt      DateTime @default(now())
 }
+
+model Banner {
+  id          Int      @id @default(autoincrement())
+  pageKey     String   @unique // Matches "chess", "robotics", etc.
+  imageUrl    String
+  updatedAt   DateTime @updatedAt
+}

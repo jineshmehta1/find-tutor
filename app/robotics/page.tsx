@@ -4,13 +4,14 @@ import {
   BrainCircuit, Laptop, Award, Wrench, Trophy
 } from "lucide-react";
 
-// Dynamic Components (ensure these have "use client" at the top of their files)
+// Dynamic Components
 import { DynamicGallery } from "@/components/dynamicgallery";
 import { DynamicReviews } from "@/components/dynamicreviews";
 import { DynamicCourses } from "@/components/dynamiccourses";
 import { SuccessStoriesSection } from "@/components/dynamicsucess";
+import DynamicPageBanner from "@/components/dynamicbanner"; // Imported carefully
 
-// Static Sections (Imported components)
+// Static Sections
 import WhyChooseRoboticsSection from "@/components/ui/whyrobotics";
 import RoboticsFAQSection from "@/components/ui/robotfaq";
 import TechStackSection from "@/components/ui/tech";
@@ -22,8 +23,8 @@ export async function getPageData() {
   const pageKey = "robotics";
 
   try {
-    // Fetch all data in parallel
-    const [courses, gallery, reviews, stories] = await Promise.all([
+    // Fetch all data in parallel including the Banner
+    const [courses, gallery, reviews, stories, banner] = await Promise.all([
       prisma.course.findMany({
         where: { pageKey },
         orderBy: { createdAt: "asc" },
@@ -40,38 +41,48 @@ export async function getPageData() {
         where: { pageKey },
         orderBy: { createdAt: "desc" },
       }),
+      prisma.banner.findUnique({
+        where: { pageKey },
+      }),
     ]);
 
     /**
      * FIX: Robust Feature Parsing
-     * This prevents "TypeError: course.features.map is not a function"
      */
     const parsedCourses = courses.map((c) => {
       let featuresArray = [];
-      
       try {
         if (Array.isArray(c.features)) {
-          // If Prisma/DB already returns an array object
           featuresArray = c.features;
         } else if (typeof c.features === 'string' && c.features.trim() !== "") {
-          // If it's a JSON string, parse it
           featuresArray = JSON.parse(c.features);
         }
       } catch (err) {
         console.error(`Failed to parse features for course ${c.id}:`, err);
-        featuresArray = []; // Fallback to empty array
+        featuresArray = [];
       }
-
       return {
         ...c,
         features: Array.isArray(featuresArray) ? featuresArray : [],
       };
     });
 
-    return { courses: parsedCourses, gallery, reviews, stories };
+    return { 
+      courses: parsedCourses, 
+      gallery, 
+      reviews, 
+      stories, 
+      banner: banner || {
+        // Fallback in case Admin hasn't uploaded yet
+        title: "Build, Code & Innovate",
+        subtitle: "Transform from a screen consumer to a technology creator with our hands-on robotics curriculum.",
+        imageUrl: "/pic38.webp",
+        breadcrumb: "Robotics"
+      } 
+    };
   } catch (error) {
     console.error("Critical Error fetching robotics data:", error);
-    return { courses: [], gallery: [], reviews: [], stories: [] };
+    return { courses: [], gallery: [], reviews: [], stories: [], banner: null };
   }
 }
 
@@ -83,63 +94,8 @@ export default async function RoboticsPage() {
   return (
     <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-amber-100 selection:text-amber-900">
 
-      {/* ------------------- HERO SECTION ------------------- */}
-      <section className="pt-14 pb-20 relative overflow-hidden bg-gradient-to-b from-amber-50 to-white">
-        {/* Decorative Grid Background */}
-        <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f59e0b' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` }}></div>
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-amber-200/30 rounded-full blur-[100px] -z-10"></div>
-
-        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center relative z-10">
-          {/* Hero Left: Content */}
-          <div className="space-y-8 text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-amber-200 shadow-sm text-amber-700 font-bold text-sm uppercase tracking-wider">
-              <Bot size={18} className="text-amber-500 animate-pulse" /> Next-Gen Engineers
-            </div>
-            <h1 className="text-5xl md:text-7xl font-black leading-[1.1] text-slate-900">
-              Build, Code, & <br/>
-              <span className="text-amber-500">Innovate</span> 🤖
-            </h1>
-            <p className="text-xl text-slate-600 leading-relaxed max-w-lg mx-auto lg:mx-0 font-medium">
-              Transform from a screen consumer to a technology creator. Hands-on robotics kits, visual coding, and real-world engineering.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Button className="h-14 px-8 bg-amber-500 hover:bg-amber-600 text-white rounded-full font-black text-lg shadow-[0_10px_20px_rgba(245,158,11,0.3)] hover:-translate-y-1 transition-all">
-                Book Free Demo
-              </Button>
-              <Button variant="outline" className="h-14 px-8 bg-white border-2 border-slate-900 text-slate-900 rounded-full font-bold text-lg hover:bg-slate-900 hover:text-white transition-all">
-                View Levels
-              </Button>
-            </div>
-          </div>
-
-          {/* Hero Right: Image with Floating Stats */}
-          <div className="relative group perspective-1000">
-            <div className="absolute inset-0 bg-amber-200 rounded-[2.5rem] rotate-3 scale-105 opacity-60 -z-10 group-hover:rotate-0 transition-all duration-500"></div>
-            <div className="relative rounded-[2.5rem] overflow-hidden border-8 border-white shadow-2xl bg-white">
-              <img 
-                src="/pic38.webp" 
-                alt="Robotics Lab at Aacharya Academy" 
-                className="w-full h-[500px] object-cover hover:scale-105 transition-transform duration-700"
-              />
-              {/* Badge 1 */}
-              <div className="absolute top-6 left-6 bg-white/95 backdrop-blur-md px-4 py-2 rounded-xl shadow-lg border border-slate-100 flex items-center gap-2">
-                <Cpu size={20} className="text-amber-500" />
-                <span className="text-xs font-bold text-slate-700 uppercase">STEM Curriculum</span>
-              </div>
-              {/* Badge 2 */}
-              <div className="absolute bottom-6 right-6 bg-white/95 backdrop-blur-md p-4 rounded-xl shadow-lg border border-slate-100 flex items-center gap-4">
-                <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center text-amber-600">
-                  <Code size={24} />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-400 uppercase font-bold">Projects Built</p>
-                  <p className="text-xl font-black text-slate-900">5,000+</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* ------------------- DYNAMIC BANNER (REPLACED HERO) ------------------- */}
+      <DynamicPageBanner data={data.banner} />
 
       {/* ------------------- CORE VALUES ------------------- */}
       <WhyChooseRoboticsSection/>
@@ -236,7 +192,6 @@ export default async function RoboticsPage() {
           <span className="text-slate-400 font-bold uppercase tracking-widest text-sm">Our Levels</span>
           <h2 className="text-4xl font-black text-slate-900 mt-2">Pick a Program</h2>
         </div>
-        {/* The data here is now pre-parsed as an array */}
         <DynamicCourses courses={data?.courses || []} />
       </div>
 
@@ -276,7 +231,6 @@ export default async function RoboticsPage() {
       <section className="py-24 px-4 bg-white">
         <div className="max-w-5xl mx-auto">
           <div className="relative overflow-hidden rounded-[3rem] bg-gradient-to-r from-amber-500 to-orange-500 shadow-2xl shadow-orange-200">
-            {/* Pattern Overlay */}
             <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, white 1.5px, transparent 1.5px)', backgroundSize: '20px 20px' }}></div>
             
             <div className="relative z-10 p-12 md:p-20 text-center">

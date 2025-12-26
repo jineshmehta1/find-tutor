@@ -1,40 +1,64 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/data";
 
-// GET: optional filter by pageKey
+// GET: Fetch banner for a specific page or all banners
 export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const pageKey = searchParams.get("pageKey");
+  try {
+    const { searchParams } = new URL(req.url);
+    const pageKey = searchParams.get("pageKey");
 
-  const courses = await prisma.course.findMany({
-    where: pageKey ? { pageKey } : undefined,
-    orderBy: { createdAt: "desc" },
-  });
+    if (pageKey) {
+      // Find a single banner for the specific page
+      const banner = await prisma.banner.findUnique({
+        where: { pageKey },
+      });
+      return NextResponse.json(banner || {});
+    }
 
-  const parsedCourses = courses.map(c => ({
-    ...c,
-    features: JSON.parse(c.features),
-  }));
+    // Otherwise, return all banners (for an overview list)
+    const banners = await prisma.banner.findMany({
+      orderBy: { updatedAt: "desc" },
+    });
 
-  return NextResponse.json(parsedCourses);
+    return NextResponse.json(banners);
+  } catch (error) {
+    console.error("[BANNER_GET_ERROR]", error);
+    return NextResponse.json({ error: "Failed to fetch banners" }, { status: 500 });
+  }
 }
 
-// POST: create new course
+// POST: Save or Update banner (Upsert Logic)
 export async function POST(req: Request) {
-  const body = await req.json();
+  try {
+    const body = await req.json();
 
-  const course = await prisma.course.create({
-    data: {
-      pageKey: body.pageKey,
-      title: body.title,
-      category: body.category,
-      age: body.age,
-      description: body.description,
-      themeKey: body.themeKey,
-      popular: body.popular || false,
-      features: JSON.stringify(body.features || []),
-    },
-  });
+    if (!body.pageKey || !body.imageUrl || !body.title) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
 
-  return NextResponse.json(course, { status: 201 });
+    // Upsert ensures only ONE banner exists per pageKey
+    const banner = await prisma.banner.upsert({
+      where: { 
+        pageKey: body.pageKey 
+      },
+      update: {
+        title: body.title,
+        subtitle: body.subtitle,
+        imageUrl: body.imageUrl,
+        breadcrumb: body.breadcrumb,
+      },
+      create: {
+        pageKey: body.pageKey,
+        title: body.title,
+        subtitle: body.subtitle,
+        imageUrl: body.imageUrl,
+        breadcrumb: body.breadcrumb,
+      },
+    });
+
+    return NextResponse.json(banner, { status: 200 });
+  } catch (error) {
+    console.error("[BANNER_POST_ERROR]", error);
+    return NextResponse.json({ error: "Failed to save banner" }, { status: 500 });
+  }
 }

@@ -1,4 +1,4 @@
-// 1. Force dynamic to ensure Admin data updates instantly
+// 1.Force dynamic to ensure Admin data updates instantly
 export const dynamic = "force-dynamic";
 
 import { Button } from "@/components/ui/button"

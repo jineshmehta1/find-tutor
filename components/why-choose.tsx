@@ -1,143 +1,118 @@
 "use client";
 
 import React from 'react';
-import { 
-  ShieldCheck, 
-  LayoutGrid, 
-  TrendingUp, 
-  Users, 
-  ThumbsUp, 
-  CheckCircle2 
-} from 'lucide-react';
+import { CheckCircle2, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 
 export default function WhyChooseUsSection() {
-  
-  const colors = {
-    textDark: '#0f172a',          // slate-900
-    textMuted: '#475569',         // slate-600
-  };
-
   const benefits = [
     {
-      title: 'All-in-One Learning Campus',
-      description: 'Pre school, Tuition, Chess, Abacus & Robotics — complete academic and skill-based development in one place.',
-      icon: <LayoutGrid className="w-6 h-6 md:w-8 md:h-8 text-blue-600" />, 
-      bgClass: 'bg-blue-50', 
+      title: 'All-in-One Learning Hub',
+      desc: 'The only campus in Bhavanipuram offering Pre-school, Chess, Abacus, and Robotics under one secure roof.',
+      color: 'sky',
     },
     {
-      title: 'Cleanest & Child-Safe Campus',
-      description: 'Hygienic classrooms, CCTV-secured environment and trained caregivers ensure 100% safety.',
-      icon: <ShieldCheck className="w-6 h-6 md:w-8 md:h-8 text-emerald-600" />,
-      bgClass: 'bg-emerald-50',
+      title: 'Child-Safe Campus',
+      desc: 'Hygienic classrooms, CCTV-secured environment, and trained caregivers ensure 100% safety.',
+      color: 'slate',
     },
     {
-      title: 'Strong Academic & Skill Growth',
-      description: 'From NEP preschool to concept-based tuition, we foster logic and creativity through specialized skills.',
-      icon: <TrendingUp className="w-6 h-6 md:w-8 md:h-8 text-amber-600" />,
-      bgClass: 'bg-amber-50',
+      title: 'Skill-Based Growth',
+      desc: 'Specialized training in Chess and Abacus fosters logic, memory, and creativity from an early age.',
+      color: 'rose',
     },
     {
-      title: 'Experienced Teachers',
-      description: 'Small batch sizes and trained teachers allow focused attention and continuous progress tracking.',
-      icon: <Users className="w-6 h-6 md:w-8 md:h-8 text-purple-600" />,
-      bgClass: 'bg-purple-50',
+      title: 'Experienced Staff',
+      desc: 'Small batch sizes and trained teachers allow for focused individual attention and progress tracking.',
+      color: 'amber',
     },
     {
-      title: 'Trusted Results',
-      description: 'Visible improvement in confidence, discipline and academics building long-term community trust.',
-      icon: <ThumbsUp className="w-6 h-6 md:w-8 md:h-8 text-orange-600" />,
-      bgClass: 'bg-orange-50',
+      title: 'NEP 2020 Aligned',
+      desc: 'Our modern preschool curriculum is designed to nurture curiosity through activity-based learning.',
+      color: 'sky',
+    },
+    {
+      title: 'Visible Progress',
+      desc: 'Join 500+ happy families who have seen visible improvement in their child’s discipline and academics.',
+      color: 'slate',
     },
   ];
 
-  return (
-    <section className="py-20 md:py-28 px-4 sm:px-6 lg:px-8 relative overflow-hidden bg-white font-sans">
-      
-      {/* Background Decoration */}
-      <div className="absolute inset-0 z-0 opacity-[0.03]" 
-           style={{ backgroundImage: 'radial-gradient(#d97706 1px, transparent 1px)', backgroundSize: '40px 40px' }}>
-      </div>
+  const colorStyles = {
+    sky: { bg: 'bg-sky-400', border: 'border-sky-100' },
+    slate: { bg: 'bg-slate-400', border: 'border-slate-100' },
+    rose: { bg: 'bg-rose-400', border: 'border-rose-100' },
+    amber: { bg: 'bg-amber-400', border: 'border-amber-100' },
+  };
 
-      <div className="relative max-w-7xl mx-auto z-10">
+  return (
+    <section className="py-24 px-6 bg-white">
+      <div className="max-w-7xl mx-auto">
         
-        {/* Headline */}
-        <div className="text-center mb-16 md:mb-24">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 border border-amber-100 text-amber-700 text-sm font-bold uppercase tracking-wider mb-4">
-            <CheckCircle2 size={16} />
+        {/* --- HEADER (Kept from previous version) --- */}
+        <div className="text-center mb-20">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-50 border border-amber-100 text-amber-700 text-sm font-bold uppercase tracking-wider mb-6">
+            <CheckCircle2 size={18} />
             The Aacharya Advantage
           </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
-            Why Parents Trust <span className="text-amber-600">Aacharya</span>
+          <h2 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tight leading-tight">
+            Why Parents Trust <span className="text-amber-500">Aacharya</span>
           </h2>
-          <p className="max-w-2xl mx-auto mt-4 text-slate-600 text-lg">
+          <p className="max-w-2xl mx-auto mt-4 text-slate-600 text-lg md:text-xl font-medium">
             Providing a secure, holistic, and high-growth environment for the next generation of leaders.
           </p>
         </div>
 
-        {/* 3-Column Layout: Left (2 cards) | Center (Image) | Right (3 cards) */}
-        <div className="flex flex-col xl:flex-row items-center justify-between gap-12">
-          
-          {/* LEFT COLUMN: 2 Cards */}
-          <div className="flex flex-col gap-8 w-full xl:w-1/3 order-2 xl:order-1">
-             <BenefitCard benefit={benefits[0]} colors={colors} align="right" />
-             <BenefitCard benefit={benefits[1]} colors={colors} align="right" />
-          </div>
+        {/* --- GRID LAYOUT (2 in a row) --- */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-16">
+          {benefits.map((benefit, idx) => {
+            // Logic: Even indices (0, 2, 4) number on left. Odd (1, 3, 5) number on right.
+            const isRightAligned = idx % 2 !== 0;
+            const style = colorStyles[benefit.color as keyof typeof colorStyles];
+            
+            return (
+              <div 
+                key={idx} 
+                className={`relative flex items-center w-full ${isRightAligned ? 'flex-row-reverse' : 'flex-row'}`}
+              >
+                {/* Decorative Backplate Tab */}
+                <div className={`absolute ${isRightAligned ? '-right-2 rounded-l-3xl' : '-left-2 rounded-r-3xl'} w-20 h-[85%] ${style.bg} opacity-30 hidden sm:block`} />
 
-          {/* CENTRAL IMAGE */}
-          <div className="w-full xl:w-1/3 flex justify-center items-center order-1 xl:order-2">
-            <div className="relative">
-              {/* Animated Glow Backdrops */}
-              <div className="absolute inset-0 bg-amber-200 rounded-full blur-[80px] opacity-30 animate-pulse"></div>
-              
-              <div className="relative w-72 h-72 md:w-96 md:h-96 rounded-3xl rotate-3 overflow-hidden border-8 border-white shadow-2xl">
-                 <img 
-                   src="/table.jpg" // Replace with a photo of your actual campus or happy kids
-                   alt="Aacharya Academy Campus" 
-                   className="w-full h-full object-cover"
-                 />
-                 {/* Overlay badge */}
-                 <div className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-lg shadow-xl">
-                    <p className="text-amber-600 font-black text-xl leading-none">500+</p>
-                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tighter">Happy Families</p>
-                 </div>
+                {/* Main Content Card */}
+                <div className={`relative z-10 w-full bg-white border-2 ${style.border} rounded-[2rem] p-6 md:p-8 shadow-sm flex flex-col sm:flex-row items-center gap-6 ${isRightAligned ? 'sm:flex-row-reverse' : ''}`}>
+                  
+                  {/* Number Circle */}
+                  <div className={`flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-full ${style.bg} flex items-center justify-center text-white text-2xl md:text-3xl font-black shadow-lg`}>
+                    {idx + 1}
+                  </div>
+
+                  {/* Text Content */}
+                  <div className={`flex-1 ${isRightAligned ? 'text-center sm:text-right' : 'text-center sm:text-left'}`}>
+                    <h3 className="text-lg md:text-xl font-black text-slate-800 mb-2 tracking-tight">
+                      {benefit.title}
+                    </h3>
+                    <p className="text-slate-500 text-xs md:text-sm font-semibold leading-relaxed">
+                      {benefit.desc}
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-
-          {/* RIGHT COLUMN: 3 Cards */}
-          <div className="flex flex-col gap-8 w-full xl:w-1/3 order-3 xl:order-3">
-             <BenefitCard benefit={benefits[2]} colors={colors} align="left" />
-             <BenefitCard benefit={benefits[3]} colors={colors} align="left" />
-             <BenefitCard benefit={benefits[4]} colors={colors} align="left" />
-          </div>
-
+            );
+          })}
         </div>
+
+        {/* --- FOOTER ACTION --- */}
+        <div className="mt-24 text-center">
+          <Link 
+            href="/contact"
+            className="group inline-flex items-center gap-4 bg-slate-900 hover:bg-amber-500 text-white px-10 py-5 rounded-2xl font-black text-sm md:text-base uppercase tracking-widest transition-all duration-300 shadow-xl"
+          >
+            Enroll Your Child Today
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
+          </Link>
+        </div>
+
       </div>
     </section>
-  );
-}
-
-function BenefitCard({ benefit, colors, align }) {
-  // Logic to handle text alignment on large screens
-  const alignmentClass = align === 'right' ? 'xl:text-right xl:items-end' : 'xl:text-left xl:items-start';
-  const flexDirection = align === 'right' ? 'xl:flex-row-reverse' : 'xl:flex-row';
-
-  return (
-    <div className={`group flex flex-col items-center gap-5 p-2 transition-all duration-300 ${alignmentClass}`}>
-      {/* Icon with colored background */}
-      <div className={`w-16 h-16 shrink-0 rounded-2xl flex items-center justify-center shadow-sm transition-all duration-500 group-hover:scale-110 group-hover:shadow-md ${benefit.bgClass}`}>
-        {benefit.icon}
-      </div>
-
-      {/* Text Content */}
-      <div className={`flex flex-col ${alignmentClass}`}>
-        <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-amber-600 transition-colors">
-          {benefit.title}
-        </h3>
-        <p className="text-slate-600 text-sm md:text-base leading-relaxed font-medium max-w-sm">
-          {benefit.description}
-        </p>
-      </div>
-    </div>
   );
 }

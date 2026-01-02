@@ -15,7 +15,6 @@ export default function HomePage() {
       <main>
         <HeroSection />
         <WhyChooseUsSection/>
-        <CoursesSection />
         <TestimonialsSection />
         <AchievementsSection/>
         <FaqSection />

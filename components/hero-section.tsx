@@ -2,21 +2,9 @@
 export const dynamic = "force-dynamic";
 
 import React from "react";
-import { 
-  BookOpen,      
-  BrainCircuit,  
-  Bot,           
-  Gamepad2,      
-  GraduationCap,
-  Plane,
-  Crown
-} from "lucide-react";
-
-// Dynamic Components
+import { ArrowRight } from "lucide-react";
 import DynamicPageBanner from "@/components/dynamicbanner";
 import Link from "next/link";
-
-// 2. DATA FETCHING
 import { prisma } from "@/lib/data";
 
 async function getHomeData() {
@@ -40,81 +28,114 @@ async function getHomeData() {
   }
 }
 
-// 3. SERVER COMPONENT
 export default async function HomeHero() {
   const data = await getHomeData();
 
+  // Updated Data with Image Paths
   const programs = [
     { 
-      icon: GraduationCap, 
-      label: "Pre-Primary", 
-      path: "/school",
-      color: "text-blue-500"
+      image: "/pre-co.png", // Replace with your image path
+      label: "PRE SCHOOL", 
+      desc: "Play Group, Nursery, LKG, UKG. Age 2-6 Years",
+      path: "/school", 
     },
     { 
-      icon: BrainCircuit, 
-      label: "Abacus", 
-      path: "/abacus",
-      color: "text-amber-500"
+      image: "/coach-co.png", // Replace with your image path
+      label: "TUITION POINT", 
+      desc: "CBSE/IB offline tuition point for class 1-10",
+      path: "/coaching", 
     },
     { 
-      icon: Bot, 
-      label: "Robotics", 
-      path: "/robotics",
-      color: "text-purple-500"
+      image: "/chess-co.png", // Replace with your image path
+      label: "CHESS", 
+      desc: "Basic to professional level coaching. Age 5-15 years",
+      path: "/chess", 
     },
     { 
-      icon: Crown, 
-      label: "Chess", 
-      path: "/chess",
-      color: "text-emerald-500"
+      image: "/abacus-co.png", // Replace with your image path
+      label: "ABACUS", 
+      desc: "Empowering with Speed & Accuracy. Age 6-14 years",
+      path: "/abacus", 
     },
     { 
-        icon: BookOpen, 
-        label: "Tution Point", 
-        path: "/coaching",
-        color: "text-rose-500"
+      image: "/robo-co.png", // Replace with your image path
+      label: "ROBOTICS & IoT", 
+      desc: "Coding, robotics & IoT made exciting for kids",
+      path: "/robotics", 
     },
   ];
 
   return (
     <div className="bg-white">
-      {/* ------------------- DYNAMIC BANNER ------------------- */}
-      <DynamicPageBanner data={data.banner} />
+      {/* ------------------- HERO BANNER ------------------- */}
+      <section className="relative w-full overflow-hidden">
+        <DynamicPageBanner data={data.banner} />
+        <div className="absolute inset-0 z-10 bg-yellow-400/70 md:bg-yellow-400/60 mix-blend-multiply pointer-events-none" />
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center px-6 text-center">
+          <h1 className="text-white text-4xl md:text-7xl font-bold leading-[1.1] mb-10 drop-shadow-sm max-w-5xl">
+            Igniting Young Minds <br className="hidden md:block" /> with Skills for Life
+          </h1>
+          <Link 
+            href="/contact"
+            className="bg-white text-slate-900 px-8 py-4 md:px-10 md:py-5 rounded-full font-black text-sm md:text-base uppercase tracking-widest transition-all hover:scale-105 shadow-xl"
+          >
+            Contact Us
+          </Link>
+        </div>
+      </section>
 
-      {/* ------------------- GOAL SELECTION SECTION (Based on Image) ------------------- */}
-      <section className="py-16 px-6">
-        <div className="max-w-7xl mx-auto text-center">
+      {/* ------------------- PROGRAMS SECTION ------------------- */}
+      <section className="py-24 px-6 bg-white">
+        <div className="max-w-7xl mx-auto">
           {/* Header */}
-          <div className="mb-12">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
-            Programs We Offer At <span className="text-amber-600">Aacharya</span>
-          </h2>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-6xl font-bold text-[#332a3d] mb-4 tracking-tight">
+              Explore Our <span className="text-[#f97316]">Learning</span> World
+            </h2>
+            <p className="text-lg md:text-xl text-slate-700 font-medium">
+              Age-appropriate programs that nurture curiosity and confidence.
+            </p>
           </div>
 
-          {/* Goal Icons Grid */}
-          <div className="flex flex-wrap justify-center gap-6 md:gap-12">
+          {/* Program Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
             {programs.map((program, idx) => (
-              <Link 
-                href={program.path} 
+              <div 
                 key={idx}
-                className="group flex flex-col items-center gap-4 transition-all hover:-translate-y-2"
+                className="flex flex-col bg-[#dbdbdb] rounded-[2.5rem] overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
               >
-                {/* Icon Container */}
-                <div className="w-24 h-24 md:w-32 md:h-32 bg-sky-50 rounded-[2.5rem] flex items-center justify-center shadow-sm border border-sky-100 group-hover:shadow-md group-hover:bg-white transition-all duration-300">
-                    <program.icon 
-                        size={48} 
-                        className={`${program.color} transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3`} 
+                {/* Content Container */}
+                <div className="flex-1 flex flex-col items-center text-center p-8">
+                  {/* Image Holder */}
+                  <div className="h-28 flex items-center justify-center mb-6">
+                    <img 
+                      src={program.image} 
+                      alt={program.label} 
+                      className="max-h-full w-auto object-contain transition-transform duration-500 hover:scale-110"
                     />
-                </div>
-                
-                {/* Label */}
-                <span className="text-lg md:text-xl font-bold text-slate-700 group-hover:text-sky-500 transition-colors">
+                  </div>
+                  
+                  <h3 className="text-[15px] font-black text-[#332a3d] mb-4 tracking-tight uppercase">
                     {program.label}
-                </span>
-              </Link>
-            ))}
+                  </h3>
+                  
+                  <p className="text-[13px] leading-snug text-[#4a4a4a] font-semibold px-2">
+                    {program.desc}
+                  </p>
+                </div>
 
+                {/* Yellow Footer Button */}
+                <Link 
+                  href={program.path}
+                  className="w-full bg-[#fbbc05] hover:bg-[#f9a825] py-4 px-6 flex items-center justify-between transition-colors group"
+                >
+                  <span className="text-sm font-bold text-slate-900">More Info</span>
+                  <div className="bg-white/20 p-1 rounded-full group-hover:bg-white/40 transition-colors">
+                    <ArrowRight size={18} className="text-white" />
+                  </div>
+                </Link>
+              </div>
+            ))}
           </div>
         </div>
       </section>

@@ -53,7 +53,7 @@ export default function OnlineCoachingPage() {
         </div>
       </section>
 
-      {/* Features*/}
+      {/* Features */}
       <section className="py-16 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold mb-12 text-center bg-gradient-to-r from-blue-700 to-emerald-700 bg-clip-text text-transparent">

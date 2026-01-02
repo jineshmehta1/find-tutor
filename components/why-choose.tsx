@@ -46,27 +46,27 @@ export default function WhyChooseUsSection() {
   };
 
   return (
-    <section className="py-24 px-6 bg-white">
+    <section className="py-16 md:py-24 px-4 sm:px-6 bg-white">
       <div className="max-w-7xl mx-auto">
         
-        {/* --- HEADER (Kept from previous version) --- */}
-        <div className="text-center mb-20">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-50 border border-amber-100 text-amber-700 text-sm font-bold uppercase tracking-wider mb-6">
-            <CheckCircle2 size={18} />
+        {/* --- HEADER --- */}
+        <div className="text-center mb-12 md:mb-20">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-amber-50 border border-amber-100 text-amber-700 text-[10px] md:text-sm font-bold uppercase tracking-wider mb-4 md:mb-6">
+            <CheckCircle2 size={16} className="md:w-[18px] md:h-[18px]" />
             The Aacharya Advantage
           </div>
-          <h2 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tight leading-tight">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-tight">
             Why Parents Trust <span className="text-amber-500">Aacharya</span>
           </h2>
-          <p className="max-w-2xl mx-auto mt-4 text-slate-600 text-lg md:text-xl font-medium">
+          <p className="max-w-2xl mx-auto mt-4 text-slate-600 text-sm md:text-lg lg:text-xl font-medium">
             Providing a secure, holistic, and high-growth environment for the next generation of leaders.
           </p>
         </div>
 
-        {/* --- GRID LAYOUT (2 in a row) --- */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-16">
+        {/* --- GRID LAYOUT --- */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-x-12 lg:gap-y-16">
           {benefits.map((benefit, idx) => {
-            // Logic: Even indices (0, 2, 4) number on left. Odd (1, 3, 5) number on right.
+            // Logic: Even numbers on left, Odd numbers on right.
             const isRightAligned = idx % 2 !== 0;
             const style = colorStyles[benefit.color as keyof typeof colorStyles];
             
@@ -75,23 +75,23 @@ export default function WhyChooseUsSection() {
                 key={idx} 
                 className={`relative flex items-center w-full ${isRightAligned ? 'flex-row-reverse' : 'flex-row'}`}
               >
-                {/* Decorative Backplate Tab */}
-                <div className={`absolute ${isRightAligned ? '-right-2 rounded-l-3xl' : '-left-2 rounded-r-3xl'} w-20 h-[85%] ${style.bg} opacity-30 hidden sm:block`} />
+                {/* Decorative Backplate Tab (Visible from SM upwards) */}
+                <div className={`absolute ${isRightAligned ? '-right-1 md:-right-2 rounded-l-3xl' : '-left-1 md:-left-2 rounded-r-3xl'} w-16 md:w-20 h-[80%] ${style.bg} opacity-20 hidden sm:block`} />
 
                 {/* Main Content Card */}
-                <div className={`relative z-10 w-full bg-white border-2 ${style.border} rounded-[2rem] p-6 md:p-8 shadow-sm flex flex-col sm:flex-row items-center gap-6 ${isRightAligned ? 'sm:flex-row-reverse' : ''}`}>
+                <div className={`relative z-10 w-full bg-white border-2 ${style.border} rounded-[1.5rem] md:rounded-[2rem] p-5 md:p-8 shadow-sm flex flex-row items-center gap-4 md:gap-6 ${isRightAligned ? 'flex-row-reverse' : 'flex-row'}`}>
                   
                   {/* Number Circle */}
-                  <div className={`flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-full ${style.bg} flex items-center justify-center text-white text-2xl md:text-3xl font-black shadow-lg`}>
+                  <div className={`flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full ${style.bg} flex items-center justify-center text-white text-xl sm:text-2xl md:text-3xl font-black shadow-lg`}>
                     {idx + 1}
                   </div>
 
                   {/* Text Content */}
-                  <div className={`flex-1 ${isRightAligned ? 'text-center sm:text-right' : 'text-center sm:text-left'}`}>
-                    <h3 className="text-lg md:text-xl font-black text-slate-800 mb-2 tracking-tight">
+                  <div className={`flex-1 ${isRightAligned ? 'text-right' : 'text-left'}`}>
+                    <h3 className="text-base sm:text-lg md:text-xl font-black text-slate-800 mb-1 tracking-tight">
                       {benefit.title}
                     </h3>
-                    <p className="text-slate-500 text-xs md:text-sm font-semibold leading-relaxed">
+                    <p className="text-slate-500 text-[11px] sm:text-xs md:text-sm font-semibold leading-relaxed">
                       {benefit.desc}
                     </p>
                   </div>
@@ -102,14 +102,17 @@ export default function WhyChooseUsSection() {
         </div>
 
         {/* --- FOOTER ACTION --- */}
-        <div className="mt-24 text-center">
+        <div className="mt-16 md:mt-24 text-center">
           <Link 
             href="/contact"
-            className="group inline-flex items-center gap-4 bg-slate-900 hover:bg-amber-500 text-white px-10 py-5 rounded-2xl font-black text-sm md:text-base uppercase tracking-widest transition-all duration-300 shadow-xl"
+            className="group inline-flex items-center gap-3 md:gap-4 bg-slate-900 hover:bg-amber-500 text-white px-8 py-4 md:px-10 md:py-5 rounded-2xl font-black text-sm md:text-base uppercase tracking-widest transition-all duration-300 shadow-xl active:scale-95 touch-manipulation"
           >
             Enroll Your Child Today
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
+            <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-2 transition-transform" />
           </Link>
+          <p className="mt-6 md:mt-8 text-slate-400 font-bold text-[9px] md:text-[10px] uppercase tracking-[0.2em] md:tracking-[0.4em]">
+            Limited Slots for 2025-26 Session
+          </p>
         </div>
 
       </div>

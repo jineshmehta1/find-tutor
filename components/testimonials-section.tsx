@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import { Star, Quote, Sparkles } from "lucide-react";
+import { Star, Quote, Sparkles, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
-// --- Demo Data (Based on your provided text) ---
 const testimonials = [
   {
     id: 1,
@@ -45,67 +45,67 @@ const testimonials = [
 
 export default function TestimonialsSection() {
   return (
-    <section className="relative py-20 bg-slate-50 font-sans overflow-hidden">
+    <section className="relative py-12 md:py-20 bg-slate-50 font-sans overflow-hidden">
       
       {/* --- Background Pattern --- */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-5"
-           style={{ backgroundImage: 'radial-gradient(#fbbf24 1px, transparent 1px)', backgroundSize: '30px 30px' }}>
+           style={{ backgroundImage: 'radial-gradient(#fbbf24 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
       </div>
 
-      <div className="container mx-auto px-4 max-w-6xl relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 max-w-6xl relative z-10">
         
-        {/* --- Centered Title --- */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 shadow-sm text-slate-600 text-xs font-bold uppercase tracking-widest mb-4">
+        {/* --- Header --- */}
+        <div className="text-center max-w-3xl mx-auto mb-10 md:mb-16">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 shadow-sm text-slate-600 text-[10px] md:text-xs font-bold uppercase tracking-widest mb-4">
             <Sparkles className="w-3.5 h-3.5 text-amber-500" />
             <span>Success Stories</span>
           </div>
-          <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-6">
-            Loved by Parents, <br />
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-4 md:mb-6 leading-tight">
+            Loved by Parents, <br className="hidden sm:block" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-600">
               Celebrated by Students
             </span>
           </h2>
-          <div className="h-1 w-24 bg-amber-400 mx-auto rounded-full"></div>
+          <div className="h-1 w-16 md:w-24 bg-amber-400 mx-auto rounded-full"></div>
         </div>
 
-        {/* --- Grid Layout (Whole different UI) --- */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* --- Grid Layout --- */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
           {testimonials.map((item) => (
             <div 
               key={item.id} 
-              className="relative bg-white p-8 rounded-3xl border border-slate-100 shadow-lg shadow-slate-200/50 hover:shadow-xl hover:shadow-amber-500/10 hover:-translate-y-1 transition-all duration-300 group"
+              className="relative bg-white p-6 md:p-8 rounded-2xl md:rounded-3xl border border-slate-100 shadow-lg shadow-slate-200/50 hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300 group"
             >
               
               {/* Decorative Quote Icon Background */}
-              <div className="absolute top-6 right-8 opacity-10 group-hover:opacity-20 transition-opacity">
-                <Quote size={60} className="fill-amber-500 text-amber-500" />
+              <div className="absolute top-4 right-6 md:top-6 md:right-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                <Quote size={40} className="md:size-[60px] fill-amber-500 text-amber-500" />
               </div>
 
               {/* Stars */}
-              <div className="flex gap-1 mb-6">
+              <div className="flex gap-1 mb-4 md:mb-6">
                 {[...Array(item.rating)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 text-amber-400 fill-amber-400" />
+                  <Star key={i} className="w-3.5 h-3.5 md:w-4 md:h-4 text-amber-400 fill-amber-400" />
                 ))}
               </div>
 
               {/* Review Text */}
-              <p className="text-slate-600 text-lg leading-relaxed mb-8 relative z-10 font-medium">
+              <p className="text-slate-600 text-base md:text-lg leading-relaxed mb-6 md:mb-8 relative z-10 font-medium">
                 "{item.text}"
               </p>
 
               {/* Author Section */}
-              <div className="flex items-center gap-4 border-t border-slate-100 pt-6">
+              <div className="flex items-center gap-3 md:gap-4 border-t border-slate-100 pt-4 md:pt-6">
                 {/* Initials Avatar */}
-                <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${item.gradient} flex items-center justify-center text-slate-700 font-bold text-lg shadow-inner`}>
+                <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full shrink-0 bg-gradient-to-br ${item.gradient} flex items-center justify-center text-slate-700 font-bold text-sm md:text-lg shadow-inner`}>
                   {item.initials}
                 </div>
                 
-                <div>
-                  <h4 className="text-slate-900 font-bold text-base">
+                <div className="min-w-0">
+                  <h4 className="text-slate-900 font-bold text-sm md:text-base truncate">
                     {item.name}
                   </h4>
-                  <p className="text-slate-400 text-sm font-medium">
+                  <p className="text-slate-400 text-xs md:text-sm font-medium truncate">
                     {item.role}
                   </p>
                 </div>
@@ -115,11 +115,17 @@ export default function TestimonialsSection() {
           ))}
         </div>
 
-        {/* --- Bottom CTA --- */}
-        <div className="text-center mt-12">
-            <p className="text-slate-500 text-sm">
-                Join 500+ happy families at Aacharya.
-            </p>
+        <div className="mt-16 md:mt-24 text-center">
+          <Link 
+            href="/contact"
+            className="group inline-flex items-center gap-3 md:gap-4 bg-slate-900 hover:bg-amber-500 text-white px-8 py-4 md:px-10 md:py-5 rounded-2xl font-black text-sm md:text-base uppercase tracking-widest transition-all duration-300 shadow-xl active:scale-95 touch-manipulation"
+          >
+            Check Our Google Reviews
+            <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-2 transition-transform" />
+          </Link>
+          <p className="mt-6 md:mt-8 text-slate-400 font-bold text-[9px] md:text-[10px] uppercase tracking-[0.2em] md:tracking-[0.4em]">
+            YOUR TRUST, OUR PRIDE
+          </p>
         </div>
 
       </div>

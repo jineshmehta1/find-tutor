@@ -17,7 +17,7 @@ export default function CoachesAndMethodology() {
       label: 'Pre Primary Schooling',
       icon: <BookOpen className="w-5 h-5" />,
       title: "Foundational Literacy & Curiosity",
-      description: "We focus on building strong reading habits, and emotional intelligence before moving to complex subjects.",
+      description: "We focus on building strong reading habits,  intelligence before moving to complex subjects.",
       points: [
         "Curiosity-based learning modules",
         "Visual & interactive storytelling",

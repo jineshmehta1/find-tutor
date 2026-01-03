@@ -90,7 +90,7 @@ export default async function PrimarySchoolPage() {
     <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-amber-100 selection:text-amber-900">
 
       {/* ------------------- BRANDED HERO BANNER ------------------- */}
-      <section className="relative h-[60vh] md:h-[90vh] w-full overflow-hidden flex items-center">
+      <section className="relative h-[30vh] md:h-[90vh] w-full overflow-hidden flex items-center">
         
         {/* Background Image (Your Collage) */}
         <div 
@@ -99,15 +99,15 @@ export default async function PrimarySchoolPage() {
         />
 
         {/* YELLOWISH/AMBER TINT OVERLAY (Matching your image) */}
-        <div className="absolute inset-0 z-10 bg-amber-500/50 backdrop-blur-[2px]" />
+        <div className="absolute inset-0 z-10 bg-amber-500/50 backdrop-blur-[0.4px]" />
 
         {/* TEXT CONTENT (White & Bold) */}
         <div className="relative z-20 container mx-auto px-8 md:px-16">
           <div className="max-w-4xl">
-            <h1 className="text-white text-4xl md:text-5xl uppercase tracking-tight drop-shadow-md mb-2">
+            <h1 className="text-white text-2xl md:text-5xl uppercase tracking-tight drop-shadow-md mb-2">
               Aacharya Pre Primary School
             </h1>
-            <p className="text-white text-xl md:text-3xl font-medium leading-tight drop-shadow-sm opacity-95">
+            <p className="text-white text-sm md:text-3xl font-medium leading-tight drop-shadow-sm opacity-95">
               Learning with Love, Growing with Confidence
             </p>
           </div>

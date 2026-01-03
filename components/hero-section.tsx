@@ -86,7 +86,7 @@ export default async function HomeHero() {
 
         {/* Content */}
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center px-6 text-center">
-          <h1 className="text-white text-4xl md:text-7xl font-black leading-[1.1] mb-10 drop-shadow max-w-5xl">
+          <h1 className="text-white text-4xl md:text-7xl  leading-[1.1] mb-10 drop-shadow max-w-5xl">
             Igniting Young Minds <br className="hidden md:block" /> with Skills for Life
           </h1>
 

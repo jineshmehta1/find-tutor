@@ -1,16 +1,15 @@
 "use client"
 
-import React, { useState, useEffect, useMemo } from "react"
+import React, { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ArrowLeft, ArrowRight, Play, Sparkles, Instagram } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 // --- Types ---
-// Matches your Prisma Schema
 export interface GalleryItem {
   id: number
   category: string
-  type: string // "photo" | "video" in DB is stored as string
+  type: string 
   src: string
   title: string
   location: string
@@ -32,41 +31,16 @@ export function DynamicGallery({
   className
 }: DynamicGalleryProps) {
 
-  const [activeFilter, setActiveFilter] = useState("All")
-  const [filteredImages, setFilteredImages] = useState<GalleryItem[]>([])
+  // Default to the first image
   const [currentIndex, setCurrentIndex] = useState(0)
-
-  // --- 1. Derive Categories Dynamically ---
-  // Extracts unique categories from the uploaded images and adds "All"
-  const categories = useMemo(() => {
-    if (!images) return ["All"];
-    const uniqueCats = Array.from(new Set(images.map(img => img.category)));
-    return ["All", ...uniqueCats];
-  }, [images]);
-
-  // --- 2. Filter Logic ---
-  useEffect(() => {
-    if (!images || images.length === 0) {
-        setFilteredImages([]);
-        return;
-    }
-
-    const newImages = activeFilter === "All" 
-      ? images 
-      : images.filter(img => img.category === activeFilter)
-    
-    setFilteredImages(newImages)
-    // Reset to center of new list
-    setCurrentIndex(Math.floor(newImages.length / 2)) 
-  }, [activeFilter, images])
 
   // --- Navigation ---
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1 < filteredImages.length ? prev + 1 : 0))
+    setCurrentIndex((prev) => (prev + 1 < images.length ? prev + 1 : 0))
   }
 
   const handlePrev = () => {
-    setCurrentIndex((prev) => (prev - 1 >= 0 ? prev - 1 : filteredImages.length - 1))
+    setCurrentIndex((prev) => (prev - 1 >= 0 ? prev - 1 : images.length - 1))
   }
 
   // --- 3D Carousel Math ---
@@ -112,7 +86,7 @@ export function DynamicGallery({
 
       <div className="container mx-auto px-4 sm:px-6 relative z-10">
         
-        {/* Dynamic Header */}
+        {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-14">
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
@@ -131,27 +105,10 @@ export function DynamicGallery({
           </p>
         </div>
 
-        {/* Dynamic Filter Pills */}
-        <div className="flex flex-wrap justify-center gap-2 mb-16">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveFilter(cat)}
-              className={`px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
-                activeFilter === cat
-                  ? "bg-amber-500 text-white shadow-lg shadow-amber-900/20 scale-105"
-                  : "bg-white text-slate-600 hover:bg-amber-50 hover:text-amber-600 border border-slate-200"
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-
         {/* Carousel Stage */}
         <div className="relative h-[450px] flex items-center justify-center perspective-[1000px]">
           <AnimatePresence mode="popLayout">
-            {filteredImages.map((img, index) => {
+            {images.map((img, index) => {
               const style = getCardStyle(index)
               if (style.display === "none") return null
 
@@ -201,11 +158,6 @@ export function DynamicGallery({
               )
             })}
           </AnimatePresence>
-
-          {/* Filter Empty State */}
-          {filteredImages.length === 0 && (
-             <div className="text-slate-400 text-center">No images found for this category.</div>
-          )}
         </div>
 
         {/* Controls */}

@@ -25,7 +25,7 @@ import WhyChooseUsSection from "@/components/ui/whyprimary"
 import { prisma } from "@/lib/data";
 
 async function getPrimaryPageData() {
-  const pageKey = "promaty"; // Matching your database identifier
+  const pageKey = "promaty"; 
 
   try {
     const [courses, gallery, reviews, stories, banner] = await Promise.all([
@@ -50,9 +50,6 @@ async function getPrimaryPageData() {
       }),
     ]);
 
-    /**
-     * Robust Feature Parsing for Courses
-     */
     const parsedCourses = courses.map((c) => {
       let featuresArray = [];
       try {
@@ -62,13 +59,9 @@ async function getPrimaryPageData() {
           featuresArray = JSON.parse(c.features);
         }
       } catch (err) {
-        console.error(`Failed to parse features for course ${c.id}:`, err);
         featuresArray = [];
       }
-      return {
-        ...c,
-        features: Array.isArray(featuresArray) ? featuresArray : [],
-      };
+      return { ...c, features: featuresArray };
     });
 
     return { 
@@ -79,7 +72,7 @@ async function getPrimaryPageData() {
       banner: banner || {
         title: "Sparking Curiosity, Building Dreams",
         subtitle: "We don't just teach subjects; we nurture happy, confident, and creative children ready to take on the world.",
-        imageUrl: "/pic15.webp",
+        imageUrl: "/pic15.webp", // Replace this with your collage image path
         breadcrumb: "Primary School"
       }
     };
@@ -89,30 +82,52 @@ async function getPrimaryPageData() {
   }
 }
 
-// 3. SERVER COMPONENT (Async)
+// 3. SERVER COMPONENT
 export default async function PrimarySchoolPage() {
   const data = await getPrimaryPageData();
 
   return (
     <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-amber-100 selection:text-amber-900">
 
-      {/* ------------------- DYNAMIC BANNER (Replaces Hero) ------------------- */}
-      <DynamicPageBanner data={data.banner} />
+      {/* ------------------- BRANDED HERO BANNER ------------------- */}
+      <section className="relative h-[60vh] md:h-[90vh] w-full overflow-hidden flex items-center">
+        
+        {/* Background Image (Your Collage) */}
+        <div 
+          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${data.banner?.imageUrl || '/pic15.webp'})` }}
+        />
+
+        {/* YELLOWISH/AMBER TINT OVERLAY (Matching your image) */}
+        <div className="absolute inset-0 z-10 bg-amber-500/50 backdrop-blur-[2px]" />
+
+        {/* TEXT CONTENT (White & Bold) */}
+        <div className="relative z-20 container mx-auto px-8 md:px-16">
+          <div className="max-w-4xl">
+            <h1 className="text-white text-4xl md:text-5xl uppercase tracking-tight drop-shadow-md mb-2">
+              Aacharya Pre Primary School
+            </h1>
+            <p className="text-white text-xl md:text-3xl font-medium leading-tight drop-shadow-sm opacity-95">
+              Learning with Love, Growing with Confidence
+            </p>
+          </div>
+        </div>
+      </section>
 
       {/* ------------------- QUICK STATS / USP ------------------- */}
-      <div className="bg-white border-b border-slate-100">
+      <div className="bg-white border-b border-slate-100 relative z-30">
         <div className="max-w-7xl mx-auto px-6 py-8 flex flex-wrap justify-center gap-8 md:gap-16">
-           <div className="flex items-center gap-2 text-slate-600 font-bold">
+           <div className="flex items-center gap-2 text-slate-700 font-bold">
              <CheckCircle2 className="text-amber-500 w-6 h-6" /> 
-             <span>CBSE Curriculum</span>
+             <span>NEP-International Curriculum</span>
            </div>
-           <div className="flex items-center gap-2 text-slate-600 font-bold">
+           <div className="flex items-center gap-2 text-slate-700 font-bold">
              <CheckCircle2 className="text-amber-500 w-6 h-6" /> 
-             <span>20:1 Student Ratio</span>
+             <span>10:1 Student Ratio</span>
            </div>
-           <div className="flex items-center gap-2 text-slate-600 font-bold">
+           <div className="flex items-center gap-2 text-slate-700 font-bold">
              <Sun className="text-amber-500 w-6 h-6" /> 
-             <span>Admissions 2024-25 Open</span>
+             <span>Admissions 2026-27 Open</span>
            </div>
         </div>
       </div>
@@ -121,23 +136,9 @@ export default async function PrimarySchoolPage() {
       <FunStatsSection/>
       <AboutSection/>
 
-      {/* ------------------- SUCCESS STORIES (Dynamic) ------------------- */}
-      <div className="py-12">
-        <SuccessStoriesSection 
-            badge="Champions"
-            title="Our Wall of"
-            titleHighlight="Fame"
-            subtitle="Meet our bright young stars."
-            stories={data.stories}
-        />
-      </div>
-
       {/* ------------------- CURRICULUM (Dynamic) ------------------- */}
       <div className="bg-slate-50 py-12">
-        <div className="text-center mb-10">
-           <span className="text-amber-600 font-bold uppercase tracking-widest text-sm">Learning Path</span>
-           <h2 className="text-4xl font-black text-slate-900 mt-2">Academic Programs</h2>
-        </div>
+        
         <DynamicCourses courses={data.courses} />
       </div>
 
@@ -145,7 +146,7 @@ export default async function PrimarySchoolPage() {
       <FacilitiesSection/>
 
       {/* ------------------- GALLERY (Dynamic) ------------------- */}
-      <div className="py-12 bg-white">
+      <div className="py-0 bg-white">
         <DynamicGallery 
           images={data.gallery}
           title="Smiles & Success" 
@@ -155,7 +156,7 @@ export default async function PrimarySchoolPage() {
       </div>
       
       {/* ------------------- REVIEWS (Dynamic) ------------------- */}
-      <div className="bg-amber-50/50 py-16 border-y border-amber-100/50">
+      <div className="bg-amber-50/50 py-0 border-y border-amber-100/50">
         <DynamicReviews reviews={data.reviews} />
       </div>
 

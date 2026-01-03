@@ -1,92 +1,122 @@
-"use client"
+import React from 'react';
 
-import { MapPin, MousePointer2, Heart, BookOpen, Shield, Users, Star, Sun, Cloud, Check } from "lucide-react"
+const curriculumData = [
+  {
+    title: "Reggio Emilia",
+    description: "Creative, project-based experiences that encourage exploration and self-expression",
+    color: "border-rose-400"
+  },
+  {
+    title: "Waldorf",
+    description: "Imagination-driven learning through music, movement, stories, and nature",
+    color: "border-orange-400"
+  },
+  {
+    title: "NEP 2020",
+    description: "Strong foundation in literacy, numeracy, life skills, and holistic development",
+    color: "border-blue-400"
+  },
+  {
+    title: "Project Zero (Harvard)",
+    description: "Learning that makes children's thinking visible, nurturing deep understanding",
+    color: "border-amber-500"
+  },
+  {
+    title: "Montessori",
+    description: "Hands-on learning that builds independence, focus, and fine motor skills",
+    color: "border-emerald-400"
+  },
+  {
+    title: "EYFS (UK)",
+    description: "Play-based learning that develops communication, confidence, and social skills",
+    color: "border-indigo-400"
+  },
+];
 
-export default function AboutSection() {
+const CurriculumSun = () => {
   return (
-    <section className="py-20 bg-white relative overflow-hidden">
+    <section className="bg-[#FFD642] py-20 px-6 overflow-hidden relative">
+      {/* Decorative background circle */}
+      <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[600px] h-[600px] bg-white/10 rounded-full blur-3xl -z-0" />
       
-      {/* Background Doodles for Kid-Friendly Vibe */}
-      <div className="absolute top-10 left-10 text-amber-200 animate-bounce-slow"><Sun size={48} /></div>
-      <div className="absolute bottom-10 right-10 text-blue-100"><Cloud size={64} fill="currentColor" /></div>
-
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10">
         
-        {/* Header */}
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100 text-amber-800 font-bold text-xs uppercase tracking-wider mb-4 border border-amber-200">
-             <Star size={12} fill="currentColor" /> The Aacharya Difference
-          </div>
-          <h3 className="text-4xl md:text-5xl font-black text-slate-900">
-            Why Parents <span className="text-amber-500 underline decoration-wavy decoration-amber-200 underline-offset-4">Trust Us?</span>
-          </h3>
-        </div>
-
-        <div className="grid lg:grid-cols-2 gap-16 items-center mb-20">
-           
-           {/* LEFT: Story & Process */}
-           <div className="space-y-8">
-              <h2 className="text-3xl font-bold text-slate-900 leading-tight">
-                "Every Child is a <span className="bg-amber-100 px-2 rounded-lg text-amber-700 inline-block transform -rotate-2">Star</span> in the Making"
-              </h2>
-              <p className="text-slate-600 text-lg leading-relaxed font-medium">
-                We move beyond rote learning. Our campus is a playground of ideas where we blend values, confidence, and creativity to build a strong foundation.
+        {/* LEFT SIDE: THE SUN DIAGRAM */}
+        <div className="relative flex items-center justify-center min-h-[550px] md:min-h-[650px]">
+          
+          {/* Central Hub - Strong Black/Yellow Mix */}
+          <div className="z-30 w-48 h-48 md:w-60 md:h-60 bg-white rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.1)] flex items-center justify-center text-center p-8 border-[12px] border-amber-400">
+            <div>
+              <h3 className="font-black text-slate-900 text-xl md:text-2xl leading-none uppercase tracking-tighter">
+                AACHARYA
+              </h3>
+              <div className="h-1 w-12 bg-amber-500 mx-auto my-2" />
+              <p className="text-slate-800 text-sm md:text-base font-bold leading-tight">
+                International<br/>
+                <span className="text-amber-600">Curriculum</span><br/>
+                Integration
               </p>
-              
-              {/* Contact Pills */}
-              <div className="flex flex-wrap gap-3">
-                <div className="flex items-center gap-2 bg-slate-50 border border-slate-100 px-4 py-2 rounded-xl text-sm font-bold text-slate-700">
-                  <MapPin className="text-amber-500 w-4 h-4" /> Main Campus
-                </div>
-                <div className="flex items-center gap-2 bg-slate-50 border border-slate-100 px-4 py-2 rounded-xl text-sm font-bold text-slate-700">
-                  <MousePointer2 className="text-amber-500 w-4 h-4" /> www.primaryschool.com
+            </div>
+          </div>
+
+          {/* RADIAL CARDS (Desktop Layout) */}
+          <div className="absolute inset-0 hidden md:block">
+            
+            {/* Positioned Cards Wrapper */}
+            {[
+              { pos: "top-12 left-28 -translate-x-1/2", data: curriculumData[0] },
+              { pos: "top-12 right-3", data: curriculumData[1] },
+              { pos: "top-1/2 -translate-y-1/2 -right-12", data: curriculumData[2] },
+              { pos: "bottom-12 right-0", data: curriculumData[3] },
+              { pos: "bottom-12 left-4", data: curriculumData[4] },
+              { pos: "top-1/2 -translate-y-1/2 -left-12", data: curriculumData[5] },
+            ].map((item, idx) => (
+              <div key={idx} className={`absolute ${item.pos} w-52 group`}>
+                <div className={`bg-white p-5 rounded-2xl shadow-xl border-l-4 ${item.data.color} transition-all duration-300 group-hover:-translate-y-2 group-hover:shadow-2xl`}>
+                  <h4 className="font-black text-amber-500 text-base mb-1 uppercase tracking-tight">
+                    {item.data.title}
+                  </h4>
+                  <p className="text-[11px] font-bold text-slate-900 leading-snug">
+                    {item.data.description}
+                  </p>
                 </div>
               </div>
+            ))}
+          </div>
 
-              {/* Admission Process Box (Checklist Style) */}
-              <div className="bg-amber-50 p-6 rounded-3xl border-2 border-amber-100 relative">
-                <h4 className="font-black text-amber-900 mb-4 flex items-center gap-2 text-lg">
-                  🚀 Simple Steps to Join
-                </h4>
-                <div className="space-y-3">
-                  {[
-                    "Visit Website / Campus",
-                    "Fill Enquiry Form",
-                    "Meet the Teachers",
-                    "Welcome Aboard!",
-                  ].map((step, index) => (
-                    <div key={index} className="flex items-center gap-3 bg-white p-3 rounded-xl border border-amber-100 shadow-sm">
-                      <div className="w-6 h-6 bg-amber-400 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-sm">
-                        {index + 1}
-                      </div>
-                      <span className="text-slate-700 font-bold text-sm">{step}</span>
-                      <Check className="ml-auto w-4 h-4 text-green-500" />
-                    </div>
-                  ))}
-                </div>
+          {/* Mobile Layout (Visible only on small screens) */}
+          <div className="md:hidden grid grid-cols-2 gap-3 mt-12 w-full">
+            {curriculumData.map((item, i) => (
+              <div key={i} className="bg-white p-4 rounded-xl shadow-md border-l-4 border-amber-500">
+                <h4 className="font-bold text-amber-600 text-[10px] uppercase mb-1">{item.title}</h4>
+                <p className="text-[9px] font-black text-slate-900 leading-tight">{item.description}</p>
               </div>
-           </div>
-
-           {/* RIGHT: Colorful Feature Cards */}
-           <div className="grid sm:grid-cols-2 gap-5">
-              {[
-                { icon: Heart, title: "Emotional Growth", desc: "EQ > IQ Focus", color: "text-rose-500", bg: "bg-rose-50", border: "hover:border-rose-200" },
-                { icon: BookOpen, title: "Curiosity First", desc: "Inquiry Learning", color: "text-blue-500", bg: "bg-blue-50", border: "hover:border-blue-200" },
-                { icon: Shield, title: "100% Safe", desc: "Gated Campus", color: "text-green-600", bg: "bg-green-50", border: "hover:border-green-200" },
-                { icon: Users, title: "20:1 Ratio", desc: "Personal Focus", color: "text-amber-600", bg: "bg-amber-50", border: "hover:border-amber-200" }
-              ].map((item, i) => (
-                <div key={i} className={`group p-6 rounded-[2rem] bg-white border-2 border-slate-50 shadow-sm hover:shadow-xl ${item.border} transition-all duration-300 hover:-translate-y-1 text-center cursor-default`}>
-                  <div className={`w-14 h-14 ${item.bg} ${item.color} rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform`}>
-                    <item.icon size={28} />
-                  </div>
-                  <h4 className="text-lg font-black text-slate-900 mb-1">{item.title}</h4>
-                  <p className="text-slate-500 text-sm font-medium">{item.desc}</p>
-                </div>
-              ))}
-           </div>
-
+            ))}
+          </div>
         </div>
+
+        {/* RIGHT SIDE: THE TEXT CONTENT */}
+        <div className="text-center lg:text-left space-y-8">
+          <div className="inline-block px-4 py-1 rounded-full bg-white/30 border border-white/50 text-slate-900 font-bold text-sm uppercase tracking-widest">
+            Our Learning Philosophy
+          </div>
+          <h2 className="text-5xl md:text-6xl font-black text-slate-900 leading-[0.95] tracking-tighter">
+            Global Curriculum.<br />
+            <span className="text-white drop-shadow-sm">Strong Foundation.</span><br />
+            <span className="text-amber-900/40">Happy Learners..</span>
+          </h2>
+          <p className="text-slate-900 text-lg md:text-xl font-bold leading-relaxed max-w-xl opacity-90">
+            At Aacharya Preschool, learning goes beyond books. We blend play, thinking, 
+            creativity, and care to nurture confident, curious, and capable children.
+          </p>
+          <button className="bg-slate-900 text-white px-8 py-4 rounded-full font-black uppercase tracking-widest hover:bg-amber-600 transition-colors shadow-xl">
+            Explore Programs
+          </button>
+        </div>
+
       </div>
     </section>
-  )
-}
+  );
+};
+
+export default CurriculumSun;

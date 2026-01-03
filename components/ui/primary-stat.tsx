@@ -44,7 +44,7 @@ const Counter = ({ end, duration = 2000 }: { end: number, duration?: number }) =
 export default function FunStatsSection() {
   const stats = [
     { 
-      num: 15, 
+      num: 20, 
       suffix: "+", 
       label: "Years of Fun", 
       icon: Sparkles, 
@@ -55,7 +55,7 @@ export default function FunStatsSection() {
     { 
       num: 2500, 
       suffix: "+", 
-      label: "Happy Kids", 
+      label: "Happy Learners", 
       icon: Users, 
       color: "text-blue-400", 
       bg: "bg-blue-400/20",
@@ -71,7 +71,7 @@ export default function FunStatsSection() {
       border: "border-green-500"
     },
     { 
-      num: 50, 
+      num: 25, 
       suffix: "+", 
       label: "Super Teachers", 
       icon: GraduationCap, 

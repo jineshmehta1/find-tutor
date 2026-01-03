@@ -1,13 +1,13 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Calendar, Sparkles, CheckCircle, PlayCircle, Video } from "lucide-react"
+import { ArrowRight, Calendar, Sparkles, CheckCircle, Video } from "lucide-react"
 
 export default function PrimaryCTA() {
   return (
     <section className="py-16 md:py-24 px-4 bg-white relative overflow-hidden">
       
-      {/* Background Decor for the whole section */}
+      {/* Background Decor */}
       <div className="absolute top-0 left-0 w-full h-full opacity-[0.02] pointer-events-none" 
            style={{ backgroundImage: 'radial-gradient(#000 1.5px, transparent 1.5px)', backgroundSize: '40px 40px' }}></div>
 
@@ -24,29 +24,34 @@ export default function PrimaryCTA() {
           </h2>
           
           <p className="text-slate-500 font-bold text-base md:text-xl max-w-2xl mx-auto mb-10 md:mb-12">
-            Step inside Aacharya and witness the joy of learning. See our classrooms, 
-            play areas, and the smiles that make our school special.
+            Step inside Aacharya and witness the joy of learning. Witness the premium 
+            infrastructure designed for your child's growth.
           </p>
 
-          {/* Video Container with Premium Styling */}
+          {/* Video Container - Optimized for Silent Autoplay */}
           <div className="relative group max-w-5xl mx-auto">
+            {/* Background Glow */}
             <div className="absolute -inset-4 bg-amber-100/50 rounded-[2.5rem] md:rounded-[4rem] blur-2xl group-hover:bg-amber-200/50 transition-colors duration-500"></div>
             
             <div className="relative aspect-video w-full overflow-hidden rounded-[2rem] md:rounded-[3.5rem] border-[6px] md:border-[12px] border-white shadow-2xl bg-slate-100 transition-transform duration-500 group-hover:scale-[1.01]">
-              {/* REPLACE 'VIDEO_ID' with your actual YouTube or Vimeo ID */}
-              <iframe 
+              <video 
                 className="w-full h-full object-cover"
                 src="/tour.mp4" 
-                title="Aacharya School Tour"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowFullScreen
-              ></iframe>
+                autoPlay 
+                muted 
+                loop 
+                playsInline 
+                poster="/pic15.webp" // Optional: shows this image while video loads
+              >
+                Your browser does not support the video tag.
+              </video>
 
-              {/* Decorative Play Overlay (Visual only, iframe handles actual play) */}
-              <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/10">
-                 <div className="bg-white/90 p-4 rounded-full shadow-xl">
-                    <PlayCircle size={48} className="text-amber-600 animate-pulse" />
-                 </div>
+              {/* Silent Overlay Badge */}
+              <div className="absolute top-4 left-4 md:top-8 md:left-8 z-20">
+                <div className="bg-black/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 flex items-center gap-2">
+                   <div className="w-2 h-2 bg-red-500 rounded-full animate-ping" />
+                   <span className="text-[10px] text-white font-black uppercase tracking-widest">Live Tour</span>
+                </div>
               </div>
             </div>
           </div>

@@ -78,12 +78,12 @@ const CurriculumSun = () => {
           {/* RADIAL CARDS (Hidden on Mobile, Orbital on Desktop) */}
           <div className="absolute inset-0 hidden xl:block">
             {[
-              { pos: "top-[5%] left-[50%] -translate-x-1/2", data: curriculumData[0] },
-              { pos: "top-[20%] right-[0%]", data: curriculumData[1] },
-              { pos: "top-[50%] -translate-y-1/2 -right-[15%]", data: curriculumData[2] },
-              { pos: "bottom-[15%] right-[5%]", data: curriculumData[3] },
-              { pos: "bottom-[5%] left-[50%] -translate-x-1/2", data: curriculumData[4] },
-              { pos: "top-[50%] -translate-y-1/2 -left-[15%]", data: curriculumData[5] },
+              { pos: "top-12 left-28 -translate-x-1/2", data: curriculumData[0] },
+              { pos: "top-12 right-3", data: curriculumData[1] },
+              { pos: "top-1/2 -translate-y-1/2 -right-12", data: curriculumData[2] },
+              { pos: "bottom-12 right-0", data: curriculumData[3] },
+              { pos: "bottom-12 left-4", data: curriculumData[4] },
+              { pos: "top-1/2 -translate-y-1/2 -left-12", data: curriculumData[5] },
             ].map((item, idx) => (
               <motion.div 
                 key={idx}
@@ -140,7 +140,7 @@ const CurriculumSun = () => {
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            className="text-5xl md:text-7xl xl:text-8xl font-black text-slate-900 leading-[0.9] tracking-tighter"
+            className="text-5xl md:text-7xl xl:text-7xl font-black text-slate-900 leading-[0.9] tracking-tighter"
           >
             A World of <br />
             <span className="text-white drop-shadow-md">Excellence.</span><br />

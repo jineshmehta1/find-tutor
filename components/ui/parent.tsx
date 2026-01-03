@@ -6,31 +6,31 @@ import { Sparkles, Globe, Sun, ArrowRight } from 'lucide-react';
 
 const curriculumData = [
   {
-    title: "Reggio Emilia",
+    title: "Reggio Emilia (Italy)",
     description: "Creative, project-based experiences that encourage exploration and self-expression",
     color: "border-rose-400",
     shadow: "shadow-rose-100"
   },
   {
-    title: "Waldorf",
+    title: "Waldorf (Germany)",
     description: "Imagination-driven learning through music, movement, stories, and nature",
     color: "border-orange-400",
     shadow: "shadow-orange-100"
   },
   {
-    title: "NEP 2020",
+    title: "NEP 2020 (India)",
     description: "Strong foundation in literacy, numeracy, life skills, and holistic development",
     color: "border-blue-400",
     shadow: "shadow-blue-100"
   },
   {
-    title: "Project Zero (Harvard)",
+    title: "Project Zero (Harvard USA)",
     description: "Learning that makes children's thinking visible, nurturing deep understanding",
     color: "border-amber-500",
     shadow: "shadow-amber-100"
   },
   {
-    title: "Montessori",
+    title: "Montessori (Italy)",
     description: "Hands-on learning that builds independence, focus, and fine motor skills",
     color: "border-emerald-400",
     shadow: "shadow-emerald-100"
@@ -70,7 +70,7 @@ const CurriculumSun = () => {
               <p className="text-slate-800 text-[10px] md:text-sm font-bold leading-tight uppercase tracking-widest">
                 International<br/>
                 <span className="text-amber-600">Curriculum</span><br/>
-                Integration
+                Mapping
               </p>
             </div>
           </motion.div>

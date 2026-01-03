@@ -88,7 +88,7 @@ export default function PrimaryCTA() {
               
               <div className="grid grid-cols-2 sm:flex sm:flex-wrap justify-center lg:justify-start gap-3 pt-2">
                  <div className="flex items-center justify-center gap-2 bg-black/10 backdrop-blur-md px-4 py-2 rounded-xl text-[10px] md:text-xs font-black text-white uppercase tracking-wider border border-white/10">
-                   <CheckCircle size={14} className="text-yellow-300" /> CBSE Pattern
+                   <CheckCircle size={14} className="text-yellow-300" /> International Blended Curriculam
                  </div>
                  <div className="flex items-center justify-center gap-2 bg-black/10 backdrop-blur-md px-4 py-2 rounded-xl text-[10px] md:text-xs font-black text-white uppercase tracking-wider border border-white/10">
                    <CheckCircle size={14} className="text-yellow-300" /> No Donation

@@ -14,18 +14,23 @@ export default function ColorfulFAQSection() {
     },
     {
       question: "Do you provide school transport?",
-      answer: "Yes! We have a fleet of GPS-enabled, air-conditioned buses covering a 15km radius. Every bus has a female attendant for safety.",
+      answer: "No, as of now we have no own transport facility. However the school is located very near to the central locality and accessible for all type of trnasport facilities.",
       theme: "amber",
     },
     {
       question: "What is the student-teacher ratio?",
-      answer: "We maintain a strict 20:1 ratio in Primary classes to ensure every child gets personalized attention and care.",
+      answer: "We maintain a strict 10:1 ratio in Primary classes to ensure every child gets personalized attention and care.",
       theme: "green",
     },
     {
       question: "Are meals provided at school?",
       answer: "We offer an optional nutritious meal plan prepared by our in-house nutritionists. We focus on healthy, balanced vegetarian meals.",
       theme: "rose",
+    },
+    {
+      question: "What curriculum do you follow ?",
+      answer: "Aacharya curriculum is mapped with EYFS (UK), Waldorf (German), NEP (Indian), Montissori (Italian), Reggio Emilia (Italian) and Project Zero (Harvard-USA). Traditional in name but global in standards.",
+      theme: "red",
     },
   ]
 

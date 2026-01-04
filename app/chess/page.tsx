@@ -197,16 +197,7 @@ export default async function ChessAcademyPage() {
 
       <MethodologySection/>
 
-      {/* ------------------- SUCCESS STORIES (DYNAMIC) ------------------- */}
-      <div className="py-20 bg-slate-50">
-        <SuccessStoriesSection 
-            badge="Champions"
-            title="Our Wall of"
-            titleHighlight="Fame"
-            subtitle="Meet the students who redefined their limits."
-            stories={data?.stories || []}
-        />
-      </div>
+      
 
       {/* ------------------- GALLERY (DYNAMIC) ------------------- */}
       <div className="py-20 bg-white">

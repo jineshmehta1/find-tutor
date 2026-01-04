@@ -152,16 +152,7 @@ export default async function CBSECoachingPage() {
         </div>
       </section>
 
-      {/* ------------------- SUCCESS STORIES (Data from Server) ------------------- */}
-      <div className="py-12">
-        <SuccessStoriesSection 
-            badge="Champions"
-            title="Our Wall of"
-            titleHighlight="Fame"
-            subtitle="Meet the students who redefined their limits."
-            stories={data.stories}
-        />
-      </div>
+      
 
       {/* ------------------- GALLERY (Data from Server) ------------------- */}
       <div className="py-12 bg-white">

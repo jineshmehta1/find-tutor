@@ -198,16 +198,7 @@ export default async function RoboticsPage() {
       {/* ------------------- TECH STACK (STATIC) ------------------- */}
       <TechStackSection />
 
-      {/* ------------------- SUCCESS STORIES (DYNAMIC) ------------------- */}
-      <div className="py-20 bg-slate-50">
-        <SuccessStoriesSection 
-          badge="Top Innovators"
-          title="Meet Our Young"
-          titleHighlight="Engineers"
-          subtitle="Real projects built by real students at Aacharya Academy."
-          stories={data?.stories || []}
-        />
-      </div>
+     
 
       {/* ------------------- GALLERY (DYNAMIC) ------------------- */}
       <div className="py-20 bg-white">

@@ -46,7 +46,7 @@ export default function FunStatsSection() {
     { 
       num: 20, 
       suffix: "+", 
-      label: "Years of Fun", 
+      label: "Years of Excellence in Education", 
       icon: Sparkles, 
       color: "text-yellow-400", 
       bg: "bg-yellow-400/20",

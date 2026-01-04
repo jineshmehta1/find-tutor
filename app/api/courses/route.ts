@@ -1,64 +1,102 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/data";
 
-// GET: Fetch banner for a specific page or all banners
+// GET: Fetch courses (all or filtered by pageKey)
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const pageKey = searchParams.get("pageKey");
 
-    if (pageKey) {
-      // Find a single banner for the specific page
-      const banner = await prisma.banner.findUnique({
-        where: { pageKey },
-      });
-      return NextResponse.json(banner || {});
-    }
-
-    // Otherwise, return all banners (for an overview list)
-    const banners = await prisma.banner.findMany({
-      orderBy: { updatedAt: "desc" },
+    const courses = await prisma.course.findMany({
+      where: pageKey ? { pageKey } : {},
+      orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json(banners);
+    return NextResponse.json(courses);
   } catch (error) {
-    console.error("[BANNER_GET_ERROR]", error);
-    return NextResponse.json({ error: "Failed to fetch banners" }, { status: 500 });
+    console.error("[COURSES_GET_ERROR]", error);
+    return NextResponse.json({ error: "Failed to fetch courses" }, { status: 500 });
   }
 }
 
-// POST: Save or Update banner (Upsert Logic)
+// POST: Create a new course or Update an existing one
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+    const { 
+      id, 
+      pageKey, 
+      title, 
+      category, 
+      age, 
+      description, 
+      features, 
+      themeKey, 
+      popular 
+    } = body;
 
-    if (!body.pageKey || !body.imageUrl || !body.title) {
+    // Validation
+    if (!pageKey || !title || !category || !age) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    // Upsert ensures only ONE banner exists per pageKey
-    const banner = await prisma.banner.upsert({
-      where: { 
-        pageKey: body.pageKey 
-      },
-      update: {
-        title: body.title,
-        subtitle: body.subtitle,
-        imageUrl: body.imageUrl,
-        breadcrumb: body.breadcrumb,
-      },
-      create: {
-        pageKey: body.pageKey,
-        title: body.title,
-        subtitle: body.subtitle,
-        imageUrl: body.imageUrl,
-        breadcrumb: body.breadcrumb,
-      },
+    let course;
+
+    if (id) {
+      // UPDATE existing course
+      course = await prisma.course.update({
+        where: { id: Number(id) },
+        data: {
+          pageKey,
+          title,
+          category,
+          age,
+          description,
+          features,
+          themeKey,
+          popular: Boolean(popular),
+        },
+      });
+    } else {
+      // CREATE new course
+      course = await prisma.course.create({
+        data: {
+          pageKey,
+          title,
+          category,
+          age,
+          description,
+          features,
+          themeKey,
+          popular: Boolean(popular),
+        },
+      });
+    }
+
+    return NextResponse.json(course, { status: 200 });
+  } catch (error) {
+    console.error("[COURSES_POST_ERROR]", error);
+    return NextResponse.json({ error: "Failed to save course" }, { status: 500 });
+  }
+}
+
+// DELETE: Remove a course by ID
+export async function DELETE(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ error: "Course ID is required" }, { status: 400 });
+    }
+
+    await prisma.course.delete({
+      where: { id: Number(id) },
     });
 
-    return NextResponse.json(banner, { status: 200 });
+    return NextResponse.json({ message: "Course deleted successfully" }, { status: 200 });
   } catch (error) {
-    console.error("[BANNER_POST_ERROR]", error);
-    return NextResponse.json({ error: "Failed to save banner" }, { status: 500 });
+    console.error("[COURSES_DELETE_ERROR]", error);
+    return NextResponse.json({ error: "Failed to delete course" }, { status: 500 });
   }
 }

@@ -51,31 +51,30 @@ const CurriculumSun = () => {
       
       <div className="max-w-7xl mx-auto flex flex-col lg:grid lg:grid-cols-2 gap-12 lg:gap-16 items-center relative z-10">
         
-        {/* LEFT SIDE: THE SUN DIAGRAM (Visual Core) */}
-        <div className="relative flex flex-col items-center justify-center min-h-[400px] md:min-h-[600px] w-full">
+        {/* LEFT SIDE: THE SUN DIAGRAM */}
+        <div className="relative flex items-center justify-center min-h-[500px] md:min-h-[600px] w-full">
           
-          {/* Central Hub - Animated Center */}
+          {/* Central Hub */}
           <motion.div 
             initial={{ scale: 0.8, opacity: 0 }}
             whileInView={{ scale: 1, opacity: 1 }}
             viewport={{ once: true }}
-            className="z-30 w-44 h-44 md:w-64 md:h-64 bg-white rounded-full shadow-2xl flex items-center justify-center text-center p-6 md:p-8 border-[10px] md:border-[15px] border-amber-400 relative"
+            className="z-30 w-36 h-36 md:w-64 md:h-64 bg-white rounded-full shadow-2xl flex items-center justify-center text-center p-4 md:p-8 border-[10px] md:border-[15px] border-amber-400 relative"
           >
             <div className="absolute inset-0 rounded-full border-4 border-dashed border-amber-200 animate-spin-slow" />
             <div className="relative">
-              <h3 className="font-black text-slate-900 text-lg md:text-2xl leading-none uppercase tracking-tighter mb-2">
+              <h3 className="font-black text-slate-900 text-sm md:text-2xl leading-none uppercase tracking-tighter mb-1 md:mb-2">
                 AACHARYA
               </h3>
-              <div className="h-1 w-12 bg-amber-500 mx-auto mb-2" />
-              <p className="text-slate-800 text-[10px] md:text-sm font-bold leading-tight uppercase tracking-widest">
+              <div className="h-0.5 w-8 md:w-12 bg-amber-500 mx-auto mb-1 md:mb-2" />
+              <p className="text-slate-800 text-[7px] md:text-sm font-bold leading-tight uppercase tracking-widest">
                 International<br/>
-                <span className="text-amber-600">Curriculum</span><br/>
-                Mapping
+                <span className="text-amber-600">Curriculum</span>
               </p>
             </div>
           </motion.div>
 
-          {/* RADIAL CARDS (Hidden on Mobile, Orbital on Desktop) */}
+          {/* DESKTOP LAYOUT (Exactly as your original) */}
           <div className="absolute inset-0 hidden xl:block">
             {[
               { pos: "top-12 left-28 -translate-x-1/2", data: curriculumData[0] },
@@ -105,28 +104,40 @@ const CurriculumSun = () => {
             ))}
           </div>
 
-          {/* MOBILE & TABLET LAYOUT (Responsive Grid) */}
-          <div className="xl:hidden grid grid-cols-1 sm:grid-cols-2 gap-4 mt-12 w-full">
-            {curriculumData.map((item, i) => (
-              <motion.div 
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.05 }}
-                className={`bg-white p-6 rounded-2xl shadow-lg border-l-8 ${item.color} flex flex-col justify-center`}
-              >
-                <h4 className="font-black text-slate-900 text-sm uppercase mb-2 tracking-wide flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-amber-400" />
-                  {item.title}
-                </h4>
-                <p className="text-xs font-bold text-slate-500 leading-relaxed">{item.description}</p>
-              </motion.div>
-            ))}
+          {/* MOBILE ORBITAL LAYOUT (Visible on everything except XL) */}
+          <div className="xl:hidden absolute inset-0 flex items-center justify-center">
+            {curriculumData.map((item, i) => {
+              const angle = (i * 60) - 90; // 6 cards = 60 degrees apart
+              return (
+                <div 
+                  key={i}
+                  className="absolute"
+                  style={{
+                    // We use standard CSS transform for positioning so Framer Motion doesn't break it
+                    transform: `rotate(${angle}deg) translateY(-145px) rotate(-${angle}deg)`
+                  }}
+                >
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1, type: "spring", stiffness: 100 }}
+                    className={`bg-white p-2.5 rounded-xl shadow-lg border-l-4 ${item.color} w-28 text-center`}
+                  >
+                    <h4 className="font-black text-slate-900 text-[9px] uppercase tracking-tighter leading-tight">
+                      {item.title.split(' (')[0]} 
+                      <span className="block text-[7px] text-amber-600">
+                        {item.title.includes('(') ? item.title.match(/\(([^)]+)\)/)[0] : ''}
+                      </span>
+                    </h4>
+                  </motion.div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        {/* RIGHT SIDE: THE TEXT CONTENT (Authoritative Text) */}
+        {/* RIGHT SIDE: TEXT CONTENT */}
         <div className="text-center lg:text-left space-y-6 md:space-y-10 order-first lg:order-last">
           <motion.div 
              initial={{ opacity: 0, x: 20 }}
@@ -138,8 +149,6 @@ const CurriculumSun = () => {
           </motion.div>
           
           <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
             className="text-5xl md:text-7xl xl:text-7xl font-black text-slate-900 leading-[0.9] tracking-tighter"
           >
             A World of <br />
@@ -148,39 +157,30 @@ const CurriculumSun = () => {
           </motion.h2>
 
           <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
             className="text-slate-900 text-lg md:text-2xl font-bold leading-tight max-w-xl mx-auto lg:mx-0"
           >
-            At Aacharya, we don’t just follow one system. We integrate the best of global 
-            pedagogies to create a customized foundation for every child’s future.
+            At Aacharya, we integrate the best of global 
+            pedagogies to create a customized foundation for every child.
           </motion.p>
 
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="flex flex-wrap justify-center lg:justify-start gap-4"
-          >
-            <button className="group bg-slate-900 text-white px-8 md:px-10 py-4 md:py-5 rounded-full font-black uppercase tracking-widest hover:bg-white hover:text-slate-900 transition-all shadow-2xl flex items-center gap-3 active:scale-95">
+          <div className="flex flex-wrap justify-center lg:justify-start gap-4">
+            <button className="group bg-slate-900 text-white px-8 md:px-10 py-4 md:py-5 rounded-full font-black uppercase tracking-widest hover:bg-white hover:text-slate-900 transition-all shadow-2xl flex items-center gap-3">
               Explore Programs
               <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
             </button>
-            <button className="bg-white/30 backdrop-blur-md text-slate-900 border-2 border-white/50 px-8 py-4 md:py-5 rounded-full font-black uppercase tracking-widest hover:bg-white transition-all">
-              Our Vision
-            </button>
-          </motion.div>
+          </div>
         </div>
-
       </div>
 
-      {/* Additional SEO/Brand Detail */}
-      <div className="mt-20 pt-10 border-t border-black/5 flex flex-wrap justify-center gap-8 md:gap-16 opacity-40 grayscale">
-         <div className="flex items-center gap-2 font-black text-xs uppercase tracking-tighter"><Globe size={18}/> UK Standards</div>
-         <div className="flex items-center gap-2 font-black text-xs uppercase tracking-tighter"><Sun size={18}/> NEP Aligned</div>
-         <div className="flex items-center gap-2 font-black text-xs uppercase tracking-tighter"><Sparkles size={18}/> Project Zero</div>
-      </div>
+      <style jsx>{`
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+          animation: spin-slow 15s linear infinite;
+        }
+      `}</style>
     </section>
   );
 };

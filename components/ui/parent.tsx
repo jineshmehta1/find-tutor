@@ -2,46 +2,8 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, Globe, Sun, ArrowRight } from 'lucide-react';
-
-const curriculumData = [
-  {
-    title: "Reggio Emilia (Italy)",
-    description: "Creative, project-based experiences that encourage exploration and self-expression",
-    color: "border-rose-400",
-    shadow: "shadow-rose-100"
-  },
-  {
-    title: "Waldorf (Germany)",
-    description: "Imagination-driven learning through music, movement, stories, and nature",
-    color: "border-orange-400",
-    shadow: "shadow-orange-100"
-  },
-  {
-    title: "NEP 2020 (India)",
-    description: "Strong foundation in literacy, numeracy, life skills, and holistic development",
-    color: "border-blue-400",
-    shadow: "shadow-blue-100"
-  },
-  {
-    title: "Project Zero (Harvard USA)",
-    description: "Learning that makes children's thinking visible, nurturing deep understanding",
-    color: "border-amber-500",
-    shadow: "shadow-amber-100"
-  },
-  {
-    title: "Montessori (Italy)",
-    description: "Hands-on learning that builds independence, focus, and fine motor skills",
-    color: "border-emerald-400",
-    shadow: "shadow-emerald-100"
-  },
-  {
-    title: "EYFS (UK)",
-    description: "Play-based learning that develops communication, confidence, and social skills",
-    color: "border-indigo-400",
-    shadow: "shadow-indigo-100"
-  },
-];
+import { Sparkles, ArrowRight } from 'lucide-react';
+import Image from 'next/image';
 
 const CurriculumSun = () => {
   return (
@@ -51,93 +13,31 @@ const CurriculumSun = () => {
       
       <div className="max-w-7xl mx-auto flex flex-col lg:grid lg:grid-cols-2 gap-12 lg:gap-16 items-center relative z-10">
         
-        {/* LEFT SIDE: THE SUN DIAGRAM */}
-        <div className="relative flex items-center justify-center min-h-[520px] md:min-h-[600px] w-full">
-          
-          {/* Central Hub */}
-          <motion.div 
-            initial={{ scale: 0.8, opacity: 0 }}
-            whileInView={{ scale: 1, opacity: 1 }}
-            viewport={{ once: true }}
-            className="z-30 w-32 h-32 md:w-64 md:h-64 bg-white rounded-full shadow-2xl flex items-center justify-center text-center p-4 md:p-8 border-[10px] md:border-[15px] border-amber-400 relative"
-          >
-            <div className="absolute inset-0 rounded-full border-4 border-dashed border-amber-200 animate-spin-slow" />
-            <div className="relative">
-              <h3 className="font-black text-slate-900 text-sm md:text-2xl leading-none uppercase tracking-tighter mb-1 md:mb-2">
-                AACHARYA
-              </h3>
-              <div className="h-0.5 w-8 md:w-12 bg-amber-500 mx-auto mb-1 md:mb-2" />
-              <p className="text-slate-800 text-[8px] md:text-sm font-bold leading-tight uppercase tracking-widest">
-                International<br/>
-                <span className="text-amber-600">Curriculum</span>
-              </p>
-            </div>
-          </motion.div>
-
-          {/* DESKTOP LAYOUT (xl only) */}
-          <div className="absolute inset-0 hidden xl:block">
-            {[
-              { pos: "top-12 left-28 -translate-x-1/2", data: curriculumData[0] },
-              { pos: "top-12 right-3", data: curriculumData[1] },
-              { pos: "top-1/2 -translate-y-1/2 -right-12", data: curriculumData[2] },
-              { pos: "bottom-12 right-0", data: curriculumData[3] },
-              { pos: "bottom-12 left-4", data: curriculumData[4] },
-              { pos: "top-1/2 -translate-y-1/2 -left-12", data: curriculumData[5] },
-            ].map((item, idx) => (
-              <motion.div 
-                key={idx}
-                initial={{ opacity: 0, scale: 0.5 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.1 }}
-                className={`absolute ${item.pos} w-56 group`}
-              >
-                <div className={`bg-white p-5 rounded-3xl shadow-xl border-l-8 ${item.data.color} transition-all duration-500 group-hover:-translate-y-3 group-hover:rotate-2`}>
-                  <h4 className="font-black text-slate-900 text-sm mb-1 uppercase tracking-tight">
-                    {item.data.title}
-                  </h4>
-                  <p className="text-[11px] font-bold text-slate-500 leading-snug">
-                    {item.data.description}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
+        {/* LEFT SIDE: THE CHART IMAGE */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="relative flex items-center justify-center w-full order-last lg:order-first"
+        >
+          {/* 
+              REPLACE '/curriculum-chart.png' with your actual image path.
+              The container uses aspect-square to keep it circular/balanced.
+          */}
+          <div className="relative w-full max-w-[500px] md:max-w-[600px] aspect-square">
+            <Image
+              src="/sun2.png" // Put your image in the public folder
+              alt="Aacharya International Curriculum Chart"
+              fill
+              className="object-contain drop-shadow-2xl"
+              priority
+            />
           </div>
 
-          {/* MOBILE ORBITAL LAYOUT (Visible below xl) */}
-          <div className="xl:hidden absolute inset-0 flex items-center justify-center">
-            {curriculumData.map((item, i) => {
-              // Formula starts at 12 o'clock and moves clockwise
-              const angle = i * 60; 
-              return (
-                <div 
-                  key={i}
-                  className="absolute"
-                  style={{
-                    // Reduced radius to 115px so cards stay within screen bounds (360px wide)
-                    // rotate(angle) moves the axis, translateY(-115) moves it "Up" along that axis
-                    transform: `rotate(${angle}deg) translateY(-125px) rotate(-${angle}deg)`
-                  }}
-                >
-                  <motion.div 
-                    initial={{ opacity: 0, scale: 0 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1, type: "spring", stiffness: 100 }}
-                    className={`bg-white p-2 rounded-xl shadow-lg border-l-4 ${item.color} w-24 md:w-32 text-center`}
-                  >
-                    <h4 className="font-black text-slate-900 text-[8px] md:text-[10px] uppercase tracking-tighter leading-tight">
-                      {item.title.split(' (')[0]} 
-                      <span className="block text-[7px] text-amber-600 font-bold">
-                        {item.title.includes('(') ? `(${item.title.split('(')[1]}` : ''}
-                      </span>
-                    </h4>
-                  </motion.div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+          {/* Optional: Rotating glow effect behind the image */}
+          <div className="absolute inset-0 bg-gradient-to-r from-amber-400/20 to-transparent rounded-full animate-spin-slow -z-10 blur-2xl" />
+        </motion.div>
 
         {/* RIGHT SIDE: TEXT CONTENT */}
         <div className="text-center lg:text-left space-y-6 md:space-y-10 order-first lg:order-last">
@@ -180,7 +80,7 @@ const CurriculumSun = () => {
           to { transform: rotate(360deg); }
         }
         .animate-spin-slow {
-          animation: spin-slow 15s linear infinite;
+          animation: spin-slow 20s linear infinite;
         }
       `}</style>
     </section>

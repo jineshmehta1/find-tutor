@@ -121,24 +121,24 @@ export default function DayAtSchoolSection() {
             <div className="grid grid-cols-2 gap-3 sm:gap-5">
               <div className="space-y-3 sm:space-y-5">
                 <img 
-                  src="/pic1.webp" 
+                  src="/assembly.jpeg" 
                   className="rounded-2xl sm:rounded-3xl shadow-lg hover:scale-[1.03] transition-transform border-2 sm:border-4 border-white object-cover h-32 sm:h-48 lg:h-56 w-full" 
                   alt="Classroom" 
                 />
                 <img 
-                  src="/table.jpg" 
+                  src="/core.jpeg" 
                   className="rounded-2xl sm:rounded-3xl shadow-lg hover:scale-[1.03] transition-transform border-2 sm:border-4 border-white object-cover h-40 sm:h-56 lg:h-64 w-full" 
                   alt="Art Class" 
                 />
               </div>
               <div className="space-y-3 sm:space-y-5 pt-6 sm:pt-10">
                 <img 
-                  src="/pic4.webp" 
+                  src="/food.jpeg" 
                   className="rounded-2xl sm:rounded-3xl shadow-lg hover:scale-[1.03] transition-transform border-2 sm:border-4 border-white object-cover h-40 sm:h-56 lg:h-64 w-full" 
                   alt="Playground" 
                 />
                 <img 
-                  src="central.jpg" 
+                  src="creative.jpeg" 
                   className="rounded-2xl sm:rounded-3xl shadow-lg hover:scale-[1.03] transition-transform border-2 sm:border-4 border-white object-cover h-32 sm:h-48 lg:h-56 w-full" 
                   alt="Library" 
                 />

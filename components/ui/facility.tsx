@@ -135,6 +135,40 @@ export default function FacilitiesSection() {
           ))}
         </div>
 
+        
+
+        {/* --- SLIDING IMAGE SECTION --- */}
+        <div className="relative">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-2 text-amber-600 font-black uppercase tracking-widest text-xs mb-2">
+              <Images size={16} /> Virtual Tour
+            </div>
+            <h3 className="text-2xl md:text-4xl font-black text-slate-900 uppercase">Explore our Facilities</h3>
+          </div>
+
+          {/* Sliding Track */}
+          <div className="relative flex overflow-hidden group">
+            <div className="flex gap-4 md:gap-6 animate-marquee whitespace-nowrap py-4">
+              {[...facilityImages, ...facilityImages].map((src, index) => (
+                <div 
+                  key={index} 
+                  className="w-[280px] md:w-[400px] h-[200px] md:h-[280px] flex-shrink-0 rounded-2xl md:rounded-[2rem] overflow-hidden border-4 border-white shadow-lg transition-transform hover:scale-105 duration-500"
+                >
+                  <img 
+                    src={src} 
+                    alt={`Facility ${index}`} 
+                    className="w-full h-full object-cover" 
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Gradient Fades for the edges */}
+            <div className="absolute inset-y-0 left-0 w-16 md:w-32 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
+            <div className="absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
+          </div>
+        </div>
+
         {/* --- LEARNING OUTCOMES BANNER --- */}
         <div className="bg-[#FFD642] rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 relative overflow-hidden shadow-2xl shadow-amber-200/50 mb-16 md:mb-24">
           <div className="absolute -top-24 -right-24 w-64 h-64 bg-white/20 rounded-full blur-3xl"></div>
@@ -173,38 +207,6 @@ export default function FacilitiesSection() {
                  </span>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* --- SLIDING IMAGE SECTION --- */}
-        <div className="relative">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 text-amber-600 font-black uppercase tracking-widest text-xs mb-2">
-              <Images size={16} /> Virtual Tour
-            </div>
-            <h3 className="text-2xl md:text-4xl font-black text-slate-900 uppercase">Explore our Facilities</h3>
-          </div>
-
-          {/* Sliding Track */}
-          <div className="relative flex overflow-hidden group">
-            <div className="flex gap-4 md:gap-6 animate-marquee whitespace-nowrap py-4">
-              {[...facilityImages, ...facilityImages].map((src, index) => (
-                <div 
-                  key={index} 
-                  className="w-[280px] md:w-[400px] h-[200px] md:h-[280px] flex-shrink-0 rounded-2xl md:rounded-[2rem] overflow-hidden border-4 border-white shadow-lg transition-transform hover:scale-105 duration-500"
-                >
-                  <img 
-                    src={src} 
-                    alt={`Facility ${index}`} 
-                    className="w-full h-full object-cover" 
-                  />
-                </div>
-              ))}
-            </div>
-
-            {/* Gradient Fades for the edges */}
-            <div className="absolute inset-y-0 left-0 w-16 md:w-32 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
-            <div className="absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
           </div>
         </div>
 

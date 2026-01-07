@@ -46,7 +46,7 @@ export default function ColorfulFAQSection() {
   }
 
   return (
-    <section className="py-12 md:py-24 bg-white overflow-hidden">
+    <section className="py-8 md:py-20 bg-white overflow-hidden">
       <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
         
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">

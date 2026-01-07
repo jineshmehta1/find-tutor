@@ -79,7 +79,7 @@ export function DynamicGallery({
   }
 
   return (
-    <section className={cn("relative w-full py-24 bg-slate-50 overflow-hidden", className)}>
+    <section className={cn("relative w-full py-0 bg-slate-50 overflow-hidden", className)}>
       
       {/* Background Decor */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-amber-100/50 rounded-full blur-[120px] -z-10" />

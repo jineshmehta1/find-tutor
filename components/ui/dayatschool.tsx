@@ -44,7 +44,7 @@ export default function DayAtSchoolSection() {
   ]
 
   return (
-    <section className="py-16 md:py-24 bg-white overflow-hidden relative">
+    <section className="py-16 md:py-12 bg-white overflow-hidden relative">
       
       {/* Background Pattern */}
       <div className="absolute top-0 left-0 w-full h-full opacity-[0.03] pointer-events-none" 

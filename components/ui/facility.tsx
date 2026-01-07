@@ -90,7 +90,7 @@ export default function FacilitiesSection() {
       <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
         
         {/* --- HEADER --- */}
-        <div className="text-center mb-12 md:mb-16">
+        <div className="text-center mb-12 md:mb-20">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-50 border border-amber-100 text-amber-700 font-black text-[10px] md:text-xs uppercase tracking-widest mb-4 md:mb-6 shadow-sm">
             <Star size={14} className="fill-amber-500" /> Infrastructure
           </div>
@@ -170,7 +170,7 @@ export default function FacilitiesSection() {
         </div>
 
         {/* --- LEARNING OUTCOMES BANNER --- */}
-        <div className="bg-[#FFD642] rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 relative overflow-hidden shadow-2xl shadow-amber-200/50 mb-16 md:mb-24">
+        <div className="bg-[#FFD642] rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 relative overflow-hidden shadow-2xl shadow-amber-200/50 mb-10 md:mb-16">
           <div className="absolute -top-24 -right-24 w-64 h-64 bg-white/20 rounded-full blur-3xl"></div>
           
           <div className="relative z-10 grid lg:grid-cols-3 gap-8 md:gap-12 items-center">

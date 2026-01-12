@@ -122,10 +122,7 @@ export default async function AbacusPage() {
 
       {/* ------------------- CURRICULUM (Dynamic) ------------------- */}
       <div className="bg-white py-24">
-        <div className="text-center mb-10">
-           <span className="text-slate-400 font-bold uppercase tracking-widest text-sm">Learning Path</span>
-           <h2 className="text-4xl font-black text-slate-900 mt-2">Choose Your Level</h2>
-        </div>
+        
         <DynamicCourses courses={data?.courses || []} />
       </div>
 

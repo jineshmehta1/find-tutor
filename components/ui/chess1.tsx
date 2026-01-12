@@ -16,139 +16,132 @@ export default function BenefitsSection() {
     {
       icon: Zap,
       title: "Focus & Concentration",
-      desc: "Trains children to think calmly, stay attentive, and plan ahead with absolute clarity.",
+      desc: "Trains children to stay attentive and plan with absolute clarity.",
       color: "text-rose-600",
       bg: "bg-rose-50",
-      border: "hover:border-rose-200",
-      gradient: "from-rose-50 to-white",
+      border: "hover:border-rose-300",
     },
     {
       icon: Lightbulb,
       title: "Strong Thinking Skills",
-      desc: "Develops deep logic, complex problem-solving, and strategic decision-making abilities.",
+      desc: "Develops logic, problem-solving, and strategic decision-making.",
       color: "text-blue-600",
       bg: "bg-blue-50",
-      border: "hover:border-blue-200",
-      gradient: "from-blue-50 to-white",
+      border: "hover:border-blue-300",
     },
     {
       icon: Timer,
       title: "Patience & Discipline",
-      desc: "Teaches children the value of waiting, analyzing, and making thoughtful choices under pressure.",
+      desc: "Teaches the value of analyzing choices under pressure.",
       color: "text-emerald-600",
       bg: "bg-emerald-50",
-      border: "hover:border-emerald-200",
-      gradient: "from-emerald-50 to-white",
+      border: "hover:border-emerald-300",
     },
     {
       icon: Trophy,
       title: "Confidence & Resilience",
-      desc: "Helps kids learn from their mistakes and grow stronger with every game played.",
+      desc: "Helps kids learn from mistakes and grow stronger every game.",
       color: "text-amber-600",
       bg: "bg-amber-50",
-      border: "hover:border-amber-200",
-      gradient: "from-amber-50 to-white",
+      border: "hover:border-amber-300",
     },
     {
       icon: GraduationCap,
-      title: "Academic & Life Success",
-      desc: "Enhances memory and creativity—skills that translate directly to school and future careers.",
+      title: "Life Success",
+      desc: "Skills that translate directly to school and future careers.",
       color: "text-indigo-600",
       bg: "bg-indigo-50",
-      border: "hover:border-indigo-200",
-      gradient: "from-indigo-50 to-white",
+      border: "hover:border-indigo-300",
     },
   ];
 
   return (
-    <section className="py-24 bg-white relative overflow-hidden selection:bg-amber-100">
+    <section className="py-16 md:py-24 bg-white relative overflow-hidden">
       
-      {/* Background: Subtle Decorative Elements */}
+      {/* Background Decor */}
       <div className="absolute top-0 left-0 w-full h-full opacity-[0.03] pointer-events-none" 
-        style={{ backgroundImage: 'radial-gradient(#C9A227 1px, transparent 1px)', backgroundSize: '40px 40px' }}>
+        style={{ backgroundImage: 'radial-gradient(#C9A227 1.5px, transparent 1.5px)', backgroundSize: '40px 40px' }}>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
         
         {/* Header */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-12 md:mb-16">
           <motion.div 
             initial={{ opacity: 0, y: -10 }}
             whileInView={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-50 border border-amber-100 shadow-sm text-amber-800 font-black text-xs uppercase tracking-widest mb-6"
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-50 border border-amber-100 text-amber-700 font-black text-[10px] md:text-xs uppercase tracking-widest mb-4 shadow-sm"
           >
-            <Sparkles size={14} className="text-[#C9A227] fill-[#C9A227]" /> 
+            <Sparkles size={14} className="fill-amber-500" /> 
             The Aacharya Edge
           </motion.div>
           
           <motion.h2 
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-6xl font-black text-slate-900 leading-[0.9] tracking-tighter"
+            className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter leading-tight"
           >
             Developing Minds, <br/>
-            <span className="text-[#C9A227]">One Move at a Time 🧠</span>
+            <span className="text-[#C9A227] italic">One Move at a Time</span> 🧠
           </motion.h2>
-          
-          <motion.p 
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-slate-500 mt-6 text-lg md:text-xl max-w-2xl mx-auto font-bold leading-tight"
-          >
-            Chess is more than a game—it’s a gymnasium for the brain. 
-            Here is how we shape the leaders of tomorrow.
-          </motion.p>
         </div>
 
-        {/* Benefits Grid - Optimized for 5 items (3+2 layout on large screens) */}
-        <div className="flex flex-wrap justify-center gap-6">
+        {/* Slim Benefits Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
           {benefits.map((item, i) => (
             <motion.div 
               key={i}
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
               className={`
-                group relative bg-gradient-to-br ${item.gradient} 
-                p-8 rounded-[2.5rem] border-2 border-slate-50 ${item.border}
-                shadow-sm hover:shadow-2xl hover:shadow-slate-200/50 
-                hover:-translate-y-2 transition-all duration-500
-                flex flex-col w-full md:w-[calc(50%-1.5rem)] lg:w-[calc(33.33%-1.5rem)]
+                group bg-white p-5 rounded-2xl border-2 border-slate-100
+                shadow-[0_8px_20px_rgba(0,0,0,0.02)] hover:shadow-xl hover:shadow-amber-200/30 
+                transition-all duration-300 hover:-translate-y-1
+                flex items-center gap-4 cursor-default
+                ${item.border}
               `}
             >
-              {/* Icon Container */}
+              {/* Icon - Compact Size */}
               <div className={`
-                w-16 h-16 rounded-2xl ${item.bg} ${item.color} 
-                flex items-center justify-center mb-8 
-                group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500
-                shadow-sm
+                flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-xl flex items-center justify-center 
+                transition-all duration-500 group-hover:scale-110 group-hover:rotate-3
+                ${item.bg} ${item.color}
               `}>
-                <item.icon size={32} strokeWidth={2.5} />
+                <item.icon size={24} strokeWidth={2.5} />
               </div>
 
               {/* Text Content */}
-              <div className="flex-1">
-                <h3 className="text-2xl font-black text-slate-900 mb-4 group-hover:text-[#C9A227] transition-colors tracking-tight">
+              <div className="flex-grow">
+                <h3 className="font-black text-slate-900 text-sm md:text-base mb-0.5 tracking-tight uppercase">
                   {item.title}
                 </h3>
-                <p className="text-slate-500 text-sm md:text-base leading-relaxed font-bold">
+                <p className="text-xs md:text-sm font-bold text-slate-400 group-hover:text-slate-600 transition-colors leading-snug">
                   {item.desc}
                 </p>
               </div>
 
-              {/* Subtle Bottom Accent */}
-              <div className="mt-8 pt-6 border-t border-slate-100 flex items-center justify-between overflow-hidden">
-                <span className="text-xs font-black uppercase tracking-widest text-slate-400 group-hover:text-slate-900 transition-colors">
-                  Aacharya Excellence
-                </span>
-                <div className="translate-x-10 group-hover:translate-x-0 transition-transform duration-500">
-                   <ArrowRight className="w-5 h-5 text-[#C9A227]" />
-                </div>
+              {/* Minimal Arrow */}
+              <div className="opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all">
+                <ArrowRight size={16} className="text-[#C9A227]" />
               </div>
             </motion.div>
           ))}
+          
+          {/* Final "CTA" Slim Card */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            className="group bg-slate-900 p-5 rounded-2xl flex items-center justify-center gap-3 md:col-span-1 lg:col-span-1 border-2 border-slate-900"
+          >
+             <div className="bg-amber-500 p-2 rounded-lg text-white">
+                <Trophy size={18} />
+             </div>
+             <span className="text-white font-black uppercase tracking-widest text-[10px] md:text-xs">
+               Join the Champions
+             </span>
+          </motion.div>
         </div>
 
       </div>

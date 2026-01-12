@@ -117,7 +117,7 @@ export default function TestimonialsSection() {
 
         <div className="mt-16 md:mt-24 text-center">
           <Link 
-            href="/contact"
+            href="https://www.google.com/maps/place/Aacharya-Pre+School-Play+School-Chess-Abacus-Robotics-Tuition+Point-Bhavanipuram/@16.5301521,80.444078,12z/data=!4m12!1m2!2m1!1saacharya+pre+school+google+page!3m8!1s0x3a35efe8474cbea9:0xa3e687823766f2b2!8m2!3d16.5301521!4d80.5965133!9m1!1b1!15sCh9hYWNoYXJ5YSBwcmUgc2Nob29sIGdvb2dsZSBwYWdlIgOIAQFaISIfYWFjaGFyeWEgcHJlIHNjaG9vbCBnb29nbGUgcGFnZZIBF2VkdWNhdGlvbmFsX2luc3RpdHV0aW9u4AEA!16s%2Fg%2F11h7140n8v?entry=ttu&g_ep=EgoyMDI2MDEwNy4wIKXMDSoKLDEwMDc5MjA2N0gBUAM%3D"
             className="group inline-flex items-center gap-3 md:gap-4 bg-slate-900 hover:bg-amber-500 text-white px-8 py-4 md:px-10 md:py-5 rounded-2xl font-black text-sm md:text-base uppercase tracking-widest transition-all duration-300 shadow-xl active:scale-95 touch-manipulation"
           >
             Check Our Google Reviews

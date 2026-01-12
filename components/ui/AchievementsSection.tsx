@@ -15,11 +15,11 @@ import {
 const achievers = [
   {
     id: 1,
-    name: "Aditya Verma",
+    name: "Aacharya Chess Team",
     category: "Chess",
-    award: "State Gold Medalist",
-    image: "https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=600&auto=format&fit=crop",
-    desc: "Undefeated in U-14 State Championship 2024",
+    award: "FIDE TOURNAMENTS",
+    image: "/chess.jpeg",
+    desc: "Participants in FIDE Rated International, State and District Level Chess Tournaments.",
     icon: <Trophy className="w-4 h-4" />
   },
   {

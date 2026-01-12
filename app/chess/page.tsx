@@ -97,26 +97,35 @@ export default async function ChessAcademyPage() {
       <DynamicPageBanner data={data.banner} />
 
       {/* ------------------- QUICK STATS ------------------- */}
-      <section className="bg-white py-12 border-b border-slate-100">
-        <div className="max-w-7xl mx-auto px-6 flex flex-wrap justify-around items-center gap-8 text-center">
-          {[
-            { label: "Active Students", val: "500+", icon: Users },
-            { label: "FIDE Instructors", val: "10+", icon: GraduationCap },
-            { label: "Tournaments Won", val: "150+", icon: Trophy },
-            { label: "Avg Rating Boost", val: "+400", icon: TrendingUp },
-          ].map((item, i) => (
-            <div key={i} className="flex items-center gap-4 group cursor-default p-4 rounded-xl hover:bg-amber-50/50 transition-colors">
-              <div className="w-14 h-14 rounded-2xl bg-amber-50 group-hover:bg-amber-500 border border-amber-100 flex items-center justify-center text-amber-600 group-hover:text-white transition-colors duration-300">
-                <item.icon size={24} />
-              </div>
-              <div className="text-left">
-                <h3 className="text-2xl font-black text-slate-900">{item.val}</h3>
-                <p className="text-slate-500 font-bold text-sm uppercase tracking-wide">{item.label}</p>
-              </div>
-            </div>
-          ))}
+      <section className="bg-white py-10 md:py-12 border-b border-slate-100">
+  <div className="max-w-7xl mx-auto px-4 md:px-6 grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+    {[
+      { label: "Active Students", val: "500+", icon: Users },
+      { label: "FIDE Instructors", val: "10+", icon: GraduationCap },
+      { label: "Tournaments Won", val: "150+", icon: Trophy },
+      { label: "Avg Rating Boost", val: "+400", icon: TrendingUp },
+    ].map((item, i) => (
+      <div 
+        key={i} 
+        className="flex items-center gap-3 md:gap-4 group cursor-default p-3 md:p-4 rounded-xl hover:bg-amber-50/50 transition-colors"
+      >
+        {/* Responsive Icon Size */}
+        <div className="flex-shrink-0 w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-amber-50 group-hover:bg-amber-500 border border-amber-100 flex items-center justify-center text-amber-600 group-hover:text-white transition-all duration-300">
+          <item.icon size={20} className="md:w-6 md:h-6" />
         </div>
-      </section>
+        
+        <div className="text-left">
+          <h3 className="text-lg md:text-2xl font-black text-slate-900 leading-none mb-1">
+            {item.val}
+          </h3>
+          <p className="text-slate-500 font-bold text-[10px] md:text-sm uppercase tracking-tight md:tracking-wide leading-tight">
+            {item.label}
+          </p>
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
 
       {/* ------------------- CORE VALUES & BENEFITS ------------------- */}
       <WhyChooseUsSection />
@@ -188,10 +197,7 @@ export default async function ChessAcademyPage() {
 
       {/* ------------------- CURRICULUM (DYNAMIC) ------------------- */}
       <div className="bg-white py-24">
-        <div className="text-center mb-10">
-           <span className="text-slate-400 font-bold uppercase tracking-widest text-sm">Learning Path</span>
-           <h2 className="text-4xl font-black text-slate-900 mt-2">Choose Your Level</h2>
-        </div>
+        
         <DynamicCourses courses={data?.courses || []} />
       </div>
 

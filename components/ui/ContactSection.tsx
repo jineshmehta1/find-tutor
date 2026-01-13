@@ -145,7 +145,7 @@ const ContactSection: React.FC = () => {
                            <Smartphone className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
                            <input 
                              type="tel" 
-                             placeholder="+91 98765 43210" 
+                             placeholder="+91 80741 03400" 
                              className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all font-medium text-slate-900 placeholder:text-slate-400"
                            />
                         </div>

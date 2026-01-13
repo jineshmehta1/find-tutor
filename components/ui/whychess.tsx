@@ -92,7 +92,7 @@ export default function WhyChooseUsSection() {
             <div className="relative group w-48 h-48 md:w-64 md:h-64 lg:w-80 lg:h-80">
               <div className="absolute inset-[-15px] border-2 border-dashed border-amber-200 rounded-full animate-[spin_20s_linear_infinite]" />
               <div className="relative w-full h-full rounded-full border-[6px] border-white shadow-xl overflow-hidden bg-white z-10">
-                <img src="/pic16.webp" alt="Happy Student" className="w-full h-full object-cover" />
+                <img src="/chess-cen.jpeg" alt="Happy Student" className="w-full h-full object-cover" />
               </div>
               <div className="absolute -bottom-2 -right-2 bg-white px-3 py-1 rounded-lg shadow-lg border border-amber-100 z-20 flex items-center gap-1">
                  <Star size={14} className="text-amber-500 fill-amber-500" />

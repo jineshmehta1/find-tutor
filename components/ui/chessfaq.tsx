@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Plus, Minus, MessageCircle, Phone, HelpCircle, Crown, Trophy } from "lucide-react"
-
+import Link from "next/link";
 export default function ChessFAQSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(0)
 
@@ -134,7 +134,7 @@ export default function ChessFAQSection() {
                 </div>
                 <div>
                   <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Talk to Coach</p>
-                  <p className="text-lg font-black text-slate-800">+91 98765 43210</p>
+                  <p className="text-lg font-black text-slate-800">+91 80741 03400</p>
                 </div>
               </div>
 
@@ -145,9 +145,15 @@ export default function ChessFAQSection() {
                       <Trophy size={20} />
                    </div>
                    <div>
-                     <p className="font-bold text-slate-800 text-sm">Next Tournament</p>
-                     <p className="text-xs text-amber-600 font-bold cursor-pointer hover:underline">Register Now!</p>
-                   </div>
+  <p className="font-bold text-slate-800 text-sm">Next Tournament</p>
+
+  <Link
+    href="https://apchess.org/register"
+    className="text-xs text-amber-600 font-bold cursor-pointer hover:underline"
+  >
+    Register Now!
+  </Link>
+</div>
                 </div>
               </div>
 

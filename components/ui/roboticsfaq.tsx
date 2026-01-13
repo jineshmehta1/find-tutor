@@ -134,7 +134,7 @@ export default function AbacusFAQSection() {
                 </div>
                 <div>
                   <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Talk to Expert</p>
-                  <p className="text-lg font-black text-slate-800">+91 98765 43210</p>
+                  <p className="text-lg font-black text-slate-800">+91 80741 03400</p>
                 </div>
               </div>
 

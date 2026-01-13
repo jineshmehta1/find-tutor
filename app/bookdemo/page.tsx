@@ -216,7 +216,7 @@ export default function BookDemoPage() {
                        value={formData.phone}
                        onChange={handleChange}
                        required
-                       placeholder="+91 98765 43210"
+                       placeholder="+91 8074103400"
                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all text-sm font-medium"
                      />
                   </div>

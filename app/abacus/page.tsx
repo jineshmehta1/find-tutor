@@ -146,16 +146,7 @@ export default async function AbacusPage() {
         </div>
       </section>
 
-      {/* ------------------- SUCCESS STORIES (Dynamic) ------------------- */}
-      <div className="py-20">
-        <SuccessStoriesSection 
-            badge="Champions"
-            title="Our Wall of"
-            titleHighlight="Fame"
-            subtitle="Meet the students who redefined their limits."
-            stories={data?.stories || []}
-        />
-      </div>
+     
 
       {/* ------------------- GALLERY (Dynamic) ------------------- */}
       <div className="py-20 bg-white">

@@ -273,23 +273,37 @@ export default function CoachesAndMethodology() {
       /*                      6. STUDENT DEVELOPMENT PHILOSOPHY                      */
       /* -------------------------------------------------------------------------- */}
       <section className="py-20 px-4 max-w-5xl mx-auto text-center">
-        <h2 className="text-3xl font-bold mb-12">We Don't Just Teach Subjects — <span className="text-amber-600">We Build Thinkers</span></h2>
+  <h2 className="text-3xl font-bold mb-12">
+    We Don't Just Teach Subjects — <span className="text-amber-600">We Build Thinkers</span>
+  </h2>
+
+  {/* grid-cols-1 for very small, sm:grid-cols-2 for tablet-ish mobile, md:grid-cols-4 for desktop */}
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
+    {[
+      { head: "Discipline", sub: "Without Fear" },
+      { head: "Confidence", sub: "Without Arrogance" },
+      { head: "Learning", sub: "Without Rote" },
+      { head: "Growth", sub: "Beyond Marks" },
+    ].map((item, i) => (
+      <div 
+        key={i} 
+        className="flex items-center sm:flex-col sm:justify-center p-4 sm:p-6 bg-white rounded-2xl border border-slate-100 shadow-sm hover:border-amber-300 transition-all group"
+      >
+        {/* The Bar: Vertical on mobile (left), Horizontal on desktop (top) */}
+        <div className="w-1 h-8 sm:w-12 sm:h-1 bg-slate-200 group-hover:bg-amber-400 mr-4 sm:mr-0 sm:mb-4 transition-colors shrink-0"></div>
         
-        <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-6">
-          {[
-            { head: "Discipline", sub: "Without Fear" },
-            { head: "Confidence", sub: "Without Arrogance" },
-            { head: "Learning", sub: "Without Rote" },
-            { head: "Growth", sub: "Beyond Marks" },
-          ].map((item, i) => (
-            <div key={i} className="p-6 bg-white rounded-2xl border border-slate-100 shadow-sm hover:border-amber-300 transition-all group">
-              <div className="w-12 h-1 mx-auto bg-slate-200 group-hover:bg-amber-400 mb-4 transition-colors"></div>
-              <h4 className="text-xl font-black text-slate-900">{item.head}</h4>
-              <p className="text-slate-500 text-sm font-medium uppercase tracking-wide mt-1">{item.sub}</p>
-            </div>
-          ))}
+        <div className="text-left sm:text-center">
+          <h4 className="text-lg sm:text-xl font-black text-slate-900 leading-tight">
+            {item.head}
+          </h4>
+          <p className="text-slate-500 text-[10px] sm:text-sm font-medium uppercase tracking-wide mt-0.5">
+            {item.sub}
+          </p>
         </div>
-      </section>
+      </div>
+    ))}
+  </div>
+</section>
 
       {/* -------------------------------------------------------------------------- */
       /*                           7. PARENT TRANSPARENCY                            */

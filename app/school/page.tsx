@@ -144,6 +144,16 @@ export default async function PrimarySchoolPage() {
         <DynamicCourses courses={data.courses} />
       </div>
 
+      {/* ------------------- SUCCESS STORIES (Dynamic) ------------------- */}
+
+      <div className="bg-slate-50 py-12">
+        
+        {/* ------------------- SUCCESS STORIES (Dynamic) ------------------- */}
+<SuccessStoriesSection stories = {data.stories}
+/>
+
+      </div>
+
       <DayAtSchoolSection/>
       <FacilitiesSection/>
 

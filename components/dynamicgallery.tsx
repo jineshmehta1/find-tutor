@@ -177,7 +177,7 @@ export function DynamicGallery({
             </button>
           </div>
 
-          <a href="#" className="flex items-center gap-2 text-sm font-semibold text-amber-600 hover:text-amber-700 transition-colors">
+          <a href="https://www.instagram.com/aacharya_bhavanipuram?igsh=MWdoM3Yzeno4OHE3eA==" className="flex items-center gap-2 text-sm font-semibold text-amber-600 hover:text-amber-700 transition-colors">
             <Instagram className="w-4 h-4" />
             View more on Instagram
           </a>

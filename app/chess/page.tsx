@@ -201,6 +201,14 @@ export default async function ChessAcademyPage() {
         <DynamicCourses courses={data?.courses || []} />
       </div>
 
+      <div className="bg-slate-50 py-12">
+        
+        {/* ------------------- SUCCESS STORIES (Dynamic) ------------------- */}
+<SuccessStoriesSection stories = {data.stories}
+/>
+
+      </div>
+
       <MethodologySection/>
 
       
@@ -219,6 +227,8 @@ export default async function ChessAcademyPage() {
       <div className="bg-slate-50 py-20 border-y border-slate-100">
          <DynamicReviews reviews={data?.reviews || []} />
       </div>
+
+      
 
       <ChessFAQSection/>
 

@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { Button } from "@/components/ui/button";
 import {
   Bot, Cpu, Code, Zap, Settings, Rocket,

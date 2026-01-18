@@ -15,12 +15,11 @@ import { SuccessStoriesSection } from "@/components/dynamicsucess"
 import DynamicPageBanner from "@/components/dynamicbanner"
 
 // UI Sections (Static)
-import BenefitsSection from "@/components/ui/chess1"
 import WhyChooseUsSection from "@/components/ui/whychess"
+import BenefitsSection from "@/components/ui/chess1"
 import MethodologySection from "@/components/ui/method"
 import ChessFAQSection from "@/components/ui/chessfaq"
 
-// 2. DATA FETCHING (MATCHING ROBOTICS LOGIC)
 import { prisma } from "@/lib/data";
 
 async function getChessPageData() {
@@ -49,7 +48,6 @@ async function getChessPageData() {
       }),
     ]);
 
-    // Robust Feature Parsing
     const parsedCourses = courses.map((c) => {
       let featuresArray = [];
       try {
@@ -86,77 +84,75 @@ async function getChessPageData() {
   }
 }
 
-// 3. PAGE COMPONENT
 export default async function ChessAcademyPage() {
   const data = await getChessPageData();
 
   return (
-    <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-amber-100 selection:text-amber-900">
+    <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-amber-100 selection:text-amber-900 overflow-x-hidden">
 
-      {/* ------------------- DYNAMIC BANNER ------------------- */}
       <DynamicPageBanner data={data.banner} />
 
-      {/* ------------------- QUICK STATS ------------------- */}
-      <section className="bg-white py-10 md:py-12 border-b border-slate-100">
-  <div className="max-w-7xl mx-auto px-4 md:px-6 grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-    {[
-      { label: "Active Students", val: "500+", icon: Users },
-      { label: "FIDE Instructors", val: "10+", icon: GraduationCap },
-      { label: "Tournaments Won", val: "150+", icon: Trophy },
-      { label: "Avg Rating Boost", val: "+400", icon: TrendingUp },
-    ].map((item, i) => (
-      <div 
-        key={i} 
-        className="flex items-center gap-3 md:gap-4 group cursor-default p-3 md:p-4 rounded-xl hover:bg-amber-50/50 transition-colors"
-      >
-        {/* Responsive Icon Size */}
-        <div className="flex-shrink-0 w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-amber-50 group-hover:bg-amber-500 border border-amber-100 flex items-center justify-center text-amber-600 group-hover:text-white transition-all duration-300">
-          <item.icon size={20} className="md:w-6 md:h-6" />
+      {/* ------------------- QUICK STATS (2 per line on mobile) ------------------- */}
+      <section className="bg-white py-8 md:py-12 border-b border-slate-100">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+          {[
+            { label: "Active Students", val: "500+", icon: Users },
+            { label: "FIDE Coaches", val: "10+", icon: GraduationCap },
+            { label: "Tournaments", val: "150+", icon: Trophy },
+            { label: "Rating Boost", val: "+400", icon: TrendingUp },
+          ].map((item, i) => (
+            <div 
+              key={i} 
+              className="flex items-center gap-2 md:gap-4 group cursor-default p-2 md:p-4 rounded-xl hover:bg-amber-50/50 transition-colors"
+            >
+              <div className="flex-shrink-0 w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-amber-50 group-hover:bg-amber-500 border border-amber-100 flex items-center justify-center text-amber-600 group-hover:text-white transition-all duration-300">
+                <item.icon className="w-5 h-5 md:w-7 md:h-7" />
+              </div>
+              
+              <div className="text-left">
+                <h3 className="text-lg md:text-2xl font-black text-slate-900 leading-none">
+                  {item.val}
+                </h3>
+                <p className="text-slate-500 font-bold text-[9px] md:text-sm uppercase tracking-tight mt-1">
+                  {item.label}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
-        
-        <div className="text-left">
-          <h3 className="text-lg md:text-2xl font-black text-slate-900 leading-none mb-1">
-            {item.val}
-          </h3>
-          <p className="text-slate-500 font-bold text-[10px] md:text-sm uppercase tracking-tight md:tracking-wide leading-tight">
-            {item.label}
-          </p>
-        </div>
-      </div>
-    ))}
-  </div>
-</section>
+      </section>
 
-      {/* ------------------- CORE VALUES & BENEFITS ------------------- */}
       <WhyChooseUsSection />
       <BenefitsSection />
 
       {/* ------------------- THE GRANDMASTER'S PATH ------------------- */}
-      <section className="py-24 bg-slate-50 relative overflow-hidden">
-        <div className="absolute top-10 left-10 text-amber-200 opacity-50 rotate-12"><Crown size={120} /></div>
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="text-center mb-16">
-            <span className="text-amber-600 font-bold uppercase tracking-widest text-sm bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+      <section className="py-12 md:py-24 bg-slate-50 relative overflow-hidden">
+        {/* Decorative background (Hidden on smallest mobile for clean look) */}
+        <div className="hidden md:block absolute top-10 left-10 text-amber-200 opacity-50 rotate-12"><Crown size={120} /></div>
+        
+        <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
+          <div className="text-center mb-10 md:mb-16">
+            <span className="text-amber-600 font-bold uppercase tracking-widest text-[10px] md:text-sm bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
               Training Methodology
             </span>
-            <h2 className="text-4xl font-black text-slate-900 mt-4">The Strategic Mindset 🧠</h2>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 mt-4">The Strategic Mindset 🧠</h2>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className="space-y-8">
-              <h2 className="text-3xl font-bold text-slate-900 leading-tight">
+          <div className="grid lg:grid-cols-2 gap-10 md:gap-16 items-start">
+            <div className="space-y-6 md:space-y-8 text-center lg:text-left">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-slate-900 leading-tight">
                 "Winning is a <span className="text-amber-500 bg-amber-50 px-2 rounded-lg">Habit</span>, not an accident."
               </h2>
-              <p className="text-slate-600 text-lg leading-relaxed font-medium">
+              <p className="text-slate-600 text-base md:text-lg leading-relaxed font-medium">
                 Our curriculum follows the professional FIDE standards, blending theoretical depth with practical tournament-style play.
               </p>
               
-              <div className="bg-white p-6 rounded-3xl border-2 border-amber-100 shadow-lg relative overflow-hidden">
+              <div className="bg-white p-5 md:p-8 rounded-[2rem] border-2 border-amber-100 shadow-lg relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-10"><Target size={80} /></div>
-                <h4 className="font-black text-slate-900 mb-6 flex items-center gap-2 text-lg">
+                <h4 className="font-black text-slate-900 mb-6 flex items-center gap-2 text-lg justify-center lg:justify-start">
                    The Professional Loop
                 </h4>
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {[
                     { step: "Theory & Analysis", icon: BookOpen },
                     { step: "Tactical Drills", icon: Zap },
@@ -164,30 +160,30 @@ export default async function ChessAcademyPage() {
                     { step: "Review & Refine", icon: Lightbulb },
                   ].map((item, index) => (
                     <div key={index} className="flex items-center gap-4 bg-slate-50 p-3 rounded-xl border border-slate-100 group">
-                      <div className="w-8 h-8 bg-amber-500 text-white rounded-lg flex items-center justify-center font-bold text-sm shadow-sm group-hover:rotate-6 transition-transform">
+                      <div className="w-7 h-7 md:w-8 md:h-8 bg-amber-500 text-white rounded-lg flex items-center justify-center font-bold text-xs md:text-sm shadow-sm">
                         {index + 1}
                       </div>
-                      <span className="text-slate-800 font-bold text-sm flex-1">{item.step}</span>
-                      <item.icon className="w-5 h-5 text-amber-400" />
+                      <span className="text-slate-800 font-bold text-xs md:text-sm flex-1 text-left">{item.step}</span>
+                      <item.icon className="w-4 h-4 md:w-5 md:h-5 text-amber-400" />
                     </div>
                   ))}
                 </div>
               </div>
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-6">
+            <div className="grid grid-cols-2 gap-4 md:gap-6">
               {[
-                { icon: Crown, title: "FIDE Coaches", desc: "Learn from the best", color: "text-amber-600", bg: "bg-amber-50", border: "hover:border-amber-300" },
-                { icon: Target, title: "Tactical Vision", desc: "Spot every winning move", color: "text-blue-600", bg: "bg-blue-50", border: "hover:border-blue-300" },
-                { icon: Star, title: "Psychology", desc: "Build mental resilience", color: "text-purple-600", bg: "bg-purple-50", border: "hover:border-purple-300" },
-                { icon: Globe, title: "Global Network", desc: "Play in rated events", color: "text-green-600", bg: "bg-green-50", border: "hover:border-green-300" }
+                { icon: Crown, title: "FIDE Coaches", desc: "Expert guidance", color: "text-amber-600", bg: "bg-amber-50" },
+                { icon: Target, title: "Tactical Vision", desc: "Spot moves", color: "text-blue-600", bg: "bg-blue-50" },
+                { icon: Star, title: "Psychology", desc: "Build resilience", color: "text-purple-600", bg: "bg-purple-50" },
+                { icon: Globe, title: "Rated Events", desc: "Global network", color: "text-green-600", bg: "bg-green-50" }
               ].map((item, i) => (
-                <div key={i} className={`group p-6 rounded-[2rem] bg-white border-2 border-slate-100 shadow-sm hover:shadow-xl ${item.border} transition-all duration-300 hover:-translate-y-1 text-center`}>
-                  <div className={`w-14 h-14 ${item.bg} ${item.color} rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:rotate-12 transition-transform`}>
-                    <item.icon size={28} />
+                <div key={i} className={`group p-4 md:p-6 rounded-2xl md:rounded-[2rem] bg-white border-2 border-slate-100 shadow-sm transition-all duration-300 text-center`}>
+                  <div className={`w-10 h-10 md:w-14 md:h-14 ${item.bg} ${item.color} rounded-xl md:rounded-2xl flex items-center justify-center mx-auto mb-3 md:mb-4 group-hover:rotate-12 transition-transform`}>
+                    <item.icon className="w-5 h-5 md:w-7 md:h-7" />
                   </div>
-                  <h4 className="text-lg font-black text-slate-900 mb-1">{item.title}</h4>
-                  <p className="text-slate-500 text-sm font-medium">{item.desc}</p>
+                  <h4 className="text-sm md:text-lg font-black text-slate-900 mb-1">{item.title}</h4>
+                  <p className="text-slate-500 text-[10px] md:text-sm font-medium leading-tight">{item.desc}</p>
                 </div>
               ))}
             </div>
@@ -195,62 +191,50 @@ export default async function ChessAcademyPage() {
         </div>
       </section>
 
-      {/* ------------------- CURRICULUM (DYNAMIC) ------------------- */}
-      <div className="bg-white py-24">
-        
+      {/* ------------------- DYNAMIC CURRICULUM ------------------- */}
+      <div className="bg-white py-12 md:py-10 px-4">
         <DynamicCourses courses={data?.courses || []} />
       </div>
 
-      <div className="bg-slate-50 py-12">
-        
-        {/* ------------------- SUCCESS STORIES (Dynamic) ------------------- */}
-<SuccessStoriesSection stories = {data.stories}
-/>
-
-      </div>
+      <SuccessStoriesSection stories={data.stories} />
 
       <MethodologySection/>
 
-      
-
-      {/* ------------------- GALLERY (DYNAMIC) ------------------- */}
-      <div className="py-20 bg-white">
+      {/* ------------------- DYNAMIC GALLERY ------------------- */}
+      <div className="py-12 md:py-20 bg-white">
         <DynamicGallery 
             images={data?.gallery || []}
             title="Tournaments & Training" 
-            subtitle="Capturing the intensity and joy of the game."
             badge="Chess Gallery"
         />
       </div>
 
-      {/* ------------------- REVIEWS (DYNAMIC) ------------------- */}
-      <div className="bg-slate-50 py-20 border-y border-slate-100">
+      {/* ------------------- REVIEWS ------------------- */}
+      <div className="bg-slate-50 py-12 md:py-20 border-y border-slate-100">
          <DynamicReviews reviews={data?.reviews || []} />
       </div>
 
-      
-
       <ChessFAQSection/>
 
-      {/* ------------------- FINAL CTA (ROBOTICS STYLE) ------------------- */}
-      <section className="py-24 px-4 bg-white">
+      {/* ------------------- FINAL CTA ------------------- */}
+      <section className="py-12 md:py-24 px-4 bg-white">
         <div className="max-w-5xl mx-auto">
-          <div className="relative overflow-hidden rounded-[3rem] bg-gradient-to-r from-amber-600 to-yellow-600 shadow-2xl shadow-amber-200">
+          <div className="relative overflow-hidden rounded-[2.5rem] md:rounded-[3rem] bg-gradient-to-r from-amber-600 to-yellow-600 shadow-2xl shadow-amber-200">
             <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, white 1.5px, transparent 1.5px)', backgroundSize: '20px 20px' }}></div>
             
-            <div className="relative z-10 p-12 md:p-20 text-center">
-              <div className="bg-white/20 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-8 backdrop-blur-sm border border-white/30">
-                <Crown className="w-10 h-10 text-white animate-bounce" />
+            <div className="relative z-10 p-10 md:p-20 text-center">
+              <div className="bg-white/20 w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center mx-auto mb-6 md:mb-8 backdrop-blur-sm border border-white/30">
+                <Crown className="w-8 h-8 md:w-10 md:h-10 text-white animate-bounce" />
               </div>
-              <h2 className="text-4xl md:text-6xl font-black text-white mb-6">Ready to Play?</h2>
-              <p className="text-amber-50 text-xl font-medium mb-12 max-w-2xl mx-auto">
-                Join the club where champions are born. Book a free demo class to assess your level and start your journey!
+              <h2 className="text-3xl md:text-6xl font-black text-white mb-4 md:mb-6 leading-tight">Ready to Play?</h2>
+              <p className="text-amber-50 text-base md:text-xl font-medium mb-8 md:mb-12 max-w-2xl mx-auto">
+                Join the club where champions are born. Book a free demo class to assess your level!
               </p>
-              <div className="flex flex-col sm:flex-row gap-6 justify-center">
-                <Button className="h-16 px-12 bg-white text-amber-600 hover:bg-slate-50 font-black text-xl rounded-full shadow-xl transition-all active:scale-95">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button className="h-14 md:h-16 w-full sm:w-auto px-10 bg-white text-amber-600 font-black text-lg md:text-xl rounded-full shadow-xl transition-all active:scale-95">
                   Join the Club
                 </Button>
-                <Button variant="outline" className="h-16 px-12 bg-transparent border-2 border-white text-white font-bold text-xl rounded-full hover:bg-white hover:text-amber-600 transition-all">
+                <Button variant="outline" className="h-14 md:h-16 w-full sm:w-auto px-10 bg-transparent border-2 border-white text-white font-bold text-lg md:text-xl rounded-full hover:bg-white hover:text-amber-600 transition-all">
                   Contact Us
                 </Button>
               </div>

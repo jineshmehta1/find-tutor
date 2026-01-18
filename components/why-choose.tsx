@@ -55,7 +55,7 @@ export default function WhyChooseUsSection() {
             <CheckCircle2 size={16} className="md:w-[18px] md:h-[18px]" />
             The Aacharya Advantage
           </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-tight">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
             Why Parents Trust <span className="text-amber-500">Aacharya</span>
           </h2>
           <p className="max-w-2xl mx-auto mt-4 text-slate-600 text-sm md:text-lg lg:text-xl font-medium">

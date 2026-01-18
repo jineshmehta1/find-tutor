@@ -94,7 +94,7 @@ export default function BookDemoPage() {
                 </span>
               </div>
 
-              <h1 className="text-4xl md:text-6xl font-extrabold text-slate-900 leading-[1.15]">
+              <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 leading-[1.15]">
                 Unlock Your Child's <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-orange-500">
                   Genius Potential.

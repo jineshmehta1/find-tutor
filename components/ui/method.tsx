@@ -53,7 +53,7 @@ export default function MethodologySection() {
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 font-bold text-xs uppercase tracking-wider mb-4">
                 <Target size={14} /> Curriculum
               </div>
-              <h2 className="text-4xl md:text-5xl font-black text-slate-900 leading-tight">
+              <h2 className="text-3xl md:text-5xl font-black text-slate-900 leading-tight">
                 The <span className="text-amber-500 relative inline-block">
                   Grandmaster
                   <svg className="absolute w-full h-3 -bottom-1 left-0 text-amber-200 -z-10" viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="8" fill="none" /></svg>

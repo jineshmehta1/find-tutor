@@ -97,7 +97,7 @@ export function DynamicGallery({
             <span>{badge}</span>
           </motion.div>
           
-          <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight">
+          <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight">
             {title}
           </h2>
           <p className="text-slate-500 text-lg">

@@ -19,7 +19,7 @@ export default function PrimaryCTA() {
             <Video size={14} className="text-amber-600" /> Virtual Experience
           </div>
           
-          <h2 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tighter leading-tight mb-6">
+          <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter leading-tight mb-6">
             Take a <span className="text-amber-500 italic">Virtual Tour</span> 🎥
           </h2>
           

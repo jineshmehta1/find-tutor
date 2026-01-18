@@ -78,7 +78,7 @@ const AchievementsSection: React.FC = () => {
   };
 
   return (
-    <section className="relative py-16 md:py-24 lg:py-32 bg-white overflow-hidden font-sans">
+    <section className="relative py-12 md:py-14 lg:py-22 bg-white overflow-hidden font-sans">
       
       {/* --- Background Texture --- */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
@@ -100,7 +100,7 @@ const AchievementsSection: React.FC = () => {
               <span className="text-[10px] md:text-xs font-bold text-amber-800 uppercase tracking-widest">Hall of Glory</span>
             </div>
             
-            <h2 className="text-3xl md:text-5xl lg:text-7xl font-extrabold text-slate-900 tracking-tight leading-none mb-4">
+            <h2 className="text-3xl md:text-5xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-none mb-4">
               Aacharya's <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-yellow-500">
                 Achievements

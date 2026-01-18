@@ -124,7 +124,7 @@ export default async function AbacusPage() {
       {/* ------------------- TRAINING TOOLS ------------------- */}
       <section className="py-10 md:py-15 bg-slate-50 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 md:px-6 text-center relative z-10">
-          <h2 className="text-2xl md:text-4xl font-black text-slate-900 mb-8 md:mb-12">Our Training Tools 🧮</h2>
+          <p className="text-2xl md:text-5xl font-black text-slate-900 mb-8 md:mb-12">Our Training Tools 🧮</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {[
               { icon: Layers, label: "Soroban", desc: "Traditional Tool", color: "text-amber-600", bg: "bg-amber-50", border: "hover:border-amber-300" },

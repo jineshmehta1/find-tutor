@@ -87,7 +87,7 @@ export default async function HomeHero() {
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12 md:mb-16">
-            <h2 className="text-3xl md:text-6xl font-black text-[#332a3d] mb-4 tracking-tight leading-tight">
+            <h2 className="text-3xl md:text-5xl font-black text-[#332a3d] mb-4 tracking-tight leading-tight">
               Explore Our <span className="text-[#f97316]">Learning</span> World
             </h2>
             <p className="text-base md:text-xl text-slate-700 font-medium max-w-2xl mx-auto">

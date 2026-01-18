@@ -71,7 +71,7 @@ export function DynamicReviews({ reviews = [], className }: ReviewProps) {
             <span>Testimonials</span>
           </motion.div>
 
-          <h2 className="text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">
+          <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-4 tracking-tight">
             Voices from our <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-600">Community</span>
           </h2>
           <p className="text-slate-500 text-lg">

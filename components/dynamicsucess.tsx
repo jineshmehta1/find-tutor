@@ -87,7 +87,7 @@ export function SuccessStoriesSection({
   if (!activeStory) return null;
 
   return (
-    <section className={cn("py-0 md:py-24 bg-white overflow-hidden relative", className)}>
+    <section className={cn("py-0 md:py-4 bg-white overflow-hidden relative", className)}>
       
       {/* Background Decor (Scaled for mobile) */}
       <div className="absolute top-0 left-0 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-amber-50 rounded-full blur-[80px] md:blur-[100px] -translate-x-1/2 -translate-y-1/2" />

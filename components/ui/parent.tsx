@@ -4,6 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
+import Link from "next/link";
 
 const CurriculumSun = () => {
   return (
@@ -65,12 +66,20 @@ const CurriculumSun = () => {
             pedagogies to create a customized foundation for every child.
           </motion.p>
 
-          <div className="flex flex-wrap justify-center lg:justify-start gap-4">
-            <button className="group bg-slate-900 text-white px-8 md:px-10 py-4 md:py-5 rounded-full font-black uppercase tracking-widest hover:bg-white hover:text-slate-900 transition-all shadow-2xl flex items-center gap-3">
-              Explore Programs
-              <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
-            </button>
-          </div>
+         import Link from "next/link";
+
+<div className="flex flex-wrap justify-center lg:justify-start gap-4">
+  <Link href="/contact">
+    <button className="group bg-slate-900 text-white px-8 md:px-10 py-4 md:py-5 rounded-full font-black uppercase tracking-widest hover:bg-white hover:text-slate-900 transition-all shadow-2xl flex items-center gap-3">
+      Explore Programs
+      <ArrowRight
+        size={20}
+        className="group-hover:translate-x-2 transition-transform"
+      />
+    </button>
+  </Link>
+</div>
+
         </div>
       </div>
 

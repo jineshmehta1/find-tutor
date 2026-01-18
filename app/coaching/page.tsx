@@ -1,6 +1,6 @@
 // 1. Force dynamic to ensure data updates instantly from Admin
 export const dynamic = "force-dynamic";
-
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { 
   BookOpen, GraduationCap, PenTool, Calculator, 
@@ -176,10 +176,12 @@ export default async function CBSECoachingPage() {
                <Sparkles className="w-10 h-10 md:w-16 md:h-16 text-white mx-auto mb-4 md:mb-6 animate-pulse" />
                <h2 className="text-2xl md:text-5xl font-black text-white mb-4 md:mb-6 leading-tight">Start Your Success Story</h2>
                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                 <Button className="h-12 md:h-14 w-full sm:w-auto px-10 bg-white text-amber-600 font-black text-lg rounded-full hover:bg-slate-50 transition-colors">
-                   Enroll Now
-                 </Button>
-               </div>
+  <Link href="/bookdemo" className="w-full sm:w-auto">
+    <Button className="h-12 md:h-14 w-full sm:w-auto px-10 bg-white text-amber-600 font-black text-lg rounded-full hover:bg-slate-50 transition-colors">
+      Enroll Now
+    </Button>
+  </Link>
+</div>
             </div>
           </div>
         </div>

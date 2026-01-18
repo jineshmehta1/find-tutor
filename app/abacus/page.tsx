@@ -1,6 +1,6 @@
 // 1. Force dynamic to ensure Admin data updates instantly
 export const dynamic = "force-dynamic";
-
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { 
   Calculator, Brain, Zap, Timer, 
@@ -177,13 +177,23 @@ export default async function AbacusPage() {
                 Book a free assessment session to see your child's starting point!
               </p>
               <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center">
-                <Button className="h-14 md:h-16 px-8 md:px-12 bg-white text-orange-600 hover:bg-slate-50 font-black text-lg md:text-xl rounded-full shadow-xl transition-all active:scale-95">
-                  Free Assessment
-                </Button>
-                <Button variant="outline" className="h-14 md:h-16 px-8 md:px-12 bg-transparent border-2 border-white text-white font-bold text-lg md:text-xl rounded-full hover:bg-white hover:text-orange-600 transition-all">
-                  Contact Us
-                </Button>
-              </div>
+  
+  <Link href="/bookdemo">
+    <Button className="h-14 md:h-16 px-8 md:px-12 bg-white text-orange-600 hover:bg-slate-50 font-black text-lg md:text-xl rounded-full shadow-xl transition-all active:scale-95">
+      Free Assessment
+    </Button>
+  </Link>
+
+  <Link href="/contact">
+    <Button
+      variant="outline"
+      className="h-14 md:h-16 px-8 md:px-12 bg-transparent border-2 border-white text-white font-bold text-lg md:text-xl rounded-full hover:bg-white hover:text-orange-600 transition-all"
+    >
+      Contact Us
+    </Button>
+  </Link>
+
+</div>
             </div>
           </div>
         </div>

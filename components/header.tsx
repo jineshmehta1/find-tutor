@@ -146,7 +146,7 @@ const Header: React.FC = () => {
           {/* Right Section Spacing */}
           <div className="flex items-center gap-6">
             <a
-              href="/contact"
+              href="/bookdemo"
               className="hidden md:inline-flex items-center justify-center px-8 py-2.5 text-sm font-bold text-slate-900 transition-all duration-200 bg-yellow-400 rounded-lg hover:bg-yellow-300 hover:shadow-lg hover:-translate-y-0.5"
             >
               Enroll Now
@@ -206,7 +206,7 @@ const Header: React.FC = () => {
           </div>
 
           <div className="p-6 border-t border-slate-100 bg-slate-50">
-            <a href="/contact" className="block w-full py-4 text-center text-slate-900 bg-yellow-400 font-black rounded-xl shadow-md">
+            <a href="/bookdemo" className="block w-full py-4 text-center text-slate-900 bg-yellow-400 font-black rounded-xl shadow-md">
               Enroll Now
             </a>
           </div>

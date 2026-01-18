@@ -1,5 +1,5 @@
 export const dynamic = "force-dynamic";
-
+import Link from "next/link"
 import { Button } from "@/components/ui/button";
 import {
   Bot, Cpu, Code, Zap, Settings, Rocket,
@@ -190,10 +190,7 @@ export default async function RoboticsPage() {
 
       {/* ------------------- CURRICULUM (DYNAMIC) ------------------- */}
       <div className="bg-white py-24">
-        <div className="text-center mb-10">
-          <span className="text-slate-400 font-bold uppercase tracking-widest text-sm">Our Levels</span>
-          <h2 className="text-4xl font-black text-slate-900 mt-2">Pick a Program</h2>
-        </div>
+        
         <DynamicCourses courses={data?.courses || []} />
       </div>
 
@@ -235,13 +232,23 @@ export default async function RoboticsPage() {
                 Join our weekend or weekday batches. Book a free discovery session to see if your child is the next robotics champion!
               </p>
               <div className="flex flex-col sm:flex-row gap-6 justify-center">
-                <Button className="h-16 px-12 bg-white text-orange-600 hover:bg-slate-50 font-black text-xl rounded-full shadow-xl transition-all active:scale-95">
-                  Secure Your Spot
-                </Button>
-                <Button variant="outline" className="h-16 px-12 bg-transparent border-2 border-white text-white font-bold text-xl rounded-full hover:bg-white hover:text-orange-600 transition-all">
-                  Contact Us
-                </Button>
-              </div>
+  
+  <Link href="/bookdemo">
+    <Button className="h-16 px-12 bg-white text-orange-600 hover:bg-slate-50 font-black text-xl rounded-full shadow-xl transition-all active:scale-95">
+      Secure Your Spot
+    </Button>
+  </Link>
+
+  <Link href="/contact">
+    <Button
+      variant="outline"
+      className="h-16 px-12 bg-transparent border-2 border-white text-white font-bold text-xl rounded-full hover:bg-white hover:text-orange-600 transition-all"
+    >
+      Contact Us
+    </Button>
+  </Link>
+
+</div>
             </div>
           </div>
         </div>

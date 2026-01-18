@@ -69,7 +69,7 @@ const CoachCtaSection: React.FC = () => {
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </button>
               </Link>
-              <Link href="/coaches" className="w-full sm:w-auto">
+              <Link href="/gallery" className="w-full sm:w-auto">
                 <button className="w-full bg-white border-2 border-slate-100 text-slate-700 font-bold py-4 px-8 rounded-xl hover:border-amber-500 hover:text-amber-600 transition-all">
                   View Profiles
                 </button>

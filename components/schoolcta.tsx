@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Calendar, Sparkles, CheckCircle, Video } from "lucide-react"
+import Link from "next/link"
 
 export default function PrimaryCTA() {
   return (
@@ -98,16 +99,25 @@ export default function PrimaryCTA() {
 
             {/* RIGHT SIDE: INTERACTIVE BUTTONS */}
             <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row gap-4 w-full lg:w-auto">
-              <Button className="h-14 md:h-16 px-10 bg-white text-orange-700 hover:bg-slate-900 hover:text-white font-black text-base md:text-lg rounded-2xl shadow-xl transition-all duration-300 group/btn w-full lg:w-auto">
-                Apply Online
-                <ArrowRight className="ml-2 w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
-              </Button>
-              
-              <Button variant="outline" className="h-14 md:h-16 px-10 bg-transparent border-4 border-white text-white font-black text-base md:text-lg rounded-2xl hover:bg-white hover:text-orange-700 transition-all duration-300 w-full lg:w-auto">
-                <Calendar className="mr-2 w-5 h-5" />
-                Book a Tour
-              </Button>
-            </div>
+  
+  <Link href="/bookdemo" className="w-full lg:w-auto">
+    <Button className="h-14 md:h-16 px-10 bg-white text-orange-700 hover:bg-slate-900 hover:text-white font-black text-base md:text-lg rounded-2xl shadow-xl transition-all duration-300 group/btn w-full lg:w-auto">
+      Apply Online
+      <ArrowRight className="ml-2 w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
+    </Button>
+  </Link>
+
+  <Link href="/bookdemo" className="w-full lg:w-auto">
+    <Button
+      variant="outline"
+      className="h-14 md:h-16 px-10 bg-transparent border-4 border-white text-white font-black text-base md:text-lg rounded-2xl hover:bg-white hover:text-orange-700 transition-all duration-300 w-full lg:w-auto"
+    >
+      <Calendar className="mr-2 w-5 h-5" />
+      Book a Tour
+    </Button>
+  </Link>
+
+</div>
 
           </div>
 

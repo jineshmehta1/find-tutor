@@ -1,6 +1,6 @@
 // 1. Force dynamic to ensure Admin data updates instantly
 export const dynamic = "force-dynamic";
-
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { 
   Crown, Trophy, Users, TrendingUp, Globe, GraduationCap,
@@ -231,13 +231,23 @@ export default async function ChessAcademyPage() {
                 Join the club where champions are born. Book a free demo class to assess your level!
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button className="h-14 md:h-16 w-full sm:w-auto px-10 bg-white text-amber-600 font-black text-lg md:text-xl rounded-full shadow-xl transition-all active:scale-95">
-                  Join the Club
-                </Button>
-                <Button variant="outline" className="h-14 md:h-16 w-full sm:w-auto px-10 bg-transparent border-2 border-white text-white font-bold text-lg md:text-xl rounded-full hover:bg-white hover:text-amber-600 transition-all">
-                  Contact Us
-                </Button>
-              </div>
+  
+  <Link href="/bookdemo" className="w-full sm:w-auto">
+    <Button className="h-14 md:h-16 w-full sm:w-auto px-10 bg-white text-amber-600 font-black text-lg md:text-xl rounded-full shadow-xl transition-all active:scale-95">
+      Join the Club
+    </Button>
+  </Link>
+
+  <Link href="/contact" className="w-full sm:w-auto">
+    <Button
+      variant="outline"
+      className="h-14 md:h-16 w-full sm:w-auto px-10 bg-transparent border-2 border-white text-white font-bold text-lg md:text-xl rounded-full hover:bg-white hover:text-amber-600 transition-all"
+    >
+      Contact Us
+    </Button>
+  </Link>
+
+</div>
             </div>
           </div>
         </div>

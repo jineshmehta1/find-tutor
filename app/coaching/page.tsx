@@ -118,10 +118,7 @@ export default async function CBSECoachingPage() {
 
       {/* ------------------- CURRICULUM ------------------- */}
       <div className="bg-white py-12 md:py-16">
-        <div className="text-center mb-8 md:mb-10 px-4">
-           <span className="text-slate-400 font-bold uppercase tracking-widest text-xs md:text-sm">Our Batches</span>
-           <h2 className="text-2xl md:text-4xl font-black text-slate-900 mt-2">Classes We Coach</h2>
-        </div>
+        
         <div className="px-4">
           <DynamicCourses courses={data.courses} />
         </div>

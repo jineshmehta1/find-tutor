@@ -80,11 +80,9 @@ export default async function HomeHero() {
       {/* ---------------- HERO SECTION ---------------- */}
       <section className="relative w-full overflow-hidden">
         <DynamicPageBanner data={data.banner} />
-
-       
       </section>
 
-            {/* ---------------- PROGRAMS SECTION ---------------- */}
+      {/* ---------------- PROGRAMS SECTION ---------------- */}
       <section className="py-16 md:py-24 px-4 md:px-6 bg-white">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
@@ -98,26 +96,27 @@ export default async function HomeHero() {
           </div>
 
           {/* 
-              MOBILE LAYOUT LOGIC:
-              - Uses Flexbox (flex-wrap justify-center) for mobile to center the 5th item.
-              - Uses grid-cols-5 for Desktop.
+              GRID LOGIC:
+              - Mobile: 2 columns (flex-wrap)
+              - Desktop: 5 columns
           */}
           <div className="flex flex-wrap justify-center lg:grid lg:grid-cols-5 gap-4 md:gap-6">
             {programs.map((program, idx) => (
-              <div
+              <Link
                 key={idx}
-                className="flex flex-col bg-[#dbdbdb] rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden transition-all duration-300 hover:shadow-xl md:hover:-translate-y-1 w-[calc(50%-0.5rem)] sm:w-[calc(40%-1rem)] lg:w-full"
+                href={program.path}
+                className="group flex flex-col bg-[#dbdbdb] rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden transition-all duration-300 hover:shadow-2xl md:hover:-translate-y-2 w-[calc(50%-0.5rem)] sm:w-[calc(40%-1rem)] lg:w-full cursor-pointer border border-transparent hover:border-[#fbbc05]/20"
               >
                 {/* Card Body */}
                 <div className="flex-1 flex flex-col items-center text-center p-5 md:p-8">
-                  {/* Scaled Image for Mobile */}
+                  {/* Image Container */}
                   <div className="h-20 md:h-28 flex items-center justify-center mb-4 md:mb-6">
                     <Image
                       src={program.image}
                       alt={`${program.label} Program`}
                       width={100}
                       height={100}
-                      className="object-contain transition-transform duration-500 hover:scale-110 h-full w-auto"
+                      className="object-contain transition-transform duration-500 group-hover:scale-110 h-full w-auto"
                     />
                   </div>
 
@@ -130,19 +129,16 @@ export default async function HomeHero() {
                   </p>
                 </div>
 
-                {/* Footer CTA */}
-                <Link
-                  href={program.path}
-                  className="w-full bg-[#fbbc05] hover:bg-[#f9a825] py-3 md:py-4 px-4 md:px-6 flex items-center justify-between transition-colors group"
-                >
-                  <span className="text-[10px] md:text-sm font-bold text-slate-900">
+                {/* Footer CTA (Now just a visual indicator) */}
+                <div className="w-full bg-[#fbbc05] group-hover:bg-[#f97316] py-3 md:py-4 px-4 md:px-6 flex items-center justify-between transition-colors">
+                  <span className="text-[10px] md:text-sm font-bold text-slate-900 group-hover:text-white transition-colors">
                     More Info
                   </span>
-                  <div className="bg-white/20 p-1 rounded-full group-hover:bg-white/40 transition-colors">
+                  <div className="bg-white/30 p-1 rounded-full group-hover:bg-white/50 transition-colors">
                     <ArrowRight size={14} className="text-white md:w-[18px] md:h-[18px]" />
                   </div>
-                </Link>
-              </div>
+                </div>
+              </Link>
             ))}
           </div>
         </div>

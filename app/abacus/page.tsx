@@ -1,4 +1,4 @@
-// 1.Force dynamic to ensure Admin data updates instantly
+// 1. Force dynamic to ensure Admin data updates instantly
 export const dynamic = "force-dynamic";
 
 import { Button } from "@/components/ui/button"
@@ -48,7 +48,6 @@ async function getAbacusPageData() {
       }),
     ]);
 
-    // Robust Feature Parsing (Prevents crash if JSON is malformed)
     const parsedCourses = courses.map((c) => {
       let featuresArray = [];
       try {
@@ -85,71 +84,70 @@ async function getAbacusPageData() {
   }
 }
 
-// 3. SERVER COMPONENT (Async)
 export default async function AbacusPage() {
   const data = await getAbacusPageData();
 
   return (
-    <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-amber-100 selection:text-amber-900">
+    <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-amber-100 selection:text-amber-900 overflow-x-hidden">
 
-      {/* ------------------- DYNAMIC BANNER (Replaced Hero) ------------------- */}
       <DynamicPageBanner data={data.banner} />
 
-      {/* ------------------- MATH STATS ------------------- */}
-      <section className="bg-white py-12 border-b border-slate-100">
-        <div className="max-w-7xl mx-auto px-6 flex flex-wrap justify-around items-center gap-8 text-center">
+      {/* ------------------- MATH STATS (2 per line on mobile) ------------------- */}
+      <section className="bg-white py-8 md:py-12 border-b border-slate-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
           {[
             { label: "Graduates", val: "2,000+", icon: GraduationCap },
-            { label: "National Winners", val: "100+", icon: Award },
-            { label: "Speed Increase", val: "500%", icon: TrendingUp },
-            { label: "Concentration", val: "10x", icon: Brain },
+            { label: "Winners", val: "100+", icon: Award },
+            { label: "Increase", val: "500%", icon: TrendingUp },
+            { label: "Focus", val: "10x", icon: Brain },
           ].map((item, i) => (
-            <div key={i} className="flex items-center gap-4 group cursor-default p-4 rounded-xl hover:bg-amber-50/50 transition-colors">
-              <div className="w-14 h-14 rounded-2xl bg-amber-50 group-hover:bg-amber-500 border border-amber-100 flex items-center justify-center text-amber-600 group-hover:text-white transition-colors duration-300">
-                <item.icon size={24} />
+            <div key={i} className="flex items-center gap-3 md:gap-4 group cursor-default p-2 md:p-4 rounded-xl hover:bg-amber-50/50 transition-colors">
+              <div className="w-10 h-10 md:w-14 md:h-14 shrink-0 rounded-xl md:rounded-2xl bg-amber-50 group-hover:bg-amber-500 border border-amber-100 flex items-center justify-center text-amber-600 group-hover:text-white transition-colors duration-300">
+                <item.icon className="w-5 h-5 md:w-6 md:h-6" />
               </div>
               <div className="text-left">
-                <h3 className="text-2xl font-black text-slate-900">{item.val}</h3>
-                <p className="text-slate-500 font-bold text-sm uppercase tracking-wide">{item.label}</p>
+                <h3 className="text-lg md:text-2xl font-black text-slate-900 leading-tight">{item.val}</h3>
+                <p className="text-slate-500 font-bold text-[10px] md:text-sm uppercase tracking-wider">{item.label}</p>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ------------------- CORE BENEFITS (Static) ------------------- */}
       <WhyChooseAbacusSection/>
 
-      {/* ------------------- CURRICULUM (Dynamic) ------------------- */}
-      <div className="bg-white py-24">
-        
+      {/* ------------------- CURRICULUM ------------------- */}
+      <div className="bg-white py-0 md:py-0 px-4">
         <DynamicCourses courses={data?.courses || []} />
       </div>
 
       {/* ------------------- TRAINING TOOLS ------------------- */}
-      <section className="py-20 bg-slate-50 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
-          <h2 className="text-4xl font-black text-slate-900 mb-12">Our Training Tools 🧮</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <section className="py-10 md:py-15 bg-slate-50 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 text-center relative z-10">
+          <h2 className="text-2xl md:text-4xl font-black text-slate-900 mb-8 md:mb-12">Our Training Tools 🧮</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {[
-              { icon: Layers, label: "Soroban Abacus", desc: "The Japanese Tool", color: "text-amber-600", bg: "bg-amber-50", border: "hover:border-amber-300" },
-              { icon: Flashlight, label: "Flash Cards", desc: "For Photographic Memory", color: "text-blue-600", bg: "bg-blue-50", border: "hover:border-blue-300" },
+              { icon: Layers, label: "Soroban", desc: "Traditional Tool", color: "text-amber-600", bg: "bg-amber-50", border: "hover:border-amber-300" },
+              { icon: Flashlight, label: "Flash Cards", desc: "Photographic Memory", color: "text-blue-600", bg: "bg-blue-50", border: "hover:border-blue-300" },
               { icon: Timer, label: "Speed Writing", desc: "Motor Skill Drills", color: "text-rose-600", bg: "bg-rose-50", border: "hover:border-rose-300" },
               { icon: Mic, label: "Audio Dictation", desc: "Listening Exercises", color: "text-green-600", bg: "bg-green-50", border: "hover:border-green-300" },
             ].map((tool, i) => (
-              <div key={i} className={`bg-white p-6 rounded-[2rem] border-2 border-slate-100 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${tool.border} flex flex-col items-center gap-3 group`}>
-                <div className={`w-14 h-14 ${tool.bg} ${tool.color} rounded-2xl flex items-center justify-center transition-transform group-hover:rotate-12`}><tool.icon size={28} /></div>
-                <div><span className="block font-black text-slate-900 text-lg">{tool.label}</span><span className="block text-xs font-bold text-slate-400 uppercase tracking-wide">{tool.desc}</span></div>
+              <div key={i} className={`bg-white p-4 md:p-6 rounded-2xl md:rounded-[2rem] border-2 border-slate-100 shadow-sm transition-all duration-300 hover:shadow-xl ${tool.border} flex flex-col items-center gap-2 md:gap-3 group`}>
+                <div className={`w-12 h-12 md:w-14 md:h-14 shrink-0 ${tool.bg} ${tool.color} rounded-xl md:rounded-2xl flex items-center justify-center transition-transform group-hover:rotate-12`}>
+                  <tool.icon className="w-6 h-6 md:w-7 md:h-7" />
+                </div>
+                <div className="text-center">
+                  <span className="block font-black text-slate-900 text-sm md:text-lg leading-tight">{tool.label}</span>
+                  <span className="block text-[9px] md:text-xs font-bold text-slate-400 uppercase tracking-wide mt-1">{tool.desc}</span>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-     
-
-      {/* ------------------- GALLERY (Dynamic) ------------------- */}
-      <div className="py-20 bg-white">
+      {/* ------------------- GALLERY / REVIEWS / FAQ ------------------- */}
+      <div className="py-12 md:py-20 bg-white">
         <DynamicGallery 
             images={data?.gallery || []}
             title="Little Geniuses" 
@@ -158,33 +156,31 @@ export default async function AbacusPage() {
         />
       </div>
 
-      {/* ------------------- REVIEWS (Dynamic) ------------------- */}
-      <div className="bg-slate-50 py-20 border-y border-slate-100">
+      <div className="bg-slate-50 py-12 md:py-20 border-y border-slate-100">
          <DynamicReviews reviews={data?.reviews || []} />
       </div>
 
-      {/* ------------------- FAQ (Static) ------------------- */}
       <AbacusFAQSection/>
 
       {/* ------------------- FINAL CTA ------------------- */}
-      <section className="py-24 px-4 bg-white">
+      <section className="py-16 md:py-24 px-4 bg-white">
         <div className="max-w-5xl mx-auto">
-          <div className="relative overflow-hidden rounded-[3rem] bg-gradient-to-r from-amber-500 to-orange-500 shadow-2xl shadow-orange-200">
+          <div className="relative overflow-hidden rounded-[2rem] md:rounded-[3rem] bg-gradient-to-r from-amber-500 to-orange-500 shadow-2xl shadow-orange-200">
             <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, white 1.5px, transparent 1.5px)', backgroundSize: '20px 20px' }}></div>
             
-            <div className="relative z-10 p-12 md:p-20 text-center">
-              <div className="bg-white/20 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-8 backdrop-blur-sm border border-white/30">
-                <Brain className="w-10 h-10 text-white animate-bounce" />
+            <div className="relative z-10 p-10 md:p-20 text-center">
+              <div className="bg-white/20 w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center mx-auto mb-6 md:mb-8 backdrop-blur-sm border border-white/30">
+                <Brain className="w-8 h-8 md:w-10 md:h-10 text-white animate-bounce" />
               </div>
-              <h2 className="text-4xl md:text-6xl font-black text-white mb-6">Unlock Their Potential</h2>
-              <p className="text-amber-50 text-xl font-medium mb-12 max-w-2xl mx-auto">
-                Join our weekend or weekday batches. Book a free assessment session to see your child's starting point!
+              <h2 className="text-3xl md:text-6xl font-black text-white mb-4 md:mb-6 leading-tight">Unlock Their Potential</h2>
+              <p className="text-amber-50 text-base md:text-xl font-medium mb-8 md:mb-12 max-w-2xl mx-auto">
+                Book a free assessment session to see your child's starting point!
               </p>
-              <div className="flex flex-col sm:flex-row gap-6 justify-center">
-                <Button className="h-16 px-12 bg-white text-orange-600 hover:bg-slate-50 font-black text-xl rounded-full shadow-xl transition-all active:scale-95">
-                  Book Free Assessment
+              <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center">
+                <Button className="h-14 md:h-16 px-8 md:px-12 bg-white text-orange-600 hover:bg-slate-50 font-black text-lg md:text-xl rounded-full shadow-xl transition-all active:scale-95">
+                  Free Assessment
                 </Button>
-                <Button variant="outline" className="h-16 px-12 bg-transparent border-2 border-white text-white font-bold text-xl rounded-full hover:bg-white hover:text-orange-600 transition-all">
+                <Button variant="outline" className="h-14 md:h-16 px-8 md:px-12 bg-transparent border-2 border-white text-white font-bold text-lg md:text-xl rounded-full hover:bg-white hover:text-orange-600 transition-all">
                   Contact Us
                 </Button>
               </div>

@@ -26,7 +26,7 @@ export default function VisualOnlyBanner({
         // RESPONSIVE SIZING:
         // Mobile: Fixed height to keep the graphic visible/readable
         // Desktop: Switch to the exact 1920x800 aspect ratio
-        "h-[200px] sm:h-[400px] md:h-auto md:aspect-[1920/800]",
+        "h-[160px] sm:h-[400px] md:h-auto md:aspect-[1920/800]",
         className
       )}
     >

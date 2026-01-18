@@ -5,13 +5,12 @@ import { BrainCircuit, Target, FileText, Users, CheckCircle2 } from 'lucide-reac
 
 export default function WhyChooseCoachingSection() {
   
-  // Theme Colors: Amber & Slate (Academic Excellence)
   const colors = {
-    primaryAmber: '#d97706',      // amber-600
-    textDark: '#0F172A',          // slate-900
-    textMuted: '#475569',         // slate-600
-    cardBg: '#FFFFFF',            // white
-    cardBorder: '#fbbf24',        // amber-400
+    primaryAmber: '#d97706',
+    textDark: '#0F172A',
+    textMuted: '#475569',
+    cardBg: '#FFFFFF',
+    cardBorder: '#fbbf24',
   };
 
   const benefits = [
@@ -82,21 +81,21 @@ export default function WhyChooseCoachingSection() {
             </div>
           </div>
 
-          {/* Benefit Cards */}
+          {/* Benefit Cards - Passing the index to handle alternating mobile layout */}
           <div className="w-full md:w-80 flex justify-center order-2 md:order-1 md:justify-end">
-            <BenefitCard benefit={benefits[0]} colors={colors} />
+            <BenefitCard benefit={benefits[0]} index={0} colors={colors} />
           </div>
 
           <div className="w-full md:w-80 flex justify-center order-3 md:order-3 md:justify-start">
-            <BenefitCard benefit={benefits[1]} colors={colors} />
+            <BenefitCard benefit={benefits[1]} index={1} colors={colors} />
           </div>
 
           <div className="w-full md:w-80 flex justify-center order-4 md:order-4 md:justify-end">
-            <BenefitCard benefit={benefits[2]} colors={colors} />
+            <BenefitCard benefit={benefits[2]} index={2} colors={colors} />
           </div>
 
           <div className="w-full md:w-80 flex justify-center order-5 md:order-5 md:justify-start">
-            <BenefitCard benefit={benefits[3]} colors={colors} />
+            <BenefitCard benefit={benefits[3]} index={3} colors={colors} />
           </div>
 
         </div>
@@ -105,22 +104,26 @@ export default function WhyChooseCoachingSection() {
   );
 }
 
-function BenefitCard({ benefit, colors }: any) {
+function BenefitCard({ benefit, index, colors }) {
+  // Logic: Even index (0, 2) = Icon Left | Odd index (1, 3) = Icon Right
+  const isReversed = index % 2 !== 0;
+
   return (
     <div
-      className="
+      className={`
         group relative overflow-hidden bg-white border border-slate-100 shadow-sm
         w-full max-w-[400px] md:max-w-none transition-all duration-300 ease-out 
         hover:shadow-xl hover:shadow-amber-900/10 md:hover:-translate-y-2
         
-        /* MOBILE SLIM: Horizontal layout */
-        flex flex-row items-start p-4 rounded-2xl gap-4
+        /* MOBILE SLIM: Alternating Layout */
+        flex ${isReversed ? 'flex-row-reverse text-right' : 'flex-row text-left'} 
+        items-start p-4 rounded-2xl gap-4
         
-        /* DESKTOP SAME: Vertical layout */
+        /* DESKTOP RESET: Always vertical and centered */
         md:flex-col md:items-center md:text-center md:p-8 md:rounded-[2rem] md:shadow-lg md:shadow-amber-900/5
-      "
+      `}
     >
-      {/* Top Border Accent (Desktop) */}
+      {/* Top Border Accent (Visible on all) */}
       <div className={`absolute top-0 left-0 w-full h-1 md:h-1.5 ${benefit.accentClass}`} />
 
       {/* Icon Circle */}

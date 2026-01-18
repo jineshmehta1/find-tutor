@@ -33,29 +33,29 @@ const achievers = [
   },
   {
     id: 3,
-    name: "Team Robo-X",
+    name: "Robotics Workshop",
     category: "Robotics",
-    award: "National Innovation Award",
-    image: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?q=80&w=600&auto=format&fit=crop",
-    desc: "Best AI Integration in Lego League",
+    award: "Future Awaits",
+    image: "/robotics-sucess.jpeg",
+    desc: "It was a 5 Days Hands-on workshop, 600 Participants, Biggest Hands-on Workshop.",
     icon: <Award className="w-4 h-4" />
   },
   {
     id: 4,
-    name: "Vihaan Gupta",
+    name: "Aacharya Abacus Prodigy",
     category: "Abacus",
-    award: "Grand Master Title",
-    image: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=600&auto=format&fit=crop",
-    desc: "Solved 100 sums in 5 minutes",
+    award: "Little Masters",
+    image: "/abacus-sucess.jpeg",
+    desc: "Abacus: Little Champions, Quick Math Heroes, One of the fastest calculators.",
     icon: <Medal className="w-4 h-4" />
   },
   {
     id: 5,
-    name: "Sanya Malhotra",
+    name: "Aacharya Chess Champions",
     category: "Chess",
-    award: "FIDE Rated 1600+",
-    image: "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?q=80&w=600&auto=format&fit=crop",
-    desc: "Youngest player to achieve rating in District",
+    award: "Champions",
+    image: "/chess-sucess.jpeg",
+    desc: "Young Chess players winning at every level.",
     icon: <Trophy className="w-4 h-4" />
   }
 ];

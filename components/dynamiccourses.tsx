@@ -68,7 +68,7 @@ export function DynamicCourses({ courses = [] }: DynamicCoursesProps) {
   }
 
   return (
-    <section className="py-24 bg-gradient-to-b from-white to-gray-50 overflow-hidden">
+    <section className="py-12 bg-gradient-to-b from-white to-gray-50 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
         
         {/* Header Section */}

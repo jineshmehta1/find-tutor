@@ -36,7 +36,7 @@ export default function AbacusFAQSection() {
   }
 
   return (
-    <section className="py-20 bg-white overflow-hidden relative">
+    <section className="py-12 bg-white overflow-hidden relative">
       
       {/* Background: Subtle Math Pattern */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>

@@ -90,7 +90,7 @@ export default async function PrimarySchoolPage() {
     <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-amber-100 selection:text-amber-900">
 
       {/* ------------------- BRANDED HERO BANNER ------------------- */}
-      <section className="relative h-[30vh] md:h-[90vh] w-full overflow-hidden flex items-center">
+      <section className="relative h-[25vh] md:h-[90vh] w-full overflow-hidden flex items-center">
         
         {/* Background Image (Your Collage) */}
         <div 

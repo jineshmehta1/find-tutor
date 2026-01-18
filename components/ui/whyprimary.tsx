@@ -54,7 +54,6 @@ export default function WhyChooseUsSection() {
 
       <div className="relative max-w-7xl mx-auto z-10">
         
-        {/* Headline: Slimmer padding/font on mobile */}
         <div className="text-center mb-8 md:mb-20">
           <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
             Why Parents <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-600">Trust Us?</span>
@@ -64,20 +63,18 @@ export default function WhyChooseUsSection() {
           </p>
         </div>
 
-        {/* Responsive Grid Layout */}
         <div className="flex flex-col lg:grid lg:grid-cols-3 gap-4 md:gap-12 items-center">
           
-          {/* Top 2 Cards on Mobile / Left Column on Desktop */}
+          {/* Top 2 Cards (Index 0 and 1) */}
           <div className="w-full space-y-3 md:space-y-8 order-2 lg:order-1">
-            <BenefitCard benefit={benefits[0]} colors={colors} />
-            <BenefitCard benefit={benefits[1]} colors={colors} />
+            <BenefitCard benefit={benefits[0]} index={0} colors={colors} />
+            <BenefitCard benefit={benefits[1]} index={1} colors={colors} />
           </div>
 
-          {/* Central Image: Scaled down on Mobile */}
+          {/* Central Image */}
           <div className="flex justify-center items-center order-1 lg:order-2 group py-4 lg:py-0">
             <div className="relative">
               <div className="absolute inset-0 bg-amber-400/20 rounded-full blur-2xl lg:blur-3xl group-hover:bg-orange-400/30 transition-colors duration-500" />
-              
               <div className="relative w-32 h-32 sm:w-64 sm:h-64 lg:w-80 lg:h-80 rounded-full border-[4px] md:border-[8px] border-white shadow-xl overflow-hidden bg-white mx-auto">
                 <img
                   src="/school.jpeg" 
@@ -85,17 +82,16 @@ export default function WhyChooseUsSection() {
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
               </div>
-              
               <div className="absolute -bottom-1 -right-1 bg-white p-1.5 md:p-2 rounded-full shadow-lg border border-amber-100">
                  <span className="text-sm md:text-2xl">🌟</span>
               </div>
             </div>
           </div>
 
-          {/* Bottom 2 Cards on Mobile / Right Column on Desktop */}
+          {/* Bottom 2 Cards (Index 2 and 3) */}
           <div className="w-full space-y-3 md:space-y-8 order-3 lg:order-3">
-            <BenefitCard benefit={benefits[2]} colors={colors} />
-            <BenefitCard benefit={benefits[3]} colors={colors} />
+            <BenefitCard benefit={benefits[2]} index={2} colors={colors} />
+            <BenefitCard benefit={benefits[3]} index={3} colors={colors} />
           </div>
 
         </div>
@@ -104,30 +100,42 @@ export default function WhyChooseUsSection() {
   );
 }
 
-function BenefitCard({ benefit, colors }: any) {
+function BenefitCard({ benefit, index, colors }) {
+  // Check if index is even or odd for alternating layout
+  const isEven = index % 2 === 0;
+
   return (
     <div
-      className="
+      className={`
         group p-4 md:p-8 rounded-2xl md:rounded-[2.5rem] shadow-sm md:shadow-lg shadow-amber-900/5 
-        flex flex-row lg:flex-col items-center lg:items-start text-left lg:text-left border
-        transition-all duration-300 ease-out relative overflow-hidden bg-white
+        flex items-center border transition-all duration-300 ease-out relative overflow-hidden bg-white
         hover:shadow-md md:hover:shadow-2xl hover:shadow-amber-900/10 hover:-translate-y-1 md:hover:-translate-y-2 cursor-default
-      "
+        
+        /* Alternating Side Logic */
+        ${isEven ? 'flex-row text-left' : 'flex-row-reverse text-right'} 
+        
+        /* Desktop Reset: Always vertical column, left-aligned */
+        lg:flex-col lg:items-start lg:text-left
+      `}
       style={{
         borderColor: colors.cardBorder,
       }}
     >
-      {/* Side Accent for mobile, Top Accent for desktop */}
-      <div className={`absolute top-0 left-0 h-full w-1 md:w-full md:h-1.5 ${benefit.accentClass}`} />
+      {/* Side Accent Line */}
+      <div className={`absolute top-0 h-full w-1 md:w-full md:h-1.5 ${benefit.accentClass} ${isEven ? 'left-0' : 'right-0 lg:left-0'}`} />
 
-      {/* Icon Circle: Smaller on mobile */}
+      {/* Icon Circle */}
       <div
-        className={`shrink-0 flex items-center justify-center rounded-xl md:rounded-2xl w-10 h-10 md:w-16 md:h-16 shadow-inner transition-transform duration-500 group-hover:rotate-[360deg] ${benefit.bgClass} mr-4 lg:mr-0 lg:mb-6`}
+        className={`
+          shrink-0 flex items-center justify-center rounded-xl md:rounded-2xl w-10 h-10 md:w-16 md:h-16 shadow-inner transition-transform duration-500 group-hover:rotate-[360deg] 
+          ${benefit.bgClass} 
+          ${isEven ? 'mr-4 lg:mr-0 lg:mb-6' : 'ml-4 lg:ml-0 lg:mr-0 lg:mb-6'}
+        `}
       >
         {benefit.icon}
       </div>
 
-      <div className="flex flex-col">
+      <div className="flex flex-col flex-1">
         <h3
           className="text-sm md:text-xl font-black mb-0.5 md:mb-3"
           style={{ color: colors.textDark }}

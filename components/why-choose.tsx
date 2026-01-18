@@ -110,9 +110,6 @@ export default function WhyChooseUsSection() {
             Enroll Your Child Today
             <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-2 transition-transform" />
           </Link>
-          <p className="mt-6 md:mt-8 text-slate-400 font-bold text-[9px] md:text-[10px] uppercase tracking-[0.2em] md:tracking-[0.4em]">
-            Limited Slots for 2025-26 Session
-          </p>
         </div>
 
       </div>

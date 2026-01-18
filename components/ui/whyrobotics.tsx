@@ -80,7 +80,7 @@ export default function WhyChooseRoboticsSection() {
               
               <div className="relative w-48 h-48 sm:w-60 sm:h-60 lg:w-80 lg:h-80 rounded-full border-[6px] border-white shadow-2xl overflow-hidden bg-white">
                 <img
-                  src="kidrobot.jpg" 
+                  src="robotics-center.jpeg" 
                   alt="Kid building robot"
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />

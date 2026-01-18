@@ -51,7 +51,7 @@ export function DynamicReviews({ reviews = [], className }: ReviewProps) {
   }
 
   return (
-    <section className={cn("relative py-24 bg-slate-50 overflow-hidden", className)}>
+    <section className={cn("relative py-12 bg-slate-50 overflow-hidden", className)}>
       
       {/* --- Background Ambient Light --- */}
       <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[600px] h-[600px] bg-amber-100/40 rounded-full blur-[100px] -z-10" />

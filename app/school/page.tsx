@@ -98,22 +98,7 @@ export default async function PrimarySchoolPage() {
           style={{ backgroundImage: `url(${data.banner?.imageUrl || '/pic15.webp'})` }}
         />
 
-        {/* YELLOWISH/AMBER TINT OVERLAY (Matching your image) */}
-        <div className="absolute inset-0 z-10 bg-amber-500/35 " />
-
-        {/* TEXT CONTENT (White & Bold) */}
-        <div className="absolute inset-0 z-10 bg-yellow-400/70 md:bg-yellow-400/60 mix-blend-multiply pointer-events-none" />
-
-        {/* Content */}
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center px-6 text-center">
-          <h1 className="text-white text-4xl md:text-7xl  leading-[1.1] mb-10 drop-shadow max-w-5xl">
-            Aacharya <br className="hidden md:block" /> Pre Primary School
-          </h1>
-
-           <p className="text-white text-sm md:text-3xl font-medium leading-tight drop-shadow-sm opacity-95">
-              Learning with Love, Growing with Confidence
-            </p>
-        </div>
+      
       </section>
 
       {/* ------------------- QUICK STATS / USP ------------------- */}

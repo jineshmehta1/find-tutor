@@ -81,22 +81,7 @@ export default async function HomeHero() {
       <section className="relative w-full overflow-hidden">
         <DynamicPageBanner data={data.banner} />
 
-        {/* Overlay */}
-        <div className="absolute inset-0 z-10 bg-yellow-400/70 md:bg-yellow-400/60 mix-blend-multiply pointer-events-none" />
-
-        {/* Content */}
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center px-6 text-center">
-          <h1 className="text-white text-4xl md:text-7xl  leading-[1.1] mb-10 drop-shadow max-w-5xl">
-            Igniting Young Minds <br className="hidden md:block" /> with Skills for Life
-          </h1>
-
-          <Link
-            href="/contact"
-            className="bg-white text-slate-900 px-8 py-4 md:px-10 md:py-5 rounded-full font-black text-sm md:text-base uppercase tracking-widest transition-transform hover:scale-105 shadow-xl"
-          >
-            Contact Us
-          </Link>
-        </div>
+       
       </section>
 
             {/* ---------------- PROGRAMS SECTION ---------------- */}

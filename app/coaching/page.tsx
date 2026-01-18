@@ -48,9 +48,6 @@ async function getCoachingPageData() {
       }),
     ]);
 
-    /**
-     * Robust Feature Parsing
-     */
     const parsedCourses = courses.map((c) => {
       let featuresArray = [];
       try {
@@ -75,7 +72,6 @@ async function getCoachingPageData() {
       reviews, 
       stories,
       banner: banner || {
-        // Fallback in case Admin hasn't uploaded banner data yet
         title: "Master Your Syllabus",
         subtitle: "Comprehensive coaching for Grades 6 to 10. We focus on concept clarity, regular practice, and building exam confidence.",
         imageUrl: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=2070&auto=format&fit=crop",
@@ -88,32 +84,30 @@ async function getCoachingPageData() {
   }
 }
 
-// 3. SERVER COMPONENT (Async)
 export default async function CBSECoachingPage() {
   const data = await getCoachingPageData();
 
   return (
-    <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-amber-100 selection:text-amber-900">
+    <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-amber-100 selection:text-amber-900 overflow-x-hidden">
 
-      {/* ------------------- DYNAMIC BANNER (Replaced Hero) ------------------- */}
       <DynamicPageBanner data={data.banner} />
 
-      {/* ------------------- ACADEMIC STATS ------------------- */}
-      <section className="bg-white py-12 border-b border-slate-100">
-        <div className="max-w-7xl mx-auto px-6 flex flex-wrap justify-around items-center gap-8 text-center">
+      {/* ------------------- ACADEMIC STATS (Updated for 2 per line on mobile) ------------------- */}
+      <section className="bg-white py-8 md:py-12 border-b border-slate-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
           {[
-            { label: "Students Enrolled", val: "1,500+", icon: GraduationCap },
-            { label: "Expert Faculty", val: "25+", icon: PenTool },
-            { label: "Toppers Produced", val: "500+", icon: Award },
-            { label: "Practice Tests", val: "10k+", icon: FileText },
+            { label: "Students", val: "1,500+", icon: GraduationCap },
+            { label: "Faculty", val: "25+", icon: PenTool },
+            { label: "Toppers", val: "500+", icon: Award },
+            { label: "Tests", val: "10k+", icon: FileText },
           ].map((item, i) => (
-            <div key={i} className="flex items-center gap-4 group p-4 rounded-xl hover:bg-amber-50/50 transition-colors">
-              <div className="w-14 h-14 rounded-2xl bg-amber-50 group-hover:bg-amber-500 border border-amber-100 flex items-center justify-center text-amber-600 group-hover:text-white transition-colors duration-300">
-                <item.icon size={24} />
+            <div key={i} className="flex flex-col md:flex-row items-center md:items-start gap-3 md:gap-4 group p-3 md:p-4 rounded-xl hover:bg-amber-50/50 transition-colors text-center md:text-left">
+              <div className="w-10 h-10 md:w-14 md:h-14 shrink-0 rounded-xl md:rounded-2xl bg-amber-50 group-hover:bg-amber-500 border border-amber-100 flex items-center justify-center text-amber-600 group-hover:text-white transition-colors duration-300">
+                <item.icon className="w-5 h-5 md:w-7 md:h-7" />
               </div>
-              <div className="text-left">
-                <h3 className="text-2xl font-black text-slate-900">{item.val}</h3>
-                <p className="text-slate-500 font-bold text-sm uppercase tracking-wide">{item.label}</p>
+              <div>
+                <h3 className="text-lg md:text-2xl font-black text-slate-900">{item.val}</h3>
+                <p className="text-slate-500 font-bold text-[9px] md:text-sm uppercase tracking-wider">{item.label}</p>
               </div>
             </div>
           ))}
@@ -122,20 +116,22 @@ export default async function CBSECoachingPage() {
 
       <WhyChooseCoachingSection/>
 
-      {/* ------------------- CURRICULUM (Data from Server) ------------------- */}
-      <div className="bg-white py-16">
-        <div className="text-center mb-10">
-           <span className="text-slate-400 font-bold uppercase tracking-widest text-sm">Our Batches</span>
-           <h2 className="text-4xl font-black text-slate-900 mt-2">Classes We Coach</h2>
+      {/* ------------------- CURRICULUM ------------------- */}
+      <div className="bg-white py-12 md:py-16">
+        <div className="text-center mb-8 md:mb-10 px-4">
+           <span className="text-slate-400 font-bold uppercase tracking-widest text-xs md:text-sm">Our Batches</span>
+           <h2 className="text-2xl md:text-4xl font-black text-slate-900 mt-2">Classes We Coach</h2>
         </div>
-        <DynamicCourses courses={data.courses} />
+        <div className="px-4">
+          <DynamicCourses courses={data.courses} />
+        </div>
       </div>
 
-      {/* ------------------- SUBJECTS STACK ------------------- */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <h2 className="text-4xl font-black text-slate-900 mb-12">Subjects We Master 📖</h2>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
+      {/* ------------------- SUBJECTS STACK (2 per line on mobile) ------------------- */}
+      <section className="py-12 md:py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
+          <h2 className="text-2xl md:text-4xl font-black text-slate-900 mb-8 md:mb-12">Subjects We Master 📖</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
             {[
               { icon: Calculator, label: "Mathematics", desc: "Logic & Practice", color: "text-amber-600", bg: "bg-amber-100" },
               { icon: Microscope, label: "Science", desc: "Bio, Chem, Physics", color: "text-blue-600", bg: "bg-blue-100" },
@@ -143,19 +139,22 @@ export default async function CBSECoachingPage() {
               { icon: PenTool, label: "English", desc: "Grammar & Lit", color: "text-green-600", bg: "bg-green-100" },
               { icon: BrainCircuit, label: "Hindi / Lang", desc: "Core Basics", color: "text-purple-600", bg: "bg-purple-100" },
             ].map((tool, i) => (
-              <div key={i} className="bg-slate-50 p-6 rounded-3xl border border-slate-100 hover:border-amber-400 transition-all flex flex-col items-center gap-3 group">
-                <div className={`w-14 h-14 ${tool.bg} ${tool.color} rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform`}><tool.icon size={28} /></div>
-                <div><span className="block font-bold text-slate-900 text-lg">{tool.label}</span><span className="block text-xs font-bold text-slate-400 uppercase tracking-wide">{tool.desc}</span></div>
+              <div key={i} className="bg-slate-50 p-4 md:p-6 rounded-2xl md:rounded-3xl border border-slate-100 hover:border-amber-400 transition-all flex flex-col items-center gap-3 group">
+                <div className={`w-10 h-10 md:w-14 md:h-14 shrink-0 ${tool.bg} ${tool.color} rounded-xl md:rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                  <tool.icon className="w-5 h-5 md:w-7 md:h-7" />
+                </div>
+                <div className="text-center">
+                  <span className="block font-bold text-slate-900 text-sm md:text-lg">{tool.label}</span>
+                  <span className="hidden md:block text-[10px] font-bold text-slate-400 uppercase tracking-wide mt-1">{tool.desc}</span>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      
-
-      {/* ------------------- GALLERY (Data from Server) ------------------- */}
-      <div className="py-12 bg-white">
+      {/* ------------------- GALLERY / REVIEWS ------------------- */}
+      <div className="py-10 bg-white px-4">
         <DynamicGallery 
             images={data.gallery}
             title="Classroom Vibes" 
@@ -164,22 +163,25 @@ export default async function CBSECoachingPage() {
         />
       </div>
 
-      {/* ------------------- REVIEWS (Data from Server) ------------------- */}
-      <div className="bg-slate-50 py-12 border-y border-slate-100">
+      <div className="bg-slate-50 py-10 border-y border-slate-100 px-4">
          <DynamicReviews reviews={data.reviews} />
       </div>
 
-      <CBSEFAQSection/>
+      <div className="px-4">
+        <CBSEFAQSection/>
+      </div>
 
       {/* ------------------- CTA ------------------- */}
-      <section className="py-20 px-4 bg-white">
+      <section className="py-12 md:py-20 px-4 sm:px-6 bg-white">
         <div className="max-w-5xl mx-auto">
-          <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-r from-amber-500 to-orange-600 shadow-xl shadow-orange-200">
-            <div className="relative z-10 p-10 md:p-16 text-center">
-               <Sparkles className="w-16 h-16 text-white mx-auto mb-6 animate-pulse" />
-               <h2 className="text-4xl md:text-5xl font-black text-white mb-6">Start Your Success Story</h2>
-               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                 <Button className="h-14 px-10 bg-white text-amber-600 font-black text-lg rounded-full">Enroll Now</Button>
+          <div className="relative overflow-hidden rounded-[2rem] md:rounded-[2.5rem] bg-gradient-to-r from-amber-500 to-orange-600 shadow-xl shadow-orange-200">
+            <div className="relative z-10 p-8 md:p-16 text-center">
+               <Sparkles className="w-10 h-10 md:w-16 md:h-16 text-white mx-auto mb-4 md:mb-6 animate-pulse" />
+               <h2 className="text-2xl md:text-5xl font-black text-white mb-4 md:mb-6 leading-tight">Start Your Success Story</h2>
+               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                 <Button className="h-12 md:h-14 w-full sm:w-auto px-10 bg-white text-amber-600 font-black text-lg rounded-full hover:bg-slate-50 transition-colors">
+                   Enroll Now
+                 </Button>
                </div>
             </div>
           </div>

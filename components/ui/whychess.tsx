@@ -8,7 +8,6 @@ import {
   Gamepad2, 
   Zap, 
   Sun, 
-  Cloud, 
   Star 
 } from 'lucide-react';
 
@@ -24,7 +23,7 @@ export default function WhyChooseUsSection() {
       border: 'hover:border-rose-300',
     },
     {
-      title: 'Scientific Curriculum',
+      title: 'Scientific Path',
       description: 'A structured path for skill growth.',
       icon: BookOpen,
       color: "text-amber-600",
@@ -41,7 +40,7 @@ export default function WhyChooseUsSection() {
     },
     {
       title: 'Life Skills',
-      description: 'Concentration & decision-making.',
+      description: 'Focus & decision-making skills.',
       icon: Zap,
       color: "text-blue-600",
       bg: 'bg-blue-50', 
@@ -50,7 +49,7 @@ export default function WhyChooseUsSection() {
   ];
 
   return (
-    <section className="py-16 md:py-24 px-4 relative overflow-hidden bg-white">
+    <section className="py-12 md:py-24 px-3 sm:px-6 relative overflow-hidden bg-white">
       
       {/* Background Decor */}
       <div className="absolute top-10 left-10 text-amber-100 opacity-60 hidden md:block animate-pulse"><Sun size={64} /></div>
@@ -61,48 +60,54 @@ export default function WhyChooseUsSection() {
       <div className="relative max-w-7xl mx-auto z-10">
         
         {/* Header */}
-        <div className="text-center mb-12 md:mb-16">
+        <div className="text-center mb-10 md:mb-16">
             <motion.span 
               initial={{ opacity: 0, y: -10 }}
               whileInView={{ opacity: 1, y: 0 }}
-              className="px-4 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 font-black text-[10px] md:text-xs uppercase tracking-[0.2em] mb-4 inline-block"
+              className="px-4 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 font-black text-[10px] uppercase tracking-widest mb-4 inline-block"
             >
                The Aacharya Difference
             </motion.span>
             <motion.h2 
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
-              className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter"
+              className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight"
             >
             Why Parents <span className="text-amber-500 italic">Trust Us?</span>
             </motion.h2>
         </div>
 
-        {/* Layout: Image in center, 2x2 Grid on Mobile, Orbiting on Desktop */}
-        <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-12">
+        <div className="flex flex-col lg:flex-row items-center justify-center gap-6 md:gap-12">
           
-          {/* Left Side Cards (Desktop) */}
-          <div className="grid grid-cols-2 lg:flex lg:flex-col gap-4 w-full lg:w-auto order-2 lg:order-1">
-            <BenefitCard benefit={benefits[0]} />
-            <BenefitCard benefit={benefits[2]} />
-          </div>
-
-          {/* Central Image */}
-          <div className="order-1 lg:order-2 flex justify-center py-4">
-            <div className="relative group w-48 h-48 md:w-64 md:h-64 lg:w-80 lg:h-80">
-              <div className="absolute inset-[-15px] border-2 border-dashed border-amber-200 rounded-full animate-[spin_20s_linear_infinite]" />
-              <div className="relative w-full h-full rounded-full border-[6px] border-white shadow-xl overflow-hidden bg-white z-10">
+          {/* Central Image: First on mobile, Middle on desktop */}
+          <div className="order-1 lg:order-2 flex justify-center mb-4 lg:mb-0">
+            <div className="relative group w-32 h-32 md:w-64 md:h-64 lg:w-80 lg:h-80">
+              <div className="absolute inset-[-8px] border-2 border-dashed border-amber-200 rounded-full animate-[spin_20s_linear_infinite]" />
+              <div className="relative w-full h-full rounded-full border-[4px] md:border-[6px] border-white shadow-xl overflow-hidden bg-white z-10">
                 <img src="/chess-cen.jpeg" alt="Happy Student" className="w-full h-full object-cover" />
               </div>
-              <div className="absolute -bottom-2 -right-2 bg-white px-3 py-1 rounded-lg shadow-lg border border-amber-100 z-20 flex items-center gap-1">
-                 <Star size={14} className="text-amber-500 fill-amber-500" />
-                 <span className="font-black text-slate-800 text-[10px] uppercase">#1 Choice</span>
+              <div className="absolute -bottom-1 -right-1 bg-white px-2 py-0.5 rounded shadow border border-amber-100 z-20 flex items-center gap-1">
+                 <Star size={10} className="text-amber-500 fill-amber-500" />
+                 <span className="font-black text-slate-800 text-[8px] md:text-[10px] uppercase">#1 Choice</span>
               </div>
             </div>
           </div>
 
-          {/* Right Side Cards (Desktop) */}
-          <div className="grid grid-cols-2 lg:flex lg:flex-col gap-4 w-full lg:w-auto order-3">
+          {/* Mobile Grid (Hidden on Desktop) */}
+          <div className="grid grid-cols-2 gap-3 order-2 lg:hidden w-full">
+            {benefits.map((benefit, idx) => (
+              <BenefitCard key={idx} benefit={benefit} />
+            ))}
+          </div>
+
+          {/* Desktop Layout: Left Side Cards */}
+          <div className="hidden lg:flex flex-col gap-6 order-1">
+            <BenefitCard benefit={benefits[0]} />
+            <BenefitCard benefit={benefits[2]} />
+          </div>
+
+          {/* Desktop Layout: Right Side Cards */}
+          <div className="hidden lg:flex flex-col gap-6 order-3">
             <BenefitCard benefit={benefits[1]} />
             <BenefitCard benefit={benefits[3]} />
           </div>
@@ -121,26 +126,26 @@ function BenefitCard({ benefit }) {
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true }}
       className={`
-        group flex items-center gap-3 md:gap-4 p-3 md:p-5 rounded-xl md:rounded-2xl bg-white border-2 border-slate-50
+        group flex items-start md:items-center gap-2 md:gap-4 p-2.5 md:p-5 rounded-xl md:rounded-2xl bg-white border-2 border-slate-50
         transition-all duration-300 shadow-sm hover:shadow-xl hover:-translate-y-1 cursor-default
-        w-full lg:w-[320px] ${benefit.border}
+        w-full lg:w-[300px] ${benefit.border}
       `}
     >
-      {/* Slim Icon Container */}
+      {/* Icon Container */}
       <div className={`
-        flex-shrink-0 w-10 h-10 md:w-14 md:h-14 rounded-lg md:rounded-xl 
+        flex-shrink-0 w-8 h-8 md:w-14 md:h-14 rounded-lg md:rounded-xl 
         flex items-center justify-center transition-transform group-hover:rotate-3
         ${benefit.bg} ${benefit.color}
       `}>
-        <Icon size={24} className="md:w-7 md:h-7" strokeWidth={2.5} />
+        <Icon size={18} className="md:w-7 md:h-7" strokeWidth={2.5} />
       </div>
 
       {/* Text Container */}
       <div className="text-left">
-        <h3 className="text-[11px] md:text-base font-black text-slate-900 leading-tight uppercase tracking-tight mb-0.5">
+        <h3 className="text-[11px] md:text-base font-black text-slate-900 leading-tight uppercase mb-0.5">
           {benefit.title}
         </h3>
-        <p className="text-[10px] md:text-xs font-bold text-slate-400 group-hover:text-slate-600 transition-colors leading-tight">
+        <p className="text-[9px] md:text-xs font-bold text-slate-400 group-hover:text-slate-600 transition-colors leading-tight">
           {benefit.description}
         </p>
       </div>

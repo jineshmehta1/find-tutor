@@ -90,16 +90,7 @@ export default async function PrimarySchoolPage() {
     <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-amber-100 selection:text-amber-900">
 
       {/* ------------------- BRANDED HERO BANNER ------------------- */}
-      <section className="relative h-[25vh] md:h-[90vh] w-full overflow-hidden flex items-center">
-        
-        {/* Background Image (Your Collage) */}
-        <div 
-          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${data.banner?.imageUrl || '/pic15.webp'})` }}
-        />
-
-      
-      </section>
+      <DynamicPageBanner data={data.banner} />
 
       {/* ------------------- QUICK STATS / USP ------------------- */}
       <div className="bg-white border-b border-slate-100 relative z-30">

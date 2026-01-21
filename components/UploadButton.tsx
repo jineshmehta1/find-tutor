@@ -3,6 +3,7 @@
 import { UploadButton } from "@uploadthing/react";
 import type { OurFileRouter } from "@/app/api/uploadthing/core";
 
+
 export function ImageUpload({ onUploadComplete }: { onUploadComplete: (url: string) => void }) {
   return (
     <UploadButton<OurFileRouter>

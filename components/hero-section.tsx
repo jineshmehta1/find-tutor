@@ -120,7 +120,7 @@ export default async function HomeHero() {
                     />
                   </div>
 
-                  <h3 className="text-[12px] md:text-[15px] font-black text-[#332a3d] mb-2 md:mb-4 uppercase leading-tight">
+                  <h3 className="text-[12px] md:text-[19px] font-black text-amber-500 mb-2 md:mb-4 uppercase leading-tight">
                     {program.label}
                   </h3>
 

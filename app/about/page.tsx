@@ -13,9 +13,9 @@ export default function AboutPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-0">
       <AboutBanner />
       <AboutSection />
-      <AchievementsSection />
+      {/* <AchievementsSection /> */}
       <TeamSection />
-      <CoachCtaSection />
+      {/* <CoachCtaSection /> */}
       <FaqSection />
       <TestimonialsSection />
       <DemoBookingCTA />

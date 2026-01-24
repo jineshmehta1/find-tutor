@@ -5,139 +5,191 @@ import {
   Trophy, 
   CheckCircle2, 
   Sparkles, 
-  Quote 
+  Quote, 
+  Cpu, 
+  Calculator, 
+  School, 
+  BookOpen, 
+  Award, 
+  FlaskConical,
+  ArrowRight
 } from 'lucide-react';
+import Link from 'next/link';
 
 const AboutSection: React.FC = () => {
+  const programs = [
+    { icon: School, title: "Aacharya Pre-Primary", desc: "NEP-aligned, activity-based learning for creativity.", color: "bg-blue-50 text-blue-600" },
+    { icon: Trophy, title: "Chess Academy", desc: "FIDE preparation and Sunday chess clubs.", color: "bg-amber-50 text-amber-600" },
+    { icon: Cpu, title: "Robotics & IoT", desc: "Hands-on coding with Arduino and Raspberry Pi.", color: "bg-purple-50 text-purple-600" },
+    { icon: Calculator, title: "Abacus Training", desc: "9-level program for mental math mastery.", color: "bg-emerald-50 text-emerald-600" },
+    { icon: BookOpen, title: "Tuition Point", desc: "Personalized support in Maths and Science.", color: "bg-rose-50 text-rose-600" },
+    { icon: FlaskConical, title: "Workshops & Camps", desc: "STEM and arts camps for teamwork.", color: "bg-indigo-50 text-indigo-600" },
+  ];
+
+  const benefits = [
+    { title: 'Holistic Learning', desc: 'A complete ecosystem covering academics, STEM, and Chess.', color: 'sky' },
+    { title: 'Experienced Mentors', desc: 'Skilled teachers who nurture every child’s potential.', color: 'slate' },
+    { title: 'Safe Environment', desc: 'Hygienic classrooms prioritizing safety and care.', color: 'rose' },
+    { title: 'Skill & Confidence', desc: 'Activities that build creativity and problem-solving.', color: 'amber' },
+    { title: 'Parent Partnership', desc: 'Transparent progress tracking and active involvement.', color: 'sky' },
+  ];
+
+  const colorStyles = {
+    sky: { bg: 'bg-sky-400', border: 'border-sky-100' },
+    slate: { bg: 'bg-slate-400', border: 'border-slate-100' },
+    rose: { bg: 'bg-rose-400', border: 'border-rose-100' },
+    amber: { bg: 'bg-amber-400', border: 'border-amber-100' },
+  };
+
   return (
-    <section className="py-16 md:py-24 bg-white overflow-hidden font-sans">
-      <div className="container mx-auto px-6 md:px-12 max-w-7xl">
-        <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
-          
-          {/* --- Left Column: Images Composition --- */}
+    <div className="bg-white">
+      {/* --- HERO SECTION --- */}
+      <section className="py-12 md:py-24 px-6 max-w-7xl mx-auto overflow-hidden">
+        <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-20">
           <div className="w-full lg:w-1/2 relative">
-            <div className="relative w-full max-w-[550px] mx-auto lg:mx-0 h-[450px] sm:h-[520px]">
-              
-              {/* Decorative Pattern (Dots) */}
-              <div className="absolute -top-8 -right-8 w-32 h-32 opacity-10 z-0">
-                <svg width="100%" height="100%" viewBox="0 0 100 100" fill="none">
-                  <pattern id="dots" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-                    <circle cx="2" cy="2" r="2" className="text-amber-600" fill="currentColor" />
-                  </pattern>
-                  <rect width="100%" height="100%" fill="url(#dots)" />
-                </svg>
+            <div className="relative w-full max-w-[550px] mx-auto lg:mx-0 h-[320px] md:h-[450px]">
+              <div className="absolute top-0 left-0 w-[75%] h-[75%] z-10">
+                <img src="/gallery15.jpg" alt="Classroom" className="w-full h-full object-cover rounded-[1.5rem] md:rounded-[2rem] shadow-2xl" />
               </div>
-
-              {/* Main Image (Classroom/Academic) */}
-              <div className="absolute top-0 left-0 w-[75%] h-[65%] z-10">
-                <img 
-                  src="/gallery15.jpg" 
-                  alt="Students learning in classroom"
-                  className="w-full h-full object-cover rounded-[2rem] shadow-2xl shadow-slate-200"
-                />
-              </div>
-
-              {/* Secondary Image (Skill/Activity) */}
-              <div className="absolute bottom-0 right-0 w-[65%] h-[55%] z-20">
-                <div className="w-full h-full p-3 bg-white rounded-[2rem] shadow-xl">
-                  <img 
-                    src="/champion.webp" 
-                    alt="Student engaging in robotics"
-                    className="w-full h-full object-cover rounded-[1.5rem]"
-                  />
+              <div className="absolute bottom-0 right-0 w-[65%] h-[60%] z-20">
+                <div className="w-full h-full p-2 bg-white rounded-[1.5rem] shadow-xl">
+                  <img src="/champion.webp" alt="Activities" className="w-full h-full object-cover rounded-[1rem]" />
                 </div>
               </div>
-
-              {/* Floating Badge: Years of Excellence */}
-              <div className="absolute bottom-12 -left-4 sm:left-0 z-30 bg-white p-4 pr-6 rounded-r-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center gap-4 border-l-4 border-amber-500 animate-in fade-in slide-in-from-left duration-700">
-                <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 shrink-0">
-                  <Trophy className="w-6 h-6" strokeWidth={2} />
-                </div>
-                <div>
-                  <div className="text-2xl font-extrabold text-slate-900">15+</div>
-                  <div className="text-xs font-bold text-slate-500 uppercase tracking-wide">Years of Excellence</div>
-                </div>
-              </div>
-
             </div>
           </div>
-
-          {/* --- Right Column: Text Content --- */}
           <div className="w-full lg:w-1/2">
-            
-            {/* Pill Label */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-6 rounded-full bg-amber-50 border border-amber-100">
+            <div className="inline-flex items-center gap-2 px-3 py-1 mb-4 rounded-full bg-amber-50 border border-amber-100">
               <Sparkles className="w-4 h-4 text-amber-500" />
-              <span className="text-xs font-bold text-amber-800 uppercase tracking-wider">
-                About Aacharya
-              </span>
+              <span className="text-[10px] font-bold text-amber-800 uppercase tracking-widest">About Aacharya</span>
             </div>
-
-            {/* Heading */}
-            <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-6 leading-[1.15]">
-              Bridging Academics with <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-600">
-                Future Skills.
-              </span>
+            <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-4 leading-tight">
+              Bridging Academics with <br className="hidden md:block" />
+              <span className="text-amber-500">Future Skills.</span>
             </h2>
-
-            {/* Description Text */}
-            <div className="space-y-6 text-slate-600 text-lg leading-relaxed mb-8">
-              <p>
-                At Aacharya, we believe education goes beyond textbooks. We fuse the rigour of the <strong className="text-slate-900">CBSE Curriculum</strong> with the creativity of modern skills like <strong className="text-slate-900">Robotics, Chess, and Abacus</strong>.
-              </p>
-              <p>
-                Our mission is to nurture well-rounded individuals who are not only academic toppers but also critical thinkers and problem solvers.
-              </p>
+            <p className="text-slate-600 text-sm md:text-lg mb-6 leading-relaxed">
+              At Aacharya, we believe every child is unique and full of potential. Our mission is to provide a nurturing, safe, and stimulating environment where children can learn, explore, and grow across academics, creativity, and life skills.
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              {["Holistic", "STEM", "Activity Based", "Safe Campus"].map((item, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-amber-500" />
+                  <span className="text-slate-800 text-xs md:text-base font-bold">{item}</span>
+                </div>
+              ))}
             </div>
+          </div>
+        </div>
+      </section>
 
-            {/* Feature List */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-               {[
-                 "CBSE Aligned Pedagogy", 
-                 "Certified Skill Trainers", 
-                 "Small Batch Sizes", 
-                 "Holistic Development"
-               ].map((item, idx) => (
-                 <div key={idx} className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-amber-500 shrink-0" />
-                    <span className="text-slate-700 font-medium">{item}</span>
-                 </div>
-               ))}
-            </div>
-
-            {/* Founder Profile Section */}
-            <div className="relative mt-8 pt-8 border-t border-slate-100">
-              {/* Quote Graphic */}
-              <Quote className="absolute top-6 right-0 text-slate-100 w-12 h-12 -scale-x-100" />
-              
-              <div className="flex items-center gap-5 relative z-10">
-                {/* <div className="relative">
-                    <img 
-                        src="/gallery21.jpeg" 
-                        alt="Founder Portrait"
-                        className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-md ring-1 ring-slate-200"
-                    />
-                    <div className="absolute bottom-0 right-0 w-5 h-5 bg-amber-500 rounded-full border-2 border-white flex items-center justify-center">
-                        <CheckCircle2 className="w-3 h-3 text-white" />
-                    </div>
-                </div> */}
-                {/* <div>
-                  <h4 className="text-lg font-bold text-slate-900">
-                    Vivek Singh
-                  </h4>
-                  <p className="text-sm font-medium text-amber-600">
-                    Founder & Principal Director
+      {/* --- SECTION 2: SLIM PROGRAM CARDS --- */}
+      <section className="py-16 bg-slate-50">
+        <div className="container mx-auto px-5 max-w-7xl">
+          <div className="text-center md:text-left mb-10">
+            <h2 className="text-3xl font-black text-slate-900 mb-2">Our Programs</h2>
+            <p className="text-slate-500 text-sm">Comprehensive ecosystem for modern skill development.</p>
+          </div>
+          
+          {/* Mobile: 1 col, slim horizontal | Desktop: 3 col, standard card */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
+            {programs.map((prog, i) => (
+              <div 
+                key={i} 
+                className="group flex items-center md:flex-col md:items-start p-3 md:p-8 rounded-xl md:rounded-3xl bg-white border border-slate-100 hover:shadow-lg transition-all"
+              >
+                {/* Slim Icon Container */}
+                <div className={`flex-shrink-0 w-12 h-12 md:w-16 md:h-16 rounded-lg md:rounded-2xl ${prog.color} flex items-center justify-center mr-4 md:mr-0 md:mb-6`}>
+                  <prog.icon className="w-6 h-6 md:w-8 md:h-8" />
+                </div>
+                
+                {/* Text content - adjusted for slimness */}
+                <div className="flex-1">
+                  <h4 className="text-sm md:text-xl font-black text-slate-900 mb-0.5 md:mb-3">{prog.title}</h4>
+                  <p className="text-slate-500 text-[11px] md:text-sm leading-snug md:leading-relaxed line-clamp-2 md:line-clamp-none">
+                    {prog.desc}
                   </p>
-                </div> */}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* --- SECTION 3: FOUNDER (WHITE BG) --- */}
+      <section className="py-16 px-6 bg-white border-y border-slate-100">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col lg:flex-row gap-10 lg:gap-16 items-center">
+            <div className="w-full lg:w-2/5">
+              <div className="relative p-1.5 border-2 border-amber-100 rounded-[2rem]">
+                <div className="bg-slate-50 rounded-[1.8rem] overflow-hidden aspect-[4/5]">
+                   <img src="/chess-cen.jpeg" className="w-full h-full object-cover" alt="Dr. G. Rajesh" />
+                </div>
               </div>
             </div>
-
+            <div className="w-full lg:w-3/5">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-amber-50 text-amber-700 text-[10px] font-bold uppercase tracking-widest mb-4">
+                Founder & Visionary
+              </div>
+              <h3 className="text-3xl font-black text-slate-900 mb-1">Dr. G. Rajesh</h3>
+              <p className="text-amber-600 font-bold text-base mb-6 underline underline-offset-4 decoration-2">Professor & Founder of Aacharya</p>
+              
+              <div className="space-y-4 text-slate-600 text-sm md:text-base leading-relaxed mb-8">
+                <p>Dr. G. Rajesh (Ph.D., JNTUH) brings <span className="font-bold text-slate-900">20+ years of academic excellence</span>. A published researcher and patent holder passionate about holistic skill development.</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {["Published Researcher", "2 Engineering Patents", "IIT/NIT Presenter"].map((t, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <Award className="w-4 h-4 text-amber-500 shrink-0" />
+                      <span className="text-xs font-semibold">{t}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="p-5 bg-slate-50 rounded-xl border-l-4 border-amber-500 relative">
+                <Quote className="absolute top-2 right-2 text-slate-200 w-8 h-8 opacity-40" />
+                <p className="italic text-slate-700 text-xs md:text-sm font-medium">"Our vision is to bridge the gap between traditional education and future skills."</p>
+              </div>
+            </div>
           </div>
-
         </div>
-      </div>
-    </section>
+      </section>
+
+      {/* --- SECTION 4: WHY PARENTS CHOOSE US --- */}
+      <section className="py-16 px-4 bg-slate-50/50">
+        <div className="max-w-7xl mx-auto text-center mb-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-100 text-amber-700 text-[10px] font-bold uppercase mb-4">
+            <CheckCircle2 size={14} /> The Aacharya Advantage
+          </div>
+          <h2 className="text-2xl md:text-4xl font-black text-slate-900">Why Parents Trust Aacharya</h2>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 max-w-5xl mx-auto">
+          {benefits.map((benefit, idx) => {
+            const isRightAligned = idx % 2 !== 0;
+            const style = colorStyles[benefit.color as keyof typeof colorStyles];
+            return (
+              <div key={idx} className={`relative flex items-center ${isRightAligned ? 'lg:flex-row-reverse' : 'lg:flex-row'}`}>
+                <div className={`relative z-10 w-full bg-white border-[1.5px] ${style.border} rounded-2xl p-4 flex items-center gap-4 ${isRightAligned ? 'lg:flex-row-reverse lg:text-right' : 'text-left'}`}>
+                  <div className={`flex-shrink-0 w-12 h-12 md:w-16 md:h-16 rounded-full ${style.bg} flex items-center justify-center text-white text-lg md:text-2xl font-black shadow-md`}>
+                    {idx + 1}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-sm md:text-lg font-black text-slate-800 mb-0.5">{benefit.title}</h3>
+                    <p className="text-slate-500 text-[10px] md:text-sm font-semibold leading-tight">{benefit.desc}</p>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="mt-12 text-center">
+          <Link href="/contact" className="group inline-flex items-center gap-3 bg-slate-900 text-white px-8 py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-lg active:scale-95">
+            Enroll Your Child Today
+            <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </div>
+      </section>
+    </div>
   );
 };
 

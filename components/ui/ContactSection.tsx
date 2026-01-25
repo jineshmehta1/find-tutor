@@ -86,7 +86,7 @@ const ContactSection: React.FC = () => {
                         </div>
                         <div>
                            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Email Us</p>
-                           <p className="text-lg font-medium text-white">info@aacharya.com</p>
+                           <p className="text-lg font-medium text-white">info@aacharya.net</p>
                         </div>
                      </div>
                   </div>
@@ -127,7 +127,7 @@ const ContactSection: React.FC = () => {
                         <label className="text-sm font-bold text-slate-700 ml-1">Email Address <span className="text-red-500">*</span></label>
                         <div className="relative">
                            <AtSign className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
-                           <input required name="email" value={formData.email} onChange={handleChange} type="email" placeholder="example@gmail.com" className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all font-medium text-slate-900 placeholder:text-slate-400" />
+                           <input required name="email" value={formData.email} onChange={handleChange} type="email" placeholder="aacharyateam@gmail.com" className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all font-medium text-slate-900 placeholder:text-slate-400" />
                         </div>
                      </div>
 

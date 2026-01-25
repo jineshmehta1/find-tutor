@@ -179,7 +179,11 @@ export default function Footer() {
               </div>
               <div className="flex items-center gap-3 text-sm">
                 <Mail className="w-5 h-5 text-yellow-400 shrink-0" />
-                <span>admissions@aacharya.com</span>
+                <span>info@aacharya.net</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm">
+                <Mail className="w-5 h-5 text-yellow-400 shrink-0" />
+                <span>aacharyateam@gmail.com</span>
               </div>
             </div>
           </div>

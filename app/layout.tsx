@@ -9,10 +9,9 @@ import  Footer  from "@/components/footer"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: " Aacharya - Professional Chess Training",
+  title: "Aacharya – Complete Learning Center for Children in Bhavanipuram, Vijayawada",
   description:
-    "Professional chess training academy with FIDE rated coaches. Learn chess from beginners to advanced levels with online and offline classes.",
-  generator: "v0.app",
+    "Aacharya Learning Hub in Bhavanipuram, Vijayawada offers Pre Primary School, Chess Academy, Robotics Center, Abacus training and Tuition for children. One campus for complete child development.",
 }
 
 export default function RootLayout({

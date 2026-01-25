@@ -49,7 +49,7 @@ const AboutSection: React.FC = () => {
           <div className="w-full lg:w-1/2 relative">
             <div className="relative w-full max-w-[550px] mx-auto lg:mx-0 h-[320px] md:h-[450px]">
               <div className="absolute top-0 left-0 w-[75%] h-[75%] z-10">
-                <img src="/gallery15.jpg" alt="Classroom" className="w-full h-full object-cover rounded-[1.5rem] md:rounded-[2rem] shadow-2xl" />
+                <img src="/about.jpeg" alt="Classroom" className="w-full h-full object-cover rounded-[1.5rem] md:rounded-[2rem] shadow-2xl" />
               </div>
               <div className="absolute bottom-0 right-0 w-[65%] h-[60%] z-20">
                 <div className="w-full h-full p-2 bg-white rounded-[1.5rem] shadow-xl">

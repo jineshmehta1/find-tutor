@@ -74,7 +74,7 @@ async function getAbacusPageData() {
       banner: banner || {
         title: "Calculate Faster than a Calculator ⚡",
         subtitle: "Unlock your child's hidden genius. We teach visualization, concentration, and lightning-fast mental math skills.",
-        imageUrl: "/gallery15.jpg",
+        imageUrl: "/about.jpeg",
         breadcrumb: "Abacus Academy"
       }
     };

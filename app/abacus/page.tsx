@@ -8,6 +8,7 @@ import {
   Layers, TrendingUp, Sparkles, Flashlight
 } from "lucide-react"
 
+
 // ynamic Components
 import { DynamicGallery } from "@/components/dynamicgallery"
 import { DynamicReviews } from "@/components/dynamicreviews"

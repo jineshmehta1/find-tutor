@@ -141,11 +141,11 @@ export default function Footer() {
             </h3>
             <ul className="space-y-3">
               {[
-                { name: "Pre Primary School", href: "/school" },
-                { name: "Chess Coaching", href: "/chess" },
-                { name: "Abacus Maths", href: "/abacus" },
-                { name: "Robotics, AI & IOT", href: "/robotics" },
-                { name: "Tution Point", href: "/coaching" },
+                { name: "Pre Primary School", href: "/pre-school" },
+                { name: "Chess Coaching", href: "/chess-academy" },
+                { name: "Abacus Maths", href: "/abacus-training" },
+                { name: "Robotics, AI & IOT", href: "/robotics-center" },
+                { name: "Tution Point", href: "/tuition-center" },
               ].map((link) => (
                 <li key={link.name}>
                   <a 

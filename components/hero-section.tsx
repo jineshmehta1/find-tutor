@@ -47,31 +47,31 @@ export default async function HomeHero() {
       image: "/pre-co.png",
       label: "PRE SCHOOL (International)",
       desc: "Play Group, Nursery, LKG, UKG. Age 2–6 Years",
-      path: "/school",
+      path: "/pre-school",
     },
     {
       image: "/coach-co.png",
       label: "TUITION POINT",
       desc: "CBSE/IB offline tuition for Class 1–10",
-      path: "/coaching",
+      path: "/tuition-center",
     },
     {
       image: "/chess-co.png",
       label: "CHESS",
       desc: "Basic to professional coaching. Age 5–15 years",
-      path: "/chess",
+      path: "/chess-academy",
     },
     {
       image: "/abacus-co.png",
       label: "ABACUS",
       desc: "Speed & accuracy enhancement. Age 6–14 years",
-      path: "/abacus",
+      path: "/abacus-training",
     },
     {
       image: "/robo-co.png",
       label: "ROBOTICS & IoT",
       desc: "Coding, robotics & IoT made exciting",
-      path: "/robotics",
+      path: "/robotics-center",
     },
   ];
 

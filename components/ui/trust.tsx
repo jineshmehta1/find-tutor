@@ -9,7 +9,7 @@ export default function TrustBar() {
       {/* Subtle top accent line */}
       <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
 
-      <div className="max-w-5xl mx-auto px-2 md:px-6 py-3 md:py-6">
+      <div className="max-w-5xl mx-auto px-0 md:px-6 py-3 md:py-6">
         <div className="flex flex-row items-center justify-center gap-0 md:gap-12">
           
           {/* --- LEFT ITEM: GOVT RECOGNITION --- */}
@@ -17,7 +17,7 @@ export default function TrustBar() {
             initial={{ opacity: 0, x: -10 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="flex-1 md:flex-none flex items-center justify-center gap-0 md:gap-4 px-2"
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 md:gap-4 px-2"
           >
             <div className="shrink-0 w-8 h-8 md:w-12 md:h-12 rounded-full bg-amber-50 flex items-center justify-center border border-amber-100 shadow-sm transition-transform duration-500 hover:scale-110">
               <Award className="text-amber-600 w-4 h-4 md:w-6 md:h-6" />

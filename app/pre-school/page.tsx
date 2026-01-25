@@ -2,7 +2,7 @@
 export const dynamic = "force-dynamic";
 
 import { 
-  Trophy, Sun, CheckCircle2
+  Trophy, Sun, CheckCircle2, Award, GraduationCap
 } from "lucide-react"
 
 // Dynamic Components
@@ -91,6 +91,21 @@ export default async function PrimarySchoolPage() {
 
       {/* ------------------- BRANDED HERO BANNER ------------------- */}
       <DynamicPageBanner data={data.banner} />
+
+      {/* 2. TRUST STRIP (Government Recognition) */}
+      <div className="bg-slate-900 text-white py-4 relative z-40">
+        <div className="max-w-7xl mx-auto px-6 flex flex-wrap justify-center items-center gap-4 md:gap-10 text-[9px] md:text-xs font-bold uppercase tracking-[0.2em]">
+          <div className="flex items-center gap-2">
+            <Award className="text-amber-400 w-4 h-4" />
+            <span>Recognized by Govt. of Andhra Pradesh</span>
+          </div>
+          <div className="hidden md:block h-4 w-px bg-slate-700"></div>
+          <div className="flex items-center gap-2">
+            <GraduationCap className="text-amber-400 w-4 h-4" />
+            <span>Powered by Duckling Educational Society</span>
+          </div>
+        </div>
+      </div>
 
       {/* ------------------- QUICK STATS / USP ------------------- */}
       <div className="bg-white border-b border-slate-100 relative z-30">

@@ -66,7 +66,6 @@ const CurriculumSun = () => {
             pedagogies to create a customized foundation for every child.
           </motion.p>
 
-         import Link from "next/link";
 
 <div className="flex flex-wrap justify-center lg:justify-start gap-4">
   <Link href="/contact">

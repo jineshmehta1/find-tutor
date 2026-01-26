@@ -7,7 +7,7 @@ import Link from "next/link";
 const testimonials = [
   {
     id: 1,
-    name: "Eshan Gupta",
+    name: "Vihaan",
     role: "Student",
     text: "Humble, kind, and truly dedicated. My child loves his classes—clear explanations, great patience, and real passion for chess. Amazing progress in just weeks. Highly recommend Vivek! 👍",
     rating: 5,
@@ -16,25 +16,25 @@ const testimonials = [
   },
   {
     id: 2,
-    name: "Shalini Kanth",
-    role: "Parent of Lavith (Age 7)",
-    text: "Had a great experience with Coach Mr. Vivek Singh sir. He's very passionate towards chess and Hardworking.",
+    name: "Thandava krishna",
+    role: "Parent",
+    text: "Had a great experience with Coach Dr. Rajesh Sir. He's very passionate towards chess and Hardworking.",
     rating: 5,
     initials: "SK",
     gradient: "from-blue-100 to-indigo-200"
   },
   {
     id: 3,
-    name: "Tarun Aggarwal",
-    role: "Father of Student",
-    text: "Exceptional. If you want your child should grow fast in chess, you should consider this academy. Vivek sir is expert in teaching chess to kids.",
+    name: "Yegnesh",
+    role: "Student",
+    text: "Exceptional. If you want your child should grow fast in chess, you should consider this academy. Dr. Rajesh Sir is expert in teaching chess to kids.",
     rating: 5,
     initials: "TA",
     gradient: "from-green-100 to-emerald-200"
   },
   {
     id: 4,
-    name: "Aarti Parmar",
+    name: "Supriya",
     role: "Mother of Student",
     text: "Well Planned Classes and Individual detailed attention for over all development of kid.",
     rating: 5,

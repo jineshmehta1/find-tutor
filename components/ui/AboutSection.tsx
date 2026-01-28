@@ -115,43 +115,6 @@ const AboutSection: React.FC = () => {
         </div>
       </section>
 
-      {/* --- SECTION 3: FOUNDER (WHITE BG) --- */}
-      <section className="py-16 px-6 bg-white border-y border-slate-100">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col lg:flex-row gap-10 lg:gap-16 items-center">
-            <div className="w-full lg:w-2/5">
-              <div className="relative p-1.5 border-2 border-amber-100 rounded-[2rem]">
-                <div className="bg-slate-50 rounded-[1.8rem] overflow-hidden aspect-[4/5]">
-                   <img src="/chess-cen.jpeg" className="w-full h-full object-cover" alt="Dr. G. Rajesh" />
-                </div>
-              </div>
-            </div>
-            <div className="w-full lg:w-3/5">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-amber-50 text-amber-700 text-[10px] font-bold uppercase tracking-widest mb-4">
-                Founder & Visionary
-              </div>
-              <h3 className="text-3xl font-black text-slate-900 mb-1">Dr. G. Rajesh</h3>
-              <p className="text-amber-600 font-bold text-base mb-6 underline underline-offset-4 decoration-2">Professor & Founder of Aacharya</p>
-              
-              <div className="space-y-4 text-slate-600 text-sm md:text-base leading-relaxed mb-8">
-                <p>Dr. G. Rajesh (Ph.D., JNTUH) brings <span className="font-bold text-slate-900">20+ years of academic excellence</span>. A published researcher and patent holder passionate about holistic skill development.</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {["Published Researcher", "2 Engineering Patents", "IIT/NIT Presenter"].map((t, i) => (
-                    <div key={i} className="flex items-center gap-2">
-                      <Award className="w-4 h-4 text-amber-500 shrink-0" />
-                      <span className="text-xs font-semibold">{t}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="p-5 bg-slate-50 rounded-xl border-l-4 border-amber-500 relative">
-                <Quote className="absolute top-2 right-2 text-slate-200 w-8 h-8 opacity-40" />
-                <p className="italic text-slate-700 text-xs md:text-sm font-medium">"Our vision is to bridge the gap between traditional education and future skills."</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* --- SECTION 4: WHY PARENTS CHOOSE US --- */}
       <section className="py-16 px-4 bg-slate-50/50">

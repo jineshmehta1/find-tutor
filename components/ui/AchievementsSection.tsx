@@ -24,11 +24,11 @@ const achievers = [
   },
   {
     id: 2,
-    name: "Riya Sharma",
+    name: "Mr. Varun",
     category: "Academics",
-    award: "District Topper (98.6%)",
-    image: "https://images.unsplash.com/photo-1590012314607-cda9d9b699ae?q=80&w=600&auto=format&fit=crop",
-    desc: "Class 10th CBSE Board Exams",
+    award: "CBSE (99.97%)",
+    image: "/school-ach.jpeg",
+    desc: "Class 5th CBSE Student",
     icon: <GraduationCap className="w-4 h-4" />
   },
   {

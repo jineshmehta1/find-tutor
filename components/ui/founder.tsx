@@ -52,7 +52,7 @@ const FounderSection: React.FC = () => {
               <div className="absolute bottom-6 left-6">
                 <h3 className="text-2xl font-bold text-white tracking-tight">Dr. Rajesh Gunti</h3>
                 <p className="text-amber-400 font-bold uppercase tracking-widest text-[10px] flex items-center gap-2">
-                  <Star className="w-3 h-3 fill-amber-400" /> Founder & Principal
+                  <Star className="w-3 h-3 fill-amber-400" /> Founder
                 </p>
               </div>
             </div>

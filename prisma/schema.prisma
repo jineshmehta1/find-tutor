@@ -9,6 +9,86 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ===========================================
+// AUTHENTICATION & USER MODELS
+// ===========================================
+
+enum UserRole {
+  ADMIN
+  TEACHER
+  STUDENT
+}
+
+enum LeadStatus {
+  PENDING
+  CONTACTED
+  CONVERTED
+  REJECTED
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  phone         String
+  password      String    // Hashed password
+  dob           DateTime
+  profilePhoto  String?
+  address       String
+  latitude      Float?
+  longitude     Float?
+  role          UserRole
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  teacher       Teacher?
+  student       Student?
+}
+
+model Teacher {
+  id             String    @id @default(cuid())
+  userId         String    @unique
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  certifications String    // JSON string of certifications
+  education      String
+  experience     String
+  subjects       String    // JSON string of subjects
+  isApproved     Boolean   @default(false)
+  approvedAt     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  leads          Lead[]
+}
+
+model Student {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subjects  String   // JSON string of interested subjects
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  leads     Lead[]
+}
+
+model Lead {
+  id        String     @id @default(cuid())
+  studentId String
+  student   Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  teacherId String
+  teacher   Teacher    @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  message   String?
+  status    LeadStatus @default(PENDING)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+// ===========================================
+// EXISTING CMS MODELS
+// ===========================================
+
 model Course {
   id          Int      @id @default(autoincrement())
   pageKey     String
@@ -58,8 +138,8 @@ model SuccessStory {
 }
 
 model Banner {
-  id          Int      @id @default(autoincrement())
-  pageKey     String   @unique // Matches "chess", "robotics", etc.
-  imageUrl    String
-  updatedAt   DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  pageKey   String   @unique // Matches "chess", "robotics", etc.
+  imageUrl  String
+  updatedAt DateTime @updatedAt
 }

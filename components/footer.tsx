@@ -9,7 +9,7 @@ import { Facebook, Instagram, Youtube, MapPin, Phone, Mail, ArrowRight, Linkedin
 const ChessKnightDoodle = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="currentColor" className={className} xmlns="http://www.w3.org/2000/svg">
     <path d="M19 22H5V20H19V22ZM17 18H7V16H17V18ZM15.5 14H8.5L7.5 8H9.5C9.5 8 10 9.5 11 9.5C12 9.5 13 8 13 8H16L15.5 14ZM12 2C10.5 2 9.5 3 9 4L8 6H13C14.5 6 15 5 15.5 4C16 3 14 2 12 2Z" />
-    <path d="M12 4C14 4 15 5 15 6L14 12H10L9 6C10 5 11 4 12 4Z" opacity="0.5"/>
+    <path d="M12 4C14 4 15 5 15 6L14 12H10L9 6C10 5 11 4 12 4Z" opacity="0.5" />
   </svg>
 );
 
@@ -33,9 +33,9 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 );
 
 const GoogleIcon = ({ className }: { className?: string }) => (
-    <svg viewBox="0 0 24 24" fill="currentColor" className={className} xmlns="http://www.w3.org/2000/svg">
-      <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/>
-    </svg>
+  <svg viewBox="0 0 24 24" fill="currentColor" className={className} xmlns="http://www.w3.org/2000/svg">
+    <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" />
+  </svg>
 );
 
 /* -------------------------------------------------------------------------- */
@@ -44,39 +44,39 @@ const GoogleIcon = ({ className }: { className?: string }) => (
 
 export default function Footer() {
   // Update the Google link with your actual Google Business CID or link
-  const googleMapsUrl = "https://share.google/yzTpHGFLIZhCbPQLb"; 
+  const googleMapsUrl = "https://share.google/yzTpHGFLIZhCbPQLb";
 
   const socialLinks = [
-    { 
-      Icon: Facebook, 
-      href: "https://www.facebook.com/share/17MqucMzGu/", 
-      label: "Facebook" 
+    {
+      Icon: Facebook,
+      href: "https://www.facebook.com/share/17MqucMzGu/",
+      label: "Facebook"
     },
-    { 
-      Icon: Instagram, 
-      href: "https://www.instagram.com/aacharya_bhavanipuram?igsh=MWdoM3Yzeno4OHE3eA==", 
-      label: "Instagram" 
+    {
+      Icon: Instagram,
+      href: "https://www.instagram.com/aacharya_bhavanipuram?igsh=MWdoM3Yzeno4OHE3eA==",
+      label: "Instagram"
     },
-    { 
-      Icon: Youtube, 
-      href: "https://youtube.com/@aacharyaclasses?si=dUtU_6gi25WcGssw", 
-      label: "YouTube" 
+    {
+      Icon: Youtube,
+      href: "https://youtube.com/@aacharyaclasses?si=dUtU_6gi25WcGssw",
+      label: "YouTube"
     },
-    { 
-      Icon: Linkedin, 
-      href: "https://www.linkedin.com/company/aacharya/", 
-      label: "LinkedIn" 
+    {
+      Icon: Linkedin,
+      href: "https://www.linkedin.com/company/aacharya/",
+      label: "LinkedIn"
     },
-    { 
-      Icon: GoogleIcon, 
-      href: googleMapsUrl, 
-      label: "Google Page" 
+    {
+      Icon: GoogleIcon,
+      href: googleMapsUrl,
+      label: "Google Page"
     },
   ];
 
   return (
     <footer className="relative bg-slate-900 text-slate-300 overflow-hidden pt-16 pb-8">
-      
+
       {/* -------------------- FLOATING WHATSAPP BUTTON -------------------- */}
       <a
         href="https://wa.me/918074103400"
@@ -87,7 +87,7 @@ export default function Footer() {
       >
         <span className="absolute w-full h-full bg-green-500 rounded-full animate-ping opacity-25"></span>
         <span className="absolute w-14 h-14 bg-green-500 rounded-full animate-pulse opacity-40"></span>
-        
+
         <div className="relative w-14 h-14 bg-[#25D366] text-white rounded-full flex items-center justify-center shadow-[0_10px_25px_rgba(37,211,102,0.4)] transition-all duration-300 group-hover:scale-110 group-hover:-translate-y-1">
           <WhatsAppIcon className="w-8 h-8" />
           <span className="absolute right-16 bg-white text-slate-900 text-xs font-bold px-3 py-1.5 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 whitespace-nowrap">
@@ -107,7 +107,7 @@ export default function Footer() {
 
       <div className="container mx-auto px-4 md:px-8 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-          
+
           {/* 1. BRAND INFO */}
           <div className="space-y-6">
             <a href="/" className="flex items-center gap-3 group">
@@ -125,13 +125,13 @@ export default function Footer() {
             <p className="text-sm leading-relaxed text-slate-400">
               Empowering young minds through academic excellence, strategic chess mastery, and creative robotics. Building the leaders of tomorrow.
             </p>
-            
+
             {/* SOCIAL LINKS SECTION */}
             <div className="flex flex-wrap gap-3">
               {socialLinks.map((social, i) => (
-                <a 
-                  key={i} 
-                  href={social.href} 
+                <a
+                  key={i}
+                  href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={social.label}
@@ -153,6 +153,7 @@ export default function Footer() {
               {[
                 { name: "About Us", href: "/about" },
                 { name: "Success Stories", href: "/gallery" },
+                { name: "Events", href: "/events" },
                 { name: "Contact Us", href: "/contact" },
                 { name: "Book a Demo", href: "/bookdemo" },
               ].map((link) => (
@@ -197,10 +198,10 @@ export default function Footer() {
               Contact Us
             </h3>
             <div className="space-y-4">
-              <a 
-                href={googleMapsUrl} 
-                target="_blank" 
-                rel="noopener noreferrer" 
+              <a
+                href={googleMapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-start gap-3 text-sm group hover:text-white transition-colors"
               >
                 <MapPin className="w-5 h-5 text-yellow-400 shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />

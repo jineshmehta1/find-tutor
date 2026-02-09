@@ -1,49 +1,118 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { prisma } from "@/lib/prisma";
+import bcrypt from "bcryptjs";
 
-export const authOptions: NextAuthOptions = {
-  // Configure one or more authentication providers
-  providers: [
-    CredentialsProvider({
-      name: "Admin Login",
-      credentials: {
-        email: { label: "Email", type: "email", placeholder: "admin@example.com" },
-        password: { label: "Password", type: "password" }
-      },
-      async authorize(credentials) {
-  console.log("👉 CREDENTIALS RECEIVED:", credentials)
-  console.log("👉 ENV EMAIL:", process.env.ADMIN_EMAIL)
-  console.log("👉 ENV PASSWORD:", process.env.ADMIN_PASSWORD)
-
-  if (!credentials?.email || !credentials?.password) {
-    console.log("❌ Missing credentials")
-    return null
+// Extend next-auth types
+declare module "next-auth" {
+  interface User {
+    id: string;
+    name: string;
+    email: string;
+    role: "ADMIN" | "TEACHER" | "STUDENT";
+    isApproved?: boolean;
   }
-
-  const isValidUser =
-    credentials.email === process.env.ADMIN_EMAIL &&
-    credentials.password === process.env.ADMIN_PASSWORD
-
-  console.log("👉 IS VALID USER:", isValidUser)
-
-  if (isValidUser) {
-    return {
-      id: "1",
-      name: "Admin",
-      email: credentials.email,
-    }
+  interface Session {
+    user: User;
   }
-
-  return null
 }
 
-    })
+declare module "next-auth/jwt" {
+  interface JWT {
+    id: string;
+    role: "ADMIN" | "TEACHER" | "STUDENT";
+    isApproved?: boolean;
+  }
+}
+
+export const authOptions: NextAuthOptions = {
+  providers: [
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null;
+        }
+
+        // Check for legacy admin login (environment variables)
+        if (
+          credentials.email === process.env.ADMIN_EMAIL &&
+          credentials.password === process.env.ADMIN_PASSWORD
+        ) {
+          return {
+            id: "admin-legacy",
+            name: "Admin",
+            email: credentials.email,
+            role: "ADMIN" as const,
+            isApproved: true,
+          };
+        }
+
+        // Database user lookup
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email },
+          include: {
+            teacher: true,
+            student: true,
+          },
+        });
+
+        if (!user) {
+          return null;
+        }
+
+        // Verify password
+        const isValidPassword = await bcrypt.compare(
+          credentials.password,
+          user.password
+        );
+
+        if (!isValidPassword) {
+          return null;
+        }
+
+        // Determine approval status for teachers
+        const isApproved = user.role === "TEACHER"
+          ? user.teacher?.isApproved ?? false
+          : true;
+
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          isApproved,
+        };
+      },
+    }),
   ],
   pages: {
-    signIn: "/login", // Custom login page path
+    signIn: "/login",
   },
   session: {
-    strategy: "jwt", // JSON Web Token strategy (stateless)
+    strategy: "jwt",
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.role = user.role;
+        token.isApproved = user.isApproved;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id;
+        session.user.role = token.role;
+        session.user.isApproved = token.isApproved;
+      }
+      return session;
+    },
   },
   secret: process.env.NEXTAUTH_SECRET,
 };

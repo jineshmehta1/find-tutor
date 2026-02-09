@@ -5,12 +5,12 @@ import React, { useState, useEffect } from "react";
 /*                               INTERNAL ICONS                               */
 /* -------------------------------------------------------------------------- */
 const ChevronDown = ({ className }: { className?: string }) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    fill="none" 
-    viewBox="0 0 24 24" 
-    strokeWidth={2} 
-    stroke="currentColor" 
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth={2}
+    stroke="currentColor"
     className={className}
   >
     <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
@@ -71,22 +71,22 @@ const Header: React.FC = () => {
       ],
     },
     { name: "Gallery", href: "/gallery" },
+    { name: "Events", href: "/events" },
     { name: "Contact", href: "/contact" },
   ];
 
   return (
     <div className="w-full relative z-50">
-      
+
       {/* Main Navbar */}
       <header
-        className={`w-full transition-all duration-300 border-b border-gray-100 ${
-          scrolled 
-            ? "fixed top-0 bg-white/95 backdrop-blur-md shadow-md py-2" 
-            : "relative bg-white py-5"
-        }`}
+        className={`w-full transition-all duration-300 border-b border-gray-100 ${scrolled
+          ? "fixed top-0 bg-white/95 backdrop-blur-md shadow-md py-2"
+          : "relative bg-white py-5"
+          }`}
       >
         <div className="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between">
-          
+
           {/* Logo */}
           <a href="/" className="flex items-center gap-3 group shrink-0">
             <img
@@ -144,7 +144,19 @@ const Header: React.FC = () => {
           </nav>
 
           {/* Right Section Spacing */}
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
+            {/* <a
+              href="/login"
+              className="hidden md:inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-slate-700 transition-all duration-200 hover:text-yellow-600"
+            >
+              Login
+            </a> */}
+            <a
+              href="/signup"
+              className="hidden md:inline-flex items-center justify-center px-5 py-2.5 text-sm font-bold text-slate-700 transition-all duration-200 border-2 border-slate-200 rounded-lg hover:border-yellow-400 hover:text-yellow-600"
+            >
+              Sign Up
+            </a>
             <a
               href="/bookdemo"
               className="hidden md:inline-flex items-center justify-center px-8 py-2.5 text-sm font-bold text-slate-900 transition-all duration-200 bg-yellow-400 rounded-lg hover:bg-yellow-300 hover:shadow-lg hover:-translate-y-0.5"
@@ -166,7 +178,7 @@ const Header: React.FC = () => {
       <div className={`fixed inset-0 z-[60] lg:hidden transition-opacity duration-300 ${isMobileMenuOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"}`}>
         <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)} />
         <div className={`absolute top-0 right-0 h-full w-[85%] max-w-[320px] bg-white shadow-2xl transition-transform duration-300 ease-out flex flex-col ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"}`}>
-          
+
           <div className="p-6 flex items-center justify-between border-b border-slate-100">
             <span className="font-bold text-slate-800 text-lg">Menu</span>
             <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 bg-slate-100 rounded-full text-slate-500">
@@ -205,7 +217,15 @@ const Header: React.FC = () => {
             ))}
           </div>
 
-          <div className="p-6 border-t border-slate-100 bg-slate-50">
+          <div className="p-6 border-t border-slate-100 bg-slate-50 space-y-3">
+            <div className="flex gap-3">
+              {/* <a href="/login" className="flex-1 py-3 text-center text-slate-700 font-bold border-2 border-slate-200 rounded-xl hover:border-yellow-400">
+                Login
+              </a> */}
+              <a href="/signup" className="flex-1 py-3 text-center text-slate-700 font-bold border-2 border-slate-200 rounded-xl hover:border-yellow-400">
+                Sign Up
+              </a>
+            </div>
             <a href="/bookdemo" className="block w-full py-4 text-center text-slate-900 bg-yellow-400 font-black rounded-xl shadow-md">
               Enroll Now
             </a>

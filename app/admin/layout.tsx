@@ -3,12 +3,13 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { signOut } from "next-auth/react"
-import { LayoutDashboard, Image, Star, Trophy, BookOpen, LogOut, Menu, X } from "lucide-react"
+import { LayoutDashboard, Image, Star, Trophy, BookOpen, LogOut, Menu, X, Users } from "lucide-react"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 
 const sidebarItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { label: "Users", href: "/admin/users", icon: Users },
   { label: "Gallery", href: "/admin/gallery", icon: Image },
   { label: "Reviews", href: "/admin/reviews", icon: Star },
   { label: "Success Stories", href: "/admin/stories", icon: Trophy },
@@ -16,15 +17,16 @@ const sidebarItems = [
   { label: "Banner", href: "/admin/banners", icon: BookOpen },
 ]
 
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
 
   return (
     <div className="min-h-screen bg-slate-100 flex">
-      
+
       {/* Mobile Menu Button */}
-      <button 
+      <button
         onClick={() => setIsOpen(!isOpen)}
         className="lg:hidden fixed top-4 right-4 z-50 bg-slate-900 text-white p-2 rounded-md"
       >
@@ -52,8 +54,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 onClick={() => setIsOpen(false)}
                 className={cn(
                   "flex items-center gap-3 px-4 py-3 rounded-lg transition-all",
-                  isActive 
-                    ? "bg-amber-500 text-white font-medium shadow-lg shadow-amber-900/20" 
+                  isActive
+                    ? "bg-amber-500 text-white font-medium shadow-lg shadow-amber-900/20"
                     : "text-slate-400 hover:bg-slate-800 hover:text-white"
                 )}
               >
@@ -65,7 +67,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </nav>
 
         <div className="absolute bottom-0 w-full p-4 border-t border-slate-800">
-          <button 
+          <button
             onClick={() => signOut({ callbackUrl: "/login" })}
             className="flex items-center gap-3 w-full px-4 py-3 text-red-400 hover:bg-red-950/30 hover:text-red-300 rounded-lg transition-colors"
           >

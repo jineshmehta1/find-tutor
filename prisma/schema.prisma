@@ -47,19 +47,22 @@ model User {
 }
 
 model Teacher {
-  id             String    @id @default(cuid())
-  userId         String    @unique
-  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  certifications String    // JSON string of certifications
-  education      String
-  experience     String
-  subjects       String    // JSON string of subjects
-  isApproved     Boolean   @default(false)
-  approvedAt     DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  id                 String    @id @default(cuid())
+  userId             String    @unique
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  certifications     String    // JSON string of certifications
+  education          String
+  experience         String
+  subjects           String    // JSON string of subjects
+  isApproved         Boolean   @default(false)
+  approvedAt         DateTime?
+  subscriptionStatus String    @default("none") // none, trial, active, expired
+  subscriptionEnd    DateTime?
+  subscriptionPaymentId String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
-  leads          Lead[]
+  leads              Lead[]
 }
 
 model Student {
@@ -70,7 +73,8 @@ model Student {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  leads     Lead[]
+  leads              Lead[]
+  eventRegistrations EventRegistration[]
 }
 
 model Lead {
@@ -142,4 +146,62 @@ model Banner {
   pageKey   String   @unique // Matches "chess", "robotics", etc.
   imageUrl  String
   updatedAt DateTime @updatedAt
+}
+
+model Event {
+  id                     Int      @id @default(autoincrement())
+  slug                   String   @unique
+  title                  String
+  category               String   // tournament, workshop, seminar, exhibition, special
+  date                   String
+  time                   String
+  endDate                String
+  location               String
+  address                String
+  participants           String
+  prize                  String
+  description            String
+  longDescription        String
+  image                  String
+  status                 String   @default("upcoming") // upcoming, ongoing, completed
+  registrationFee        Int
+  registrationFeeDisplay String
+  features               String   // JSON array
+  organizer              String
+  contact                String
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  registrations EventRegistration[]
+}
+
+model EventRegistration {
+  id        Int      @id @default(autoincrement())
+  eventId   Int
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  name      String
+  email     String
+  phone     String
+  age       String?
+  status    String   @default("registered") // registered, confirmed, cancelled
+  paymentId String?  // Razorpay payment ID
+  amount    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([eventId, studentId])
+}
+
+model SubscriptionPlan {
+  id          Int      @id @default(autoincrement())
+  name        String
+  price       Int      // Amount in INR
+  duration    Int      // Duration in days
+  description String
+  features    String   // JSON array of feature strings
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

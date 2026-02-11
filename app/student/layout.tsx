@@ -3,12 +3,14 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { signOut, useSession } from "next-auth/react"
-import { LayoutDashboard, Users, User, LogOut, Menu, X, GraduationCap } from "lucide-react"
+import { LayoutDashboard, Users, User, LogOut, Menu, X, GraduationCap, Calendar, Send } from "lucide-react"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 
 const sidebarItems = [
     { label: "Dashboard", href: "/student", icon: LayoutDashboard },
+    { label: "My Events", href: "/student/events", icon: Calendar },
+    { label: "My Leads", href: "/student/leads", icon: Send },
     { label: "Find Teachers", href: "/student/teachers", icon: Users },
     { label: "My Profile", href: "/student/profile", icon: User },
 ]

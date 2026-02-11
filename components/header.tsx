@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useSession, signOut } from "next-auth/react";
 
 /* -------------------------------------------------------------------------- */
 /*                               INTERNAL ICONS                               */
@@ -49,6 +50,7 @@ const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mobileSubMenuOpen, setMobileSubMenuOpen] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
+  const { data: session } = useSession();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -145,18 +147,21 @@ const Header: React.FC = () => {
 
           {/* Right Section Spacing */}
           <div className="flex items-center gap-4">
-            {/* <a
-              href="/login"
-              className="hidden md:inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-slate-700 transition-all duration-200 hover:text-yellow-600"
-            >
-              Login
-            </a> */}
-            <a
-              href="/signup"
-              className="hidden md:inline-flex items-center justify-center px-5 py-2.5 text-sm font-bold text-slate-700 transition-all duration-200 border-2 border-slate-200 rounded-lg hover:border-yellow-400 hover:text-yellow-600"
-            >
-              Sign Up
-            </a>
+            {session ? (
+              <button
+                onClick={() => signOut({ callbackUrl: "/" })}
+                className="hidden md:inline-flex items-center justify-center px-5 py-2.5 text-sm font-bold text-red-600 transition-all duration-200 border-2 border-red-200 rounded-lg hover:border-red-400 hover:bg-red-50"
+              >
+                Logout
+              </button>
+            ) : (
+              <a
+                href="/signup"
+                className="hidden md:inline-flex items-center justify-center px-5 py-2.5 text-sm font-bold text-slate-700 transition-all duration-200 border-2 border-slate-200 rounded-lg hover:border-yellow-400 hover:text-yellow-600"
+              >
+                Sign Up
+              </a>
+            )}
             <a
               href="/bookdemo"
               className="hidden md:inline-flex items-center justify-center px-8 py-2.5 text-sm font-bold text-slate-900 transition-all duration-200 bg-yellow-400 rounded-lg hover:bg-yellow-300 hover:shadow-lg hover:-translate-y-0.5"
@@ -219,12 +224,18 @@ const Header: React.FC = () => {
 
           <div className="p-6 border-t border-slate-100 bg-slate-50 space-y-3">
             <div className="flex gap-3">
-              {/* <a href="/login" className="flex-1 py-3 text-center text-slate-700 font-bold border-2 border-slate-200 rounded-xl hover:border-yellow-400">
-                Login
-              </a> */}
-              <a href="/signup" className="flex-1 py-3 text-center text-slate-700 font-bold border-2 border-slate-200 rounded-xl hover:border-yellow-400">
-                Sign Up
-              </a>
+              {session ? (
+                <button
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                  className="flex-1 py-3 text-center text-red-600 font-bold border-2 border-red-200 rounded-xl hover:border-red-400 hover:bg-red-50"
+                >
+                  Logout
+                </button>
+              ) : (
+                <a href="/signup" className="flex-1 py-3 text-center text-slate-700 font-bold border-2 border-slate-200 rounded-xl hover:border-yellow-400">
+                  Sign Up
+                </a>
+              )}
             </div>
             <a href="/bookdemo" className="block w-full py-4 text-center text-slate-900 bg-yellow-400 font-black rounded-xl shadow-md">
               Enroll Now

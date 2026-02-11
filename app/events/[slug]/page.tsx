@@ -1,11 +1,10 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useParams } from "next/navigation"
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -24,7 +23,29 @@ import {
     Loader2,
 } from "lucide-react"
 import { format } from "date-fns"
-import { eventsData } from "../page"
+
+interface EventData {
+    id: number;
+    slug: string;
+    title: string;
+    category: string;
+    date: string;
+    time: string;
+    endDate: string;
+    location: string;
+    address: string;
+    participants: string;
+    prize: string;
+    description: string;
+    longDescription: string;
+    image: string;
+    status: string;
+    registrationFee: number;
+    registrationFeeDisplay: string;
+    features: string;
+    organizer: string;
+    contact: string;
+}
 
 declare global {
     interface Window {
@@ -34,11 +55,10 @@ declare global {
 
 export default function EventDetailPage() {
     const params = useParams()
-    const router = useRouter()
     const slug = params.slug as string
 
-    const event = eventsData.find((e) => e.slug === slug)
-
+    const [event, setEvent] = useState<EventData | null>(null)
+    const [loading, setLoading] = useState(true)
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -48,6 +68,24 @@ export default function EventDetailPage() {
     const [isLoading, setIsLoading] = useState(false)
     const [paymentSuccess, setPaymentSuccess] = useState(false)
     const [razorpayLoaded, setRazorpayLoaded] = useState(false)
+
+    // Fetch event from API
+    useEffect(() => {
+        const fetchEvent = async () => {
+            try {
+                const res = await fetch("/api/events")
+                if (!res.ok) throw new Error("Failed to fetch")
+                const data = await res.json()
+                const found = (Array.isArray(data) ? data : []).find((e: EventData) => e.slug === slug)
+                setEvent(found || null)
+            } catch (error) {
+                console.error("Failed to load event:", error)
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchEvent()
+    }, [slug])
 
     // Load Razorpay script
     useEffect(() => {
@@ -61,6 +99,14 @@ export default function EventDetailPage() {
             document.body.removeChild(script)
         }
     }, [])
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-white flex items-center justify-center">
+                <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />
+            </div>
+        )
+    }
 
     if (!event) {
         return (
@@ -78,6 +124,12 @@ export default function EventDetailPage() {
             </div>
         )
     }
+
+    const parseFeatures = (features: string): string[] => {
+        try { return JSON.parse(features); } catch { return []; }
+    }
+
+    const eventFeatures = parseFeatures(event.features)
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -272,20 +324,22 @@ export default function EventDetailPage() {
                                 </div>
 
                                 {/* Features */}
-                                <div className="mb-8">
-                                    <h3 className="text-xl font-black text-slate-900 mb-4">Event Highlights</h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                        {event.features.map((feature, idx) => (
-                                            <div
-                                                key={idx}
-                                                className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100"
-                                            >
-                                                <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                                                <span className="text-slate-700 font-semibold">{feature}</span>
-                                            </div>
-                                        ))}
+                                {eventFeatures.length > 0 && (
+                                    <div className="mb-8">
+                                        <h3 className="text-xl font-black text-slate-900 mb-4">Event Highlights</h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                            {eventFeatures.map((feature, idx) => (
+                                                <div
+                                                    key={idx}
+                                                    className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100"
+                                                >
+                                                    <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                                                    <span className="text-slate-700 font-semibold">{feature}</span>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
+                                )}
 
                                 {/* Contact */}
                                 <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100">

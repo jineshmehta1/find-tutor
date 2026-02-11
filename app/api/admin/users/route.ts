@@ -102,15 +102,27 @@ export async function PATCH(request: NextRequest) {
         }
 
         if (action === "approve") {
+            const trialEnd = new Date();
+            trialEnd.setDate(trialEnd.getDate() + 30); // 30-day free trial
+
             await prisma.teacher.update({
                 where: { id: teacherId },
-                data: { isApproved: true },
+                data: {
+                    isApproved: true,
+                    approvedAt: new Date(),
+                    subscriptionStatus: "trial",
+                    subscriptionEnd: trialEnd,
+                },
             });
-            return NextResponse.json({ message: "Teacher approved successfully" });
+            return NextResponse.json({ message: "Teacher approved with 30-day free trial" });
         } else if (action === "reject") {
             await prisma.teacher.update({
                 where: { id: teacherId },
-                data: { isApproved: false },
+                data: {
+                    isApproved: false,
+                    subscriptionStatus: "none",
+                    subscriptionEnd: null,
+                },
             });
             return NextResponse.json({ message: "Teacher approval revoked" });
         }

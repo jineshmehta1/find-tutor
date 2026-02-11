@@ -3,13 +3,17 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { signOut } from "next-auth/react"
-import { LayoutDashboard, Image, Star, Trophy, BookOpen, LogOut, Menu, X, Users } from "lucide-react"
+import { LayoutDashboard, Image, Star, Trophy, BookOpen, LogOut, Menu, X, Users, Calendar, Ticket, Crown, UserCheck } from "lucide-react"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 
 const sidebarItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { label: "Users", href: "/admin/users", icon: Users },
+  { label: "Events", href: "/admin/events", icon: Calendar },
+  { label: "Registrations", href: "/admin/registrations", icon: Ticket },
+  { label: "Subscription Plans", href: "/admin/plans", icon: Crown },
+  { label: "Subscriptions", href: "/admin/subscriptions", icon: UserCheck },
   { label: "Gallery", href: "/admin/gallery", icon: Image },
   { label: "Reviews", href: "/admin/reviews", icon: Star },
   { label: "Success Stories", href: "/admin/stories", icon: Trophy },

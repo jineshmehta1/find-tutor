@@ -3,8 +3,8 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { signOut, useSession } from "next-auth/react"
-import { LayoutDashboard, Users, User, LogOut, Menu, X, FileText, AlertCircle } from "lucide-react"
-import { useState } from "react"
+import { LayoutDashboard, Users, User, LogOut, Menu, X, FileText, AlertCircle, Crown, Clock } from "lucide-react"
+import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 
 const sidebarItems = [
@@ -12,14 +12,48 @@ const sidebarItems = [
     { label: "Student Leads", href: "/teacher/leads", icon: FileText },
     { label: "My Students", href: "/teacher/students", icon: Users },
     { label: "My Profile", href: "/teacher/profile", icon: User },
+    { label: "Subscription", href: "/teacher/subscription", icon: Crown },
 ]
+
+interface SubscriptionData {
+    hasAccess: boolean;
+    status: string;
+    isApproved: boolean;
+    subscriptionEnd: string | null;
+    daysRemaining: number;
+}
 
 export default function TeacherLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
     const [isOpen, setIsOpen] = useState(false)
     const { data: session } = useSession()
+    const [subscription, setSubscription] = useState<SubscriptionData | null>(null)
+    const [loading, setLoading] = useState(true)
 
     const isApproved = session?.user?.isApproved
+
+    useEffect(() => {
+        fetchSubscription()
+    }, [])
+
+    const fetchSubscription = async () => {
+        try {
+            const res = await fetch("/api/teacher/subscription")
+            if (res.ok) {
+                const data = await res.json()
+                setSubscription(data)
+            }
+        } catch (error) {
+            console.error("Failed to check subscription")
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    // Pages accessible without subscription
+    const freePages = ["/teacher/subscription", "/teacher/profile"]
+    const isFreePage = freePages.some(p => pathname.startsWith(p))
+    const isGated = !loading && subscription && !subscription.hasAccess && subscription.isApproved && !isFreePage
 
     return (
         <div className="min-h-screen bg-slate-100 flex">
@@ -62,6 +96,41 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
                     </div>
                 )}
 
+                {/* Subscription Status Banner */}
+                {subscription && subscription.isApproved && (
+                    <div className={cn(
+                        "mx-4 mt-4 p-3 border rounded-xl",
+                        subscription.hasAccess
+                            ? subscription.status === "trial"
+                                ? "bg-blue-500/10 border-blue-500/30"
+                                : "bg-green-500/10 border-green-500/30"
+                            : "bg-red-500/10 border-red-500/30"
+                    )}>
+                        <div className={cn(
+                            "flex items-center gap-2 text-sm",
+                            subscription.hasAccess
+                                ? subscription.status === "trial"
+                                    ? "text-blue-400"
+                                    : "text-green-400"
+                                : "text-red-400"
+                        )}>
+                            {subscription.hasAccess ? <Clock className="w-4 h-4" /> : <Crown className="w-4 h-4" />}
+                            <span className="font-medium">
+                                {subscription.status === "trial"
+                                    ? `Free Trial: ${subscription.daysRemaining} days left`
+                                    : subscription.status === "active"
+                                        ? `Premium: ${subscription.daysRemaining} days left`
+                                        : "Subscription Expired"}
+                            </span>
+                        </div>
+                        {!subscription.hasAccess && (
+                            <Link href="/teacher/subscription" className="text-xs text-red-300/70 mt-1 hover:text-red-200 underline block">
+                                Upgrade to Premium →
+                            </Link>
+                        )}
+                    </div>
+                )}
+
                 <nav className="p-4 space-y-2">
                     {sidebarItems.map((item) => {
                         const Icon = item.icon
@@ -98,7 +167,28 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
 
             {/* Main Content */}
             <main className="flex-1 p-6 lg:p-10 overflow-y-auto h-screen">
-                {children}
+                {isGated ? (
+                    <div className="flex items-center justify-center min-h-[60vh]">
+                        <div className="text-center max-w-md">
+                            <div className="w-20 h-20 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                                <Crown className="w-10 h-10 text-amber-600" />
+                            </div>
+                            <h2 className="text-2xl font-bold text-slate-900 mb-3">Subscription Required</h2>
+                            <p className="text-slate-500 mb-6">
+                                Your free trial has expired. Upgrade to Premium to continue accessing the dashboard, manage student leads, and browse students.
+                            </p>
+                            <Link
+                                href="/teacher/subscription"
+                                className="inline-flex items-center gap-2 px-8 py-3 bg-amber-500 text-white rounded-xl font-bold hover:bg-amber-600 transition-colors shadow-lg shadow-amber-500/25"
+                            >
+                                <Crown className="w-5 h-5" />
+                                Upgrade to Premium
+                            </Link>
+                        </div>
+                    </div>
+                ) : (
+                    children
+                )}
             </main>
         </div>
     )

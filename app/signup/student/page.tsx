@@ -33,7 +33,12 @@ export default function StudentSignupPage() {
         dob: "",
         address: "",
         subjects: [] as string[],
+        otp: "",
     });
+
+    const [otpSent, setOtpSent] = useState(false);
+    const [otpTimer, setOtpTimer] = useState(0);
+    const [isOtpSending, setIsOtpSending] = useState(false);
 
     const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -60,6 +65,9 @@ export default function StudentSignupPage() {
             if (!formData.name.trim()) newErrors.name = "Name is required";
             if (!formData.email.trim()) newErrors.email = "Email is required";
             else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Invalid email";
+            if (otpSent && !formData.otp.trim()) newErrors.otp = "OTP is required";
+            if (!otpSent && formData.email && !/\S+@\S+\.\S+/.test(formData.email) === false) newErrors.otp = "Please verify your email first";
+
             if (!formData.phone.trim()) newErrors.phone = "Phone is required";
             else if (formData.phone.length < 10) newErrors.phone = "Invalid phone number";
             if (!formData.password) newErrors.password = "Password is required";
@@ -88,6 +96,48 @@ export default function StudentSignupPage() {
 
     const prevStep = () => {
         setStep((prev) => Math.max(prev - 1, 1));
+    };
+
+    const sendOtp = async () => {
+        if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) {
+            setErrors(prev => ({ ...prev, email: "Please enter a valid email first" }));
+            return;
+        }
+
+        setIsOtpSending(true);
+        try {
+            const res = await fetch("/api/auth/otp/send", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: formData.email }),
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                toast.error(data.error || "Failed to send OTP");
+                return;
+            }
+
+            toast.success("OTP sent to your email!");
+            setOtpSent(true);
+            setOtpTimer(60);
+
+            // Start timer
+            const interval = setInterval(() => {
+                setOtpTimer((prev) => {
+                    if (prev <= 1) {
+                        clearInterval(interval);
+                        return 0;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
+
+        } catch (error) {
+            toast.error("Failed to send OTP. Please try again.");
+        } finally {
+            setIsOtpSending(false);
+        }
     };
 
     const handleSubmit = async () => {
@@ -205,18 +255,47 @@ export default function StudentSignupPage() {
 
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
-                                    <div className="relative">
-                                        <Mail className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
-                                        <input
-                                            type="email"
-                                            value={formData.email}
-                                            onChange={(e) => updateField("email", e.target.value)}
-                                            className={`w-full pl-10 pr-4 py-3 border ${errors.email ? 'border-red-300' : 'border-slate-200'} rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-slate-50/50`}
-                                            placeholder="john@example.com"
-                                        />
+                                    <div className="flex gap-2">
+                                        <div className="relative flex-1">
+                                            <Mail className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
+                                            <input
+                                                type="email"
+                                                value={formData.email}
+                                                onChange={(e) => updateField("email", e.target.value)}
+                                                className={`w-full pl-10 pr-4 py-3 border ${errors.email ? 'border-red-300' : 'border-slate-200'} rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-slate-50/50`}
+                                                placeholder="john@example.com"
+                                                disabled={otpSent}
+                                            />
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={sendOtp}
+                                            disabled={isOtpSending || otpTimer > 0 || !formData.email}
+                                            className="px-4 py-3 bg-blue-100 text-blue-700 font-medium rounded-xl hover:bg-blue-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                                        >
+                                            {isOtpSending ? <Loader2 className="w-5 h-5 animate-spin" /> : otpTimer > 0 ? `Resend in ${otpTimer}s` : otpSent ? "Resend OTP" : "Verify Email"}
+                                        </button>
                                     </div>
                                     {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
                                 </div>
+
+                                {otpSent && (
+                                    <div className="animate-in fade-in slide-in-from-top-4 duration-300">
+                                        <label className="block text-sm font-medium text-slate-700 mb-1">Enter Verification Code</label>
+                                        <input
+                                            type="text"
+                                            value={formData.otp}
+                                            onChange={(e) => updateField("otp", e.target.value)}
+                                            className={`w-full px-4 py-3 border ${errors.otp ? 'border-red-300' : 'border-slate-200'} rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-slate-50/50 tracking-widest text-center text-lg`}
+                                            placeholder="••••••"
+                                            maxLength={6}
+                                        />
+                                        {errors.otp && <p className="text-red-500 text-sm mt-1">{errors.otp}</p>}
+                                        <p className="text-xs text-slate-500 mt-2">
+                                            We sent a 6-digit code to <span className="font-medium text-slate-900">{formData.email}</span>
+                                        </p>
+                                    </div>
+                                )}
 
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 mb-1">Phone Number</label>
@@ -313,8 +392,8 @@ export default function StudentSignupPage() {
                                                 type="button"
                                                 onClick={() => toggleSubject(subject)}
                                                 className={`p-3 rounded-xl border-2 text-left transition-all ${isSelected
-                                                        ? "border-blue-500 bg-blue-50 text-blue-700"
-                                                        : "border-slate-200 hover:border-slate-300 text-slate-600"
+                                                    ? "border-blue-500 bg-blue-50 text-blue-700"
+                                                    : "border-slate-200 hover:border-slate-300 text-slate-600"
                                                     }`}
                                             >
                                                 <div className="flex items-center gap-2">

@@ -37,7 +37,7 @@ interface RegistrationData {
             address: string;
             profilePhoto: string | null;
         };
-    };
+    } | null;
 }
 
 export default function AdminRegistrationsPage() {
@@ -92,7 +92,7 @@ export default function AdminRegistrationsPage() {
         const matchesSearch =
             r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             r.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            r.student.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (r.student?.user?.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
             r.event.title.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = statusFilter === "all" || r.status === statusFilter;
         const matchesEvent = eventFilter === "all" || r.eventId.toString() === eventFilter;
@@ -243,7 +243,7 @@ export default function AdminRegistrationsPage() {
                         <table className="w-full">
                             <thead>
                                 <tr className="bg-slate-50 border-b border-slate-100">
-                                    <th className="text-left px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Student</th>
+                                    <th className="text-left px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Participant</th>
                                     <th className="text-left px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Event</th>
                                     <th className="text-left px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Contact</th>
                                     <th className="text-left px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Amount</th>
@@ -259,7 +259,7 @@ export default function AdminRegistrationsPage() {
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                                                    {reg.student.user.profilePhoto ? (
+                                                    {reg.student?.user?.profilePhoto ? (
                                                         <img src={reg.student.user.profilePhoto} alt="" className="w-full h-full rounded-full object-cover" />
                                                     ) : (
                                                         reg.name.charAt(0).toUpperCase()
@@ -267,7 +267,7 @@ export default function AdminRegistrationsPage() {
                                                 </div>
                                                 <div>
                                                     <p className="font-semibold text-slate-900 text-sm">{reg.name}</p>
-                                                    <p className="text-xs text-slate-400">{reg.student.user.address || "—"}</p>
+                                                    <p className="text-xs text-slate-400">{reg.student?.user.address || "Guest"}</p>
                                                 </div>
                                             </div>
                                         </td>

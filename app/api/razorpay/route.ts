@@ -34,6 +34,7 @@ export async function POST(request: NextRequest) {
             orderId: order.id,
             amount: order.amount,
             currency: order.currency,
+            key: process.env.RAZORPAY_KEY_ID,
         })
     } catch (error) {
         console.error("Razorpay order creation error:", error)

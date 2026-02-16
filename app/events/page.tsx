@@ -83,7 +83,7 @@ export default function EventsPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative pt-32 pb-16 px-4 bg-slate-50">
+      <section className="relative pt-12 pb-16 px-4 bg-slate-50">
         <div className="max-w-6xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100 mb-6">
             <Sparkles className="w-4 h-4 text-amber-600 fill-amber-600" />

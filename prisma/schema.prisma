@@ -179,8 +179,8 @@ model EventRegistration {
   id        Int      @id @default(autoincrement())
   eventId   Int
   event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  studentId String
-  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId String?
+  student   Student? @relation(fields: [studentId], references: [id], onDelete: Cascade)
   name      String
   email     String
   phone     String

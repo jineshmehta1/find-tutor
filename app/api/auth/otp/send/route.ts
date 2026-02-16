@@ -11,9 +11,13 @@ const schema = z.object({
 });
 
 export async function POST(request: NextRequest) {
+    let email = "";
+    let otp = "";
+
     try {
         const body = await request.json();
-        const { email } = schema.parse(body);
+        const parsed = schema.parse(body);
+        email = parsed.email;
 
         // check if user already exists
         const existingUser = await prisma.user.findUnique({
@@ -28,7 +32,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Generate 6-digit OTP
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        otp = Math.floor(100000 + Math.random() * 900000).toString();
         const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
 
         // Upsert verification request
@@ -36,11 +40,7 @@ export async function POST(request: NextRequest) {
             where: {
                 identifier_token: {
                     identifier: email,
-                    token: otp // Note: In a real app, we might want to check by identifier only first to replace old OTPs, 
-                    // but prisma schema has complex unique constraint. 
-                    // Actually standard practice is just to create a new token. 
-                    // But here we need to handle existing tokens for the same email.
-                    // Let's simplify and delete old requests for this email first.
+                    token: otp
                 }
             },
             update: {
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
         // Send Email
         const msg = {
             to: email,
-            from: "onboarding@resend.dev", // Change to your verified sender
+            from: process.env.EMAIL_FROM || "onboarding@chesswiz.com", // Ensure this email is verified in SendGrid
             subject: "Your Aacharya Verification Code",
             html: `
         <div style="font-family: sans-serif; padding: 20px; color: #333;">
@@ -101,8 +101,33 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({ message: "OTP sent successfully" });
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("OTP Error:", error);
+
+        // Fallback for Dev/Credits Exceeded
+        if (error.response) {
+            const errorBody = error.response.body;
+            console.error("SendGrid Error Body:", JSON.stringify(errorBody, null, 2));
+
+            // Check for specific SendGrid errors (credits exceeded, unauthorized)
+            const isCreditsExceeded = errorBody.errors?.some((e: any) =>
+                e.message?.includes("Maximum credits exceeded") ||
+                e.message?.includes("Unauthorized")
+            );
+
+            if ((isCreditsExceeded || process.env.NODE_ENV === "development") && email && otp) {
+                console.warn("⚠️ SendGrid Error (likely credits/auth). FALLBACK: Logging OTP to console.");
+                console.log("==========================================");
+                console.log(`DEV MODE OTP for ${email}: ${otp}`);
+                console.log("==========================================");
+
+                return NextResponse.json({
+                    message: "OTP sent (Dev Mode: Check server console for code)",
+                    devMode: true
+                });
+            }
+        }
+
         if (error instanceof z.ZodError) {
             return NextResponse.json(
                 { error: "Invalid email address" },

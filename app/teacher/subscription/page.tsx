@@ -112,7 +112,7 @@ export default function TeacherSubscriptionPage() {
 
             // 2. Open Razorpay checkout
             const options = {
-                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+                key: orderData.key,
                 amount: orderData.amount,
                 currency: orderData.currency,
                 name: "Aacharya Academy",
@@ -182,19 +182,19 @@ export default function TeacherSubscriptionPage() {
 
             {/* Current Status */}
             <div className={`rounded-2xl p-6 border ${hasAccess
-                    ? status === "trial"
-                        ? "bg-blue-50 border-blue-200"
-                        : "bg-green-50 border-green-200"
-                    : status === "expired"
-                        ? "bg-red-50 border-red-200"
-                        : "bg-slate-50 border-slate-200"
+                ? status === "trial"
+                    ? "bg-blue-50 border-blue-200"
+                    : "bg-green-50 border-green-200"
+                : status === "expired"
+                    ? "bg-red-50 border-red-200"
+                    : "bg-slate-50 border-slate-200"
                 }`}>
                 <div className="flex items-center gap-4">
                     <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${hasAccess
-                            ? status === "trial"
-                                ? "bg-blue-100"
-                                : "bg-green-100"
-                            : "bg-red-100"
+                        ? status === "trial"
+                            ? "bg-blue-100"
+                            : "bg-green-100"
+                        : "bg-red-100"
                         }`}>
                         {hasAccess ? (
                             status === "trial"
@@ -278,10 +278,10 @@ export default function TeacherSubscriptionPage() {
                                             onClick={() => handleSubscribe(plan)}
                                             disabled={processing === plan.id || (status === "active" && hasAccess)}
                                             className={`w-full py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${status === "active" && hasAccess
-                                                    ? "bg-green-100 text-green-700 cursor-default"
-                                                    : isPopular
-                                                        ? "bg-amber-500 text-white hover:bg-amber-600 shadow-lg shadow-amber-500/25"
-                                                        : "bg-slate-900 text-white hover:bg-slate-800"
+                                                ? "bg-green-100 text-green-700 cursor-default"
+                                                : isPopular
+                                                    ? "bg-amber-500 text-white hover:bg-amber-600 shadow-lg shadow-amber-500/25"
+                                                    : "bg-slate-900 text-white hover:bg-slate-800"
                                                 }`}
                                         >
                                             {processing === plan.id ? (

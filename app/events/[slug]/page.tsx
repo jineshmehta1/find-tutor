@@ -168,15 +168,37 @@ export default function EventDetailPage() {
 
             // Initialize Razorpay
             const options = {
-                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+                key: data.key,
                 amount: data.amount,
                 currency: data.currency,
                 name: "Aacharya Academy",
                 description: event.title,
                 order_id: data.orderId,
-                handler: function (response: any) {
-                    setPaymentSuccess(true)
-                    setIsLoading(false)
+                handler: async function (response: any) {
+                    try {
+                        const registerRes = await fetch("/api/events/register", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                eventId: event.id,
+                                name: formData.name,
+                                email: formData.email,
+                                phone: formData.phone,
+                                age: formData.age,
+                                paymentId: response.razorpay_payment_id,
+                                amount: event.registrationFee,
+                            }),
+                        })
+
+                        if (!registerRes.ok) throw new Error("Registration failed")
+
+                        setPaymentSuccess(true)
+                    } catch (error) {
+                        console.error("Registration error:", error)
+                        alert("Payment successful but registration failed. Please contact support.")
+                    } finally {
+                        setIsLoading(false)
+                    }
                 },
                 prefill: {
                     name: formData.name,
@@ -238,7 +260,7 @@ export default function EventDetailPage() {
     return (
         <div className="min-h-screen bg-white">
             {/* Back Button */}
-            <div className="pt-24 px-4 max-w-7xl mx-auto bg-slate-50">
+            <div className="pt-14 px-4 max-w-7xl mx-auto bg-slate-50">
                 <Link href="/events">
                     <button className="mb-6 flex items-center gap-2 text-slate-600 hover:text-[#f97316] font-semibold transition-colors">
                         <ArrowLeft className="w-4 h-4" />

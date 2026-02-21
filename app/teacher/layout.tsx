@@ -29,12 +29,24 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
     const { data: session } = useSession()
     const [subscription, setSubscription] = useState<SubscriptionData | null>(null)
     const [loading, setLoading] = useState(true)
+    const [profilePhoto, setProfilePhoto] = useState<string | null>(null)
 
     const isApproved = session?.user?.isApproved
 
     useEffect(() => {
         fetchSubscription()
+        fetchProfilePhoto()
     }, [])
+
+    const fetchProfilePhoto = async () => {
+        try {
+            const res = await fetch("/api/students")
+            if (res.ok) {
+                const data = await res.json()
+                if (data.profilePhoto) setProfilePhoto(data.profilePhoto)
+            }
+        } catch { }
+    }
 
     const fetchSubscription = async () => {
         try {
@@ -73,8 +85,12 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
             )}>
                 <div className="p-6 border-b border-slate-800">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center">
-                            <User className="w-6 h-6" />
+                        <div className="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center overflow-hidden">
+                            {profilePhoto ? (
+                                <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" />
+                            ) : (
+                                <User className="w-6 h-6" />
+                            )}
                         </div>
                         <div>
                             <h1 className="text-xl font-bold text-white">Teacher Portal</h1>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Lock, Mail, User, GraduationCap, ShieldCheck } from "lucide-react";
@@ -39,12 +39,16 @@ export default function LoginPage() {
         redirect: false,
         email,
         password,
+        role: selectedRole,
       });
 
       if (res?.error) {
-        setError("Invalid email or password");
+        setError("Invalid credentials for the selected role. Please check your email, password, and selected role.");
       } else {
-        router.push(getCallbackUrl(selectedRole));
+        // Fetch the session to get the actual authenticated role
+        const session = await getSession();
+        const actualRole = session?.user?.role || selectedRole;
+        router.push(getCallbackUrl(actualRole as UserRole));
       }
     } catch (err) {
       setError("Something went wrong");
@@ -102,8 +106,8 @@ export default function LoginPage() {
                   type="button"
                   onClick={() => setSelectedRole(role.id)}
                   className={`relative p-3 rounded-xl border-2 transition-all duration-300 ${isSelected
-                      ? `border-transparent bg-gradient-to-br ${role.color} text-white shadow-lg scale-105`
-                      : "border-slate-200 hover:border-slate-300 bg-white text-slate-600 hover:bg-slate-50"
+                    ? `border-transparent bg-gradient-to-br ${role.color} text-white shadow-lg scale-105`
+                    : "border-slate-200 hover:border-slate-300 bg-white text-slate-600 hover:bg-slate-50"
                     }`}
                 >
                   <Icon className={`w-5 h-5 mx-auto mb-1 ${isSelected ? "text-white" : "text-slate-400"}`} />

@@ -2,10 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import Link from "next/link";
 import {
-    Users, Clock, MapPin, Loader2, Mail, Phone,
-    CheckCircle, XCircle, AlertCircle, MessageSquare, Send
+    Users, Clock, Loader2, Mail, Phone,
+    CheckCircle, XCircle, MessageSquare, Send, Plus, X
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -14,21 +13,14 @@ interface LeadData {
     message: string | null;
     status: string;
     createdAt: string;
-    teacher: {
+    teacher?: {
         id: string;
-        education: string;
-        experience: string;
-        subjects: string;
-        isApproved: boolean;
         user: {
             id: string;
             name: string;
             email: string;
-            phone: string;
-            address: string;
-            profilePhoto: string | null;
         };
-    };
+    } | null;
 }
 
 export default function StudentLeadsPage() {
@@ -36,6 +28,11 @@ export default function StudentLeadsPage() {
     const [leads, setLeads] = useState<LeadData[]>([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState("all");
+
+    // Create lead modal
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [leadMessage, setLeadMessage] = useState("");
+    const [submittingLead, setSubmittingLead] = useState(false);
 
     useEffect(() => {
         fetchLeads();
@@ -51,6 +48,40 @@ export default function StudentLeadsPage() {
             toast.error("Failed to load leads");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleCreateLead = async () => {
+        if (!leadMessage.trim()) {
+            toast.error("Please write a message describing what you need");
+            return;
+        }
+
+        setSubmittingLead(true);
+        try {
+            const res = await fetch("/api/leads", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    message: leadMessage.trim(),
+                }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                toast.error(data.error || "Failed to create lead");
+                return;
+            }
+
+            toast.success("Lead created successfully! Teachers will be able to see your request.");
+            setShowCreateModal(false);
+            setLeadMessage("");
+            fetchLeads();
+        } catch {
+            toast.error("Failed to create lead");
+        } finally {
+            setSubmittingLead(false);
         }
     };
 
@@ -92,10 +123,6 @@ export default function StudentLeadsPage() {
         }
     };
 
-    const parseSubjects = (subjects: string): string[] => {
-        try { return JSON.parse(subjects); } catch { return [subjects]; }
-    };
-
     const stats = {
         total: leads.length,
         pending: leads.filter(l => l.status === "PENDING").length,
@@ -109,15 +136,15 @@ export default function StudentLeadsPage() {
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-3xl font-bold text-slate-900">My Leads</h1>
-                    <p className="text-slate-500 mt-1">Track your teacher contact requests</p>
+                    <p className="text-slate-500 mt-1">Post inquiries for teachers to see and respond</p>
                 </div>
-                <Link
-                    href="/student/teachers"
+                <button
+                    onClick={() => { setShowCreateModal(true); setLeadMessage(""); }}
                     className="px-5 py-2 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-600 transition-colors flex items-center gap-2 shadow-sm"
                 >
-                    <Send className="w-5 h-5" />
-                    Contact a Teacher
-                </Link>
+                    <Plus className="w-5 h-5" />
+                    Create Lead
+                </button>
             </div>
 
             {/* Stats */}
@@ -202,89 +229,119 @@ export default function StudentLeadsPage() {
                     </h3>
                     <p className="text-slate-500 mb-6">
                         {filter === "all"
-                            ? "Browse teachers and send your first contact request."
+                            ? "Create your first lead — all teachers will be able to see it and reach out to you."
                             : "Try a different filter."}
                     </p>
                     {filter === "all" && (
-                        <Link
-                            href="/student/teachers"
+                        <button
+                            onClick={() => { setShowCreateModal(true); setLeadMessage(""); }}
                             className="inline-flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-600 transition-colors"
                         >
-                            <Users className="w-5 h-5" />
-                            Find Teachers
-                        </Link>
+                            <Plus className="w-5 h-5" />
+                            Create Lead
+                        </button>
                     )}
                 </div>
             ) : (
                 <div className="space-y-4">
-                    {filteredLeads.map((lead) => {
-                        const subjects = parseSubjects(lead.teacher.subjects);
-                        return (
-                            <div key={lead.id} className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition-shadow">
-                                <div className="flex items-start gap-4">
-                                    {/* Teacher Avatar */}
-                                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center flex-shrink-0 text-white font-bold text-xl">
-                                        {lead.teacher.user.profilePhoto ? (
-                                            <img src={lead.teacher.user.profilePhoto} alt={lead.teacher.user.name} className="w-full h-full rounded-xl object-cover" />
-                                        ) : (
-                                            lead.teacher.user.name.charAt(0).toUpperCase()
-                                        )}
+                    {filteredLeads.map((lead) => (
+                        <div key={lead.id} className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition-shadow">
+                            <div className="flex items-start justify-between mb-3">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white">
+                                        <MessageSquare className="w-5 h-5" />
                                     </div>
-
-                                    {/* Content */}
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-start justify-between mb-2">
-                                            <div>
-                                                <h3 className="font-bold text-slate-900 text-lg">{lead.teacher.user.name}</h3>
-                                                <p className="text-slate-500 text-sm">{lead.teacher.education} • {lead.teacher.experience}</p>
-                                            </div>
-                                            {getStatusBadge(lead.status)}
-                                        </div>
-
-                                        {/* Subjects */}
-                                        <div className="flex flex-wrap gap-1.5 mb-3">
-                                            {subjects.map((subject, idx) => (
-                                                <span key={idx} className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded-md text-xs font-semibold">
-                                                    {subject}
-                                                </span>
-                                            ))}
-                                        </div>
-
-                                        {/* Message */}
-                                        {lead.message && (
-                                            <div className="bg-slate-50 rounded-xl p-3 mb-3">
-                                                <p className="text-sm text-slate-600 italic">"{lead.message}"</p>
-                                            </div>
-                                        )}
-
-                                        {/* Contact Info & Date */}
-                                        <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
-                                            <span className="flex items-center gap-1.5">
-                                                <Mail className="w-4 h-4 text-blue-500" />
-                                                {lead.teacher.user.email}
-                                            </span>
-                                            <span className="flex items-center gap-1.5">
-                                                <Phone className="w-4 h-4 text-blue-500" />
-                                                {lead.teacher.user.phone}
-                                            </span>
-                                            <span className="flex items-center gap-1.5">
-                                                <MapPin className="w-4 h-4 text-blue-500" />
-                                                {lead.teacher.user.address}
-                                            </span>
-                                        </div>
-
-                                        <div className="mt-3 pt-3 border-t border-slate-100">
-                                            <span className="text-xs text-slate-400">
-                                                Sent on {new Date(lead.createdAt).toLocaleDateString("en-IN", {
-                                                    day: "numeric", month: "short", year: "numeric"
-                                                })}
-                                            </span>
-                                        </div>
+                                    <div>
+                                        <p className="text-xs text-slate-400">
+                                            {new Date(lead.createdAt).toLocaleDateString("en-IN", {
+                                                day: "numeric", month: "short", year: "numeric",
+                                                hour: "2-digit", minute: "2-digit"
+                                            })}
+                                        </p>
                                     </div>
                                 </div>
+                                {getStatusBadge(lead.status)}
                             </div>
-                        );
-                    })}
+
+                            {/* Message */}
+                            {lead.message && (
+                                <div className="bg-slate-50 rounded-xl p-4 mb-3">
+                                    <p className="text-sm text-slate-700">{lead.message}</p>
+                                </div>
+                            )}
+
+                            {/* Teacher response info */}
+                            {lead.teacher && lead.status !== "PENDING" && (
+                                <div className="mt-3 pt-3 border-t border-slate-100 flex items-center gap-2 text-sm text-slate-500">
+                                    <Mail className="w-4 h-4 text-blue-500" />
+                                    <span>Responded by <strong className="text-slate-700">{lead.teacher.user.name}</strong></span>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {/* Create Lead Modal */}
+            {showCreateModal && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+                        {/* Modal Header */}
+                        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+                            <div>
+                                <h2 className="text-xl font-bold text-slate-900">Create New Lead</h2>
+                                <p className="text-sm text-slate-500">All teachers will see your inquiry</p>
+                            </div>
+                            <button
+                                onClick={() => setShowCreateModal(false)}
+                                className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        {/* Modal Body */}
+                        <div className="p-6 space-y-4">
+                            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
+                                <p className="text-sm text-blue-700">
+                                    <strong>How it works:</strong> Your lead will be visible to all teachers on the platform.
+                                    Any interested teacher can then contact you directly.
+                                </p>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-2">Your Message *</label>
+                                <textarea
+                                    value={leadMessage}
+                                    onChange={(e) => setLeadMessage(e.target.value)}
+                                    rows={4}
+                                    placeholder="Describe what you're looking for — e.g. subjects, preferred timing, learning goals..."
+                                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm resize-none"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="p-6 border-t border-slate-100 flex gap-3">
+                            <button
+                                onClick={() => setShowCreateModal(false)}
+                                className="flex-1 px-4 py-3 text-slate-700 font-semibold rounded-xl hover:bg-slate-100 transition-colors border border-slate-200"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleCreateLead}
+                                disabled={!leadMessage.trim() || submittingLead}
+                                className="flex-1 px-4 py-3 bg-blue-500 text-white font-semibold rounded-xl hover:bg-blue-600 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                            >
+                                {submittingLead ? (
+                                    <><Loader2 className="w-4 h-4 animate-spin" /> Posting...</>
+                                ) : (
+                                    <><Send className="w-4 h-4" /> Post Lead</>
+                                )}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

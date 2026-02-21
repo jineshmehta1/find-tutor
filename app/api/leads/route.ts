@@ -23,14 +23,7 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json();
-        const { teacherId, message } = body;
-
-        if (!teacherId) {
-            return NextResponse.json(
-                { error: "Teacher ID is required" },
-                { status: 400 }
-            );
-        }
+        const { message } = body;
 
         // Get the student record
         const student = await prisma.student.findFirst({
@@ -48,67 +41,17 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Check if teacher exists
-        const teacher = await prisma.teacher.findUnique({
-            where: { id: teacherId },
-        });
-
-        if (!teacher) {
-            return NextResponse.json(
-                { error: "Teacher not found" },
-                { status: 404 }
-            );
-        }
-
-        // Check for existing lead
-        const existingLead = await prisma.lead.findFirst({
-            where: {
-                studentId: student.id,
-                teacherId: teacher.id,
-            },
-        });
-
-        if (existingLead) {
-            return NextResponse.json(
-                { error: "You have already contacted this teacher" },
-                { status: 400 }
-            );
-        }
-
-        // Create lead
+        // Create broadcast lead (visible to all teachers)
         const lead = await prisma.lead.create({
             data: {
                 studentId: student.id,
-                teacherId: teacher.id,
                 message: message || null,
                 status: "PENDING",
-            },
-            include: {
-                student: {
-                    include: {
-                        user: {
-                            select: {
-                                name: true,
-                                email: true,
-                            },
-                        },
-                    },
-                },
-                teacher: {
-                    include: {
-                        user: {
-                            select: {
-                                name: true,
-                                email: true,
-                            },
-                        },
-                    },
-                },
             },
         });
 
         return NextResponse.json({
-            message: "Contact request sent successfully",
+            message: "Lead created successfully",
             lead: {
                 id: lead.id,
                 status: lead.status,
@@ -141,23 +84,8 @@ export async function GET(request: NextRequest) {
         let leads;
 
         if (session.user.role === "TEACHER" || role === "teacher") {
-            // Get leads for this teacher
-            const teacher = await prisma.teacher.findFirst({
-                where: {
-                    user: {
-                        email: session.user.email,
-                    },
-                },
-            });
-
-            if (!teacher) {
-                return NextResponse.json([]);
-            }
-
+            // Show all student leads to all teachers
             leads = await prisma.lead.findMany({
-                where: {
-                    teacherId: teacher.id,
-                },
                 include: {
                     student: {
                         include: {
@@ -169,6 +97,17 @@ export async function GET(request: NextRequest) {
                                     phone: true,
                                     address: true,
                                     profilePhoto: true,
+                                },
+                            },
+                        },
+                    },
+                    teacher: {
+                        include: {
+                            user: {
+                                select: {
+                                    id: true,
+                                    name: true,
+                                    email: true,
                                 },
                             },
                         },

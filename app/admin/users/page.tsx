@@ -148,8 +148,8 @@ export default function AdminUsersPage() {
                 <button
                     onClick={() => { setActiveTab("TEACHER"); setApprovalFilter("ALL"); }}
                     className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all ${activeTab === "TEACHER"
-                            ? "bg-white text-amber-600 shadow-sm"
-                            : "text-slate-500 hover:text-slate-700"
+                        ? "bg-white text-amber-600 shadow-sm"
+                        : "text-slate-500 hover:text-slate-700"
                         }`}
                 >
                     <User className="w-5 h-5" />
@@ -158,8 +158,8 @@ export default function AdminUsersPage() {
                 <button
                     onClick={() => { setActiveTab("STUDENT"); setApprovalFilter("ALL"); }}
                     className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all ${activeTab === "STUDENT"
-                            ? "bg-white text-blue-600 shadow-sm"
-                            : "text-slate-500 hover:text-slate-700"
+                        ? "bg-white text-blue-600 shadow-sm"
+                        : "text-slate-500 hover:text-slate-700"
                         }`}
                 >
                     <GraduationCap className="w-5 h-5" />
@@ -436,8 +436,8 @@ export default function AdminUsersPage() {
                                         </span>
                                         {selectedUser.role === "TEACHER" && (
                                             <span className={`px-3 py-1 rounded-full text-sm font-medium ${selectedUser.teacher?.isApproved
-                                                    ? "bg-green-500 text-white"
-                                                    : "bg-amber-500 text-white"
+                                                ? "bg-green-500 text-white"
+                                                : "bg-amber-500 text-white"
                                                 }`}>
                                                 {selectedUser.teacher?.isApproved ? "Approved" : "Pending"}
                                             </span>
@@ -519,12 +519,32 @@ export default function AdminUsersPage() {
                                     {selectedUser.teacher.certifications && (
                                         <div>
                                             <h3 className="text-lg font-bold text-slate-900 mb-3">Certifications</h3>
-                                            <div className="flex flex-wrap gap-2">
-                                                {parseJson(selectedUser.teacher.certifications).map((cert: string, idx: number) => (
-                                                    <span key={idx} className="px-3 py-2 bg-amber-100 text-amber-700 rounded-lg text-sm font-medium">
-                                                        {cert}
-                                                    </span>
-                                                ))}
+                                            <div className="space-y-3">
+                                                {parseJson(selectedUser.teacher.certifications).map((cert: string | { text: string; image?: string }, idx: number) => {
+                                                    const certText = typeof cert === "string" ? cert : cert.text;
+                                                    const certImage = typeof cert === "string" ? null : cert.image;
+                                                    return (
+                                                        <div key={idx} className="flex items-start gap-3 p-3 bg-amber-50 rounded-xl border border-amber-100">
+                                                            {certImage && (
+                                                                <a href={certImage} target="_blank" rel="noopener noreferrer" className="flex-shrink-0">
+                                                                    <img
+                                                                        src={certImage}
+                                                                        alt={certText}
+                                                                        className="w-16 h-16 rounded-lg object-cover border border-amber-200 hover:opacity-80 transition-opacity"
+                                                                    />
+                                                                </a>
+                                                            )}
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="text-sm font-medium text-amber-800">{certText}</p>
+                                                                {certImage && (
+                                                                    <a href={certImage} target="_blank" rel="noopener noreferrer" className="text-xs text-amber-600 hover:underline mt-1 inline-block">
+                                                                        View Certificate →
+                                                                    </a>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
                                         </div>
                                     )}
@@ -541,8 +561,8 @@ export default function AdminUsersPage() {
                                         <span
                                             key={subject}
                                             className={`px-3 py-2 rounded-lg text-sm font-medium ${selectedUser.role === "TEACHER"
-                                                    ? "bg-amber-100 text-amber-700"
-                                                    : "bg-blue-100 text-blue-700"
+                                                ? "bg-amber-100 text-amber-700"
+                                                : "bg-blue-100 text-blue-700"
                                                 }`}
                                         >
                                             <BookOpen className="w-4 h-4 inline mr-1" />

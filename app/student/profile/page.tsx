@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import {
     User, Mail, Phone, Calendar, MapPin, BookOpen,
-    Loader2, Save, Camera, CheckCircle2
+    Loader2, Save, Camera, CheckCircle2, Upload, X
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -33,6 +33,8 @@ export default function StudentProfilePage() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [profile, setProfile] = useState<Profile | null>(null);
+    const profileInputRef = useRef<HTMLInputElement>(null);
+    const [isUploadingProfile, setIsUploadingProfile] = useState(false);
 
     const [formData, setFormData] = useState({
         name: "",
@@ -68,6 +70,52 @@ export default function StudentProfilePage() {
 
     const updateField = (field: string, value: string) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
+    };
+
+    // Upload a file to the API
+    const uploadFile = async (file: File, type: string): Promise<string | null> => {
+        const formDataUpload = new FormData();
+        formDataUpload.append("file", file);
+        formDataUpload.append("type", type);
+
+        try {
+            const res = await fetch("/api/upload", {
+                method: "POST",
+                body: formDataUpload,
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                toast.error(data.error || "Upload failed");
+                return null;
+            }
+            return data.url;
+        } catch {
+            toast.error("Upload failed. Please try again.");
+            return null;
+        }
+    };
+
+    // Handle profile photo upload
+    const handleProfilePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+            toast.error("Please select an image file");
+            return;
+        }
+        if (file.size > 4 * 1024 * 1024) {
+            toast.error("Image must be less than 4MB");
+            return;
+        }
+
+        setIsUploadingProfile(true);
+        const url = await uploadFile(file, "profiles");
+        if (url) {
+            setFormData((prev) => ({ ...prev, profilePhoto: url }));
+            toast.success("Profile photo uploaded!");
+        }
+        setIsUploadingProfile(false);
     };
 
     const toggleSubject = (subject: string) => {
@@ -121,13 +169,27 @@ export default function StudentProfilePage() {
                 <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-8 text-white">
                     <div className="flex items-center gap-6">
                         <div className="relative">
-                            <div className="w-24 h-24 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center overflow-hidden">
-                                {formData.profilePhoto ? (
+                            <div
+                                className="w-24 h-24 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center overflow-hidden cursor-pointer hover:bg-white/30 transition-colors"
+                                onClick={() => profileInputRef.current?.click()}
+                            >
+                                {isUploadingProfile ? (
+                                    <Loader2 className="w-8 h-8 text-white animate-spin" />
+                                ) : formData.profilePhoto ? (
                                     <img src={formData.profilePhoto} alt="Profile" className="w-full h-full object-cover" />
                                 ) : (
                                     <User className="w-12 h-12 text-white" />
                                 )}
                             </div>
+                            {/* Camera overlay */}
+                            <button
+                                type="button"
+                                onClick={() => profileInputRef.current?.click()}
+                                disabled={isUploadingProfile}
+                                className="absolute -bottom-1 -left-1 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center border-2 border-white hover:bg-blue-700 transition-colors disabled:opacity-50"
+                            >
+                                <Camera className="w-4 h-4 text-white" />
+                            </button>
                         </div>
                         <div>
                             <h2 className="text-2xl font-bold">{formData.name || "Your Name"}</h2>
@@ -137,6 +199,13 @@ export default function StudentProfilePage() {
                             </p>
                         </div>
                     </div>
+                    <input
+                        ref={profileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleProfilePhotoUpload}
+                        className="hidden"
+                    />
                 </div>
 
                 {/* Profile Form */}
@@ -170,17 +239,43 @@ export default function StudentProfilePage() {
                         </div>
                     </div>
 
+                    {/* Profile Photo Upload */}
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Profile Photo URL</label>
-                        <div className="relative">
-                            <Camera className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
-                            <input
-                                type="url"
-                                value={formData.profilePhoto}
-                                onChange={(e) => updateField("profilePhoto", e.target.value)}
-                                className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                                placeholder="https://example.com/photo.jpg"
-                            />
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Profile Photo</label>
+                        <div className="flex items-center gap-4">
+                            <div
+                                className="w-16 h-16 bg-slate-100 rounded-xl flex items-center justify-center border-2 border-dashed border-slate-300 cursor-pointer hover:border-blue-400 hover:bg-blue-50/50 transition-all overflow-hidden"
+                                onClick={() => profileInputRef.current?.click()}
+                            >
+                                {isUploadingProfile ? (
+                                    <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
+                                ) : formData.profilePhoto ? (
+                                    <img src={formData.profilePhoto} alt="Profile" className="w-full h-full object-cover" />
+                                ) : (
+                                    <Camera className="w-6 h-6 text-slate-400" />
+                                )}
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => profileInputRef.current?.click()}
+                                disabled={isUploadingProfile}
+                                className="px-4 py-2.5 bg-blue-50 text-blue-700 font-medium rounded-xl hover:bg-blue-100 transition-colors border border-blue-200 disabled:opacity-50 flex items-center gap-2 text-sm"
+                            >
+                                {isUploadingProfile ? (
+                                    <><Loader2 className="w-4 h-4 animate-spin" /> Uploading...</>
+                                ) : (
+                                    <><Upload className="w-4 h-4" /> {formData.profilePhoto ? "Change Photo" : "Upload Photo"}</>
+                                )}
+                            </button>
+                            {formData.profilePhoto && (
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData((prev) => ({ ...prev, profilePhoto: "" }))}
+                                    className="p-2 text-slate-400 hover:text-red-500 transition-colors"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                            )}
                         </div>
                     </div>
 
@@ -212,8 +307,8 @@ export default function StudentProfilePage() {
                                         type="button"
                                         onClick={() => toggleSubject(subject)}
                                         className={`p-3 rounded-xl border-2 text-left transition-all ${isSelected
-                                                ? "border-blue-500 bg-blue-50 text-blue-700"
-                                                : "border-slate-200 hover:border-slate-300 text-slate-600"
+                                            ? "border-blue-500 bg-blue-50 text-blue-700"
+                                            : "border-slate-200 hover:border-slate-300 text-slate-600"
                                             }`}
                                     >
                                         <div className="flex items-center gap-2">

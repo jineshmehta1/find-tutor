@@ -32,17 +32,23 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
+        role: { label: "Role", type: "text" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        if (!credentials?.email || !credentials?.password || !credentials?.role) {
           return null;
         }
+
+        const selectedRole = credentials.role as "ADMIN" | "TEACHER" | "STUDENT";
 
         // Check for legacy admin login (environment variables)
         if (
           credentials.email === process.env.ADMIN_EMAIL &&
           credentials.password === process.env.ADMIN_PASSWORD
         ) {
+          if (selectedRole !== "ADMIN") {
+            return null;
+          }
           return {
             id: "admin-legacy",
             name: "Admin",
@@ -72,6 +78,11 @@ export const authOptions: NextAuthOptions = {
         );
 
         if (!isValidPassword) {
+          return null;
+        }
+
+        // Verify the selected role matches the user's actual role
+        if (user.role !== selectedRole) {
           return null;
         }
 

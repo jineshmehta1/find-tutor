@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import {
     User, ArrowLeft, ArrowRight, Mail, Phone, Calendar, MapPin,
-    BookOpen, GraduationCap, Loader2, CheckCircle2
+    BookOpen, GraduationCap, Loader2, CheckCircle2, Upload, Camera, X
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -22,6 +22,7 @@ export default function StudentSignupPage() {
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
+    const profileInputRef = useRef<HTMLInputElement>(null);
 
     // Form data
     const [formData, setFormData] = useState({
@@ -32,6 +33,7 @@ export default function StudentSignupPage() {
         confirmPassword: "",
         dob: "",
         address: "",
+        profilePhoto: "",
         subjects: [] as string[],
         otp: "",
     });
@@ -39,6 +41,7 @@ export default function StudentSignupPage() {
     const [otpSent, setOtpSent] = useState(false);
     const [otpTimer, setOtpTimer] = useState(0);
     const [isOtpSending, setIsOtpSending] = useState(false);
+    const [isUploadingProfile, setIsUploadingProfile] = useState(false);
 
     const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -47,6 +50,52 @@ export default function StudentSignupPage() {
         if (errors[field]) {
             setErrors((prev) => ({ ...prev, [field]: "" }));
         }
+    };
+
+    // Upload a file to the API
+    const uploadFile = async (file: File, type: string): Promise<string | null> => {
+        const formDataUpload = new FormData();
+        formDataUpload.append("file", file);
+        formDataUpload.append("type", type);
+
+        try {
+            const res = await fetch("/api/upload", {
+                method: "POST",
+                body: formDataUpload,
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                toast.error(data.error || "Upload failed");
+                return null;
+            }
+            return data.url;
+        } catch {
+            toast.error("Upload failed. Please try again.");
+            return null;
+        }
+    };
+
+    // Handle profile photo upload
+    const handleProfilePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+            toast.error("Please select an image file");
+            return;
+        }
+        if (file.size > 4 * 1024 * 1024) {
+            toast.error("Image must be less than 4MB");
+            return;
+        }
+
+        setIsUploadingProfile(true);
+        const url = await uploadFile(file, "profiles");
+        if (url) {
+            setFormData((prev) => ({ ...prev, profilePhoto: url }));
+            toast.success("Profile photo uploaded!");
+        }
+        setIsUploadingProfile(false);
     };
 
     const toggleSubject = (subject: string) => {
@@ -371,6 +420,62 @@ export default function StudentSignupPage() {
                                         />
                                     </div>
                                     {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
+                                </div>
+
+                                {/* Profile Photo Upload */}
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">Profile Photo (Optional)</label>
+                                    <div className="flex items-center gap-4">
+                                        <div
+                                            className="w-20 h-20 bg-slate-100 rounded-2xl flex items-center justify-center border-2 border-dashed border-slate-300 cursor-pointer hover:border-blue-400 hover:bg-blue-50/50 transition-all overflow-hidden"
+                                            onClick={() => profileInputRef.current?.click()}
+                                        >
+                                            {isUploadingProfile ? (
+                                                <Loader2 className="w-6 h-6 text-blue-500 animate-spin" />
+                                            ) : formData.profilePhoto ? (
+                                                <img src={formData.profilePhoto} alt="Profile" className="w-full h-full object-cover" />
+                                            ) : (
+                                                <Camera className="w-8 h-8 text-slate-400" />
+                                            )}
+                                        </div>
+                                        <div className="flex-1">
+                                            <button
+                                                type="button"
+                                                onClick={() => profileInputRef.current?.click()}
+                                                disabled={isUploadingProfile}
+                                                className="px-4 py-2.5 bg-blue-50 text-blue-700 font-medium rounded-xl hover:bg-blue-100 transition-colors border border-blue-200 disabled:opacity-50 flex items-center gap-2"
+                                            >
+                                                {isUploadingProfile ? (
+                                                    <>
+                                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                                        Uploading...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Upload className="w-4 h-4" />
+                                                        {formData.profilePhoto ? "Change Photo" : "Upload Photo"}
+                                                    </>
+                                                )}
+                                            </button>
+                                            <p className="text-xs text-slate-500 mt-1.5">JPG, PNG or WebP. Max 4MB.</p>
+                                        </div>
+                                        {formData.profilePhoto && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setFormData((prev) => ({ ...prev, profilePhoto: "" }))}
+                                                className="p-2 text-slate-400 hover:text-red-500 transition-colors"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        )}
+                                    </div>
+                                    <input
+                                        ref={profileInputRef}
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleProfilePhotoUpload}
+                                        className="hidden"
+                                    />
                                 </div>
                             </div>
                         )}

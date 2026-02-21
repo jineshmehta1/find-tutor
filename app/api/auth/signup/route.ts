@@ -18,7 +18,10 @@ const baseUserSchema = z.object({
 
 const teacherSchema = baseUserSchema.extend({
     role: z.literal("TEACHER"),
-    certifications: z.array(z.string()).min(1, "At least one certification required"),
+    certifications: z.array(z.object({
+        text: z.string().min(1, "Certification name is required"),
+        image: z.string().optional(),
+    })).min(1, "At least one certification required"),
     education: z.string().min(2, "Education is required"),
     experience: z.string().min(2, "Experience is required"),
     subjects: z.array(z.string()).min(1, "At least one subject required"),

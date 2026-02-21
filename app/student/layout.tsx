@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { signOut, useSession } from "next-auth/react"
 import { LayoutDashboard, Users, User, LogOut, Menu, X, GraduationCap, Calendar, Send } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 
 const sidebarItems = [
@@ -19,6 +19,20 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
     const pathname = usePathname()
     const [isOpen, setIsOpen] = useState(false)
     const { data: session } = useSession()
+    const [profilePhoto, setProfilePhoto] = useState<string | null>(null)
+
+    useEffect(() => {
+        const fetchProfilePhoto = async () => {
+            try {
+                const res = await fetch("/api/students")
+                if (res.ok) {
+                    const data = await res.json()
+                    if (data.profilePhoto) setProfilePhoto(data.profilePhoto)
+                }
+            } catch { }
+        }
+        fetchProfilePhoto()
+    }, [])
 
     return (
         <div className="min-h-screen bg-slate-100 flex">
@@ -38,8 +52,12 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
             )}>
                 <div className="p-6 border-b border-blue-800">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center">
-                            <GraduationCap className="w-6 h-6" />
+                        <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center overflow-hidden">
+                            {profilePhoto ? (
+                                <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" />
+                            ) : (
+                                <GraduationCap className="w-6 h-6" />
+                            )}
                         </div>
                         <div>
                             <h1 className="text-xl font-bold text-white">Student Portal</h1>

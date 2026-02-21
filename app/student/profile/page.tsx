@@ -27,7 +27,8 @@ interface Profile {
         subjects: string;
     } | null;
 }
-
+const CLOUDINARY_CLOUD_NAME = "dx2o9yq2t";
+const CLOUDINARY_UPLOAD_PRESET = "gallery"; // or create "profiles"
 export default function StudentProfilePage() {
     const { data: session } = useSession();
     const [loading, setLoading] = useState(true);
@@ -72,51 +73,57 @@ export default function StudentProfilePage() {
         setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
-    // Upload a file to the API
-    const uploadFile = async (file: File, type: string): Promise<string | null> => {
-        const formDataUpload = new FormData();
-        formDataUpload.append("file", file);
-        formDataUpload.append("type", type);
-
-        try {
-            const res = await fetch("/api/upload", {
-                method: "POST",
-                body: formDataUpload,
-            });
-            const data = await res.json();
-            if (!res.ok) {
-                toast.error(data.error || "Upload failed");
-                return null;
-            }
-            return data.url;
-        } catch {
-            toast.error("Upload failed. Please try again.");
-            return null;
-        }
-    };
+    
 
     // Handle profile photo upload
-    const handleProfilePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+    const handleProfilePhotoUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>
+) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-        if (!file.type.startsWith("image/")) {
-            toast.error("Please select an image file");
-            return;
-        }
-        if (file.size > 4 * 1024 * 1024) {
-            toast.error("Image must be less than 4MB");
-            return;
-        }
+    if (!file.type.startsWith("image/")) {
+        toast.error("Please select an image file");
+        return;
+    }
 
-        setIsUploadingProfile(true);
-        const url = await uploadFile(file, "profiles");
-        if (url) {
-            setFormData((prev) => ({ ...prev, profilePhoto: url }));
-            toast.success("Profile photo uploaded!");
-        }
+    if (file.size > 4 * 1024 * 1024) {
+        toast.error("Image must be less than 4MB");
+        return;
+    }
+
+    setIsUploadingProfile(true);
+
+    try {
+        const form = new FormData();
+        form.append("file", file);
+        form.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+        form.append("folder", "profiles");
+
+        const res = await fetch(
+            `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+            {
+                method: "POST",
+                body: form,
+            }
+        );
+
+        if (!res.ok) throw new Error("Upload failed");
+
+        const data = await res.json();
+
+        setFormData((prev) => ({
+            ...prev,
+            profilePhoto: data.secure_url,
+        }));
+
+        toast.success("Profile photo uploaded!");
+    } catch {
+        toast.error("Upload failed. Please try again.");
+    } finally {
         setIsUploadingProfile(false);
-    };
+    }
+};
 
     const toggleSubject = (subject: string) => {
         setFormData((prev) => ({

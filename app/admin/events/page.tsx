@@ -58,6 +58,8 @@ const emptyForm = {
     organizer: "Aacharya Academy",
     contact: "+91 98646 46481",
 };
+const CLOUDINARY_CLOUD_NAME = "dx2o9yq2t";
+const CLOUDINARY_UPLOAD_PRESET = "gallery"; // or create "events" preset
 
 export default function AdminEventsPage() {
     const [events, setEvents] = useState<EventData[]>([]);
@@ -69,30 +71,44 @@ export default function AdminEventsPage() {
     const [form, setForm] = useState(emptyForm);
     const [uploading, setUploading] = useState(false);
 
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+    const handleImageUpload = async (
+  e: React.ChangeEvent<HTMLInputElement>
+) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
 
-        setUploading(true);
-        try {
-            const formData = new FormData();
-            formData.append("file", file);
+  setUploading(true);
 
-            const res = await fetch("/api/upload", {
-                method: "POST",
-                body: formData,
-            });
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+    formData.append("folder", "events"); // 👈 keeps Cloudinary organized
 
-            if (!res.ok) throw new Error("Upload failed");
-            const data = await res.json();
-            setForm(prev => ({ ...prev, image: data.url }));
-            toast.success("Image uploaded!");
-        } catch (error) {
-            toast.error("Failed to upload image");
-        } finally {
-            setUploading(false);
-        }
-    };
+    const res = await fetch(
+      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+
+    if (!res.ok) throw new Error("Upload failed");
+
+    const data = await res.json();
+
+    setForm((prev) => ({
+      ...prev,
+      image: data.secure_url,
+    }));
+
+    toast.success("Image uploaded successfully!");
+  } catch (error) {
+    toast.error("Failed to upload image");
+  } finally {
+    setUploading(false);
+  }
+};
 
 
     useEffect(() => {

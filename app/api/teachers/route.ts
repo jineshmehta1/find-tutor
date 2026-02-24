@@ -6,6 +6,8 @@ export async function GET(request: NextRequest) {
         const { searchParams } = new URL(request.url);
         const subject = searchParams.get("subject");
         const area = searchParams.get("area");
+        const mode = searchParams.get("mode");
+        const classLevel = searchParams.get("classLevel");
         const approvedOnly = searchParams.get("approved") !== "false";
 
         // Build where clause
@@ -13,6 +15,10 @@ export async function GET(request: NextRequest) {
 
         if (approvedOnly) {
             where.isApproved = true;
+        }
+
+        if (mode) {
+            where.teachingMode = { contains: mode, mode: "insensitive" };
         }
 
         // Get teachers with user data
@@ -55,6 +61,21 @@ export async function GET(request: NextRequest) {
             );
         }
 
+        // Filter by class level if specified
+        if (classLevel) {
+            filteredTeachers = filteredTeachers.filter((teacher) => {
+                if (!teacher.classesOrAgeGroup) return false;
+                try {
+                    const classes = JSON.parse(teacher.classesOrAgeGroup);
+                    return classes.some((c: string) =>
+                        c.toLowerCase().includes(classLevel.toLowerCase())
+                    );
+                } catch {
+                    return teacher.classesOrAgeGroup.toLowerCase().includes(classLevel.toLowerCase());
+                }
+            });
+        }
+
         // Transform response
         const response = filteredTeachers.map((teacher) => ({
             id: teacher.id,
@@ -70,6 +91,11 @@ export async function GET(request: NextRequest) {
             experience: teacher.experience,
             certifications: JSON.parse(teacher.certifications || "[]"),
             subjects: JSON.parse(teacher.subjects || "[]"),
+            teachingMode: teacher.teachingMode,
+            classesOrAgeGroup: teacher.classesOrAgeGroup ? (() => { try { return JSON.parse(teacher.classesOrAgeGroup); } catch { return teacher.classesOrAgeGroup; } })() : null,
+            qualificationLevel: teacher.qualificationLevel,
+            qualificationName: teacher.qualificationName,
+            achievements: teacher.achievements,
             isApproved: teacher.isApproved,
             createdAt: teacher.createdAt,
         }));
@@ -83,3 +109,4 @@ export async function GET(request: NextRequest) {
         );
     }
 }
+

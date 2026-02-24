@@ -73,6 +73,7 @@ const Header: React.FC = () => {
       ],
     },
     { name: "Gallery", href: "/gallery" },
+    { name: "Find Tutor", href: "/find-tutor-nearby" },
     { name: "Events", href: "/events" },
     { name: "Contact", href: "/contact" },
   ];

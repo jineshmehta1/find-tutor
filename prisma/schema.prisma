@@ -47,22 +47,29 @@ model User {
 }
 
 model Teacher {
-  id                 String    @id @default(cuid())
-  userId             String    @unique
-  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  certifications     String    // JSON string of certifications
-  education          String
-  experience         String
-  subjects           String    // JSON string of subjects
-  isApproved         Boolean   @default(false)
-  approvedAt         DateTime?
-  subscriptionStatus String    @default("none") // none, trial, active, expired
-  subscriptionEnd    DateTime?
+  id                    String    @id @default(cuid())
+  userId                String    @unique
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  certifications        String    // JSON string of certifications
+  education             String
+  experience            String
+  subjects              String    // JSON string of subjects
+  teachingMode          String?   // "Home Tutor", "Online Tutor", "At Centre" or JSON array
+  classesOrAgeGroup     String?   // JSON string of classes/age groups
+  qualificationLevel    String?   // Degree/PG/M.Phil/PhD/PostDoc
+  qualificationName     String?   // BSc/BA/B.Com/B.Tech etc.
+  achievements          String?   // Free-text achievements/awards
+  achievementCertificate String?  // URL to achievement certificate image
+  qualificationCertificate String? // URL to qualification certificate image
+  isApproved            Boolean   @default(false)
+  approvedAt            DateTime?
+  subscriptionStatus    String    @default("none") // none, trial, active, expired
+  subscriptionEnd       DateTime?
   subscriptionPaymentId String?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
-  leads              Lead[]
+  leads                 Lead[]
 }
 
 model Student {

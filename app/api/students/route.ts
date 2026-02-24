@@ -54,7 +54,9 @@ export async function PATCH(request: NextRequest) {
         }
 
         const body = await request.json();
-        const { name, phone, address, profilePhoto, subjects, education, experience, certifications } = body;
+        const { name, phone, address, profilePhoto, subjects, education, experience, certifications,
+            teachingMode, classesOrAgeGroup, qualificationLevel, qualificationName, achievements,
+            achievementCertificate, qualificationCertificate } = body;
 
         // Update user basic info
         const updateData: any = {};
@@ -88,6 +90,13 @@ export async function PATCH(request: NextRequest) {
             if (education) teacherUpdateData.education = education;
             if (experience) teacherUpdateData.experience = experience;
             if (certifications) teacherUpdateData.certifications = JSON.stringify(certifications);
+            if (teachingMode !== undefined) teacherUpdateData.teachingMode = teachingMode;
+            if (classesOrAgeGroup) teacherUpdateData.classesOrAgeGroup = JSON.stringify(classesOrAgeGroup);
+            if (qualificationLevel !== undefined) teacherUpdateData.qualificationLevel = qualificationLevel;
+            if (qualificationName !== undefined) teacherUpdateData.qualificationName = qualificationName;
+            if (achievements !== undefined) teacherUpdateData.achievements = achievements;
+            if (achievementCertificate !== undefined) teacherUpdateData.achievementCertificate = achievementCertificate;
+            if (qualificationCertificate !== undefined) teacherUpdateData.qualificationCertificate = qualificationCertificate;
 
             if (Object.keys(teacherUpdateData).length > 0) {
                 await prisma.teacher.update({

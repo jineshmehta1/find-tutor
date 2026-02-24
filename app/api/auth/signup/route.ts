@@ -25,6 +25,13 @@ const teacherSchema = baseUserSchema.extend({
     education: z.string().min(2, "Education is required"),
     experience: z.string().min(2, "Experience is required"),
     subjects: z.array(z.string()).min(1, "At least one subject required"),
+    teachingMode: z.string().optional(),
+    classesOrAgeGroup: z.array(z.string()).optional(),
+    qualificationLevel: z.string().optional(),
+    qualificationName: z.string().optional(),
+    achievements: z.string().optional(),
+    achievementCertificate: z.string().optional(),
+    qualificationCertificate: z.string().optional(),
 });
 
 const studentSchema = baseUserSchema.extend({
@@ -121,6 +128,13 @@ export async function POST(request: NextRequest) {
                             education: teacherData.education,
                             experience: teacherData.experience,
                             subjects: JSON.stringify(teacherData.subjects),
+                            teachingMode: teacherData.teachingMode,
+                            classesOrAgeGroup: teacherData.classesOrAgeGroup ? JSON.stringify(teacherData.classesOrAgeGroup) : undefined,
+                            qualificationLevel: teacherData.qualificationLevel,
+                            qualificationName: teacherData.qualificationName,
+                            achievements: teacherData.achievements,
+                            achievementCertificate: teacherData.achievementCertificate,
+                            qualificationCertificate: teacherData.qualificationCertificate,
                             isApproved: false,
                         },
                     },

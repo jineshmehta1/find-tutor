@@ -153,6 +153,7 @@ export default function Footer() {
               {[
                 { name: "About Us", href: "/about" },
                 { name: "Success Stories", href: "/gallery" },
+                { name: "Find Tutor Nearby", href: "/find-tutor-nearby" },
                 { name: "Events", href: "/events" },
                 { name: "Contact Us", href: "/contact" },
                 { name: "Book a Demo", href: "/bookdemo" },

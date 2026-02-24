@@ -35,6 +35,11 @@ interface Profile {
         experience: string;
         certifications: string;
         subjects: string;
+        teachingMode: string | null;
+        classesOrAgeGroup: string | null;
+        qualificationLevel: string | null;
+        qualificationName: string | null;
+        achievements: string | null;
         isApproved: boolean;
     } | null;
 }
@@ -58,6 +63,11 @@ export default function TeacherProfilePage() {
         experience: "",
         certifications: [] as Certification[],
         subjects: [] as string[],
+        teachingMode: "",
+        classesOrAgeGroup: [] as string[],
+        qualificationLevel: "",
+        qualificationName: "",
+        achievements: "",
     });
 
     const [certInput, setCertInput] = useState("");
@@ -88,6 +98,11 @@ export default function TeacherProfilePage() {
                 } catch { parsedCerts = []; }
             }
 
+            let parsedClasses: string[] = [];
+            if (data.teacher?.classesOrAgeGroup) {
+                try { parsedClasses = JSON.parse(data.teacher.classesOrAgeGroup); } catch { parsedClasses = []; }
+            }
+
             setFormData({
                 name: data.name || "",
                 phone: data.phone || "",
@@ -97,6 +112,11 @@ export default function TeacherProfilePage() {
                 experience: data.teacher?.experience || "",
                 certifications: parsedCerts,
                 subjects: data.teacher ? JSON.parse(data.teacher.subjects || "[]") : [],
+                teachingMode: data.teacher?.teachingMode || "",
+                classesOrAgeGroup: parsedClasses,
+                qualificationLevel: data.teacher?.qualificationLevel || "",
+                qualificationName: data.teacher?.qualificationName || "",
+                achievements: data.teacher?.achievements || "",
             });
         } catch (error) {
             toast.error("Failed to load profile");
@@ -109,110 +129,110 @@ export default function TeacherProfilePage() {
         setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
-   
+
 
     // Handle profile photo upload
     const handleProfilePhotoUpload = async (
-    e: React.ChangeEvent<HTMLInputElement>
-) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+        e: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-        toast.error("Please select an image file");
-        return;
-    }
+        if (!file.type.startsWith("image/")) {
+            toast.error("Please select an image file");
+            return;
+        }
 
-    if (file.size > 4 * 1024 * 1024) {
-        toast.error("Image must be less than 4MB");
-        return;
-    }
+        if (file.size > 4 * 1024 * 1024) {
+            toast.error("Image must be less than 4MB");
+            return;
+        }
 
-    setIsUploadingProfile(true);
+        setIsUploadingProfile(true);
 
-    try {
-        const form = new FormData();
-        form.append("file", file);
-        form.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-        form.append("folder", "profiles");
+        try {
+            const form = new FormData();
+            form.append("file", file);
+            form.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+            form.append("folder", "profiles");
 
-        const res = await fetch(
-            `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-            {
-                method: "POST",
-                body: form,
-            }
-        );
+            const res = await fetch(
+                `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+                {
+                    method: "POST",
+                    body: form,
+                }
+            );
 
-        if (!res.ok) throw new Error("Upload failed");
+            if (!res.ok) throw new Error("Upload failed");
 
-        const data = await res.json();
+            const data = await res.json();
 
-        setFormData((prev) => ({
-            ...prev,
-            profilePhoto: data.secure_url,
-        }));
+            setFormData((prev) => ({
+                ...prev,
+                profilePhoto: data.secure_url,
+            }));
 
-        toast.success("Profile photo uploaded!");
-    } catch {
-        toast.error("Upload failed. Please try again.");
-    } finally {
-        setIsUploadingProfile(false);
-    }
-};
+            toast.success("Profile photo uploaded!");
+        } catch {
+            toast.error("Upload failed. Please try again.");
+        } finally {
+            setIsUploadingProfile(false);
+        }
+    };
 
     // Handle certification image upload
     const handleCertImageUpload = async (
-    e: React.ChangeEvent<HTMLInputElement>
-) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+        e: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-        toast.error("Please select an image file");
-        return;
-    }
+        if (!file.type.startsWith("image/")) {
+            toast.error("Please select an image file");
+            return;
+        }
 
-    if (file.size > 4 * 1024 * 1024) {
-        toast.error("Image must be less than 4MB");
-        return;
-    }
+        if (file.size > 4 * 1024 * 1024) {
+            toast.error("Image must be less than 4MB");
+            return;
+        }
 
-    setIsUploadingCertImage(true);
+        setIsUploadingCertImage(true);
 
-    // Show local preview immediately
-    const reader = new FileReader();
-    reader.onload = (ev) =>
-        setCertImagePreview(ev.target?.result as string);
-    reader.readAsDataURL(file);
+        // Show local preview immediately
+        const reader = new FileReader();
+        reader.onload = (ev) =>
+            setCertImagePreview(ev.target?.result as string);
+        reader.readAsDataURL(file);
 
-    try {
-        const form = new FormData();
-        form.append("file", file);
-        form.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-        form.append("folder", "certificates");
+        try {
+            const form = new FormData();
+            form.append("file", file);
+            form.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+            form.append("folder", "certificates");
 
-        const res = await fetch(
-            `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-            {
-                method: "POST",
-                body: form,
-            }
-        );
+            const res = await fetch(
+                `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+                {
+                    method: "POST",
+                    body: form,
+                }
+            );
 
-        if (!res.ok) throw new Error("Upload failed");
+            if (!res.ok) throw new Error("Upload failed");
 
-        const data = await res.json();
+            const data = await res.json();
 
-        setPendingCertImage(data.secure_url);
-        toast.success("Certificate image uploaded!");
-    } catch {
-        toast.error("Upload failed. Please try again.");
-        setCertImagePreview(null);
-    } finally {
-        setIsUploadingCertImage(false);
-    }
-};
+            setPendingCertImage(data.secure_url);
+            toast.success("Certificate image uploaded!");
+        } catch {
+            toast.error("Upload failed. Please try again.");
+            setCertImagePreview(null);
+        } finally {
+            setIsUploadingCertImage(false);
+        }
+    };
 
     const addCertification = () => {
         if (certInput.trim()) {
@@ -575,6 +595,85 @@ export default function TeacherProfilePage() {
                                     </button>
                                 );
                             })}
+                        </div>
+                    </div>
+
+                    {/* Teaching Mode & Qualification */}
+                    <div className="border-t border-slate-200 pt-6 space-y-4">
+                        <label className="block text-sm font-medium text-slate-700 mb-1">
+                            Teaching Mode
+                        </label>
+                        <select
+                            value={formData.teachingMode}
+                            onChange={(e) => updateField("teachingMode", e.target.value)}
+                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-slate-50/50 appearance-none"
+                        >
+                            <option value="">Select Mode</option>
+                            <option value="Home Tutor">Home Tutor</option>
+                            <option value="Online Tutor">Online Tutor</option>
+                            <option value="At Centre">At Centre</option>
+                        </select>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Qualification Level</label>
+                                <select
+                                    value={formData.qualificationLevel}
+                                    onChange={(e) => updateField("qualificationLevel", e.target.value)}
+                                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-slate-50/50 appearance-none"
+                                >
+                                    <option value="">Select Level</option>
+                                    <option value="Degree">Degree</option>
+                                    <option value="PG">PG</option>
+                                    <option value="M.Phil">M.Phil</option>
+                                    <option value="PhD">PhD</option>
+                                    <option value="PostDoc">PostDoc</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Qualification Name</label>
+                                <input
+                                    value={formData.qualificationName}
+                                    onChange={(e) => updateField("qualificationName", e.target.value)}
+                                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-slate-50/50"
+                                    placeholder="e.g., BSc, B.Tech, MSc..."
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Achievements / Awards</label>
+                            <textarea
+                                value={formData.achievements}
+                                onChange={(e) => updateField("achievements", e.target.value)}
+                                rows={3}
+                                className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-slate-50/50 resize-none"
+                                placeholder="Describe your achievements..."
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">Classes / Age Group</label>
+                            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                                {["Nursery", "LKG", "UKG", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12", "Age 3-5", "Age 5-8", "Age 8-12", "Age 12-16", "Age 16+"].map((c) => (
+                                    <button
+                                        key={c}
+                                        type="button"
+                                        onClick={() => setFormData(prev => ({
+                                            ...prev,
+                                            classesOrAgeGroup: prev.classesOrAgeGroup.includes(c)
+                                                ? prev.classesOrAgeGroup.filter(x => x !== c)
+                                                : [...prev.classesOrAgeGroup, c]
+                                        }))}
+                                        className={`p-2 rounded-xl border-2 text-xs font-medium transition-all ${formData.classesOrAgeGroup.includes(c)
+                                                ? "border-amber-500 bg-amber-50 text-amber-700"
+                                                : "border-slate-200 text-slate-600 hover:border-slate-300"
+                                            }`}
+                                    >
+                                        {c}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </div>
 

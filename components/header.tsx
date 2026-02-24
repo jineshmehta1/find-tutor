@@ -80,61 +80,59 @@ const Header: React.FC = () => {
 
   return (
     <div className="w-full relative z-50">
-
-      {/* Main Navbar */}
       <header
-        className={`w-full transition-all duration-300 border-b border-gray-100 ${scrolled
-          ? "fixed top-0 bg-white/95 backdrop-blur-md shadow-md py-2"
-          : "relative bg-white py-5"
-          }`}
+        className={`w-full transition-all duration-300 ${
+          scrolled
+            ? "fixed top-0 bg-white shadow-md py-3"
+            : "relative bg-white py-4 md:py-6"
+        }`}
       >
-        <div className="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between">
-
-          {/* Logo */}
-          <a href="/" className="flex items-center gap-3 group shrink-0">
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8 flex items-center justify-between">
+          
+          {/* Logo Section */}
+          <a href="/" className="flex items-center gap-3 shrink-0">
             <img
-              src="/image.png"
+              src="/image.png" // Ensure this path is correct
               alt="Aacharya Academy"
               className="w-10 h-10 md:w-12 md:h-12 object-contain"
             />
             <div className="flex flex-col">
-              <span className="font-black text-xl md:text-2xl text-slate-900 leading-none">
+              <span className="font-extrabold text-xl md:text-2xl text-[#1a1a1a] tracking-tight leading-none">
                 AACHARYA
               </span>
-              <span className="text-[9px] md:text-[11px] font-bold text-slate-500 tracking-[0.12em] mt-1 uppercase">
+              <span className="text-[9px] md:text-[10px] font-bold text-slate-500 tracking-[0.1em] mt-0.5 uppercase">
                 Bhavanipuram, Vijayawada
               </span>
             </div>
           </a>
 
-          {/* Desktop Nav - ADJUSTED SPACING (gap-12) */}
-          <nav className="hidden lg:flex items-center gap-12">
+          {/* Desktop Navigation - Hidden below XL (1280px) to prevent crowding */}
+          <nav className="hidden xl:flex items-center gap-8 2xl:gap-10">
             {navItems.map((item) => (
-              <div key={item.name} className="relative group h-full flex items-center">
+              <div key={item.name} className="relative group">
                 {item.hasDropdown ? (
-                  <button className="flex items-center gap-1.5 text-[15px] font-semibold text-slate-700 group-hover:text-yellow-600 py-2 transition-colors">
+                  <button className="flex items-center gap-1 text-[15px] font-semibold text-slate-700 hover:text-yellow-600 transition-colors">
                     {item.name}
-                    <ChevronDown className="w-4 h-4 opacity-50 group-hover:opacity-100 transition-all" />
+                    <ChevronDown className="w-4 h-4" />
                   </button>
                 ) : (
                   <a
                     href={item.href}
-                    className="text-[15px] font-semibold text-slate-700 hover:text-yellow-600 py-2 transition-colors"
+                    className="text-[15px] font-semibold text-slate-700 hover:text-yellow-600 transition-colors"
                   >
                     {item.name}
                   </a>
                 )}
 
-                {/* Desktop Dropdown Spacing */}
+                {/* Dropdown Menu */}
                 {item.hasDropdown && (
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 pt-4 w-60 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 z-50">
-                    <div className="bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden">
-                      <div className="h-1 w-full bg-yellow-400" />
+                  <div className="absolute top-full left-0 pt-4 w-56 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <div className="bg-white rounded-lg shadow-xl border border-slate-100 overflow-hidden">
                       {item.subMenu?.map((sub) => (
                         <a
                           key={sub.name}
                           href={sub.href}
-                          className="block px-5 py-3.5 text-sm font-medium text-slate-600 hover:text-yellow-700 hover:bg-yellow-50 transition-colors border-b border-slate-50 last:border-0"
+                          className="block px-5 py-3 text-sm font-medium text-slate-600 hover:text-yellow-700 hover:bg-yellow-50 transition-colors"
                         >
                           {sub.name}
                         </a>
@@ -146,76 +144,77 @@ const Header: React.FC = () => {
             ))}
           </nav>
 
-          {/* Right Section Spacing */}
-          <div className="flex items-center gap-4">
-            {session ? (
-              <button
-                onClick={() => signOut({ callbackUrl: "/" })}
-                className="hidden md:inline-flex items-center justify-center px-5 py-2.5 text-sm font-bold text-red-600 transition-all duration-200 border-2 border-red-200 rounded-lg hover:border-red-400 hover:bg-red-50"
-              >
-                Logout
-              </button>
-            ) : (
+          {/* Right Section: Buttons */}
+          <div className="flex items-center gap-3 md:gap-4">
+            <div className="hidden md:flex items-center gap-3">
+              {session ? (
+                <button
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                  className="px-5 py-2.5 text-sm font-bold text-red-600 border border-red-100 rounded-lg hover:bg-red-50 transition-all"
+                >
+                  Logout
+                </button>
+              ) : (
+                <a
+                  href="/signup"
+                  className="px-6 py-2.5 text-[15px] font-bold text-slate-700 border border-slate-200 rounded-lg hover:border-slate-400 transition-all"
+                >
+                  Sign Up
+                </a>
+              )}
               <a
-                href="/signup"
-                className="hidden md:inline-flex items-center justify-center px-5 py-2.5 text-sm font-bold text-slate-700 transition-all duration-200 border-2 border-slate-200 rounded-lg hover:border-yellow-400 hover:text-yellow-600"
+                href="/bookdemo"
+                className="px-7 py-2.5 text-[15px] font-bold text-slate-900 bg-[#ffcc00] hover:bg-[#ffdb4d] rounded-lg shadow-sm transition-all"
               >
-                Sign Up
+                Enroll Now
               </a>
-            )}
-            <a
-              href="/bookdemo"
-              className="hidden md:inline-flex items-center justify-center px-8 py-2.5 text-sm font-bold text-slate-900 transition-all duration-200 bg-yellow-400 rounded-lg hover:bg-yellow-300 hover:shadow-lg hover:-translate-y-0.5"
-            >
-              Enroll Now
-            </a>
+            </div>
 
+            {/* Mobile Hamburger - Visible below XL */}
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="lg:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-md"
+              className="xl:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
             >
-              <MenuIcon className="w-7 h-7" />
+              <MenuIcon className="w-8 h-8" />
             </button>
           </div>
         </div>
       </header>
 
       {/* Mobile Menu Overlay */}
-      <div className={`fixed inset-0 z-[60] lg:hidden transition-opacity duration-300 ${isMobileMenuOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"}`}>
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)} />
-        <div className={`absolute top-0 right-0 h-full w-[85%] max-w-[320px] bg-white shadow-2xl transition-transform duration-300 ease-out flex flex-col ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"}`}>
-
-          <div className="p-6 flex items-center justify-between border-b border-slate-100">
-            <span className="font-bold text-slate-800 text-lg">Menu</span>
-            <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 bg-slate-100 rounded-full text-slate-500">
-              <XIcon className="w-5 h-5" />
+      <div className={`fixed inset-0 z-[100] xl:hidden transition-opacity duration-300 ${isMobileMenuOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"}`}>
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)} />
+        <div className={`absolute top-0 right-0 h-full w-[280px] bg-white shadow-2xl transition-transform duration-300 ease-in-out flex flex-col ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"}`}>
+          
+          <div className="p-5 flex items-center justify-between border-b border-slate-100">
+            <span className="font-bold text-slate-900">Navigation</span>
+            <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-slate-500 hover:bg-slate-100 rounded-full">
+              <XIcon className="w-6 h-6" />
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+          <div className="flex-1 overflow-y-auto p-5 space-y-1">
             {navItems.map((item) => (
-              <div key={item.name} className="border-b border-slate-50 last:border-0 pb-4">
+              <div key={item.name} className="py-2">
                 {item.hasDropdown ? (
                   <>
                     <button
                       onClick={() => setMobileSubMenuOpen(mobileSubMenuOpen === item.name ? null : item.name)}
-                      className="flex items-center justify-between w-full text-left font-bold text-slate-700"
+                      className="flex items-center justify-between w-full text-left font-semibold text-slate-700 py-2"
                     >
                       {item.name}
-                      <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${mobileSubMenuOpen === item.name ? "rotate-180 text-yellow-600" : "text-slate-400"}`} />
+                      <ChevronDown className={`w-5 h-5 transition-transform ${mobileSubMenuOpen === item.name ? "rotate-180 text-yellow-600" : ""}`} />
                     </button>
-                    <div className={`overflow-hidden transition-all duration-300 ${mobileSubMenuOpen === item.name ? "max-h-96 opacity-100 mt-4" : "max-h-0 opacity-0"}`}>
-                      <div className="pl-4 space-y-3">
-                        {item.subMenu?.map((sub) => (
-                          <a key={sub.name} href={sub.href} className="block text-sm font-semibold text-slate-500 hover:text-yellow-700">
-                            {sub.name}
-                          </a>
-                        ))}
-                      </div>
+                    <div className={`pl-4 overflow-hidden transition-all duration-300 ${mobileSubMenuOpen === item.name ? "max-h-60 mt-2" : "max-h-0"}`}>
+                      {item.subMenu?.map((sub) => (
+                        <a key={sub.name} href={sub.href} className="block py-2.5 text-sm font-medium text-slate-500 hover:text-yellow-600">
+                          {sub.name}
+                        </a>
+                      ))}
                     </div>
                   </>
                 ) : (
-                  <a href={item.href} className="block font-bold text-slate-700">
+                  <a href={item.href} className="block py-2 font-semibold text-slate-700 hover:text-yellow-600">
                     {item.name}
                   </a>
                 )}
@@ -223,22 +222,11 @@ const Header: React.FC = () => {
             ))}
           </div>
 
-          <div className="p-6 border-t border-slate-100 bg-slate-50 space-y-3">
-            <div className="flex gap-3">
-              {session ? (
-                <button
-                  onClick={() => signOut({ callbackUrl: "/" })}
-                  className="flex-1 py-3 text-center text-red-600 font-bold border-2 border-red-200 rounded-xl hover:border-red-400 hover:bg-red-50"
-                >
-                  Logout
-                </button>
-              ) : (
-                <a href="/signup" className="flex-1 py-3 text-center text-slate-700 font-bold border-2 border-slate-200 rounded-xl hover:border-yellow-400">
-                  Sign Up
-                </a>
-              )}
-            </div>
-            <a href="/bookdemo" className="block w-full py-4 text-center text-slate-900 bg-yellow-400 font-black rounded-xl shadow-md">
+          <div className="p-5 border-t border-slate-100 bg-slate-50 gap-3 flex flex-col">
+            <a href="/signup" className="w-full py-3 text-center text-slate-700 font-bold border border-slate-300 rounded-xl">
+              Sign Up
+            </a>
+            <a href="/bookdemo" className="w-full py-3 text-center text-slate-900 bg-[#ffcc00] font-bold rounded-xl shadow-md">
               Enroll Now
             </a>
           </div>

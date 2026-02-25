@@ -73,6 +73,12 @@ export default async function HomeHero() {
       desc: "Coding, robotics & IoT made exciting",
       path: "/robotics-center",
     },
+    {
+      image: "/tutor-new-removebg-preview.png",
+      label: "FIND TUTORS",
+      desc: "Discover expert tutors near you for personalised learning",
+      path: "/find-tutor-nearby",
+    },
   ];
 
   return (
@@ -100,7 +106,7 @@ export default async function HomeHero() {
               - Mobile: 2 columns (flex-wrap)
               - Desktop: 5 columns
           */}
-          <div className="flex flex-wrap justify-center lg:grid lg:grid-cols-5 gap-4 md:gap-6">
+          <div className="flex flex-wrap justify-center lg:grid lg:grid-cols-6 gap-4 md:gap-6">
             {programs.map((program, idx) => (
               <Link
                 key={idx}
@@ -108,7 +114,7 @@ export default async function HomeHero() {
                 className="group flex flex-col bg-[#dbdbdb] rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden transition-all duration-300 hover:shadow-2xl md:hover:-translate-y-2 w-[calc(50%-0.5rem)] sm:w-[calc(40%-1rem)] lg:w-full cursor-pointer border border-transparent hover:border-[#fbbc05]/20"
               >
                 {/* Card Body */}
-                <div className="flex-1 flex flex-col items-center text-center p-5 md:p-8">
+                <div className="flex-1 flex flex-col items-center text-center p-5">
                   {/* Image Container */}
                   <div className="h-20 md:h-28 flex items-center justify-center mb-4 md:mb-6">
                     <Image

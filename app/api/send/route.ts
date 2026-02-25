@@ -41,29 +41,45 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    
+
     // Extract all possible fields from both forms
-    const { 
-      parentName, 
-      studentName, 
-      email, 
-      phone, 
+    const {
+      parentName,
+      studentName,
+      email,
+      phone,
       queryType,  // Contact Form field
       message,    // Contact Form field
       course,     // Book Demo field
       experience, // Book Demo field
-      age         // Book Demo field
+      age,        // Book Demo field
+      captchaToken // reCAPTCHA token
     } = body;
+
+    // Server-side reCAPTCHA verification
+    if (captchaToken) {
+      const verifyUrl = 'https://www.google.com/recaptcha/api/siteverify';
+      const verifyResponse = await fetch(verifyUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${captchaToken}`,
+      });
+      const verifyData = await verifyResponse.json();
+
+      if (!verifyData.success) {
+        return NextResponse.json({ error: 'CAPTCHA verification failed' }, { status: 400 });
+      }
+    }
 
     // Determine if this is a Demo Booking or a General Enquiry
     // We check for 'course' because it's unique to the Demo form
     const isDemoBooking = !!course;
 
-    const subject = isDemoBooking 
+    const subject = isDemoBooking
       ? `New Demo Booking: ${course} - ${studentName}`
       : `New Enquiry: ${queryType || 'General'} - ${studentName}`;
 
-    const htmlContent = isDemoBooking 
+    const htmlContent = isDemoBooking
       ? `
         <div style="font-family: sans-serif; padding: 20px; color: #333; border: 1px solid #eee; border-radius: 10px;">
           <h2 style="color: #1a5f5f;">New Demo Session Request</h2>
@@ -92,7 +108,7 @@ export async function POST(req: Request) {
       `;
 
     const data = await resend.emails.send({
-      from: 'Aacharya Website <onboarding@resend.dev>', 
+      from: 'Aacharya Website <onboarding@resend.dev>',
       to: ['aacharyateam@gmail.com'],
       subject: subject,
       replyTo: email,

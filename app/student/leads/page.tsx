@@ -4,13 +4,31 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import {
     Users, Clock, Loader2, Mail, Phone,
-    CheckCircle, XCircle, MessageSquare, Send, Plus, X
+    CheckCircle, XCircle, MessageSquare, Send, Plus, X, MapPin, BookOpen, GraduationCap, Home
 } from "lucide-react";
 import { toast } from "sonner";
+
+const SUBJECTS = [
+    "Mathematics", "Physics", "Chemistry", "Biology", "English", "Hindi",
+    "History", "Geography", "Computer Science", "Economics", "Accountancy",
+    "Business Studies", "Political Science", "Psychology", "Sociology",
+    "Sanskrit", "French", "German", "Music", "Art",
+    "Chess", "Abacus", "Robotics", "Coding", "Spoken English", "Aptitude"
+];
+const CLASSES = [
+    "Nursery", "LKG", "UKG", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5",
+    "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12",
+    "Age 3-5", "Age 5-8", "Age 8-12", "Age 12-16", "Age 16+"
+];
+const MODES = ["Home Tutor", "Online Tutor", "At Centre"];
 
 interface LeadData {
     id: string;
     message: string | null;
+    location: string | null;
+    subject: string | null;
+    classLevel: string | null;
+    mode: string | null;
     status: string;
     createdAt: string;
     teacher?: {
@@ -31,6 +49,10 @@ export default function StudentLeadsPage() {
 
     // Create lead modal
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [leadLocation, setLeadLocation] = useState("");
+    const [leadSubject, setLeadSubject] = useState("");
+    const [leadClass, setLeadClass] = useState("");
+    const [leadMode, setLeadMode] = useState("");
     const [leadMessage, setLeadMessage] = useState("");
     const [submittingLead, setSubmittingLead] = useState(false);
 
@@ -52,8 +74,8 @@ export default function StudentLeadsPage() {
     };
 
     const handleCreateLead = async () => {
-        if (!leadMessage.trim()) {
-            toast.error("Please write a message describing what you need");
+        if (!leadSubject && !leadLocation && !leadClass && !leadMode) {
+            toast.error("Please fill in at least one field");
             return;
         }
 
@@ -63,6 +85,10 @@ export default function StudentLeadsPage() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
+                    location: leadLocation.trim(),
+                    subject: leadSubject,
+                    classLevel: leadClass,
+                    mode: leadMode,
                     message: leadMessage.trim(),
                 }),
             });
@@ -76,7 +102,7 @@ export default function StudentLeadsPage() {
 
             toast.success("Lead created successfully! Teachers will be able to see your request.");
             setShowCreateModal(false);
-            setLeadMessage("");
+            setLeadLocation(""); setLeadSubject(""); setLeadClass(""); setLeadMode(""); setLeadMessage("");
             fetchLeads();
         } catch {
             toast.error("Failed to create lead");
@@ -139,7 +165,7 @@ export default function StudentLeadsPage() {
                     <p className="text-slate-500 mt-1">Post inquiries for teachers to see and respond</p>
                 </div>
                 <button
-                    onClick={() => { setShowCreateModal(true); setLeadMessage(""); }}
+                    onClick={() => { setShowCreateModal(true); setLeadLocation(""); setLeadSubject(""); setLeadClass(""); setLeadMode(""); setLeadMessage(""); }}
                     className="px-5 py-2 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-600 transition-colors flex items-center gap-2 shadow-sm"
                 >
                     <Plus className="w-5 h-5" />
@@ -234,7 +260,7 @@ export default function StudentLeadsPage() {
                     </p>
                     {filter === "all" && (
                         <button
-                            onClick={() => { setShowCreateModal(true); setLeadMessage(""); }}
+                            onClick={() => { setShowCreateModal(true); setLeadLocation(""); setLeadSubject(""); setLeadClass(""); setLeadMode(""); setLeadMessage(""); }}
                             className="inline-flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-600 transition-colors"
                         >
                             <Plus className="w-5 h-5" />
@@ -264,6 +290,29 @@ export default function StudentLeadsPage() {
                             </div>
 
                             {/* Message */}
+                            {/* Requirement details */}
+                            <div className="flex flex-wrap gap-2 mb-3">
+                                {lead.location && (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-50 text-purple-700 rounded-lg text-xs font-semibold">
+                                        <MapPin className="w-3 h-3" /> {lead.location}
+                                    </span>
+                                )}
+                                {lead.subject && (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-semibold">
+                                        <BookOpen className="w-3 h-3" /> {lead.subject}
+                                    </span>
+                                )}
+                                {lead.classLevel && (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-green-50 text-green-700 rounded-lg text-xs font-semibold">
+                                        <GraduationCap className="w-3 h-3" /> {lead.classLevel}
+                                    </span>
+                                )}
+                                {lead.mode && (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 text-amber-700 rounded-lg text-xs font-semibold">
+                                        <Home className="w-3 h-3" /> {lead.mode}
+                                    </span>
+                                )}
+                            </div>
                             {lead.message && (
                                 <div className="bg-slate-50 rounded-xl p-4 mb-3">
                                     <p className="text-sm text-slate-700">{lead.message}</p>
@@ -285,7 +334,7 @@ export default function StudentLeadsPage() {
             {/* Create Lead Modal */}
             {showCreateModal && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden max-h-[90vh] flex flex-col">
                         {/* Modal Header */}
                         <div className="p-6 border-b border-slate-100 flex items-center justify-between">
                             <div>
@@ -301,7 +350,7 @@ export default function StudentLeadsPage() {
                         </div>
 
                         {/* Modal Body */}
-                        <div className="p-6 space-y-4">
+                        <div className="p-6 space-y-4 overflow-y-auto flex-1">
                             <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
                                 <p className="text-sm text-blue-700">
                                     <strong>How it works:</strong> Your lead will be visible to all teachers on the platform.
@@ -310,12 +359,56 @@ export default function StudentLeadsPage() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-semibold text-slate-700 mb-2">Your Message *</label>
+                                <label className="block text-sm font-semibold text-slate-700 mb-2">📍 Location / Area / Pincode</label>
+                                <input
+                                    value={leadLocation}
+                                    onChange={(e) => setLeadLocation(e.target.value)}
+                                    placeholder="Enter your area, city or pincode"
+                                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-2">📘 Subject / Skill</label>
+                                <select
+                                    value={leadSubject}
+                                    onChange={(e) => setLeadSubject(e.target.value)}
+                                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm appearance-none bg-white"
+                                >
+                                    <option value="">Select Subject</option>
+                                    {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
+                                </select>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label className="block text-sm font-semibold text-slate-700 mb-2">🎓 Class / Age Group</label>
+                                    <select
+                                        value={leadClass}
+                                        onChange={(e) => setLeadClass(e.target.value)}
+                                        className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm appearance-none bg-white"
+                                    >
+                                        <option value="">Select Class</option>
+                                        {CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-slate-700 mb-2">🏠 Mode</label>
+                                    <select
+                                        value={leadMode}
+                                        onChange={(e) => setLeadMode(e.target.value)}
+                                        className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm appearance-none bg-white"
+                                    >
+                                        <option value="">Select Mode</option>
+                                        {MODES.map(m => <option key={m} value={m}>{m}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-2">💬 Additional Details (Optional)</label>
                                 <textarea
                                     value={leadMessage}
                                     onChange={(e) => setLeadMessage(e.target.value)}
-                                    rows={4}
-                                    placeholder="Describe what you're looking for — e.g. subjects, preferred timing, learning goals..."
+                                    rows={3}
+                                    placeholder="Any specific requirements — timing, budget, learning goals..."
                                     className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm resize-none"
                                 />
                             </div>
@@ -331,7 +424,7 @@ export default function StudentLeadsPage() {
                             </button>
                             <button
                                 onClick={handleCreateLead}
-                                disabled={!leadMessage.trim() || submittingLead}
+                                disabled={(!leadSubject && !leadLocation && !leadClass && !leadMode) || submittingLead}
                                 className="flex-1 px-4 py-3 bg-blue-500 text-white font-semibold rounded-xl hover:bg-blue-600 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                             >
                                 {submittingLead ? (

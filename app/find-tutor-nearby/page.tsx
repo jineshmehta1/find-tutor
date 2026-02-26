@@ -60,6 +60,14 @@ export default function FindTutorNearbyPage() {
     /* ── FAQ state ── */
     const [faqOpen, setFaqOpen] = useState<number | null>(null);
 
+    /* ── post requirement state ── */
+    const [reqLocation, setReqLocation] = useState("");
+    const [reqSubject, setReqSubject] = useState("");
+    const [reqClass, setReqClass] = useState("");
+    const [reqMode, setReqMode] = useState("");
+    const [reqMessage, setReqMessage] = useState("");
+    const [submittingReq, setSubmittingReq] = useState(false);
+
     /* ── listing ref ── */
     const listingRef = useRef<HTMLDivElement>(null);
 
@@ -95,6 +103,43 @@ export default function FindTutorNearbyPage() {
     const requireLogin = (action: string) => {
         if (!session) { toast.error(`Please sign up or login to ${action}`); router.push("/signup"); return true; }
         return false;
+    };
+
+    /* ───────── post requirement handler ───────── */
+    const handlePostRequirement = async () => {
+        if (!session) {
+            toast.error("Please sign up or login to post your requirement");
+            router.push("/signup");
+            return;
+        }
+
+        if (!reqSubject && !reqLocation && !reqClass && !reqMode) {
+            toast.error("Please fill in at least one field");
+            return;
+        }
+
+        setSubmittingReq(true);
+        try {
+            const res = await fetch("/api/leads", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    location: reqLocation.trim(),
+                    subject: reqSubject,
+                    classLevel: reqClass,
+                    mode: reqMode,
+                    message: reqMessage.trim(),
+                }),
+            });
+            const data = await res.json();
+            if (!res.ok) { toast.error(data.error || "Failed to post requirement"); return; }
+            toast.success("Requirement posted successfully! Tutors will contact you soon.");
+            setReqLocation(""); setReqSubject(""); setReqClass(""); setReqMode(""); setReqMessage("");
+        } catch {
+            toast.error("Failed to post requirement");
+        } finally {
+            setSubmittingReq(false);
+        }
     };
 
     const faqs = [
@@ -333,6 +378,67 @@ export default function FindTutorNearbyPage() {
                             ))}
                         </div>
                     )}
+                </section>
+
+                {/* ════════════ POST REQUIREMENT CTA ════════════ */}
+                <section className="relative bg-gradient-to-br from-amber-50 via-white to-orange-50 py-16 overflow-hidden">
+                    {/* Decorative blobs */}
+                    <div className="absolute top-0 right-0 w-[350px] h-[350px] bg-yellow-200 rounded-full blur-[100px] opacity-30 pointer-events-none -translate-y-1/3 translate-x-1/3" />
+                    <div className="absolute bottom-0 left-0 w-[250px] h-[250px] bg-orange-100 rounded-full blur-[80px] opacity-40 pointer-events-none translate-y-1/4 -translate-x-1/4" />
+
+                    <div className="max-w-4xl mx-auto px-4 relative z-10">
+                        <div className="text-center mb-10">
+                            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100 text-amber-700 text-sm font-bold mb-4">
+                                📬 Post Your Requirement
+                            </span>
+                            <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-3">Could not find tutor?</h2>
+                            <p className="text-slate-600 text-lg max-w-2xl mx-auto">
+                                Post your requirement here and verified tutors will contact you directly.
+                            </p>
+                        </div>
+
+                        <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-6 md:p-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">📍 Location / Area / Pincode</label>
+                                    <input value={reqLocation} onChange={e => setReqLocation(e.target.value)} className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-400 focus:border-amber-400 outline-none bg-slate-50/50" placeholder="Enter your area, city or pincode" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">📘 Subject / Skill</label>
+                                    <select value={reqSubject} onChange={e => setReqSubject(e.target.value)} className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-400 focus:border-amber-400 outline-none bg-slate-50/50 appearance-none">
+                                        <option value="">Select Subject</option>
+                                        {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">🎓 Class / Age Group</label>
+                                    <select value={reqClass} onChange={e => setReqClass(e.target.value)} className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-400 focus:border-amber-400 outline-none bg-slate-50/50 appearance-none">
+                                        <option value="">Select Class / Age Group</option>
+                                        {CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">🏠 Mode</label>
+                                    <select value={reqMode} onChange={e => setReqMode(e.target.value)} className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-400 focus:border-amber-400 outline-none bg-slate-50/50 appearance-none">
+                                        <option value="">Home Tutor / Online Tutor</option>
+                                        {MODES.map(m => <option key={m} value={m}>{m}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="mb-4">
+                                <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">💬 Additional Details (Optional)</label>
+                                <textarea value={reqMessage} onChange={e => setReqMessage(e.target.value)} rows={3} className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-400 focus:border-amber-400 outline-none bg-slate-50/50 resize-none" placeholder="Any specific requirements — timing, budget, learning goals..." />
+                            </div>
+                            <button onClick={handlePostRequirement} disabled={submittingReq}
+                                className="w-full md:w-auto px-10 py-3.5 bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-900 font-bold rounded-xl hover:from-yellow-300 hover:to-amber-400 transition-all shadow-lg shadow-yellow-400/30 hover:-translate-y-0.5 flex items-center justify-center gap-2 disabled:opacity-50">
+                                {submittingReq ? (
+                                    <><span className="w-5 h-5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" /> Posting...</>
+                                ) : (
+                                    <>📝 Post Requirement</>
+                                )}
+                            </button>
+                        </div>
+                    </div>
                 </section>
 
                 {/* ════════════ BECOME A TUTOR CTA ════════════ */}

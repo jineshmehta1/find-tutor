@@ -3,13 +3,17 @@
 import { useState, useEffect } from "react";
 import {
     Users, Search, Mail, Phone, MapPin, User, Loader2,
-    CheckCircle2, Clock, X, MessageCircle
+    CheckCircle2, Clock, X, MessageCircle, BookOpen, GraduationCap, Home
 } from "lucide-react";
 import { toast } from "sonner";
 
 interface Lead {
     id: string;
     message: string | null;
+    location: string | null;
+    subject: string | null;
+    classLevel: string | null;
+    mode: string | null;
     status: string;
     createdAt: string;
     student: {
@@ -190,6 +194,30 @@ export default function TeacherLeadsPage() {
                                 </div>
                             )}
 
+                            {/* Structured requirement pills */}
+                            <div className="mt-3 flex flex-wrap gap-2">
+                                {lead.location && (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-50 text-purple-700 rounded-lg text-xs font-semibold">
+                                        <MapPin className="w-3 h-3" /> {lead.location}
+                                    </span>
+                                )}
+                                {lead.subject && (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-semibold">
+                                        <BookOpen className="w-3 h-3" /> {lead.subject}
+                                    </span>
+                                )}
+                                {lead.classLevel && (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-green-50 text-green-700 rounded-lg text-xs font-semibold">
+                                        <GraduationCap className="w-3 h-3" /> {lead.classLevel}
+                                    </span>
+                                )}
+                                {lead.mode && (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 text-amber-700 rounded-lg text-xs font-semibold">
+                                        <Home className="w-3 h-3" /> {lead.mode}
+                                    </span>
+                                )}
+                            </div>
+
                             <div className="mt-4 flex items-center gap-4 text-sm text-slate-500">
                                 <span className="flex items-center gap-1">
                                     <Clock className="w-4 h-4" />
@@ -208,7 +236,7 @@ export default function TeacherLeadsPage() {
             {/* Lead Detail Modal */}
             {selectedLead && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-3xl w-full max-w-lg overflow-hidden">
+                    <div className="bg-white rounded-3xl w-full max-w-lg overflow-hidden max-h-[90vh] flex flex-col">
                         {/* Modal Header */}
                         <div className="bg-gradient-to-r from-slate-800 to-slate-900 p-6 text-white relative">
                             <button
@@ -235,7 +263,7 @@ export default function TeacherLeadsPage() {
                         </div>
 
                         {/* Modal Content */}
-                        <div className="p-6 space-y-4">
+                        <div className="p-6 space-y-4 overflow-y-auto flex-1">
                             {/* Contact Info */}
                             <div className="space-y-3">
                                 <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
@@ -271,6 +299,51 @@ export default function TeacherLeadsPage() {
                                 </div>
                             )}
 
+                            {/* Structured Requirement Details */}
+                            {(selectedLead.location || selectedLead.subject || selectedLead.classLevel || selectedLead.mode) && (
+                                <div>
+                                    <p className="text-sm font-medium text-slate-700 mb-2">Requirement Details</p>
+                                    <div className="space-y-2">
+                                        {selectedLead.location && (
+                                            <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-xl">
+                                                <MapPin className="w-5 h-5 text-purple-500" />
+                                                <div>
+                                                    <p className="text-xs text-slate-400">Location</p>
+                                                    <p className="font-medium text-slate-900">{selectedLead.location}</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                        {selectedLead.subject && (
+                                            <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-xl">
+                                                <BookOpen className="w-5 h-5 text-blue-500" />
+                                                <div>
+                                                    <p className="text-xs text-slate-400">Subject / Skill</p>
+                                                    <p className="font-medium text-slate-900">{selectedLead.subject}</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                        {selectedLead.classLevel && (
+                                            <div className="flex items-center gap-3 p-3 bg-green-50 rounded-xl">
+                                                <GraduationCap className="w-5 h-5 text-green-500" />
+                                                <div>
+                                                    <p className="text-xs text-slate-400">Class / Age Group</p>
+                                                    <p className="font-medium text-slate-900">{selectedLead.classLevel}</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                        {selectedLead.mode && (
+                                            <div className="flex items-center gap-3 p-3 bg-amber-50 rounded-xl">
+                                                <Home className="w-5 h-5 text-amber-500" />
+                                                <div>
+                                                    <p className="text-xs text-slate-400">Mode</p>
+                                                    <p className="font-medium text-slate-900">{selectedLead.mode}</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Status Update */}
                             <div>
                                 <p className="text-sm font-medium text-slate-700 mb-2">Update Status</p>
@@ -281,8 +354,8 @@ export default function TeacherLeadsPage() {
                                             onClick={() => updateLeadStatus(selectedLead.id, status)}
                                             disabled={updating || selectedLead.status === status}
                                             className={`px-4 py-2.5 rounded-xl font-medium transition-all disabled:opacity-50 ${status === "CONTACTED" ? "bg-blue-100 text-blue-700 hover:bg-blue-200" :
-                                                    status === "CONVERTED" ? "bg-green-100 text-green-700 hover:bg-green-200" :
-                                                        "bg-red-100 text-red-700 hover:bg-red-200"
+                                                status === "CONVERTED" ? "bg-green-100 text-green-700 hover:bg-green-200" :
+                                                    "bg-red-100 text-red-700 hover:bg-red-200"
                                                 }`}
                                         >
                                             {updating ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : status}

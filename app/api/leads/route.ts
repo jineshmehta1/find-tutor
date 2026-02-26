@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json();
-        const { message } = body;
+        const { message, location, subject, classLevel, mode } = body;
 
         // Get the student record
         const student = await prisma.student.findFirst({
@@ -46,6 +46,10 @@ export async function POST(request: NextRequest) {
             data: {
                 studentId: student.id,
                 message: message || null,
+                location: location || null,
+                subject: subject || null,
+                classLevel: classLevel || null,
+                mode: mode || null,
                 status: "PENDING",
             },
         });

@@ -90,8 +90,12 @@ model Lead {
   student   Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
   teacherId String?
   teacher   Teacher?   @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-  message   String?
-  status    LeadStatus @default(PENDING)
+  message    String?
+  location   String?
+  subject    String?
+  classLevel String?
+  mode       String?
+  status     LeadStatus @default(PENDING)
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 }

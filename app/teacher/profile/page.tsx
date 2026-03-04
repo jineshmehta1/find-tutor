@@ -8,6 +8,7 @@ import {
     Upload, ImageIcon
 } from "lucide-react";
 import { toast } from "sonner";
+import MapLocationPicker from "@/components/ui/DynamicMapPicker";
 
 const SUBJECTS = [
     "Mathematics", "Physics", "Chemistry", "Biology", "English",
@@ -434,15 +435,14 @@ export default function TeacherProfilePage() {
 
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">Address</label>
-                        <div className="relative">
-                            <MapPin className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
-                            <textarea
-                                value={formData.address}
-                                onChange={(e) => updateField("address", e.target.value)}
-                                rows={2}
-                                className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none resize-none"
-                            />
-                        </div>
+                        <MapLocationPicker
+                            onLocationSelect={(loc) => {
+                                setFormData(prev => ({ ...prev, address: loc.address }));
+                            }}
+                            initialAddress={formData.address}
+                            accentColor="amber"
+                            height="250px"
+                        />
                     </div>
 
                     {/* Qualifications */}
@@ -666,8 +666,8 @@ export default function TeacherProfilePage() {
                                                 : [...prev.classesOrAgeGroup, c]
                                         }))}
                                         className={`p-2 rounded-xl border-2 text-xs font-medium transition-all ${formData.classesOrAgeGroup.includes(c)
-                                                ? "border-amber-500 bg-amber-50 text-amber-700"
-                                                : "border-slate-200 text-slate-600 hover:border-slate-300"
+                                            ? "border-amber-500 bg-amber-50 text-amber-700"
+                                            : "border-slate-200 text-slate-600 hover:border-slate-300"
                                             }`}
                                     >
                                         {c}

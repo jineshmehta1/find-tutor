@@ -7,6 +7,7 @@ import {
     Loader2, Save, Camera, CheckCircle2, Upload, X
 } from "lucide-react";
 import { toast } from "sonner";
+import MapLocationPicker from "@/components/ui/DynamicMapPicker";
 
 const SUBJECTS = [
     "Mathematics", "Physics", "Chemistry", "Biology", "English",
@@ -73,57 +74,57 @@ export default function StudentProfilePage() {
         setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
-    
+
 
     // Handle profile photo upload
     const handleProfilePhotoUpload = async (
-    e: React.ChangeEvent<HTMLInputElement>
-) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+        e: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-        toast.error("Please select an image file");
-        return;
-    }
+        if (!file.type.startsWith("image/")) {
+            toast.error("Please select an image file");
+            return;
+        }
 
-    if (file.size > 4 * 1024 * 1024) {
-        toast.error("Image must be less than 4MB");
-        return;
-    }
+        if (file.size > 4 * 1024 * 1024) {
+            toast.error("Image must be less than 4MB");
+            return;
+        }
 
-    setIsUploadingProfile(true);
+        setIsUploadingProfile(true);
 
-    try {
-        const form = new FormData();
-        form.append("file", file);
-        form.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-        form.append("folder", "profiles");
+        try {
+            const form = new FormData();
+            form.append("file", file);
+            form.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+            form.append("folder", "profiles");
 
-        const res = await fetch(
-            `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-            {
-                method: "POST",
-                body: form,
-            }
-        );
+            const res = await fetch(
+                `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+                {
+                    method: "POST",
+                    body: form,
+                }
+            );
 
-        if (!res.ok) throw new Error("Upload failed");
+            if (!res.ok) throw new Error("Upload failed");
 
-        const data = await res.json();
+            const data = await res.json();
 
-        setFormData((prev) => ({
-            ...prev,
-            profilePhoto: data.secure_url,
-        }));
+            setFormData((prev) => ({
+                ...prev,
+                profilePhoto: data.secure_url,
+            }));
 
-        toast.success("Profile photo uploaded!");
-    } catch {
-        toast.error("Upload failed. Please try again.");
-    } finally {
-        setIsUploadingProfile(false);
-    }
-};
+            toast.success("Profile photo uploaded!");
+        } catch {
+            toast.error("Upload failed. Please try again.");
+        } finally {
+            setIsUploadingProfile(false);
+        }
+    };
 
     const toggleSubject = (subject: string) => {
         setFormData((prev) => ({
@@ -288,15 +289,14 @@ export default function StudentProfilePage() {
 
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">Address</label>
-                        <div className="relative">
-                            <MapPin className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
-                            <textarea
-                                value={formData.address}
-                                onChange={(e) => updateField("address", e.target.value)}
-                                rows={2}
-                                className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none"
-                            />
-                        </div>
+                        <MapLocationPicker
+                            onLocationSelect={(loc) => {
+                                setFormData(prev => ({ ...prev, address: loc.address }));
+                            }}
+                            initialAddress={formData.address}
+                            accentColor="blue"
+                            height="250px"
+                        />
                     </div>
 
                     {/* Subjects */}

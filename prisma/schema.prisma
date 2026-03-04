@@ -92,6 +92,8 @@ model Lead {
   teacher   Teacher?   @relation(fields: [teacherId], references: [id], onDelete: Cascade)
   message    String?
   location   String?
+  latitude   Float?
+  longitude  Float?
   subject    String?
   classLevel String?
   mode       String?

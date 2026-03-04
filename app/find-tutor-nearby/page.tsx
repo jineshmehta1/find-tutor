@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { toast } from "sonner";
+import MapLocationPicker from "@/components/ui/DynamicMapPicker";
 
 /* ───────── constants ───────── */
 const SUBJECTS = [
@@ -49,6 +50,8 @@ export default function FindTutorNearbyPage() {
 
     /* ── search state ── */
     const [location, setLocation] = useState("");
+    const [locationLat, setLocationLat] = useState<number | undefined>();
+    const [locationLng, setLocationLng] = useState<number | undefined>();
     const [subject, setSubject] = useState("");
     const [classLevel, setClassLevel] = useState("");
     const [mode, setMode] = useState("");
@@ -62,6 +65,8 @@ export default function FindTutorNearbyPage() {
 
     /* ── post requirement state ── */
     const [reqLocation, setReqLocation] = useState("");
+    const [reqLat, setReqLat] = useState<number | undefined>();
+    const [reqLng, setReqLng] = useState<number | undefined>();
     const [reqSubject, setReqSubject] = useState("");
     const [reqClass, setReqClass] = useState("");
     const [reqMode, setReqMode] = useState("");
@@ -125,6 +130,8 @@ export default function FindTutorNearbyPage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     location: reqLocation.trim(),
+                    latitude: reqLat,
+                    longitude: reqLng,
                     subject: reqSubject,
                     classLevel: reqClass,
                     mode: reqMode,
@@ -135,6 +142,7 @@ export default function FindTutorNearbyPage() {
             if (!res.ok) { toast.error(data.error || "Failed to post requirement"); return; }
             toast.success("Requirement posted successfully! Tutors will contact you soon.");
             setReqLocation(""); setReqSubject(""); setReqClass(""); setReqMode(""); setReqMessage("");
+            setReqLat(undefined); setReqLng(undefined);
         } catch {
             toast.error("Failed to post requirement");
         } finally {
@@ -237,9 +245,19 @@ export default function FindTutorNearbyPage() {
                 <section className="max-w-6xl mx-auto px-4 -mt-8 relative z-20">
                     <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-6 md:p-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                            <div>
+                            <div className="md:col-span-2 lg:col-span-4">
                                 <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">📍 Location / Pincode</label>
-                                <input value={location} onChange={e => setLocation(e.target.value)} className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 outline-none bg-slate-50/50" placeholder="Area, City or Pincode" />
+                                <MapLocationPicker
+                                    onLocationSelect={(loc) => {
+                                        setLocation(loc.address);
+                                        setLocationLat(loc.latitude);
+                                        setLocationLng(loc.longitude);
+                                    }}
+                                    initialAddress={location}
+                                    accentColor="amber"
+                                    height="220px"
+                                    compact={true}
+                                />
                             </div>
                             <div>
                                 <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">📘 Subject / Skill</label>
@@ -401,7 +419,17 @@ export default function FindTutorNearbyPage() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                 <div>
                                     <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">📍 Location / Area / Pincode</label>
-                                    <input value={reqLocation} onChange={e => setReqLocation(e.target.value)} className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-400 focus:border-amber-400 outline-none bg-slate-50/50" placeholder="Enter your area, city or pincode" />
+                                    <MapLocationPicker
+                                        onLocationSelect={(loc) => {
+                                            setReqLocation(loc.address);
+                                            setReqLat(loc.latitude);
+                                            setReqLng(loc.longitude);
+                                        }}
+                                        initialAddress={reqLocation}
+                                        accentColor="amber"
+                                        height="200px"
+                                        compact={true}
+                                    />
                                 </div>
                                 <div>
                                     <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">📘 Subject / Skill</label>

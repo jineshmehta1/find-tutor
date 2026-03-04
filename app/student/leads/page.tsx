@@ -7,6 +7,7 @@ import {
     CheckCircle, XCircle, MessageSquare, Send, Plus, X, MapPin, BookOpen, GraduationCap, Home
 } from "lucide-react";
 import { toast } from "sonner";
+import MapLocationPicker from "@/components/ui/DynamicMapPicker";
 
 const SUBJECTS = [
     "Mathematics", "Physics", "Chemistry", "Biology", "English", "Hindi",
@@ -50,6 +51,8 @@ export default function StudentLeadsPage() {
     // Create lead modal
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [leadLocation, setLeadLocation] = useState("");
+    const [leadLat, setLeadLat] = useState<number | undefined>();
+    const [leadLng, setLeadLng] = useState<number | undefined>();
     const [leadSubject, setLeadSubject] = useState("");
     const [leadClass, setLeadClass] = useState("");
     const [leadMode, setLeadMode] = useState("");
@@ -86,6 +89,8 @@ export default function StudentLeadsPage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     location: leadLocation.trim(),
+                    latitude: leadLat,
+                    longitude: leadLng,
                     subject: leadSubject,
                     classLevel: leadClass,
                     mode: leadMode,
@@ -103,6 +108,7 @@ export default function StudentLeadsPage() {
             toast.success("Lead created successfully! Teachers will be able to see your request.");
             setShowCreateModal(false);
             setLeadLocation(""); setLeadSubject(""); setLeadClass(""); setLeadMode(""); setLeadMessage("");
+            setLeadLat(undefined); setLeadLng(undefined);
             fetchLeads();
         } catch {
             toast.error("Failed to create lead");
@@ -165,7 +171,7 @@ export default function StudentLeadsPage() {
                     <p className="text-slate-500 mt-1">Post inquiries for teachers to see and respond</p>
                 </div>
                 <button
-                    onClick={() => { setShowCreateModal(true); setLeadLocation(""); setLeadSubject(""); setLeadClass(""); setLeadMode(""); setLeadMessage(""); }}
+                    onClick={() => { setShowCreateModal(true); setLeadLocation(""); setLeadSubject(""); setLeadClass(""); setLeadMode(""); setLeadMessage(""); setLeadLat(undefined); setLeadLng(undefined); }}
                     className="px-5 py-2 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-600 transition-colors flex items-center gap-2 shadow-sm"
                 >
                     <Plus className="w-5 h-5" />
@@ -360,11 +366,16 @@ export default function StudentLeadsPage() {
 
                             <div>
                                 <label className="block text-sm font-semibold text-slate-700 mb-2">📍 Location / Area / Pincode</label>
-                                <input
-                                    value={leadLocation}
-                                    onChange={(e) => setLeadLocation(e.target.value)}
-                                    placeholder="Enter your area, city or pincode"
-                                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
+                                <MapLocationPicker
+                                    onLocationSelect={(loc) => {
+                                        setLeadLocation(loc.address);
+                                        setLeadLat(loc.latitude);
+                                        setLeadLng(loc.longitude);
+                                    }}
+                                    initialAddress={leadLocation}
+                                    accentColor="blue"
+                                    height="200px"
+                                    compact={true}
                                 />
                             </div>
                             <div>

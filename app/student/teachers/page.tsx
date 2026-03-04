@@ -6,6 +6,7 @@ import {
     User, GraduationCap, Briefcase, Award, X, Loader2, MessageCircle
 } from "lucide-react";
 import { toast } from "sonner";
+import MapLocationPicker from "@/components/ui/DynamicMapPicker";
 
 interface Teacher {
     id: string;
@@ -61,8 +62,11 @@ export default function TeachersPage() {
         const matchesSubject = selectedSubject === "All Subjects" ||
             teacher.subjects.includes(selectedSubject);
 
-        const matchesArea = !areaFilter ||
-            teacher.address.toLowerCase().includes(areaFilter.toLowerCase());
+        const matchesArea = !areaFilter || (() => {
+            const filterParts = areaFilter.toLowerCase().split(",").map(p => p.trim()).filter(p => p.length > 1 && !/^\d+$/.test(p));
+            const teacherAddr = teacher.address.toLowerCase();
+            return filterParts.some(part => teacherAddr.includes(part));
+        })();
 
         return matchesSearch && matchesSubject && matchesArea;
     });
@@ -137,15 +141,17 @@ export default function TeachersPage() {
                         </select>
                     </div>
 
-                    {/* Area Filter */}
-                    <div className="relative">
-                        <MapPin className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
-                        <input
-                            type="text"
-                            value={areaFilter}
-                            onChange={(e) => setAreaFilter(e.target.value)}
-                            className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                            placeholder="Filter by area..."
+                    {/* Area Filter - Map */}
+                    <div className="md:col-span-3">
+                        <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">📍 Filter by Area</label>
+                        <MapLocationPicker
+                            onLocationSelect={(loc) => {
+                                setAreaFilter(loc.address);
+                            }}
+                            initialAddress={areaFilter}
+                            accentColor="blue"
+                            height="200px"
+                            compact={true}
                         />
                     </div>
                 </div>

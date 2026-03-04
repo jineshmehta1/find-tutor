@@ -10,6 +10,7 @@ import {
     Loader2, CheckCircle2, Upload, ImageIcon
 } from "lucide-react";
 import { toast } from "sonner";
+import MapLocationPicker from "@/components/ui/DynamicMapPicker";
 const CLOUDINARY_CLOUD_NAME = "dx2o9yq2t";
 const CLOUDINARY_UPLOAD_PRESET = "gallery"; // or create a "profiles" preset
 const SUBJECTS = [
@@ -67,110 +68,110 @@ export default function TeacherSignupPage() {
         }
     };
 
-    
+
 
     // Handle profile photo upload
-   const handleProfilePhotoUpload = async (
-    e: React.ChangeEvent<HTMLInputElement>
-) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const handleProfilePhotoUpload = async (
+        e: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-        toast.error("Please select an image file");
-        return;
-    }
+        if (!file.type.startsWith("image/")) {
+            toast.error("Please select an image file");
+            return;
+        }
 
-    if (file.size > 4 * 1024 * 1024) {
-        toast.error("Image must be less than 4MB");
-        return;
-    }
+        if (file.size > 4 * 1024 * 1024) {
+            toast.error("Image must be less than 4MB");
+            return;
+        }
 
-    setIsUploadingProfile(true);
+        setIsUploadingProfile(true);
 
-    try {
-        const form = new FormData();
-        form.append("file", file);
-        form.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-        form.append("folder", "profiles");
+        try {
+            const form = new FormData();
+            form.append("file", file);
+            form.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+            form.append("folder", "profiles");
 
-        const res = await fetch(
-            `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-            {
-                method: "POST",
-                body: form,
-            }
-        );
+            const res = await fetch(
+                `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+                {
+                    method: "POST",
+                    body: form,
+                }
+            );
 
-        if (!res.ok) throw new Error("Upload failed");
+            if (!res.ok) throw new Error("Upload failed");
 
-        const data = await res.json();
+            const data = await res.json();
 
-        setFormData((prev) => ({
-            ...prev,
-            profilePhoto: data.secure_url,
-        }));
+            setFormData((prev) => ({
+                ...prev,
+                profilePhoto: data.secure_url,
+            }));
 
-        toast.success("Profile photo uploaded!");
-    } catch {
-        toast.error("Upload failed. Please try again.");
-    } finally {
-        setIsUploadingProfile(false);
-    }
-};
+            toast.success("Profile photo uploaded!");
+        } catch {
+            toast.error("Upload failed. Please try again.");
+        } finally {
+            setIsUploadingProfile(false);
+        }
+    };
 
     // Handle certification image upload
     const handleCertImageUpload = async (
-    e: React.ChangeEvent<HTMLInputElement>
-) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+        e: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-        toast.error("Please select an image file");
-        return;
-    }
+        if (!file.type.startsWith("image/")) {
+            toast.error("Please select an image file");
+            return;
+        }
 
-    if (file.size > 4 * 1024 * 1024) {
-        toast.error("Image must be less than 4MB");
-        return;
-    }
+        if (file.size > 4 * 1024 * 1024) {
+            toast.error("Image must be less than 4MB");
+            return;
+        }
 
-    setIsUploadingCertImage(true);
+        setIsUploadingCertImage(true);
 
-    // Local preview immediately
-    const reader = new FileReader();
-    reader.onload = (ev) =>
-        setCertImagePreview(ev.target?.result as string);
-    reader.readAsDataURL(file);
+        // Local preview immediately
+        const reader = new FileReader();
+        reader.onload = (ev) =>
+            setCertImagePreview(ev.target?.result as string);
+        reader.readAsDataURL(file);
 
-    try {
-        const form = new FormData();
-        form.append("file", file);
-        form.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-        form.append("folder", "certificates");
+        try {
+            const form = new FormData();
+            form.append("file", file);
+            form.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+            form.append("folder", "certificates");
 
-        const res = await fetch(
-            `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-            {
-                method: "POST",
-                body: form,
-            }
-        );
+            const res = await fetch(
+                `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+                {
+                    method: "POST",
+                    body: form,
+                }
+            );
 
-        if (!res.ok) throw new Error("Upload failed");
+            if (!res.ok) throw new Error("Upload failed");
 
-        const data = await res.json();
+            const data = await res.json();
 
-        setPendingCertImage(data.secure_url);
-        toast.success("Certificate image uploaded!");
-    } catch {
-        toast.error("Upload failed. Please try again.");
-        setCertImagePreview(null);
-    } finally {
-        setIsUploadingCertImage(false);
-    }
-};
+            setPendingCertImage(data.secure_url);
+            toast.success("Certificate image uploaded!");
+        } catch {
+            toast.error("Upload failed. Please try again.");
+            setCertImagePreview(null);
+        } finally {
+            setIsUploadingCertImage(false);
+        }
+    };
 
     const addCertification = () => {
         if (certInput.trim()) {
@@ -519,16 +520,15 @@ export default function TeacherSignupPage() {
 
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 mb-1">Address</label>
-                                    <div className="relative">
-                                        <MapPin className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
-                                        <textarea
-                                            value={formData.address}
-                                            onChange={(e) => updateField("address", e.target.value)}
-                                            rows={3}
-                                            className={`w-full pl-10 pr-4 py-3 border ${errors.address ? 'border-red-300' : 'border-slate-200'} rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-slate-50/50 resize-none`}
-                                            placeholder="Enter your complete address"
-                                        />
-                                    </div>
+                                    <MapLocationPicker
+                                        onLocationSelect={(loc) => {
+                                            setFormData(prev => ({ ...prev, address: loc.address }));
+                                            if (errors.address) setErrors(prev => ({ ...prev, address: "" }));
+                                        }}
+                                        initialAddress={formData.address}
+                                        accentColor="amber"
+                                        height="250px"
+                                    />
                                     {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
                                 </div>
 

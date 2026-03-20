@@ -3,7 +3,8 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
+import { useEffect } from "react";
 import {
     User, ArrowLeft, ArrowRight, Mail, Phone, Calendar, MapPin,
     BookOpen, GraduationCap, Loader2, CheckCircle2, Upload, Camera, X
@@ -21,6 +22,7 @@ const SUBJECTS = [
 
 export default function StudentSignupPage() {
     const router = useRouter();
+    const { data: session } = useSession();
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -41,9 +43,29 @@ export default function StudentSignupPage() {
     });
 
     const [otpSent, setOtpSent] = useState(false);
+    const [isGoogleVerified, setIsGoogleVerified] = useState(false);
     const [otpTimer, setOtpTimer] = useState(0);
     const [isOtpSending, setIsOtpSending] = useState(false);
     const [isUploadingProfile, setIsUploadingProfile] = useState(false);
+
+    // Persist form data to session storage during Google redirect
+    useEffect(() => {
+        const savedData = sessionStorage.getItem("signup_form_data");
+        if (savedData) {
+            const parsed = JSON.parse(savedData);
+            setFormData(prev => ({ ...prev, ...parsed }));
+            sessionStorage.removeItem("signup_form_data");
+        }
+    }, []);
+
+    // Handle Google Verification redirect return
+    useEffect(() => {
+        if (session?.user?.email) {
+            setFormData(prev => ({ ...prev, email: session.user?.email || prev.email, name: prev.name || session.user?.name || "" }));
+            setIsGoogleVerified(true);
+            setOtpSent(false); // No need for OTP if Google verified
+        }
+    }, [session]);
 
     const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -123,8 +145,10 @@ export default function StudentSignupPage() {
             if (!formData.name.trim()) newErrors.name = "Name is required";
             if (!formData.email.trim()) newErrors.email = "Email is required";
             else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Invalid email";
-            if (otpSent && !formData.otp.trim()) newErrors.otp = "OTP is required";
-            if (!otpSent && formData.email && !/\S+@\S+\.\S+/.test(formData.email) === false) newErrors.otp = "Please verify your email first";
+            
+            if (!isGoogleVerified) {
+                newErrors.email = "Please verify your email via Google first";
+            }
 
             if (!formData.phone.trim()) newErrors.phone = "Phone is required";
             else if (formData.phone.length < 10) newErrors.phone = "Invalid phone number";
@@ -156,46 +180,19 @@ export default function StudentSignupPage() {
         setStep((prev) => Math.max(prev - 1, 1));
     };
 
-    const sendOtp = async () => {
-        if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) {
-            setErrors(prev => ({ ...prev, email: "Please enter a valid email first" }));
-            return;
-        }
-
-        setIsOtpSending(true);
-        try {
-            const res = await fetch("/api/auth/otp/send", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email: formData.email }),
-            });
-            const data = await res.json();
-
-            if (!res.ok) {
-                toast.error(data.error || "Failed to send OTP");
-                return;
-            }
-
-            toast.success("OTP sent to your email!");
-            setOtpSent(true);
-            setOtpTimer(60);
-
-            // Start timer
-            const interval = setInterval(() => {
-                setOtpTimer((prev) => {
-                    if (prev <= 1) {
-                        clearInterval(interval);
-                        return 0;
-                    }
-                    return prev - 1;
-                });
-            }, 1000);
-
-        } catch (error) {
-            toast.error("Failed to send OTP. Please try again.");
-        } finally {
-            setIsOtpSending(false);
-        }
+    const verifyWithGoogle = async () => {
+        // Save current form data before redirecting
+        sessionStorage.setItem("signup_form_data", JSON.stringify({
+            name: formData.name,
+            phone: formData.phone,
+            password: formData.password,
+            confirmPassword: formData.confirmPassword,
+            dob: formData.dob,
+            address: formData.address,
+            subjects: formData.subjects,
+        }));
+        
+        signIn("google", { callbackUrl: window.location.href });
     };
 
     const handleSubmit = async () => {
@@ -209,6 +206,7 @@ export default function StudentSignupPage() {
                 body: JSON.stringify({
                     ...formData,
                     role: "STUDENT",
+                    isGoogleVerified,
                 }),
             });
 
@@ -322,22 +320,29 @@ export default function StudentSignupPage() {
                                                 onChange={(e) => updateField("email", e.target.value)}
                                                 className={`w-full pl-10 pr-4 py-3 border ${errors.email ? 'border-red-300' : 'border-slate-200'} rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-slate-50/50`}
                                                 placeholder="john@example.com"
-                                                disabled={otpSent}
+                                                disabled={isGoogleVerified}
                                             />
                                         </div>
-                                        <button
-                                            type="button"
-                                            onClick={sendOtp}
-                                            disabled={isOtpSending || otpTimer > 0 || !formData.email}
-                                            className="px-4 py-3 bg-blue-100 text-blue-700 font-medium rounded-xl hover:bg-blue-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-                                        >
-                                            {isOtpSending ? <Loader2 className="w-5 h-5 animate-spin" /> : otpTimer > 0 ? `Resend in ${otpTimer}s` : otpSent ? "Resend OTP" : "Verify Email"}
-                                        </button>
+                                        {isGoogleVerified ? (
+                                            <div className="flex items-center gap-2 px-4 py-3 bg-green-100 text-green-700 font-medium rounded-xl border border-green-200">
+                                                <CheckCircle2 className="w-5 h-5" />
+                                                <span>Verified</span>
+                                            </div>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                onClick={verifyWithGoogle}
+                                                className="px-4 py-3 bg-white text-slate-700 font-medium rounded-xl hover:bg-slate-50 transition-colors border border-slate-200 flex items-center gap-2 shadow-sm"
+                                            >
+                                                <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4" />
+                                                Verify with Google
+                                            </button>
+                                        )}
                                     </div>
                                     {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
                                 </div>
 
-                                {otpSent && (
+                                {false && otpSent && (
                                     <div className="animate-in fade-in slide-in-from-top-4 duration-300">
                                         <label className="block text-sm font-medium text-slate-700 mb-1">Enter Verification Code</label>
                                         <input

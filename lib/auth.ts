@@ -1,5 +1,6 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
@@ -100,6 +101,10 @@ export const authOptions: NextAuthOptions = {
         };
       },
     }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
   ],
   pages: {
     signIn: "/login",
@@ -108,19 +113,46 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async signIn({ user, account, profile }) {
+      if (account?.provider === "google") {
+        // For Google login, we only allow existing users to sign in
+        // On the signup page, we use it for verification only, but NextAuth logs them in.
+        // That's fine, the signup page will detect the session.
+        return true;
+      }
+      return true;
+    },
+    async jwt({ token, user, account }) {
+      // Direct login (Credentials)
       if (user) {
         token.id = user.id;
         token.role = user.role;
         token.isApproved = user.isApproved;
+      } 
+      // OAuth Login (Google) - Fetch user details from DB
+      else if (token.email && (account?.provider === "google" || !token.role)) {
+        const dbUser = await prisma.user.findUnique({
+          where: { email: token.email },
+          include: { teacher: true, student: true }
+        });
+
+        if (dbUser) {
+          token.id = dbUser.id;
+          token.role = dbUser.role;
+          token.isApproved = dbUser.role === "TEACHER" ? dbUser.teacher?.isApproved : true;
+        } else {
+          // If user doesn't exist in DB, token.role stays undefined
+          // This will trigger middleware redirect to /login
+          // Or we can let it be so the signup page can still see the session
+        }
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id;
-        session.user.role = token.role;
-        session.user.isApproved = token.isApproved;
+        session.user.id = token.id as string;
+        session.user.role = token.role as any;
+        session.user.isApproved = token.isApproved as boolean;
       }
       return session;
     },

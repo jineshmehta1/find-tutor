@@ -57,34 +57,42 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Verify OTP
-        const { otp } = body;
-        if (!otp) {
-            return NextResponse.json(
-                { error: "OTP is required" },
-                { status: 400 }
-            );
-        }
+        // Verify Email (Google or OTP)
+        const { otp, isGoogleVerified } = body;
+        
+        if (!isGoogleVerified) {
+            if (!otp) {
+                return NextResponse.json(
+                    { error: "Verification is required" },
+                    { status: 400 }
+                );
+            }
 
-        const verificationRequest = await prisma.verificationRequest.findFirst({
-            where: {
-                identifier: validatedData.email,
-                token: otp,
-            },
-        });
+            const verificationRequest = await prisma.verificationRequest.findFirst({
+                where: {
+                    identifier: validatedData.email,
+                    token: otp,
+                },
+            });
 
-        if (!verificationRequest) {
-            return NextResponse.json(
-                { error: "Invalid OTP" },
-                { status: 400 }
-            );
-        }
+            if (!verificationRequest) {
+                return NextResponse.json(
+                    { error: "Invalid verification code" },
+                    { status: 400 }
+                );
+            }
 
-        if (verificationRequest.expires < new Date()) {
-            return NextResponse.json(
-                { error: "OTP has expired. Please request a new one." },
-                { status: 400 }
-            );
+            if (verificationRequest.expires < new Date()) {
+                return NextResponse.json(
+                    { error: "Verification code has expired. Please try again." },
+                    { status: 400 }
+                );
+            }
+
+            // Delete used OTP
+            await prisma.verificationRequest.delete({
+                where: { id: verificationRequest.id },
+            });
         }
 
         // Check if email already exists
@@ -98,11 +106,6 @@ export async function POST(request: NextRequest) {
                 { status: 400 }
             );
         }
-
-        // Delete used OTP
-        await prisma.verificationRequest.delete({
-            where: { id: verificationRequest.id },
-        });
 
         // Hash password
         const hashedPassword = await bcrypt.hash(validatedData.password, 12);

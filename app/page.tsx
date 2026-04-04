@@ -7,6 +7,7 @@ import  FeaturesSection  from "@/components/features-section"
 import AchievementsSection from "@/components/ui/AchievementsSection"
 import WhyChooseUsSection from "@/components/why-choose"
 import LearningEnvironment from "@/components/ui/learning"
+import ProgramShowcase from "@/components/services"
 
 
 export default function HomePage() {
@@ -15,6 +16,7 @@ export default function HomePage() {
       <main>
         <HeroSection />
         <WhyChooseUsSection/>
+        <ProgramShowcase/>
         <TestimonialsSection />
         <AchievementsSection/>
         <FaqSection />

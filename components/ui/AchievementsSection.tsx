@@ -5,59 +5,57 @@ import {
   ChevronLeft, 
   ChevronRight, 
   Trophy, 
-  Medal, 
   Star, 
-  GraduationCap, 
-  Award
+  Crown,
+  Plus
 } from "lucide-react";
 
-// --- Demo Data ---
+// --- Achievers Data (Using country codes for visual flag graphics) ---
 const achievers = [
   {
     id: 1,
     name: "Aacharya Chess Team",
-    category: "Chess",
-    award: "FIDE TOURNAMENTS",
-    image: "/chess.jpeg",
-    desc: "Participants in FIDE Rated International, State and District Level Chess Tournaments.",
-    icon: <Trophy className="w-4 h-4" />
+    category: "ELITE",
+    award: "INTER-SCHOOL CHESS",
+    image: "/chess.jpeg", 
+    desc: "Outstanding Performance: Secured 2nd Place in Team Competition and 3rd Place Individually on the First Board.",
+    countryCode: "in", // India
+    color: "bg-[#2D63ED]", 
+    shadow: "shadow-blue-200"
   },
   {
     id: 2,
     name: "Mr. Varun",
-    category: "Academics",
-    award: "CBSE (99.97%)",
-    image: "/school-ach.jpeg",
-    desc: "Class 5th CBSE Student",
-    icon: <GraduationCap className="w-4 h-4" />
+    category: "TOPPER",
+    award: "CBSE ACADEMICS",
+    image: "/school-ach.jpeg", 
+    desc: "Officially Achieved Class 5th CBSE Student excellence with an outstanding 99.97% overall score.",
+    countryCode: "in", // USA
+    color: "bg-[#7C3AED]", 
+    shadow: "shadow-purple-200"
   },
   {
     id: 3,
-    name: "Robotics Workshop",
-    category: "Robotics",
-    award: "Future Awaits",
+    name: "Robotics Team",
+    category: "INNOVATORS",
+    award: "ROBOTICS WORKSHOP",
     image: "/robotics-sucess.jpeg",
-    desc: "It was a 5 Days Hands-on workshop, 600 Participants, Biggest Hands-on Workshop.",
-    icon: <Award className="w-4 h-4" />
+    desc: "Demonstrated exceptional strategy in leading the biggest hands-on workshop with 600+ participants.",
+    countryCode: "in", // India
+    color: "bg-[#059669]", 
+    shadow: "shadow-emerald-200"
   },
   {
     id: 4,
-    name: "Aacharya Abacus Prodigy",
-    category: "Abacus",
-    award: "Little Masters",
+    name: "Abacus Prodigy",
+    category: "MASTERS",
+    award: "LITTLE CHAMPIONS",
     image: "/abacus-sucess.jpeg",
-    desc: "Abacus: Little Champions, Quick Math Heroes, One of the fastest calculators.",
-    icon: <Medal className="w-4 h-4" />
+    desc: "Champion: One of the fastest mental calculators. Quick Math Hero at regional and state levels.",
+    countryCode: "in", // India
+    color: "bg-[#E11D48]", 
+    shadow: "shadow-rose-200"
   },
-  {
-    id: 5,
-    name: "Aacharya Chess Champions",
-    category: "Chess",
-    award: "Champions",
-    image: "/chess-sucess.jpeg",
-    desc: "Young Chess players winning at every level.",
-    icon: <Trophy className="w-4 h-4" />
-  }
 ];
 
 const AchievementsSection: React.FC = () => {
@@ -65,7 +63,7 @@ const AchievementsSection: React.FC = () => {
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
-      const scrollAmount = window.innerWidth < 768 ? window.innerWidth * 0.8 : 400;
+      const scrollAmount = 400;
       const newScrollLeft = direction === 'left' 
         ? scrollContainerRef.current.scrollLeft - scrollAmount 
         : scrollContainerRef.current.scrollLeft + scrollAmount;
@@ -78,136 +76,111 @@ const AchievementsSection: React.FC = () => {
   };
 
   return (
-    <section className="relative py-12 md:py-14 lg:py-22 bg-white overflow-hidden font-sans">
+    <section className="relative py-24 bg-white overflow-hidden font-sans">
       
-      {/* --- Background Texture --- */}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
-           style={{ backgroundImage: 'radial-gradient(#d97706 1px, transparent 1px)', backgroundSize: '40px 40px' }}>
-      </div>
-      
-      {/* Background Glows */}
-      <div className="absolute top-0 right-0 w-64 h-64 md:w-[500px] md:h-[500px] bg-amber-100/40 rounded-full blur-[80px] md:blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/2"></div>
-      <div className="absolute bottom-0 left-0 w-64 h-64 md:w-[500px] md:h-[500px] bg-yellow-100/40 rounded-full blur-[80px] md:blur-[100px] pointer-events-none translate-y-1/2 -translate-x-1/2"></div>
-
-      <div className="container mx-auto px-4 md:px-6 relative z-10 max-w-7xl">
+      <div className="container mx-auto px-6 relative z-10 max-w-7xl">
         
-        {/* --- SECTION HEADER --- */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-12 md:mb-16 gap-10">
-          
-          <div className="max-w-2xl text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 px-3 py-1 mb-4 md:mb-6 rounded-full bg-amber-50 border border-amber-200 shadow-sm">
-              <Trophy className="w-3.5 h-3.5 md:w-4 md:h-4 text-amber-600" />
-              <span className="text-[10px] md:text-xs font-bold text-amber-800 uppercase tracking-widest">Hall of Glory</span>
-            </div>
-            
-            <h2 className="text-3xl md:text-5xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-none mb-4">
-              Aacharya's <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-yellow-500">
-                Achievements
-              </span>
-            </h2>
-            <p className="text-sm md:text-lg text-slate-500 max-w-lg leading-relaxed mx-auto lg:mx-0">
-              Excellence is not an act, but a habit. We take pride in our stars who excel at State, National, and International levels.
-            </p>
+        {/* --- CENTERED HEADER --- */}
+        <div className="text-center max-w-3xl mx-auto mb-20">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-6 rounded-full bg-slate-50 text-slate-500 border border-slate-200 shadow-sm">
+            <Trophy size={14} className="fill-slate-400" />
+            <span className="text-[11px] font-black uppercase tracking-[0.2em]">Hall of Glory</span>
           </div>
-
-          {/* --- STATS RIBBON --- */}
-          <div className="grid grid-cols-3 gap-4 md:gap-8 lg:gap-12 pb-2 border-t border-slate-100 lg:border-none pt-8 lg:pt-0">
-            <div className="text-center">
-              <p className="text-2xl md:text-4xl font-black text-slate-900">50+</p>
-              <p className="text-[9px] md:text-sm font-semibold text-slate-500 uppercase tracking-wide mt-1">Trophies</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl md:text-4xl font-black text-slate-900">100%</p>
-              <p className="text-[9px] md:text-sm font-semibold text-slate-500 uppercase tracking-wide mt-1">Pass Rate</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl md:text-4xl font-black text-slate-900">2k+</p>
-              <p className="text-[9px] md:text-sm font-semibold text-slate-500 uppercase tracking-wide mt-1">Alumni</p>
-            </div>
+          <h2 className="text-3xl md:text-5xl font-[1000] text-slate-900 tracking-tighter leading-[1.1] mb-6 text-center">
+            Our Proud {" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-rose-500">Achievers</span>
+          </h2>
+          <div className="flex justify-center gap-3">
+            <button onClick={() => scroll('left')} className="w-12 h-12 rounded-full bg-white border border-slate-200 flex items-center justify-center hover:bg-slate-900 hover:text-white transition-all shadow-sm">
+              <ChevronLeft size={20} />
+            </button>
+            <button onClick={() => scroll('right')} className="w-12 h-12 rounded-full bg-white border border-slate-200 flex items-center justify-center hover:bg-slate-900 hover:text-white transition-all shadow-sm">
+              <ChevronRight size={20} />
+            </button>
           </div>
         </div>
 
-        {/* --- CAROUSEL AREA --- */}
-        <div className="relative group">
-          
-          {/* Custom Nav Buttons (Desktop Only) */}
-          <div className="hidden lg:flex gap-3 absolute -top-24 right-0">
-            <button 
-              onClick={() => scroll('left')}
-              className="w-12 h-12 rounded-full border border-slate-200 bg-white text-slate-600 flex items-center justify-center hover:bg-amber-500 hover:text-white hover:border-amber-500 shadow-sm transition-all duration-300"
+        {/* --- CAROUSEL TRACK --- */}
+        <div 
+          ref={scrollContainerRef}
+          className="flex gap-8 overflow-x-auto snap-x snap-mandatory pb-12 scrollbar-hide pt-16"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          {achievers.map((item) => (
+            <div 
+              key={item.id}
+              className="snap-center shrink-0 w-[88vw] sm:w-[340px] md:w-[380px]"
             >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <button 
-              onClick={() => scroll('right')}
-              className="w-12 h-12 rounded-full border border-slate-200 bg-white text-slate-600 flex items-center justify-center hover:bg-amber-500 hover:text-white hover:border-amber-500 shadow-sm transition-all duration-300"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
+              <div className={`relative ${item.color} rounded-[3.5rem] p-8 md:p-10 text-white shadow-2xl ${item.shadow} group transition-all duration-500 hover:-translate-y-3`}>
+                
+                <Plus className="absolute top-1/2 right-10 w-20 h-20 text-white/10 font-black pointer-events-none" />
 
-          {/* Scroll Track */}
-          <div 
-            ref={scrollContainerRef}
-            className="flex gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory pb-12 pt-4 px-1 -mx-4 md:mx-0 scrollbar-hide md:px-0"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          >
-            {achievers.map((item) => (
-              <div 
-                key={item.id}
-                className="snap-center shrink-0 w-[82vw] sm:w-[320px] md:w-[360px] first:ml-4 lg:first:ml-0"
-              >
-                {/* --- THE CARD --- */}
-                <div className="relative h-[420px] md:h-[500px] rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden bg-slate-900 shadow-xl shadow-slate-200 group/card cursor-pointer border-[2px] md:border-[3px] border-white">
-                  
-                  {/* Background Image */}
-                  <img 
-                    src={item.image} 
-                    alt={item.name} 
-                    className="w-full h-full object-cover opacity-80 md:opacity-90 transition-transform duration-700 group-hover/card:scale-110"
-                  />
-                  
-                  {/* Dark Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent"></div>
-
-                  {/* Top Badge (Category) */}
-                  <div className="absolute top-4 md:top-6 left-4 md:left-6">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/30 backdrop-blur-md border border-white/20 text-white text-[10px] md:text-xs font-bold uppercase tracking-wider">
-                      {item.icon}
-                      {item.category}
-                    </span>
-                  </div>
-
-                  {/* Bottom Content Area */}
-                  <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 transform translate-y-1 md:translate-y-2 transition-transform duration-500 group-hover/card:translate-y-0">
-                    
-                    {/* Golden Line Decoration */}
-                    <div className="w-10 md:w-12 h-1 bg-amber-500 mb-3 md:mb-4 rounded-full"></div>
-
-                    {/* Title */}
-                    <h3 className="text-xl md:text-2xl font-bold text-white mb-1 md:mb-2 leading-tight">
-                      {item.name}
-                    </h3>
-
-                    {/* Award Highlight */}
-                    <div className="text-amber-400 font-bold text-base md:text-lg mb-2 md:mb-3 flex items-center gap-2">
-                      <Star className="w-3.5 h-3.5 md:w-4 md:h-4 fill-amber-400" />
-                      {item.award}
+                {/* Profile Image (Top-Left Overlap) */}
+                <div className="absolute -top-16 left-6 flex items-start gap-4">
+                  <div className="w-32 h-32 md:w-36 md:h-36 rounded-[2.5rem] border-[8px] border-white overflow-hidden shadow-2xl bg-slate-100 relative">
+                    <img 
+                        src={item.image} 
+                        alt={item.name} 
+                        className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700" 
+                    />
+                    <div className="absolute top-2 left-2 w-7 h-7 bg-[#FFB800] rounded-full flex items-center justify-center border-2 border-white shadow-lg">
+                      <Crown size={12} className="text-white fill-white" />
                     </div>
-
-                    {/* Description */}
-                    <p className="text-slate-300 text-xs md:text-sm leading-relaxed border-l-2 border-white/20 pl-3">
-                      {item.desc}
-                    </p>
+                  </div>
+                  
+                  <div className="mt-20">
+                    <h3 className="text-lg md:text-xl font-black uppercase tracking-tighter leading-none text-white drop-shadow-md">
+                        {item.name}
+                    </h3>
+                    <div className="text-[10px] font-bold text-white/70 tracking-[0.2em] mt-2 border-t border-white/20 pt-2 inline-block">
+                        {item.category}
+                    </div>
                   </div>
                 </div>
+
+                <div className="mt-28">
+                  <div className="w-12 h-1.5 bg-[#FFB800] mb-8 rounded-full"></div>
+
+                  <p className="text-[11px] font-bold text-white/70 uppercase tracking-[0.2em] mb-2">Award Distinction</p>
+                  <h4 className="text-xl md:text-2xl font-black leading-[1.1] tracking-tight mb-6 text-white uppercase">
+                    {item.award}
+                  </h4>
+                  
+                  <p className="text-[14px] font-medium leading-relaxed text-white/80 line-clamp-3">
+                    {item.desc}
+                  </p>
+                </div>
+
+                {/* Footer Badges */}
+                <div className="flex items-center justify-between mt-12">
+                   {/* Verified Pill */}
+                   <div className="bg-white px-5 py-2.5 rounded-2xl flex items-center gap-2.5 shadow-xl">
+                      <Star size={14} className="text-[#FFB800] fill-[#FFB800]" />
+                      <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Aacharya Verified</span>
+                   </div>
+
+                   {/* VISUAL FLAG IMAGE (Replacing text/emoji) */}
+                   <div className="w-14 h-10 bg-white p-1 rounded-xl shadow-lg border border-white rotate-6 overflow-hidden">
+                      <img 
+                        src={`https://flagcdn.com/w80/${item.countryCode}.png`} 
+                        alt="Flag" 
+                        className="w-full h-full object-cover rounded-md"
+                      />
+                   </div>
+                </div>
+
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
 
       </div>
+
+      <style jsx global>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
     </section>
   );
 };

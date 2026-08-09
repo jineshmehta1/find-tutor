@@ -4,327 +4,230 @@ import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import {
     User, Mail, Phone, Calendar, MapPin, BookOpen,
-    Loader2, Save, Camera, CheckCircle2, Upload, X
+    Loader2, Save, Camera, CheckCircle2, Upload, X, Sparkles
 } from "lucide-react";
 import { toast } from "sonner";
-import MapLocationPicker from "@/components/ui/DynamicMapPicker";
 
 const SUBJECTS = [
     "Mathematics", "Physics", "Chemistry", "Biology", "English",
-    "Hindi", "History", "Geography", "Computer Science", "Economics",
-    "Accountancy", "Business Studies", "Political Science", "Psychology",
-    "Sociology", "Sanskrit", "French", "German", "Music", "Art"
+    "Hindi", "History", "Geography", "Computer Science", "Economics", "Abacus", "Chess", "Coding"
 ];
 
-interface Profile {
-    id: string;
-    name: string;
-    email: string;
-    phone: string;
-    dob: string;
-    address: string;
-    profilePhoto: string | null;
-    student: {
-        subjects: string;
-    } | null;
-}
 const CLOUDINARY_CLOUD_NAME = "dx2o9yq2t";
-const CLOUDINARY_UPLOAD_PRESET = "gallery"; // or create "profiles"
-export default function StudentProfilePage() {
-    const { data: session } = useSession();
-    const [loading, setLoading] = useState(true);
-    const [saving, setSaving] = useState(false);
-    const [profile, setProfile] = useState<Profile | null>(null);
-    const profileInputRef = useRef<HTMLInputElement>(null);
-    const [isUploadingProfile, setIsUploadingProfile] = useState(false);
+const CLOUDINARY_UPLOAD_PRESET = "gallery";
 
-    const [formData, setFormData] = useState({
-        name: "",
-        phone: "",
-        address: "",
-        profilePhoto: "",
-        subjects: [] as string[],
-    });
+interface Profile {
+    id: string; name: string; email: string; phone: string;
+    dob: string; address: string; profilePhoto: string | null;
+    student: { subjects: string; } | null;
+}
+
+export default function StudentProfilePage() {
+    const { data: session, update: updateSession } = useSession();
+    const [loading, setLoading]             = useState(true);
+    const [saving, setSaving]               = useState(false);
+    const [profile, setProfile]             = useState<Profile | null>(null);
+    const profileInputRef                   = useRef<HTMLInputElement>(null);
+    const [isUploading, setIsUploading]     = useState(false);
+    const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
 
     useEffect(() => {
         fetchProfile();
     }, []);
 
     const fetchProfile = async () => {
+        setLoading(true);
         try {
             const res = await fetch("/api/students");
-            if (!res.ok) throw new Error("Failed to fetch");
+            if (!res.ok) throw new Error();
             const data = await res.json();
             setProfile(data);
-            setFormData({
-                name: data.name || "",
-                phone: data.phone || "",
-                address: data.address || "",
-                profilePhoto: data.profilePhoto || "",
-                subjects: data.student ? JSON.parse(data.student.subjects || "[]") : [],
-            });
-        } catch (error) {
-            toast.error("Failed to load profile");
+            if (data.student?.subjects) {
+                try {
+                    const parsed = typeof data.student.subjects === "string"
+                        ? JSON.parse(data.student.subjects)
+                        : data.student.subjects;
+                    if (Array.isArray(parsed)) {
+                        setSelectedSubjects(parsed);
+                    }
+                } catch {}
+            }
+        } catch {
+            toast.error("Failed to load profile details");
         } finally {
             setLoading(false);
         }
     };
 
-    const updateField = (field: string, value: string) => {
-        setFormData((prev) => ({ ...prev, [field]: value }));
-    };
-
-
-
-    // Handle profile photo upload
-    const handleProfilePhotoUpload = async (
-        e: React.ChangeEvent<HTMLInputElement>
-    ) => {
+    const handleUploadAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-
-        if (!file.type.startsWith("image/")) {
-            toast.error("Please select an image file");
-            return;
-        }
-
-        if (file.size > 4 * 1024 * 1024) {
-            toast.error("Image must be less than 4MB");
-            return;
-        }
-
-        setIsUploadingProfile(true);
+        setIsUploading(true);
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
 
         try {
-            const form = new FormData();
-            form.append("file", file);
-            form.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-            form.append("folder", "profiles");
-
-            const res = await fetch(
-                `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-                {
-                    method: "POST",
-                    body: form,
-                }
-            );
-
-            if (!res.ok) throw new Error("Upload failed");
-
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+                method: "POST",
+                body: formData,
+            });
             const data = await res.json();
-
-            setFormData((prev) => ({
-                ...prev,
-                profilePhoto: data.secure_url,
-            }));
-
-            toast.success("Profile photo uploaded!");
+            if (data.secure_url) {
+                setProfile(prev => prev ? { ...prev, profilePhoto: data.secure_url } : null);
+                toast.success("Profile photo uploaded!");
+            }
         } catch {
-            toast.error("Upload failed. Please try again.");
+            toast.error("Photo upload failed");
         } finally {
-            setIsUploadingProfile(false);
+            setIsUploading(false);
         }
-    };
-
-    const toggleSubject = (subject: string) => {
-        setFormData((prev) => ({
-            ...prev,
-            subjects: prev.subjects.includes(subject)
-                ? prev.subjects.filter((s) => s !== subject)
-                : [...prev.subjects, subject],
-        }));
     };
 
     const handleSave = async () => {
+        if (!profile) return;
         setSaving(true);
         try {
             const res = await fetch("/api/students", {
-                method: "PATCH",
+                method: "PUT",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData),
+                body: JSON.stringify({
+                    name: profile.name,
+                    phone: profile.phone,
+                    dob: profile.dob,
+                    address: profile.address,
+                    profilePhoto: profile.profilePhoto,
+                    subjects: selectedSubjects,
+                }),
             });
-
-            if (!res.ok) throw new Error("Failed to save");
-
+            if (!res.ok) throw new Error();
+            await updateSession();
             toast.success("Profile updated successfully!");
-            await fetchProfile();
-        } catch (error) {
-            toast.error("Failed to save profile");
+            fetchProfile();
+        } catch {
+            toast.error("Failed to save profile changes");
         } finally {
             setSaving(false);
         }
     };
 
+    const toggleSubject = (sub: string) => {
+        setSelectedSubjects(prev =>
+            prev.includes(sub) ? prev.filter(s => s !== sub) : [...prev, sub]
+        );
+    };
+
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-[60vh]">
-                <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+            <div className="flex flex-col items-center justify-center min-h-[70vh] space-y-3">
+                <Loader2 className="w-8 h-8 text-[#1f5961] animate-spin" />
+                <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Loading profile...</p>
             </div>
         );
     }
 
     return (
-        <div className="space-y-6 max-w-3xl">
-            {/* Header */}
-            <div>
-                <h1 className="text-3xl font-bold text-slate-900">My Profile</h1>
-                <p className="text-slate-500 mt-1">Manage your personal information</p>
+        <div className="space-y-8 pb-12 font-sans max-w-4xl mx-auto">
+            {/* Header banner */}
+            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+                <div className="relative z-10 space-y-2">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
+                        <User className="w-3.5 h-3.5" />
+                        <span>Settings</span>
+                    </div>
+                    <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Student Profile</h1>
+                    <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                        Update your contact info, select subjects, and manage your student profile card.
+                    </p>
+                </div>
             </div>
 
-            {/* Profile Card */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                {/* Profile Header */}
-                <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-8 text-white">
-                    <div className="flex items-center gap-6">
-                        <div className="relative">
-                            <div
-                                className="w-24 h-24 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center overflow-hidden cursor-pointer hover:bg-white/30 transition-colors"
-                                onClick={() => profileInputRef.current?.click()}
-                            >
-                                {isUploadingProfile ? (
-                                    <Loader2 className="w-8 h-8 text-white animate-spin" />
-                                ) : formData.profilePhoto ? (
-                                    <img src={formData.profilePhoto} alt="Profile" className="w-full h-full object-cover" />
-                                ) : (
-                                    <User className="w-12 h-12 text-white" />
-                                )}
-                            </div>
-                            {/* Camera overlay */}
-                            <button
-                                type="button"
-                                onClick={() => profileInputRef.current?.click()}
-                                disabled={isUploadingProfile}
-                                className="absolute -bottom-1 -left-1 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center border-2 border-white hover:bg-blue-700 transition-colors disabled:opacity-50"
-                            >
-                                <Camera className="w-4 h-4 text-white" />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {/* Photo & Subjects */}
+                <div className="md:col-span-1 space-y-6">
+                    <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm text-center space-y-4">
+                        <div className="relative w-24 h-24 mx-auto rounded-3xl overflow-hidden bg-slate-100 border-2 border-[#1f5961]/20 group">
+                            {profile?.profilePhoto ? (
+                                <img src={profile.profilePhoto} alt="Profile" className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center text-3xl">👤</div>
+                            )}
+                            <button onClick={() => profileInputRef.current?.click()} disabled={isUploading}
+                                className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold">
+                                {isUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Camera className="w-5 h-5" />}
                             </button>
+                            <input ref={profileInputRef} type="file" accept="image/*" className="hidden" onChange={handleUploadAvatar} />
                         </div>
                         <div>
-                            <h2 className="text-2xl font-bold">{formData.name || "Your Name"}</h2>
-                            <p className="text-blue-100 flex items-center gap-2 mt-1">
-                                <Mail className="w-4 h-4" />
-                                {profile?.email}
-                            </p>
+                            <h3 className="font-black text-sm text-slate-800">{profile?.name}</h3>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase mt-0.5">Enrolled Student</p>
                         </div>
                     </div>
-                    <input
-                        ref={profileInputRef}
-                        type="file"
-                        accept="image/*"
-                        onChange={handleProfilePhotoUpload}
-                        className="hidden"
-                    />
+
+                    <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm space-y-3">
+                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Enrolled Subjects ({selectedSubjects.length})</h4>
+                        <div className="flex flex-wrap gap-1.5">
+                            {selectedSubjects.map(s => (
+                                <span key={s} className="px-2.5 py-1 bg-teal-50 text-[#1f5961] border border-teal-150 rounded-xl text-xs font-bold flex items-center gap-1">
+                                    {s} <X className="w-3 h-3 cursor-pointer text-slate-400 hover:text-slate-800" onClick={() => toggleSubject(s)} />
+                                </span>
+                            ))}
+                            {selectedSubjects.length === 0 && <p className="text-xs text-slate-400 font-medium">Select subjects on the right side panel.</p>}
+                        </div>
+                    </div>
                 </div>
 
-                {/* Profile Form */}
-                <div className="p-8 space-y-6">
-                    {/* Basic Info */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
-                            <div className="relative">
-                                <User className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
-                                <input
-                                    type="text"
-                                    value={formData.name}
-                                    onChange={(e) => updateField("name", e.target.value)}
-                                    className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                                />
-                            </div>
-                        </div>
+                {/* Form fields */}
+                <div className="md:col-span-2 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm space-y-6">
+                    <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">Account Details</h3>
 
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Phone Number</label>
-                            <div className="relative">
-                                <Phone className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
-                                <input
-                                    type="tel"
-                                    value={formData.phone}
-                                    onChange={(e) => updateField("phone", e.target.value)}
-                                    className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                                />
-                            </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Full Name</label>
+                            <input type="text" value={profile?.name || ""} onChange={e => setProfile(prev => prev ? { ...prev, name: e.target.value } : null)}
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50" />
+                        </div>
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Email Address</label>
+                            <input type="email" value={profile?.email || ""} disabled
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none bg-slate-100 text-slate-400 cursor-not-allowed" />
                         </div>
                     </div>
 
-                    {/* Profile Photo Upload */}
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Profile Photo</label>
-                        <div className="flex items-center gap-4">
-                            <div
-                                className="w-16 h-16 bg-slate-100 rounded-xl flex items-center justify-center border-2 border-dashed border-slate-300 cursor-pointer hover:border-blue-400 hover:bg-blue-50/50 transition-all overflow-hidden"
-                                onClick={() => profileInputRef.current?.click()}
-                            >
-                                {isUploadingProfile ? (
-                                    <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
-                                ) : formData.profilePhoto ? (
-                                    <img src={formData.profilePhoto} alt="Profile" className="w-full h-full object-cover" />
-                                ) : (
-                                    <Camera className="w-6 h-6 text-slate-400" />
-                                )}
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => profileInputRef.current?.click()}
-                                disabled={isUploadingProfile}
-                                className="px-4 py-2.5 bg-blue-50 text-blue-700 font-medium rounded-xl hover:bg-blue-100 transition-colors border border-blue-200 disabled:opacity-50 flex items-center gap-2 text-sm"
-                            >
-                                {isUploadingProfile ? (
-                                    <><Loader2 className="w-4 h-4 animate-spin" /> Uploading...</>
-                                ) : (
-                                    <><Upload className="w-4 h-4" /> {formData.profilePhoto ? "Change Photo" : "Upload Photo"}</>
-                                )}
-                            </button>
-                            {formData.profilePhoto && (
-                                <button
-                                    type="button"
-                                    onClick={() => setFormData((prev) => ({ ...prev, profilePhoto: "" }))}
-                                    className="p-2 text-slate-400 hover:text-red-500 transition-colors"
-                                >
-                                    <X className="w-4 h-4" />
-                                </button>
-                            )}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Phone Number</label>
+                            <input type="text" value={profile?.phone || ""} onChange={e => setProfile(prev => prev ? { ...prev, phone: e.target.value } : null)}
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50" />
+                        </div>
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Date of Birth</label>
+                            <input type="date" value={profile?.dob ? profile.dob.split("T")[0] : ""} onChange={e => setProfile(prev => prev ? { ...prev, dob: e.target.value } : null)}
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50" />
                         </div>
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Address</label>
-                        <MapLocationPicker
-                            onLocationSelect={(loc) => {
-                                setFormData(prev => ({ ...prev, address: loc.address }));
-                            }}
-                            initialAddress={formData.address}
-                            accentColor="blue"
-                            height="250px"
-                        />
+                    <div className="space-y-1.5">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Home Address / Location</label>
+                        <input type="text" value={profile?.address || ""} onChange={e => setProfile(prev => prev ? { ...prev, address: e.target.value } : null)}
+                            className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50" />
                     </div>
 
-                    {/* Subjects */}
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-3">
-                            <BookOpen className="w-4 h-4 inline mr-2" />
-                            Subjects of Interest
-                        </label>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                            {SUBJECTS.map((subject) => {
-                                const isSelected = formData.subjects.includes(subject);
+                    {/* Subject selection panel */}
+                    <div className="space-y-3 pt-2">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Choose Subjects</label>
+                        <div className="flex flex-wrap gap-2">
+                            {SUBJECTS.map(sub => {
+                                const active = selectedSubjects.includes(sub);
                                 return (
-                                    <button
-                                        key={subject}
-                                        type="button"
-                                        onClick={() => toggleSubject(subject)}
-                                        className={`p-3 rounded-xl border-2 text-left transition-all ${isSelected
-                                            ? "border-blue-500 bg-blue-50 text-blue-700"
-                                            : "border-slate-200 hover:border-slate-300 text-slate-600"
-                                            }`}
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${isSelected ? "border-blue-500 bg-blue-500" : "border-slate-300"
-                                                }`}>
-                                                {isSelected && <CheckCircle2 className="w-3 h-3 text-white" />}
-                                            </div>
-                                            <span className="text-sm font-medium">{subject}</span>
-                                        </div>
+                                    <button key={sub} onClick={() => toggleSubject(sub)}
+                                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+                                            active
+                                                ? "bg-[#1f5961] text-white border-transparent shadow-sm"
+                                                : "bg-slate-50 text-slate-500 border-slate-200 hover:border-slate-350"
+                                        }`}>
+                                        {sub}
                                     </button>
                                 );
                             })}
@@ -332,22 +235,10 @@ export default function StudentProfilePage() {
                     </div>
 
                     {/* Save Button */}
-                    <button
-                        onClick={handleSave}
-                        disabled={saving}
-                        className="w-full py-4 bg-blue-500 text-white rounded-xl font-semibold hover:bg-blue-600 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                    >
-                        {saving ? (
-                            <>
-                                <Loader2 className="w-5 h-5 animate-spin" />
-                                Saving...
-                            </>
-                        ) : (
-                            <>
-                                <Save className="w-5 h-5" />
-                                Save Changes
-                            </>
-                        )}
+                    <button onClick={handleSave} disabled={saving}
+                        className="w-full py-3.5 bg-[#1f5961] hover:bg-[#163e44] disabled:opacity-50 text-white font-black text-xs rounded-2xl flex items-center justify-center gap-2 transition-all shadow-md">
+                        {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                        Save Settings
                     </button>
                 </div>
             </div>

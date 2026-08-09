@@ -35,6 +35,8 @@
 
 import { Resend } from 'resend';
 import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import bcrypt from 'bcryptjs';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -114,6 +116,60 @@ export async function POST(req: Request) {
       replyTo: email,
       html: htmlContent,
     });
+
+    // Create Lead in the database so it hooks up to the admin page
+    try {
+      let student = await prisma.student.findFirst({
+        where: {
+          user: {
+            email: email || "anonymous@aacharya.net"
+          }
+        }
+      });
+
+      if (!student) {
+        const dummyPassword = Math.random().toString(36).slice(-8);
+        const passwordHash = await bcrypt.hash(dummyPassword, 10);
+        
+        const newUser = await prisma.user.create({
+          data: {
+            name: studentName || parentName || "Anonymous User",
+            email: email || `user_${Date.now()}@aacharya.net`,
+            phone: phone || "0000000000",
+            password: passwordHash,
+            role: "STUDENT",
+            dob: new Date(),
+            address: "Vijayawada",
+            student: {
+              create: {
+                subjects: JSON.stringify([course || "General"])
+              }
+            }
+          },
+          include: {
+            student: true
+          }
+        });
+        student = newUser.student as any;
+      }
+
+      if (student) {
+        await prisma.lead.create({
+          data: {
+            studentId: student.id,
+            subject: course || queryType || "General Inquiry",
+            classLevel: experience || "General",
+            mode: age || "General",
+            message: message || `Admission Query: ${queryType || "None"}`,
+            location: "Vijayawada",
+            status: "PENDING"
+          }
+        });
+      }
+    } catch (dbErr) {
+      console.error("Database Lead Creation Error:", dbErr);
+      // Fail silently for email returns, so we don't block the UI if DB fails
+    }
 
     return NextResponse.json(data);
   } catch (error) {

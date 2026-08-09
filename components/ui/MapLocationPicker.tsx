@@ -158,8 +158,18 @@ export default function MapLocationPicker({
             hoverBg: "hover:bg-blue-100",
             pin: "#3b82f6",
         },
+        teal: {
+            primary: "#1f5961",
+            gradient: "from-[#1f5961] to-[#19484e]",
+            ring: "ring-[#1f5961]",
+            bg: "bg-teal-50",
+            text: "text-[#1f5961]",
+            border: "border-teal-200",
+            hoverBg: "hover:bg-teal-100",
+            pin: "#1f5961",
+        },
     };
-    const theme = colors[accentColor];
+    const theme = colors[accentColor] || colors.amber;
 
     const pinIcon = createPinIcon(theme.pin);
 

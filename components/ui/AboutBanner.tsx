@@ -2,111 +2,152 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Home, ChevronRight, Star, Sparkles, BookOpen, GraduationCap, Trophy, Cpu, Calculator } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { 
+  Home, ChevronRight, Star, Sparkles, BookOpen, GraduationCap, 
+  ShieldCheck, Cpu, Calculator, Swords, Users, ArrowRight, Award, Zap, CheckCircle2 
+} from 'lucide-react';
 
 const AboutBanner: React.FC = () => {
   return (
-    <div className="relative w-full bg-[#FFFBF0] overflow-hidden pt-12 pb-16 md:pt-16 md:pb-20">
+    <div className="relative w-full bg-gradient-premium text-white overflow-hidden pt-0 pb-16 md:pt-16 md:pb-24">
       
-      {/* --- Background Decorative Elements --- */}
-      
-      {/* 1. Cheerful Grid Pattern */}
-      <div className="absolute inset-0 opacity-[0.05]" 
-           style={{ backgroundImage: 'radial-gradient(#fbbf24 1px, transparent 1px)', backgroundSize: '24px 24px' }}>
-      </div>
+      {/* --- Ambient Background Lights & Grid --- */}
+      <div className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] bg-primary/20 rounded-full blur-[140px] pointer-events-none animate-pulse-glow" />
+      <div className="absolute bottom-[-10%] right-[-5%] w-[500px] h-[500px] bg-amber-500/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute inset-0 opacity-5 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:28px_28px]" />
 
-      {/* 2. Soft Warm Blobs */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-yellow-200 rounded-full blur-[120px] opacity-40 pointer-events-none -translate-y-1/3 translate-x-1/3"></div>
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-orange-100 rounded-full blur-[100px] opacity-50 pointer-events-none translate-y-1/4 -translate-x-1/4"></div>
-
-      {/* 3. Floating Icons */}
-      <div className="absolute top-24 left-10 md:left-20 opacity-20 text-amber-500 animate-bounce-slow">
-        <Star className="w-12 h-12 fill-amber-500" />
-      </div>
-      <div className="absolute top-1/3 right-10 md:right-32 opacity-10 text-slate-400 transform rotate-12 hidden md:block">
-        <BookOpen className="w-24 h-24" />
-      </div>
-      <div className="absolute bottom-10 right-1/4 text-orange-400 opacity-20 hidden md:block">
-        <GraduationCap className="w-16 h-16" />
-      </div>
-
-      {/* --- Main Content --- */}
-      <div className="container mx-auto px-6 md:px-12 relative z-10 flex flex-col items-center text-center">
+      {/* Main Content Container */}
+      <div className="max-w-[1400px] mx-auto px-4 md:px-8 relative z-10 space-y-10">
         
-        {/* Main Badge/Tagline */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100 text-amber-700 text-sm font-bold mb-6 animate-fade-in">
-          <Sparkles className="w-4 h-4" />
-          <span>Nurturing Young Minds in Vijayawada</span>
+        {/* Breadcrumb Navigation Pill */}
+        <div className="flex justify-center md:justify-start">
+          <nav className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/15 backdrop-blur-md">
+            <Link href="/" className="text-slate-300 hover:text-white transition-colors flex items-center gap-1.5 text-xs font-semibold">
+              <Home className="w-3.5 h-3.5 text-amber-400" />
+              <span>Home</span>
+            </Link>
+            <ChevronRight className="w-3.5 h-3.5 text-slate-400" strokeWidth={3} />
+            <span className="text-amber-400 font-extrabold text-xs">
+              About Platform & Academy
+            </span>
+          </nav>
         </div>
 
-        {/* Title */}
-        <h1 className="text-2xl md:text-4xl lg:text-5xl font-black text-slate-900 mb-6 tracking-tight max-w-5xl leading-[1.1]">
-          Aacharya – <span className="text-amber-600">Preschool</span>, Chess, Robotics, Abacus & <span className="relative inline-block text-orange-500">
-            Tuition Centre
-            <svg className="absolute w-full h-3 -bottom-2 left-0 text-yellow-300 -z-10 opacity-70" viewBox="0 0 100 10" preserveAspectRatio="none">
-              <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="6" fill="none" />
-            </svg>
-          </span>
-        </h1>
-        
-        {/* Primary Description */}
-        <p className="text-xl md:text-2xl text-slate-800 font-bold mb-4 max-w-3xl">
-          Nurturing Young Minds through Early Education, Skills and Confidence.
-        </p>
+        {/* Hero Banner Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+          
+          {/* Left Column: Heading & Platform Intro */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="lg:col-span-7 space-y-6 text-center lg:text-left"
+          >
+            {/* Top Badges */}
+            <div className="inline-flex flex-wrap items-center justify-center lg:justify-start gap-2">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-bold uppercase tracking-wider">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>Empowering 5,000+ Students</span>
+              </div>
+              <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold uppercase tracking-wider">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Bhavanipuram, Vijayawada</span>
+              </div>
+            </div>
 
-        {/* Detailed Description */}
-        <p className="text-md md:text-lg text-slate-600 max-w-4xl mb-10 leading-relaxed font-medium">
-          Aacharya is a child-focused education centre in <span className="text-slate-900 font-semibold">Bhavanipuram, Vijayawada</span>, offering Pre-Primary School (Play Group, Nursery, LKG & UKG) along with Chess Academy, Robotics & STEM learning, Abacus training and academic tuition support. Our programs focus on strong foundations, skill development and confident learning in a safe, nurturing environment.
-        </p>
+            {/* Title */}
+            <h1 className="text-3xl md:text-5xl lg:text-5xl font-black tracking-tight leading-[1.08] text-white">
+              Revolutionizing Private Tutoring & <span className="text-gradient-gold">Specialized Skills</span>
+            </h1>
 
-        {/* Program Chips/Tags */}
-        <div className="flex flex-wrap justify-center gap-3 mb-12">
-            {[
-                { label: "Preschool", icon: GraduationCap },
-                { label: "Chess Academy", icon: Trophy },
-                { label: "Robotics & STEM", icon: Cpu },
-                { label: "Abacus", icon: Calculator },
-                { label: "Tuition", icon: BookOpen },
-            ].map((item, idx) => (
-                <div key={idx} className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl shadow-sm text-slate-700 font-semibold text-sm">
-                    <item.icon className="w-4 h-4 text-amber-500" />
-                    {item.label}
-                </div>
-            ))}
+            {/* Paragraph Description */}
+            <p className="text-base md:text-lg text-slate-300 font-medium leading-relaxed max-w-2xl mx-auto lg:mx-0">
+              Aacharya Platform is Vijayawada’s premier tutor matching network and skill development academy. We eliminate unverified middleman agencies to connect parents with physically audited home tutors, live 1-on-1 online educators, Abacus trainers, Chess grandmasters, and JEE/NEET faculty.
+            </p>
+
+            {/* CTA Button Row */}
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
+              <Link
+                href="/find-tutor-nearby"
+                className="px-7 py-3.5 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl shadow-lg shadow-primary/20 text-xs uppercase tracking-wider transition-all hover:scale-102 flex items-center gap-2"
+              >
+                <span>Find Tutors Nearby</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link
+                href="/request-tutor"
+                className="px-7 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl border border-white/15 backdrop-blur-md text-xs uppercase tracking-wider transition-all flex items-center gap-2"
+              >
+                <Zap className="w-4 h-4 text-amber-400" />
+                <span>Request a Tutor</span>
+              </Link>
+            </div>
+
+            {/* Bullet Trust Chips */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-4 text-xs font-semibold text-slate-300">
+              <div className="flex items-center gap-2 justify-center lg:justify-start">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>Physically Audited IDs</span>
+              </div>
+              <div className="flex items-center gap-2 justify-center lg:justify-start">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>0% Hidden Commission</span>
+              </div>
+              <div className="flex items-center gap-2 justify-center lg:justify-start">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>Free Trial Demo Class</span>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Right Column: Floating Stats Glass Grid */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="lg:col-span-5 grid grid-cols-2 gap-4"
+          >
+            <div className="p-6 bg-white/10 backdrop-blur-xl border border-white/15 rounded-3xl space-y-2 hover:border-amber-400/40 transition-all shadow-xl">
+              <div className="w-10 h-10 bg-amber-500/20 text-amber-400 rounded-2xl flex items-center justify-center font-black">
+                <Users className="w-5 h-5" />
+              </div>
+              <div className="text-3xl font-black text-white">5,000+</div>
+              <div className="text-xs font-bold text-slate-300 uppercase tracking-wider">Tutors Matched</div>
+              <p className="text-[10px] text-slate-400 font-medium">Verified local & online instructors</p>
+            </div>
+
+            <div className="p-6 bg-white/10 backdrop-blur-xl border border-white/15 rounded-3xl space-y-2 hover:border-emerald-400/40 transition-all shadow-xl">
+              <div className="w-10 h-10 bg-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center font-black">
+                <Star className="w-5 h-5 fill-current" />
+              </div>
+              <div className="text-3xl font-black text-white">4.95★</div>
+              <div className="text-xs font-bold text-slate-300 uppercase tracking-wider">Parent Rating</div>
+              <p className="text-[10px] text-slate-400 font-medium">Over 1,200+ reviewed lessons</p>
+            </div>
+
+            <div className="p-6 bg-white/10 backdrop-blur-xl border border-white/15 rounded-3xl space-y-2 hover:border-blue-400/40 transition-all shadow-xl">
+              <div className="w-10 h-10 bg-blue-500/20 text-blue-400 rounded-2xl flex items-center justify-center font-black">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div className="text-3xl font-black text-white">100%</div>
+              <div className="text-xs font-bold text-slate-300 uppercase tracking-wider">Verified IDs</div>
+              <p className="text-[10px] text-slate-400 font-medium">Physical degree & address audit</p>
+            </div>
+
+            <div className="p-6 bg-white/10 backdrop-blur-xl border border-white/15 rounded-3xl space-y-2 hover:border-purple-400/40 transition-all shadow-xl">
+              <div className="w-10 h-10 bg-purple-500/20 text-purple-400 rounded-2xl flex items-center justify-center font-black">
+                <Zap className="w-5 h-5" />
+              </div>
+              <div className="text-3xl font-black text-white">24 hrs</div>
+              <div className="text-xs font-bold text-slate-300 uppercase tracking-wider">Fast Matching</div>
+              <p className="text-[10px] text-slate-400 font-medium">Instant quotes from local tutors</p>
+            </div>
+          </motion.div>
+
         </div>
 
-        {/* Breadcrumb Navigation */}
-        <nav className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white border border-amber-100 shadow-lg shadow-amber-200/20">
-          <Link href="/" className="text-slate-500 hover:text-amber-600 transition-colors flex items-center gap-1.5 text-sm font-semibold">
-            <Home className="w-4 h-4" />
-            <span>Home</span>
-          </Link>
-          <ChevronRight className="w-4 h-4 text-slate-300" strokeWidth={3} />
-          <span className="text-slate-900 font-bold text-sm">
-            About Aacharya
-          </span>
-        </nav>
-
       </div>
-
-      {/* --- CSS Animation --- */}
-      <style jsx>{`
-        @keyframes bounce-slow {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-20px); }
-        }
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-bounce-slow {
-          animation: bounce-slow 6s ease-in-out infinite;
-        }
-        .animate-fade-in {
-          animation: fade-in 1s ease-out forwards;
-        }
-      `}</style>
-
     </div>
   );
 };

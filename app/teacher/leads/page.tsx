@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import {
     Users, Search, Mail, Phone, MapPin, User, Loader2,
-    CheckCircle2, Clock, X, MessageCircle, BookOpen, GraduationCap, Home
+    CheckCircle2, Clock, X, MessageCircle, BookOpen, GraduationCap, Home, Sparkles, Filter, CheckCircle, ShieldCheck
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -66,7 +66,7 @@ export default function TeacherLeadsPage() {
 
             if (!res.ok) throw new Error("Failed to update");
 
-            toast.success("Status updated successfully!");
+            toast.success("Lead status updated successfully!");
             await fetchLeads();
             setSelectedLead(null);
         } catch (error) {
@@ -78,81 +78,114 @@ export default function TeacherLeadsPage() {
 
     const filteredLeads = leads.filter((lead) => {
         const matchesSearch = lead.student.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            lead.student.user.email.toLowerCase().includes(searchTerm.toLowerCase());
+            lead.student.user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (lead.subject && lead.subject.toLowerCase().includes(searchTerm.toLowerCase()));
 
         const matchesStatus = statusFilter === "ALL" || lead.status === statusFilter;
 
         return matchesSearch && matchesStatus;
     });
 
-    const getStatusColor = (status: string) => {
+    const getStatusBadge = (status: string) => {
         switch (status) {
-            case "PENDING": return "bg-amber-100 text-amber-700";
-            case "CONTACTED": return "bg-blue-100 text-blue-700";
-            case "CONVERTED": return "bg-green-100 text-green-700";
-            case "REJECTED": return "bg-red-100 text-red-700";
-            default: return "bg-slate-100 text-slate-700";
+            case "CONTACTED":
+                return (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-blue-50 text-blue-700 border border-blue-200/60">
+                        <MessageCircle className="w-3.5 h-3.5" />
+                        Contacted
+                    </span>
+                );
+            case "CONVERTED":
+                return (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        Assigned Tutor
+                    </span>
+                );
+            case "REJECTED":
+                return (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-red-50 text-red-600 border border-red-200/60">
+                        <X className="w-3.5 h-3.5" />
+                        Closed
+                    </span>
+                );
+            case "PENDING":
+            default:
+                return (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-amber-50 text-amber-700 border border-amber-200/60">
+                        <Clock className="w-3.5 h-3.5" />
+                        Action Needed
+                    </span>
+                );
         }
     };
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div>
-                <h1 className="text-3xl font-bold text-slate-900">Student Leads</h1>
-                <p className="text-slate-500 mt-1">Manage inquiries from interested students</p>
+        <div className="space-y-8 font-sans pb-12">
+            {/* Header Banner */}
+            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+                <div className="relative z-10 space-y-2">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                        <span>Student Inquiries Desk</span>
+                    </div>
+                    <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Student Tuition Leads</h1>
+                    <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                        Review parent inquiries in Vijayawada, contact students directly, and update application status.
+                    </p>
+                </div>
             </div>
 
-            {/* Filters */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Search */}
-                    <div className="relative">
-                        <Search className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
-                        <input
-                            type="text"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none"
-                            placeholder="Search by name or email..."
-                        />
-                    </div>
+            {/* Filter Toolbar */}
+            <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-sm border border-slate-200/80 grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+                <div className="relative md:col-span-8">
+                    <Search className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
+                    <input
+                        type="text"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full pl-10 pr-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#1f5961] outline-none bg-slate-50/50"
+                        placeholder="Search leads by student name, email, or subject..."
+                    />
+                </div>
 
-                    {/* Status Filter */}
+                <div className="md:col-span-4">
                     <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
-                        className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none appearance-none bg-white"
+                        className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#1f5961] outline-none bg-slate-50/50 cursor-pointer"
                     >
-                        <option value="ALL">All Status</option>
-                        <option value="PENDING">Pending</option>
+                        <option value="ALL">All Application Status</option>
+                        <option value="PENDING">Action Needed (Pending)</option>
                         <option value="CONTACTED">Contacted</option>
-                        <option value="CONVERTED">Converted</option>
-                        <option value="REJECTED">Rejected</option>
+                        <option value="CONVERTED">Assigned Tutor</option>
+                        <option value="REJECTED">Closed</option>
                     </select>
                 </div>
             </div>
 
-            {/* Results Count */}
-            <div className="flex items-center justify-between">
-                <p className="text-slate-500">
-                    Showing <span className="font-semibold text-slate-900">{filteredLeads.length}</span> leads
-                </p>
+            {/* Leads Count Bar */}
+            <div className="flex items-center justify-between text-xs font-bold text-slate-600 px-1">
+                <span>Showing {filteredLeads.length} student leads</span>
+                <span className="text-[#1f5961]">0% Commission Markup</span>
             </div>
 
             {/* Leads List */}
             {loading ? (
-                <div className="flex items-center justify-center py-20">
-                    <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />
+                <div className="space-y-4">
+                    {[1, 2, 3].map((i) => (
+                        <div key={i} className="h-32 bg-slate-200/60 rounded-3xl animate-pulse" />
+                    ))}
                 </div>
             ) : filteredLeads.length === 0 ? (
-                <div className="text-center py-20 bg-white rounded-2xl border border-slate-100">
-                    <Users className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-slate-900 mb-2">No Leads Found</h3>
-                    <p className="text-slate-500">
+                <div className="text-center py-16 bg-white rounded-3xl border border-slate-200 p-8 space-y-3">
+                    <Users className="w-12 h-12 text-slate-300 mx-auto" />
+                    <h3 className="text-lg font-extrabold text-slate-900">No Student Leads Match</h3>
+                    <p className="text-xs text-slate-500 max-w-sm mx-auto font-medium">
                         {leads.length === 0
-                            ? "When students contact you, their inquiries will appear here."
-                            : "No leads match your current filters."}
+                            ? "Student tuition requests submitted for your subjects will appear here."
+                            : "No leads match your current search query or filter selection."}
                     </p>
                 </div>
             ) : (
@@ -160,72 +193,75 @@ export default function TeacherLeadsPage() {
                     {filteredLeads.map((lead) => (
                         <div
                             key={lead.id}
-                            className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition-shadow cursor-pointer"
                             onClick={() => setSelectedLead(lead)}
+                            className="bg-white rounded-3xl shadow-sm border border-slate-200/80 p-6 hover:shadow-md transition-all cursor-pointer space-y-4"
                         >
-                            <div className="flex items-start justify-between">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center overflow-hidden">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-12 h-12 rounded-2xl bg-teal-50 text-[#1f5961] flex items-center justify-center font-bold shrink-0 overflow-hidden border border-teal-200/60">
                                         {lead.student.user.profilePhoto ? (
                                             <img src={lead.student.user.profilePhoto} alt={lead.student.user.name} className="w-full h-full object-cover" />
                                         ) : (
-                                            <User className="w-7 h-7 text-white" />
+                                            <User className="w-6 h-6 text-[#1f5961]" />
                                         )}
                                     </div>
                                     <div>
-                                        <h3 className="font-bold text-slate-900 text-lg">{lead.student.user.name}</h3>
-                                        <p className="text-slate-500 text-sm flex items-center gap-1">
-                                            <Mail className="w-4 h-4" />
-                                            {lead.student.user.email}
+                                        <h3 className="font-extrabold text-base text-slate-900 leading-tight">
+                                            {lead.student.user.name}
+                                        </h3>
+                                        <p className="text-xs font-bold text-[#1f5961] mt-0.5">
+                                            Requested: {lead.subject || "General Tuition"}
                                         </p>
                                     </div>
                                 </div>
-                                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(lead.status)}`}>
-                                    {lead.status}
-                                </span>
+                                <div className="self-start sm:self-auto">{getStatusBadge(lead.status)}</div>
                             </div>
 
-                            {lead.message && (
-                                <div className="mt-4 p-4 bg-slate-50 rounded-xl">
-                                    <p className="text-slate-600 text-sm">
-                                        <MessageCircle className="w-4 h-4 inline mr-2 text-slate-400" />
-                                        {lead.message}
-                                    </p>
-                                </div>
-                            )}
-
-                            {/* Structured requirement pills */}
-                            <div className="mt-3 flex flex-wrap gap-2">
-                                {lead.location && (
-                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-50 text-purple-700 rounded-lg text-xs font-semibold">
-                                        <MapPin className="w-3 h-3" /> {lead.location}
-                                    </span>
-                                )}
-                                {lead.subject && (
-                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-semibold">
-                                        <BookOpen className="w-3 h-3" /> {lead.subject}
-                                    </span>
-                                )}
+                            {/* Tags */}
+                            <div className="flex flex-wrap items-center gap-2 text-xs font-bold text-slate-700">
                                 {lead.classLevel && (
-                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-green-50 text-green-700 rounded-lg text-xs font-semibold">
-                                        <GraduationCap className="w-3 h-3" /> {lead.classLevel}
+                                    <span className="px-3 py-1 bg-slate-100 rounded-lg flex items-center gap-1">
+                                        <GraduationCap className="w-3.5 h-3.5 text-teal-600" />
+                                        {lead.classLevel}
                                     </span>
                                 )}
                                 {lead.mode && (
-                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 text-amber-700 rounded-lg text-xs font-semibold">
-                                        <Home className="w-3 h-3" /> {lead.mode}
+                                    <span className="px-3 py-1 bg-teal-50 text-[#1f5961] border border-teal-200/60 rounded-lg flex items-center gap-1">
+                                        <Home className="w-3.5 h-3.5" />
+                                        {lead.mode}
+                                    </span>
+                                )}
+                                {lead.location && (
+                                    <span className="px-3 py-1 bg-amber-50 text-amber-800 border border-amber-200/60 rounded-lg flex items-center gap-1">
+                                        <MapPin className="w-3.5 h-3.5 text-amber-600" />
+                                        {lead.location}
                                     </span>
                                 )}
                             </div>
 
-                            <div className="mt-4 flex items-center gap-4 text-sm text-slate-500">
-                                <span className="flex items-center gap-1">
-                                    <Clock className="w-4 h-4" />
-                                    {new Date(lead.createdAt).toLocaleDateString()}
-                                </span>
-                                <span className="flex items-center gap-1">
-                                    <MapPin className="w-4 h-4" />
-                                    {lead.student.user.address.split(",")[0]}
+                            {/* Message */}
+                            {lead.message && (
+                                <p className="text-xs text-slate-600 bg-slate-50 p-3 rounded-2xl border border-slate-100 font-medium">
+                                    &ldquo;{lead.message}&rdquo;
+                                </p>
+                            )}
+
+                            {/* Actions & Footer */}
+                            <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
+                                <div className="flex items-center gap-4 text-slate-500 font-bold">
+                                    <span className="flex items-center gap-1">
+                                        <Mail className="w-3.5 h-3.5 text-amber-500" />
+                                        {lead.student.user.email}
+                                    </span>
+                                    {lead.student.user.phone && (
+                                        <span className="flex items-center gap-1 text-slate-700">
+                                            <Phone className="w-3.5 h-3.5 text-emerald-600" />
+                                            {lead.student.user.phone}
+                                        </span>
+                                    )}
+                                </div>
+                                <span className="text-[11px] font-bold text-slate-400">
+                                    Posted {new Date(lead.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                                 </span>
                             </div>
                         </div>
@@ -233,135 +269,107 @@ export default function TeacherLeadsPage() {
                 </div>
             )}
 
-            {/* Lead Detail Modal */}
+            {/* Lead Detail & Status Modal */}
             {selectedLead && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-3xl w-full max-w-lg overflow-hidden max-h-[90vh] flex flex-col">
-                        {/* Modal Header */}
-                        <div className="bg-gradient-to-r from-slate-800 to-slate-900 p-6 text-white relative">
-                            <button
-                                onClick={() => setSelectedLead(null)}
-                                className="absolute top-4 right-4 p-2 hover:bg-white/20 rounded-xl transition-colors"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
-                            <div className="flex items-center gap-4">
-                                <div className="w-16 h-16 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center overflow-hidden">
+                <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-3xl w-full max-w-lg p-6 sm:p-8 space-y-6 shadow-2xl">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-teal-50 text-[#1f5961] flex items-center justify-center font-bold shrink-0 overflow-hidden">
                                     {selectedLead.student.user.profilePhoto ? (
                                         <img src={selectedLead.student.user.profilePhoto} alt={selectedLead.student.user.name} className="w-full h-full object-cover" />
                                     ) : (
-                                        <User className="w-8 h-8 text-white" />
+                                        <User className="w-5 h-5 text-[#1f5961]" />
                                     )}
                                 </div>
                                 <div>
-                                    <h2 className="text-2xl font-bold">{selectedLead.student.user.name}</h2>
-                                    <span className={`inline-block mt-1 px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedLead.status)}`}>
-                                        {selectedLead.status}
-                                    </span>
+                                    <h3 className="text-base font-black text-slate-900">{selectedLead.student.user.name}</h3>
+                                    <p className="text-xs text-slate-500 font-medium">{selectedLead.student.user.email}</p>
                                 </div>
+                            </div>
+                            <button onClick={() => setSelectedLead(null)} className="p-1.5 hover:bg-slate-100 rounded-xl">
+                                <X className="w-5 h-5 text-slate-400" />
+                            </button>
+                        </div>
+
+                        {/* Contact Buttons */}
+                        <div className="grid grid-cols-2 gap-3">
+                            {selectedLead.student.user.phone ? (
+                                <a
+                                    href={`tel:${selectedLead.student.user.phone}`}
+                                    className="py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-md transition-colors"
+                                >
+                                    <Phone className="w-4 h-4" />
+                                    <span>Call Parent</span>
+                                </a>
+                            ) : (
+                                <div className="py-3 px-4 bg-slate-100 text-slate-400 font-bold text-xs rounded-xl text-center">No Phone Provided</div>
+                            )}
+
+                            <a
+                                href={`mailto:${selectedLead.student.user.email}?subject=Aacharya Academy - Home Tuition Inquiry`}
+                                className="py-3 px-4 bg-[#1f5961] hover:bg-[#1a4a51] text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-md transition-colors"
+                            >
+                                <Mail className="w-4 h-4" />
+                                <span>Email Student</span>
+                            </a>
+                        </div>
+
+                        {/* Requirement Info */}
+                        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-2 text-xs font-bold text-slate-700">
+                            <div className="flex justify-between">
+                                <span className="text-slate-400">Subject:</span>
+                                <span>{selectedLead.subject || "General Tuition"}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-slate-400">Grade Level:</span>
+                                <span>{selectedLead.classLevel || "Standard"}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-slate-400">Tuition Mode:</span>
+                                <span>{selectedLead.mode || "Home Tuition"}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-slate-400">Location:</span>
+                                <span className="truncate max-w-[200px]">{selectedLead.location || selectedLead.student.user.address}</span>
                             </div>
                         </div>
 
-                        {/* Modal Content */}
-                        <div className="p-6 space-y-4 overflow-y-auto flex-1">
-                            {/* Contact Info */}
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
-                                    <Mail className="w-5 h-5 text-amber-500" />
-                                    <div>
-                                        <p className="text-xs text-slate-400">Email</p>
-                                        <p className="font-medium text-slate-900">{selectedLead.student.user.email}</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
-                                    <Phone className="w-5 h-5 text-amber-500" />
-                                    <div>
-                                        <p className="text-xs text-slate-400">Phone</p>
-                                        <p className="font-medium text-slate-900">{selectedLead.student.user.phone}</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
-                                    <MapPin className="w-5 h-5 text-amber-500" />
-                                    <div>
-                                        <p className="text-xs text-slate-400">Address</p>
-                                        <p className="font-medium text-slate-900">{selectedLead.student.user.address}</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Message */}
-                            {selectedLead.message && (
-                                <div>
-                                    <p className="text-sm font-medium text-slate-700 mb-2">Message</p>
-                                    <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
-                                        <p className="text-slate-700">{selectedLead.message}</p>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Structured Requirement Details */}
-                            {(selectedLead.location || selectedLead.subject || selectedLead.classLevel || selectedLead.mode) && (
-                                <div>
-                                    <p className="text-sm font-medium text-slate-700 mb-2">Requirement Details</p>
-                                    <div className="space-y-2">
-                                        {selectedLead.location && (
-                                            <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-xl">
-                                                <MapPin className="w-5 h-5 text-purple-500" />
-                                                <div>
-                                                    <p className="text-xs text-slate-400">Location</p>
-                                                    <p className="font-medium text-slate-900">{selectedLead.location}</p>
-                                                </div>
-                                            </div>
-                                        )}
-                                        {selectedLead.subject && (
-                                            <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-xl">
-                                                <BookOpen className="w-5 h-5 text-blue-500" />
-                                                <div>
-                                                    <p className="text-xs text-slate-400">Subject / Skill</p>
-                                                    <p className="font-medium text-slate-900">{selectedLead.subject}</p>
-                                                </div>
-                                            </div>
-                                        )}
-                                        {selectedLead.classLevel && (
-                                            <div className="flex items-center gap-3 p-3 bg-green-50 rounded-xl">
-                                                <GraduationCap className="w-5 h-5 text-green-500" />
-                                                <div>
-                                                    <p className="text-xs text-slate-400">Class / Age Group</p>
-                                                    <p className="font-medium text-slate-900">{selectedLead.classLevel}</p>
-                                                </div>
-                                            </div>
-                                        )}
-                                        {selectedLead.mode && (
-                                            <div className="flex items-center gap-3 p-3 bg-amber-50 rounded-xl">
-                                                <Home className="w-5 h-5 text-amber-500" />
-                                                <div>
-                                                    <p className="text-xs text-slate-400">Mode</p>
-                                                    <p className="font-medium text-slate-900">{selectedLead.mode}</p>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Status Update */}
+                        {/* Message */}
+                        {selectedLead.message && (
                             <div>
-                                <p className="text-sm font-medium text-slate-700 mb-2">Update Status</p>
-                                <div className="grid grid-cols-2 gap-2">
-                                    {["CONTACTED", "CONVERTED", "REJECTED"].map((status) => (
-                                        <button
-                                            key={status}
-                                            onClick={() => updateLeadStatus(selectedLead.id, status)}
-                                            disabled={updating || selectedLead.status === status}
-                                            className={`px-4 py-2.5 rounded-xl font-medium transition-all disabled:opacity-50 ${status === "CONTACTED" ? "bg-blue-100 text-blue-700 hover:bg-blue-200" :
-                                                status === "CONVERTED" ? "bg-green-100 text-green-700 hover:bg-green-200" :
-                                                    "bg-red-100 text-red-700 hover:bg-red-200"
-                                                }`}
-                                        >
-                                            {updating ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : status}
-                                        </button>
-                                    ))}
-                                </div>
+                                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Student Notes</label>
+                                <p className="text-xs text-slate-700 bg-amber-50/60 p-3 rounded-2xl border border-amber-200/60 font-medium">
+                                    &ldquo;{selectedLead.message}&rdquo;
+                                </p>
+                            </div>
+                        )}
+
+                        {/* Update Status Buttons */}
+                        <div className="pt-2 border-t border-slate-100">
+                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Update Application Status</label>
+                            <div className="grid grid-cols-3 gap-2">
+                                <button
+                                    onClick={() => updateLeadStatus(selectedLead.id, "CONTACTED")}
+                                    disabled={updating}
+                                    className="py-2.5 px-3 bg-blue-50 text-blue-700 border border-blue-200/60 rounded-xl text-xs font-extrabold hover:bg-blue-100 transition-colors disabled:opacity-50"
+                                >
+                                    Contacted
+                                </button>
+                                <button
+                                    onClick={() => updateLeadStatus(selectedLead.id, "CONVERTED")}
+                                    disabled={updating}
+                                    className="py-2.5 px-3 bg-emerald-50 text-emerald-700 border border-emerald-200/60 rounded-xl text-xs font-extrabold hover:bg-emerald-100 transition-colors disabled:opacity-50"
+                                >
+                                    Assigned
+                                </button>
+                                <button
+                                    onClick={() => updateLeadStatus(selectedLead.id, "REJECTED")}
+                                    disabled={updating}
+                                    className="py-2.5 px-3 bg-rose-50 text-rose-700 border border-rose-200/60 rounded-xl text-xs font-extrabold hover:bg-rose-100 transition-colors disabled:opacity-50"
+                                >
+                                    Close Lead
+                                </button>
                             </div>
                         </div>
                     </div>

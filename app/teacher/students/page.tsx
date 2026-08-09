@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Users, Search, Mail, Phone, MapPin, User, Loader2, BookOpen } from "lucide-react";
+import { Users, Search, Mail, Phone, MapPin, User, Loader2, BookOpen, Sparkles, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface Lead {
     id: string;
     status: string;
     createdAt: string;
+    subject?: string | null;
+    classLevel?: string | null;
     student: {
         id: string;
         subjects: string;
@@ -42,7 +44,7 @@ export default function TeacherStudentsPage() {
             );
             setLeads(students);
         } catch (error) {
-            toast.error("Failed to load students");
+            toast.error("Failed to load active students");
         } finally {
             setLoading(false);
         }
@@ -54,115 +56,146 @@ export default function TeacherStudentsPage() {
     });
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div>
-                <h1 className="text-3xl font-bold text-slate-900">My Students</h1>
-                <p className="text-slate-500 mt-1">Students you&apos;ve connected with</p>
+        <div className="space-y-8 font-sans pb-12">
+            {/* Header Banner */}
+            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+                <div className="relative z-10 space-y-2">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                        <span>Enrolled & Contacted Students</span>
+                    </div>
+                    <h1 className="text-2xl sm:text-4xl font-black tracking-tight">My Active Students</h1>
+                    <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                        View contact details, enrolled subjects, and location info for students you are tutoring in Vijayawada.
+                    </p>
+                </div>
             </div>
 
-            {/* Search */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-                <div className="relative">
-                    <Search className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
+            {/* Search Bar */}
+            <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-sm border border-slate-200/80 flex items-center justify-between gap-4">
+                <div className="relative flex-1">
+                    <Search className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
                     <input
                         type="text"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none"
-                        placeholder="Search by name or email..."
+                        className="w-full pl-10 pr-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#1f5961] outline-none bg-slate-50/50"
+                        placeholder="Search active students by name or email address..."
                     />
                 </div>
-            </div>
-
-            {/* Results Count */}
-            <div className="flex items-center justify-between">
-                <p className="text-slate-500">
-                    Showing <span className="font-semibold text-slate-900">{filteredLeads.length}</span> students
-                </p>
+                <span className="text-xs font-bold text-slate-500 hidden sm:inline">
+                    {filteredLeads.length} Students Active
+                </span>
             </div>
 
             {/* Students Grid */}
             {loading ? (
-                <div className="flex items-center justify-center py-20">
-                    <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[1, 2, 3].map((i) => (
+                        <div key={i} className="h-56 bg-slate-200/60 rounded-3xl animate-pulse" />
+                    ))}
                 </div>
             ) : filteredLeads.length === 0 ? (
-                <div className="text-center py-20 bg-white rounded-2xl border border-slate-100">
-                    <Users className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-slate-900 mb-2">No Students Yet</h3>
-                    <p className="text-slate-500">
-                        Students you&apos;ve contacted or converted will appear here.
+                <div className="text-center py-16 bg-white rounded-3xl border border-slate-200 p-8 space-y-3">
+                    <Users className="w-12 h-12 text-slate-300 mx-auto" />
+                    <h3 className="text-lg font-extrabold text-slate-900">No Connected Students Yet</h3>
+                    <p className="text-xs text-slate-500 max-w-sm mx-auto font-medium">
+                        When you respond to tuition leads and mark them as &quot;Contacted&quot; or &quot;Assigned&quot;, students will show up here.
                     </p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredLeads.map((lead) => {
-                        const subjects = JSON.parse(lead.student.subjects || "[]");
+                        let subjects: string[] = [];
+                        try {
+                            subjects = JSON.parse(lead.student.subjects || "[]");
+                        } catch { }
+
                         return (
                             <div
                                 key={lead.id}
-                                className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-lg transition-all"
+                                className="bg-white rounded-3xl shadow-sm border border-slate-200/80 overflow-hidden hover:shadow-md transition-all flex flex-col justify-between"
                             >
-                                {/* Profile Header */}
-                                <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center overflow-hidden">
+                                {/* Card Header */}
+                                <div className="bg-[#1f5961] p-5 text-white relative">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center overflow-hidden shrink-0">
                                             {lead.student.user.profilePhoto ? (
                                                 <img src={lead.student.user.profilePhoto} alt={lead.student.user.name} className="w-full h-full object-cover" />
                                             ) : (
-                                                <User className="w-7 h-7 text-white" />
+                                                <User className="w-6 h-6 text-white" />
                                             )}
                                         </div>
-                                        <div>
-                                            <h3 className="text-lg font-bold">{lead.student.user.name}</h3>
-                                            <p className="text-blue-100 text-sm flex items-center gap-1">
-                                                <MapPin className="w-3 h-3" />
-                                                {lead.student.user.address.split(",")[0]}
+                                        <div className="min-w-0">
+                                            <h3 className="text-sm font-black text-white truncate">{lead.student.user.name}</h3>
+                                            <p className="text-[11px] text-teal-100 flex items-center gap-1 font-medium truncate mt-0.5">
+                                                <MapPin className="w-3 h-3 shrink-0 text-amber-300" />
+                                                <span className="truncate">{lead.student.user.address.split(",")[0] || "Vijayawada"}</span>
                                             </p>
                                         </div>
                                     </div>
+                                    <span className={`absolute top-4 right-4 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${lead.status === "CONVERTED" ? "bg-emerald-400 text-slate-950" : "bg-amber-300 text-slate-950"}`}>
+                                        {lead.status === "CONVERTED" ? "Assigned" : "Contacted"}
+                                    </span>
                                 </div>
 
-                                {/* Content */}
-                                <div className="p-6 space-y-4">
-                                    {/* Contact Info */}
+                                {/* Card Body */}
+                                <div className="p-5 space-y-4 flex-1 flex flex-col justify-between">
                                     <div className="space-y-2">
-                                        <div className="flex items-center gap-2 text-sm text-slate-600">
-                                            <Mail className="w-4 h-4 text-slate-400" />
+                                        <div className="flex items-center gap-2 text-xs font-bold text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                                            <Mail className="w-4 h-4 text-amber-500 shrink-0" />
                                             <span className="truncate">{lead.student.user.email}</span>
                                         </div>
-                                        <div className="flex items-center gap-2 text-sm text-slate-600">
-                                            <Phone className="w-4 h-4 text-slate-400" />
-                                            <span>{lead.student.user.phone}</span>
+
+                                        {lead.student.user.phone && (
+                                            <div className="flex items-center gap-2 text-xs font-bold text-slate-700 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                                                <Phone className="w-4 h-4 text-emerald-600 shrink-0" />
+                                                <span>{lead.student.user.phone}</span>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Subjects Enrolled */}
+                                    <div>
+                                        <p className="text-[11px] font-black uppercase tracking-wider text-slate-400 mb-2">Requested Subjects</p>
+                                        <div className="flex flex-wrap gap-1.5">
+                                            {lead.subject ? (
+                                                <span className="px-2.5 py-1 bg-teal-50 text-[#1f5961] border border-teal-200/60 rounded-lg text-xs font-extrabold">
+                                                    {lead.subject}
+                                                </span>
+                                            ) : subjects.length > 0 ? (
+                                                subjects.slice(0, 3).map((sub) => (
+                                                    <span key={sub} className="px-2.5 py-1 bg-teal-50 text-[#1f5961] border border-teal-200/60 rounded-lg text-xs font-extrabold">
+                                                        {sub}
+                                                    </span>
+                                                ))
+                                            ) : (
+                                                <span className="text-xs text-slate-400 font-medium">General Studies</span>
+                                            )}
                                         </div>
                                     </div>
 
-                                    {/* Subjects */}
-                                    {subjects.length > 0 && (
-                                        <div>
-                                            <p className="text-xs font-semibold text-slate-400 uppercase mb-2">Interested In</p>
-                                            <div className="flex flex-wrap gap-1">
-                                                {subjects.slice(0, 3).map((subject: string) => (
-                                                    <span key={subject} className="px-2 py-1 bg-blue-50 text-blue-600 rounded-lg text-xs font-medium">
-                                                        {subject}
-                                                    </span>
-                                                ))}
-                                                {subjects.length > 3 && (
-                                                    <span className="px-2 py-1 bg-slate-100 text-slate-500 rounded-lg text-xs">
-                                                        +{subjects.length - 3} more
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* Status Badge */}
-                                    <div className="pt-2">
-                                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${lead.status === "CONVERTED" ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"
-                                            }`}>
-                                            {lead.status === "CONVERTED" ? "Active Student" : "In Contact"}
-                                        </span>
+                                    {/* Action Buttons */}
+                                    <div className="pt-3 border-t border-slate-100 grid grid-cols-2 gap-2">
+                                        {lead.student.user.phone ? (
+                                            <a
+                                                href={`tel:${lead.student.user.phone}`}
+                                                className="py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-sm"
+                                            >
+                                                <Phone className="w-3.5 h-3.5" />
+                                                <span>Call</span>
+                                            </a>
+                                        ) : (
+                                            <div className="py-2.5 px-3 bg-slate-100 text-slate-400 text-xs font-bold rounded-xl text-center">No Phone</div>
+                                        )}
+                                        <a
+                                            href={`mailto:${lead.student.user.email}?subject=Aacharya Academy - Class Follow-up`}
+                                            className="py-2.5 px-3 bg-[#1f5961] hover:bg-[#1a4a51] text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-sm"
+                                        >
+                                            <Mail className="w-3.5 h-3.5" />
+                                            <span>Email</span>
+                                        </a>
                                     </div>
                                 </div>
                             </div>

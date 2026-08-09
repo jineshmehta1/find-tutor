@@ -4,8 +4,7 @@ import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
 import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
-import Header from "@/components/header"
-import Footer from "@/components/footer"
+import LayoutWrapper from "@/components/layout-wrapper"
 import Providers from "@/components/providers"
 import "./globals.css"
 
@@ -43,9 +42,9 @@ export default function RootLayout({
       </head>
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} antialiased`}>
         <Providers>
-          <Header />
-          <Suspense fallback={null}>{children}</Suspense>
-          <Footer />
+          <LayoutWrapper>
+            <Suspense fallback={null}>{children}</Suspense>
+          </LayoutWrapper>
         </Providers>
         <Analytics />
       </body>

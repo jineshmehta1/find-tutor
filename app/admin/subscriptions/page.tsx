@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import {
     Crown, Search, Loader2, CheckCircle, XCircle, AlertCircle, Clock,
-    Mail, Phone, MapPin, Users, GraduationCap
+    Mail, Phone, MapPin, Users, GraduationCap, Sparkles
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -46,7 +46,7 @@ export default function AdminSubscriptionsPage() {
             const data = await res.json();
             setTeachers(Array.isArray(data) ? data : []);
         } catch (error) {
-            toast.error("Failed to load data");
+            toast.error("Failed to load subscription activity");
         } finally {
             setLoading(false);
         }
@@ -72,28 +72,28 @@ export default function AdminSubscriptionsPage() {
     const getStatusBadge = (t: TeacherSub) => {
         if (!t.isApproved) {
             return (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600">
-                    <AlertCircle className="w-3.5 h-3.5" /> Not Approved
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200">
+                    <AlertCircle className="w-3.5 h-3.5" /> Pending Approval
                 </span>
             );
         }
         if (t.subscriptionStatus === "active" && !t.isExpired) {
             return (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">
-                    <CheckCircle className="w-3.5 h-3.5" /> Premium
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                    <CheckCircle className="w-3.5 h-3.5" /> Premium Active
                 </span>
             );
         }
         if (t.subscriptionStatus === "trial" && !t.isExpired) {
             return (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700">
-                    <Clock className="w-3.5 h-3.5" /> Trial
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200/60">
+                    <Clock className="w-3.5 h-3.5" /> Free Trial
                 </span>
             );
         }
         return (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700">
-                <XCircle className="w-3.5 h-3.5" /> Expired
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-200/60">
+                <XCircle className="w-3.5 h-3.5" /> Plan Expired
             </span>
         );
     };
@@ -103,193 +103,137 @@ export default function AdminSubscriptionsPage() {
     };
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div>
-                <h1 className="text-3xl font-bold text-slate-900">Teacher Subscriptions</h1>
-                <p className="text-slate-500 mt-1">View all teachers and their subscription status</p>
-            </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-slate-500 text-sm">Total Teachers</p>
-                            <p className="text-3xl font-bold text-slate-900">{stats.total}</p>
-                        </div>
-                        <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center">
-                            <Users className="w-6 h-6 text-slate-600" />
-                        </div>
+        <div className="space-y-8 font-sans pb-12">
+            {/* Header Banner */}
+            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+                <div className="relative z-10 space-y-2">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                        <span>Membership Activity</span>
                     </div>
-                </div>
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-slate-500 text-sm">On Trial</p>
-                            <p className="text-3xl font-bold text-blue-600">{stats.trial}</p>
-                        </div>
-                        <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                            <Clock className="w-6 h-6 text-blue-600" />
-                        </div>
-                    </div>
-                </div>
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-slate-500 text-sm">Premium Active</p>
-                            <p className="text-3xl font-bold text-green-600">{stats.active}</p>
-                        </div>
-                        <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                            <Crown className="w-6 h-6 text-green-600" />
-                        </div>
-                    </div>
-                </div>
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-slate-500 text-sm">Expired</p>
-                            <p className="text-3xl font-bold text-red-600">{stats.expired}</p>
-                        </div>
-                        <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
-                            <XCircle className="w-6 h-6 text-red-600" />
-                        </div>
-                    </div>
+                    <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Active Instructor Subscriptions</h1>
+                    <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                        Monitor active tutor memberships, Razorpay payment reference IDs, trial durations, and expiration dates.
+                    </p>
                 </div>
             </div>
 
-            {/* Filters */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-wrap gap-4">
-                <div className="relative flex-1 min-w-[200px]">
-                    <Search className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
+            {/* Metrics */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                    <div>
+                        <div className="text-2xl font-black text-slate-900">{stats.total}</div>
+                        <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Tutors</div>
+                    </div>
+                    <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center font-bold">
+                        <Users className="w-5 h-5" />
+                    </div>
+                </div>
+                <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                    <div>
+                        <div className="text-2xl font-black text-blue-600">{stats.trial}</div>
+                        <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">On Free Trial</div>
+                    </div>
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                        <Clock className="w-5 h-5" />
+                    </div>
+                </div>
+                <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                    <div>
+                        <div className="text-2xl font-black text-emerald-600">{stats.active}</div>
+                        <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">Premium Paid</div>
+                    </div>
+                    <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                        <Crown className="w-5 h-5" />
+                    </div>
+                </div>
+                <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                    <div>
+                        <div className="text-2xl font-black text-rose-600">{stats.expired}</div>
+                        <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">Expired Tiers</div>
+                    </div>
+                    <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold">
+                        <XCircle className="w-5 h-5" />
+                    </div>
+                </div>
+            </div>
+
+            {/* Filter Bar */}
+            <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-sm border border-slate-200/80 flex flex-col sm:flex-row gap-4 justify-between">
+                <div className="relative flex-1">
+                    <Search className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
                     <input
                         type="text"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none"
-                        placeholder="Search by name or email..."
+                        className="w-full pl-10 pr-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#1f5961] outline-none bg-slate-50/50"
+                        placeholder="Filter tutors by name or email address..."
                     />
                 </div>
+
                 <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="px-4 py-3 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-amber-500 outline-none bg-white"
+                    className="px-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#1f5961] outline-none bg-slate-50/50 cursor-pointer"
                 >
-                    <option value="all">All Statuses</option>
-                    <option value="trial">Trial</option>
-                    <option value="active">Premium</option>
+                    <option value="all">All Subscription Tiers</option>
+                    <option value="trial">Free Trial</option>
+                    <option value="active">Premium Active</option>
                     <option value="expired">Expired</option>
-                    <option value="none">Not Approved</option>
                 </select>
             </div>
 
-            {/* Table */}
+            {/* Teachers Subscriptions Feed */}
             {loading ? (
-                <div className="flex items-center justify-center py-20">
-                    <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />
+                <div className="space-y-4">
+                    {[1, 2, 3].map((i) => (
+                        <div key={i} className="h-28 bg-slate-200/60 rounded-3xl animate-pulse" />
+                    ))}
                 </div>
             ) : filtered.length === 0 ? (
-                <div className="text-center py-20 bg-white rounded-2xl border border-slate-100">
-                    <Users className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-slate-900 mb-2">No Teachers Found</h3>
-                    <p className="text-slate-500">No teachers match your current filters.</p>
+                <div className="text-center py-16 bg-white rounded-3xl border border-slate-200 p-8 space-y-3">
+                    <Crown className="w-12 h-12 text-slate-300 mx-auto" />
+                    <h3 className="text-lg font-extrabold text-slate-900">No Subscriptions Found</h3>
+                    <p className="text-xs text-slate-500 max-w-sm mx-auto font-medium">No instructor subscriptions match your search filter.</p>
                 </div>
             ) : (
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="bg-slate-50 border-b border-slate-100">
-                                    <th className="text-left px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Teacher</th>
-                                    <th className="text-left px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Contact</th>
-                                    <th className="text-left px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Subjects</th>
-                                    <th className="text-left px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
-                                    <th className="text-left px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Expires</th>
-                                    <th className="text-left px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Payment ID</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100">
-                                {filtered.map((t) => (
-                                    <tr key={t.id} className="hover:bg-slate-50 transition-colors">
-                                        {/* Teacher */}
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                                                    {t.user.profilePhoto ? (
-                                                        <img src={t.user.profilePhoto} alt="" className="w-full h-full rounded-full object-cover" />
-                                                    ) : (
-                                                        t.user.name.charAt(0).toUpperCase()
-                                                    )}
-                                                </div>
-                                                <div>
-                                                    <p className="font-semibold text-slate-900 text-sm">{t.user.name}</p>
-                                                    <p className="text-xs text-slate-400">{t.education} • {t.experience}</p>
-                                                </div>
-                                            </div>
-                                        </td>
+                <div className="space-y-4">
+                    {filtered.map((t) => (
+                        <div key={t.id} className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 space-y-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-12 h-12 rounded-2xl bg-teal-50 text-[#1f5961] flex items-center justify-center font-bold overflow-hidden border border-teal-200/60 shrink-0">
+                                        {t.user.profilePhoto ? (
+                                            <img src={t.user.profilePhoto} alt={t.user.name} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <Users className="w-6 h-6 text-[#1f5961]" />
+                                        )}
+                                    </div>
+                                    <div>
+                                        <h3 className="font-extrabold text-base text-slate-900">{t.user.name}</h3>
+                                        <p className="text-xs text-slate-500 font-medium">{t.user.email} • {t.user.phone || "No Phone"}</p>
+                                    </div>
+                                </div>
+                                {getStatusBadge(t)}
+                            </div>
 
-                                        {/* Contact */}
-                                        <td className="px-6 py-4">
-                                            <div className="space-y-1">
-                                                <p className="text-sm text-slate-700 flex items-center gap-1.5">
-                                                    <Mail className="w-3.5 h-3.5 text-slate-400" />
-                                                    {t.user.email}
-                                                </p>
-                                                <p className="text-sm text-slate-700 flex items-center gap-1.5">
-                                                    <Phone className="w-3.5 h-3.5 text-slate-400" />
-                                                    {t.user.phone || "—"}
-                                                </p>
-                                            </div>
-                                        </td>
-
-                                        {/* Subjects */}
-                                        <td className="px-6 py-4">
-                                            <div className="flex flex-wrap gap-1 max-w-[180px]">
-                                                {parseSubjects(t.subjects).slice(0, 3).map((s, i) => (
-                                                    <span key={i} className="px-2 py-0.5 bg-amber-50 text-amber-700 text-xs rounded-full font-medium">{s}</span>
-                                                ))}
-                                                {parseSubjects(t.subjects).length > 3 && (
-                                                    <span className="text-xs text-slate-400">+{parseSubjects(t.subjects).length - 3}</span>
-                                                )}
-                                            </div>
-                                        </td>
-
-                                        {/* Status */}
-                                        <td className="px-6 py-4">
-                                            {getStatusBadge(t)}
-                                        </td>
-
-                                        {/* Expires */}
-                                        <td className="px-6 py-4">
-                                            {t.subscriptionEnd ? (
-                                                <div>
-                                                    <p className="text-sm text-slate-700">
-                                                        {new Date(t.subscriptionEnd).toLocaleDateString("en-IN", {
-                                                            day: "numeric", month: "short", year: "numeric"
-                                                        })}
-                                                    </p>
-                                                    {!t.isExpired && (
-                                                        <p className="text-xs text-slate-400">{t.daysRemaining} days left</p>
-                                                    )}
-                                                </div>
-                                            ) : (
-                                                <span className="text-sm text-slate-400">—</span>
-                                            )}
-                                        </td>
-
-                                        {/* Payment ID */}
-                                        <td className="px-6 py-4">
-                                            {t.subscriptionPaymentId ? (
-                                                <span className="text-xs text-slate-500 font-mono bg-slate-50 px-2 py-1 rounded">{t.subscriptionPaymentId}</span>
-                                            ) : (
-                                                <span className="text-sm text-slate-400">—</span>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-bold text-slate-700 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                                <div>
+                                    <span className="text-slate-400 block text-[10px] uppercase font-black">Days Remaining</span>
+                                    <span className="text-slate-900">{t.daysRemaining > 0 ? `${t.daysRemaining} Days` : "Expired"}</span>
+                                </div>
+                                <div>
+                                    <span className="text-slate-400 block text-[10px] uppercase font-black">Expiration Date</span>
+                                    <span className="text-slate-900">{t.subscriptionEnd ? new Date(t.subscriptionEnd).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "—"}</span>
+                                </div>
+                                <div>
+                                    <span className="text-slate-400 block text-[10px] uppercase font-black">Payment Ref / Order ID</span>
+                                    <span className="text-slate-900 truncate block font-mono text-[11px]">{t.subscriptionPaymentId || "Free Trial Access"}</span>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             )}
         </div>

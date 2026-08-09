@@ -135,7 +135,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={social.label}
-                  className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-yellow-400 hover:text-slate-900 transition-all duration-300"
+                  className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300"
                 >
                   <social.Icon className="w-5 h-5" />
                 </a>
@@ -146,21 +146,19 @@ export default function Footer() {
           {/* 2. QUICK LINKS */}
           <div>
             <h3 className="text-white font-bold text-lg mb-6 flex items-center gap-2">
-              <span className="w-2 h-6 bg-yellow-400 rounded-full"></span>
+              <span className="w-2 h-6 bg-primary rounded-full"></span>
               Quick Links
             </h3>
             <ul className="space-y-3">
               {[
                 { name: "About Us", href: "/about" },
-                { name: "Success Stories", href: "/gallery" },
                 { name: "Find Tutor Nearby", href: "/find-tutor-nearby" },
-                { name: "Events", href: "/events" },
                 { name: "Contact Us", href: "/contact" },
-                { name: "Book a Demo", href: "/bookdemo" },
+                { name: "Request a Tutor", href: "/request-tutor" },
               ].map((link) => (
                 <li key={link.name}>
-                  <a href={link.href} className="flex items-center gap-2 text-sm hover:text-yellow-400 transition-colors group">
-                    <ArrowRight className="w-3 h-3 text-yellow-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <a href={link.href} className="flex items-center gap-2 text-sm hover:text-primary transition-colors group">
+                    <ArrowRight className="w-3 h-3 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
                     {link.name}
                   </a>
                 </li>
@@ -168,23 +166,23 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* 3. PROGRAMS */}
+          {/* 3. POPULAR SUBJECTS */}
           <div>
             <h3 className="text-white font-bold text-lg mb-6 flex items-center gap-2">
-              <span className="w-2 h-6 bg-yellow-400 rounded-full"></span>
-              Programs
+              <span className="w-2 h-6 bg-primary rounded-full"></span>
+              Popular Subjects
             </h3>
             <ul className="space-y-3">
               {[
-                { name: "Pre Primary School", href: "/pre-school" },
-                { name: "Chess Coaching", href: "/chess-academy" },
-                { name: "Abacus Maths", href: "/abacus-training" },
-                { name: "Robotics, AI & IOT", href: "/robotics-center" },
-                { name: "Tution Point", href: "/tuition-center" },
+                { name: "Mathematics", href: "/find-tutor-nearby?subject=Mathematics" },
+                { name: "Physics", href: "/find-tutor-nearby?subject=Physics" },
+                { name: "Coding & AI", href: "/find-tutor-nearby?subject=Coding" },
+                { name: "Chess & Robotics", href: "/find-tutor-nearby?subject=Chess" },
+                { name: "Languages", href: "/find-tutor-nearby?subject=English" },
               ].map((link) => (
                 <li key={link.name}>
-                  <a href={link.href} className="flex items-center gap-2 text-sm hover:text-yellow-400 transition-colors group">
-                    <ArrowRight className="w-3 h-3 text-yellow-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <a href={link.href} className="flex items-center gap-2 text-sm hover:text-primary transition-colors group">
+                    <ArrowRight className="w-3 h-3 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
                     {link.name}
                   </a>
                 </li>
@@ -195,7 +193,7 @@ export default function Footer() {
           {/* 4. CONTACT */}
           <div>
             <h3 className="text-white font-bold text-lg mb-6 flex items-center gap-2">
-              <span className="w-2 h-6 bg-yellow-400 rounded-full"></span>
+              <span className="w-2 h-6 bg-primary rounded-full"></span>
               Contact Us
             </h3>
             <div className="space-y-4">
@@ -205,17 +203,17 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 className="flex items-start gap-3 text-sm group hover:text-white transition-colors"
               >
-                <MapPin className="w-5 h-5 text-yellow-400 shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
+                <MapPin className="w-5 h-5 text-primary shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
                 <span>
                   Aacharya, Opposite Indrakeeladri Apartment, Lalitha Nagar, Swathi Road, Near Sivalayam Center, Bhavanipuram, Vijayawada - 520012. Andhra Pradesh.
                 </span>
               </a>
               <div className="flex items-center gap-3 text-sm">
-                <Phone className="w-5 h-5 text-yellow-400 shrink-0" />
+                <Phone className="w-5 h-5 text-primary shrink-0" />
                 <span>+91 80741 03400</span>
               </div>
               <div className="flex items-center gap-3 text-sm">
-                <Mail className="w-5 h-5 text-yellow-400 shrink-0" />
+                <Mail className="w-5 h-5 text-primary shrink-0" />
                 <span>aacharyateam@gmail.com</span>
               </div>
             </div>
@@ -226,8 +224,8 @@ export default function Footer() {
         <div className="border-t border-slate-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
           <p>© {new Date().getFullYear()} Aacharya. All Rights Reserved.</p>
           <div className="flex gap-6">
-            <a href="/privacy" className="hover:text-yellow-400 transition-colors">Privacy Policy</a>
-            <a href="/terms" className="hover:text-yellow-400 transition-colors">Terms of Service</a>
+            <a href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</a>
+            <a href="/terms" className="hover:text-primary transition-colors">Terms of Service</a>
           </div>
         </div>
       </div>

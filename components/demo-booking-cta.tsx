@@ -36,7 +36,7 @@ export default function CTASection() {
 
               {/* Compact Button Group */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Link href="/bookdemo" className="shrink-0">
+                <Link href="/request-tutor" className="shrink-0">
                   <button className="group w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-white text-[#2D63ED] rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-amber-400 hover:text-white transition-all shadow-lg active:scale-95">
                     Book Free Demo
                     <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import {
-    Crown, CheckCircle, Clock, Shield, Zap, Loader2, AlertCircle, Users, FileText, Star
+    Crown, CheckCircle, Clock, Shield, Zap, Loader2, AlertCircle, Users, FileText, Star, Sparkles, Check, ArrowRight
 } from "lucide-react";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
@@ -96,7 +96,6 @@ export default function TeacherSubscriptionPage() {
         setProcessing(plan.id);
 
         try {
-            // 1. Create Razorpay order
             const orderRes = await fetch("/api/razorpay", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -110,7 +109,6 @@ export default function TeacherSubscriptionPage() {
             if (!orderRes.ok) throw new Error("Failed to create order");
             const orderData = await orderRes.json();
 
-            // 2. Open Razorpay checkout
             const options = {
                 key: orderData.key,
                 amount: orderData.amount,
@@ -119,7 +117,6 @@ export default function TeacherSubscriptionPage() {
                 description: `${plan.name} - ${plan.duration} days`,
                 order_id: orderData.orderId,
                 handler: async function (response: any) {
-                    // 3. Verify payment and activate subscription
                     try {
                         const activateRes = await fetch("/api/teacher/subscription/activate", {
                             method: "POST",
@@ -131,8 +128,7 @@ export default function TeacherSubscriptionPage() {
                         });
 
                         if (!activateRes.ok) throw new Error("Failed to activate");
-                        const result = await activateRes.json();
-                        toast.success("Subscription activated successfully!");
+                        toast.success("Premium Subscription activated successfully!");
                         fetchSubscription();
                     } catch (error) {
                         toast.error("Payment received but activation failed. Contact support.");
@@ -143,19 +139,19 @@ export default function TeacherSubscriptionPage() {
                     email: session?.user?.email || "",
                 },
                 theme: {
-                    color: "#f59e0b",
+                    color: "#1f5961",
                 },
                 modal: {
                     ondismiss: () => {
                         setProcessing(null);
-                    },
-                },
+                    }
+                }
             };
 
-            const razorpay = new window.Razorpay(options);
-            razorpay.open();
+            const paymentObject = new window.Razorpay(options);
+            paymentObject.open();
         } catch (error) {
-            toast.error("Failed to initiate payment");
+            toast.error("Payment process failed. Please try again.");
         } finally {
             setProcessing(null);
         }
@@ -164,7 +160,7 @@ export default function TeacherSubscriptionPage() {
     if (loading) {
         return (
             <div className="flex items-center justify-center py-20">
-                <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />
+                <Loader2 className="w-8 h-8 text-[#1f5961] animate-spin" />
             </div>
         );
     }
@@ -173,169 +169,119 @@ export default function TeacherSubscriptionPage() {
     const hasAccess = subscription?.hasAccess || false;
 
     return (
-        <div className="max-w-4xl mx-auto space-y-8">
-            {/* Header */}
-            <div>
-                <h1 className="text-3xl font-bold text-slate-900">Subscription</h1>
-                <p className="text-slate-500 mt-1">Manage your teacher subscription plan</p>
+        <div className="space-y-8 font-sans pb-12 max-w-5xl mx-auto">
+            {/* Header Banner */}
+            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+                <div className="relative z-10 space-y-2">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                        <span>Tutor Membership</span>
+                    </div>
+                    <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Subscription Plans</h1>
+                    <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                        Unlock unlimited student leads, zero commission cuts, and verified instructor badge in Bhavanipuram & Vijayawada.
+                    </p>
+                </div>
             </div>
 
-            {/* Current Status */}
-            <div className={`rounded-2xl p-6 border ${hasAccess
-                ? status === "trial"
-                    ? "bg-blue-50 border-blue-200"
-                    : "bg-green-50 border-green-200"
-                : status === "expired"
-                    ? "bg-red-50 border-red-200"
-                    : "bg-slate-50 border-slate-200"
-                }`}>
-                <div className="flex items-center gap-4">
-                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${hasAccess
-                        ? status === "trial"
-                            ? "bg-blue-100"
-                            : "bg-green-100"
-                        : "bg-red-100"
-                        }`}>
-                        {hasAccess ? (
-                            status === "trial"
-                                ? <Clock className="w-7 h-7 text-blue-600" />
-                                : <CheckCircle className="w-7 h-7 text-green-600" />
-                        ) : (
-                            <AlertCircle className="w-7 h-7 text-red-600" />
-                        )}
+            {/* Current Status Box */}
+            <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200/80 space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div>
+                        <h2 className="text-base font-black text-slate-900">Current Membership Status</h2>
+                        <p className="text-xs text-slate-500 font-medium">Your active tier and access privileges</p>
                     </div>
-                    <div className="flex-1">
-                        <h3 className="text-lg font-bold text-slate-900">
-                            {status === "trial" ? "Free Trial" :
-                                status === "active" ? "Premium Plan" :
-                                    status === "expired" ? "Subscription Expired" :
-                                        "No Subscription"}
+                    <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${hasAccess ? "bg-emerald-50 text-emerald-700 border border-emerald-200/60" : "bg-rose-50 text-rose-700 border border-rose-200/60"}`}>
+                        {hasAccess ? (status === "trial" ? "Free Trial" : "Verified Premium") : "Access Restricted"}
+                    </span>
+                </div>
+
+                <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${hasAccess ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"}`}>
+                        <Crown className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <h3 className="text-sm font-extrabold text-slate-900">
+                            {status === "trial" ? "30-Day Free Instructor Trial" :
+                                status === "active" ? "Aacharya Premium Tutor Membership" :
+                                    status === "expired" ? "Subscription Expired" : "Awaiting Verification"}
                         </h3>
-                        <p className="text-slate-500">
+                        <p className="text-xs text-slate-500 font-medium mt-0.5">
                             {hasAccess
-                                ? `${subscription?.daysRemaining} days remaining • Expires ${subscription?.subscriptionEnd
-                                    ? new Date(subscription.subscriptionEnd).toLocaleDateString("en-IN", {
-                                        day: "numeric", month: "long", year: "numeric"
-                                    })
-                                    : "—"
-                                }`
-                                : status === "expired"
-                                    ? "Your access has expired. Subscribe to a plan below to continue."
-                                    : "Awaiting admin approval to start your free trial."
-                            }
+                                ? `${subscription?.daysRemaining} days remaining • Active until ${subscription?.subscriptionEnd ? new Date(subscription.subscriptionEnd).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "—"}`
+                                : "Upgrade to a plan below to view student phone numbers & direct inquiries."}
                         </p>
                     </div>
                 </div>
             </div>
 
-            {/* Subscription Plans */}
-            {plans.length > 0 ? (
-                <>
+            {/* Plans List */}
+            {plans.length > 0 && (
+                <div className="space-y-6">
                     <div>
-                        <h2 className="text-xl font-bold text-slate-900 mb-1">Choose a Plan</h2>
-                        <p className="text-slate-500 text-sm">Select a subscription plan to continue accessing all features</p>
+                        <h2 className="text-lg font-black text-slate-900">Available Instructor Membership Plans</h2>
+                        <p className="text-xs text-slate-500 font-medium">Select a plan to activate instant student leads access</p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {plans.map((plan, index) => {
-                            const isPopular = index === Math.floor(plans.length / 2);
+                            const isPopular = index === 1;
+                            const features = parseFeatures(plan.features);
+
                             return (
                                 <div
                                     key={plan.id}
-                                    className={`relative bg-white rounded-2xl shadow-sm border overflow-hidden transition-shadow hover:shadow-lg ${isPopular ? "border-amber-300 ring-2 ring-amber-200" : "border-slate-100"
-                                        }`}
+                                    className={`bg-white rounded-3xl p-6 shadow-sm border transition-all relative flex flex-col justify-between ${isPopular ? "border-[#1f5961] ring-2 ring-[#1f5961]/20 shadow-md" : "border-slate-200/80"}`}
                                 >
                                     {isPopular && (
-                                        <div className="absolute top-0 right-0 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-bl-xl">
-                                            POPULAR
-                                        </div>
+                                        <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-amber-400 text-slate-950 text-[10px] font-black uppercase tracking-wider rounded-full shadow-md">
+                                            Most Popular Choice
+                                        </span>
                                     )}
 
-                                    <div className={`p-6 ${isPopular ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white" : "bg-slate-50"}`}>
-                                        <h3 className={`text-lg font-bold ${isPopular ? "text-white" : "text-slate-900"}`}>{plan.name}</h3>
-                                        <div className="flex items-baseline gap-1 mt-2">
-                                            <span className={`text-4xl font-bold ${isPopular ? "text-white" : "text-slate-900"}`}>
-                                                ₹{plan.price.toLocaleString("en-IN")}
-                                            </span>
-                                            <span className={isPopular ? "text-white/80" : "text-slate-500"}>
-                                                / {plan.duration} days
-                                            </span>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <h3 className="text-base font-black text-slate-900">{plan.name}</h3>
+                                            <p className="text-xs text-slate-500 font-medium mt-0.5">{plan.description}</p>
                                         </div>
-                                        <p className={`text-sm mt-2 ${isPopular ? "text-white/80" : "text-slate-500"}`}>{plan.description}</p>
-                                    </div>
 
-                                    <div className="p-6">
-                                        <div className="space-y-3 mb-6">
-                                            {parseFeatures(plan.features).map((feature, idx) => (
-                                                <div key={idx} className="flex items-center gap-2.5">
-                                                    <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                                                    <span className="text-slate-700 text-sm">{feature}</span>
+                                        <div className="flex items-baseline gap-1 border-y border-slate-100 py-3">
+                                            <span className="text-3xl font-black text-[#1f5961]">₹{plan.price}</span>
+                                            <span className="text-xs text-slate-500 font-bold">/ {plan.duration} Days</span>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <p className="text-[11px] font-black uppercase tracking-wider text-slate-400">Included Features:</p>
+                                            {features.map((feat, idx) => (
+                                                <div key={idx} className="flex items-center gap-2 text-xs font-bold text-slate-700">
+                                                    <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                                                    <span>{feat}</span>
                                                 </div>
                                             ))}
                                         </div>
-
-                                        <button
-                                            onClick={() => handleSubscribe(plan)}
-                                            disabled={processing === plan.id || (status === "active" && hasAccess)}
-                                            className={`w-full py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${status === "active" && hasAccess
-                                                ? "bg-green-100 text-green-700 cursor-default"
-                                                : isPopular
-                                                    ? "bg-amber-500 text-white hover:bg-amber-600 shadow-lg shadow-amber-500/25"
-                                                    : "bg-slate-900 text-white hover:bg-slate-800"
-                                                }`}
-                                        >
-                                            {processing === plan.id ? (
-                                                <Loader2 className="w-5 h-5 animate-spin" />
-                                            ) : status === "active" && hasAccess ? (
-                                                <>
-                                                    <CheckCircle className="w-5 h-5" />
-                                                    Currently Active
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Crown className="w-5 h-5" />
-                                                    Subscribe Now
-                                                </>
-                                            )}
-                                        </button>
                                     </div>
+
+                                    <button
+                                        onClick={() => handleSubscribe(plan)}
+                                        disabled={processing === plan.id}
+                                        className={`w-full mt-6 py-3.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-md ${isPopular ? "bg-amber-500 hover:bg-amber-600 text-slate-950" : "bg-[#1f5961] hover:bg-[#1a4a51] text-white"}`}
+                                    >
+                                        {processing === plan.id ? (
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                        ) : (
+                                            <>
+                                                <span>Activate {plan.name}</span>
+                                                <ArrowRight className="w-4 h-4" />
+                                            </>
+                                        )}
+                                    </button>
                                 </div>
                             );
                         })}
                     </div>
-                </>
-            ) : (
-                <div className="text-center py-12 bg-white rounded-2xl border border-slate-100">
-                    <Crown className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-slate-900 mb-2">No Plans Available</h3>
-                    <p className="text-slate-500">Subscription plans will be available soon. Please check back later.</p>
                 </div>
             )}
-
-            {/* Secured Payment Note */}
-            <div className="flex items-center justify-center gap-2 text-slate-400 text-sm">
-                <Shield className="w-4 h-4" />
-                <span>Secured by Razorpay • 100% safe & encrypted</span>
-            </div>
-
-            {/* FAQ */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-                <h3 className="text-lg font-bold text-slate-900 mb-4">Frequently Asked Questions</h3>
-                <div className="space-y-4">
-                    <div>
-                        <h4 className="font-semibold text-slate-900 mb-1">What happens after my free trial?</h4>
-                        <p className="text-slate-500 text-sm">After your 30-day free trial, you&apos;ll need to subscribe to a plan to continue accessing the dashboard and managing student leads.</p>
-                    </div>
-                    <div>
-                        <h4 className="font-semibold text-slate-900 mb-1">What&apos;s included in the free trial?</h4>
-                        <p className="text-slate-500 text-sm">The free trial gives you full access to all features for 30 days, starting from the day your account is approved.</p>
-                    </div>
-                    <div>
-                        <h4 className="font-semibold text-slate-900 mb-1">Can I extend my subscription?</h4>
-                        <p className="text-slate-500 text-sm">Yes! If you subscribe while your current plan is active, the new duration will be added to your remaining days.</p>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 }

@@ -42,6 +42,7 @@ export async function GET(request: NextRequest) {
                         education: true,
                         experience: true,
                         subjects: true,
+                        certifications: true,
                     },
                 },
                 student: {
@@ -92,16 +93,88 @@ export async function PATCH(request: NextRequest) {
         }
 
         const body = await request.json();
-        const { teacherId, action } = body;
+        const { action } = body;
 
-        if (!teacherId || !action) {
+        if (!action) {
             return NextResponse.json(
-                { error: "Teacher ID and action are required" },
+                { error: "Action is required" },
                 { status: 400 }
             );
         }
 
+        if (action === "update_profile") {
+            const { userId, name, phone, address, teacher } = body;
+            if (!userId) {
+                return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+            }
+
+            const updatedUser = await prisma.user.update({
+                where: { id: userId },
+                data: {
+                    name,
+                    phone,
+                    address,
+                }
+            });
+
+            if (updatedUser.role === "TEACHER" && teacher) {
+                await prisma.teacher.update({
+                    where: { userId },
+                    data: {
+                        education: teacher.education,
+                        experience: teacher.experience,
+                        subjects: JSON.stringify(teacher.subjects || []),
+                        certifications: JSON.stringify(teacher.certifications || []),
+                    }
+                });
+            }
+
+            return NextResponse.json({ message: "Profile updated successfully" });
+        }
+
+        if (action === "approve_certificate" || action === "reject_certificate") {
+            const { teacherId, certIndex } = body;
+            if (!teacherId || certIndex === undefined) {
+                return NextResponse.json({ error: "Teacher ID and Certificate Index are required" }, { status: 400 });
+            }
+
+            const teacherRecord = await prisma.teacher.findUnique({
+                where: { id: teacherId }
+            });
+            if (!teacherRecord) {
+                return NextResponse.json({ error: "Teacher not found" }, { status: 404 });
+            }
+
+            let certs = [];
+            try {
+                certs = JSON.parse(teacherRecord.certifications || "[]");
+            } catch (e) {
+                certs = [];
+            }
+
+            if (certs[certIndex]) {
+                if (typeof certs[certIndex] === "string") {
+                    certs[certIndex] = { text: certs[certIndex], isApproved: action === "approve_certificate" };
+                } else {
+                    certs[certIndex].isApproved = action === "approve_certificate";
+                }
+            }
+
+            await prisma.teacher.update({
+                where: { id: teacherId },
+                data: {
+                    certifications: JSON.stringify(certs)
+                }
+            });
+
+            return NextResponse.json({ message: `Certificate ${action === "approve_certificate" ? "approved" : "rejected"} successfully` });
+        }
+
         if (action === "approve") {
+            const { teacherId } = body;
+            if (!teacherId) {
+                return NextResponse.json({ error: "Teacher ID is required" }, { status: 400 });
+            }
             const trialEnd = new Date();
             trialEnd.setDate(trialEnd.getDate() + 30); // 30-day free trial
 
@@ -116,6 +189,10 @@ export async function PATCH(request: NextRequest) {
             });
             return NextResponse.json({ message: "Teacher approved with 30-day free trial" });
         } else if (action === "reject") {
+            const { teacherId } = body;
+            if (!teacherId) {
+                return NextResponse.json({ error: "Teacher ID is required" }, { status: 400 });
+            }
             await prisma.teacher.update({
                 where: { id: teacherId },
                 data: {

@@ -82,12 +82,7 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        // Verify the selected role matches the user's actual role
-        if (user.role !== selectedRole) {
-          return null;
-        }
-
-        // Determine approval status for teachers
+        // If role doesn't match selected tab, allow login using actual user.role
         const isApproved = user.role === "TEACHER"
           ? user.teacher?.isApproved ?? false
           : true;

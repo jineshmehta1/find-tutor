@@ -1,23 +1,30 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signIn, useSession } from "next-auth/react";
-import { useEffect } from "react";
 import {
     User, ArrowLeft, ArrowRight, Mail, Phone, Calendar, MapPin,
-    BookOpen, GraduationCap, Loader2, CheckCircle2, Upload, Camera, X
+    BookOpen, GraduationCap, Loader2, CheckCircle2, Upload, Camera, X, Star, ShieldCheck
 } from "lucide-react";
 import { toast } from "sonner";
 import MapLocationPicker from "@/components/ui/DynamicMapPicker";
+
 const CLOUDINARY_CLOUD_NAME = "dx2o9yq2t";
-const CLOUDINARY_UPLOAD_PRESET = "gallery"; // or create a "profiles" preset
+const CLOUDINARY_UPLOAD_PRESET = "gallery";
+
 const SUBJECTS = [
     "Mathematics", "Physics", "Chemistry", "Biology", "English",
     "Hindi", "History", "Geography", "Computer Science", "Economics",
     "Accountancy", "Business Studies", "Political Science", "Psychology",
     "Sociology", "Sanskrit", "French", "German", "Music", "Art"
+];
+
+const STEPS = [
+    { id: 1, title: "Account & Contact", desc: "Basic details & login info" },
+    { id: 2, title: "Personal & Address", desc: "Location & profile photo" },
+    { id: 3, title: "Subjects & Preferences", desc: "Select subjects to learn" },
 ];
 
 export default function StudentSignupPage() {
@@ -42,10 +49,7 @@ export default function StudentSignupPage() {
         otp: "",
     });
 
-    const [otpSent, setOtpSent] = useState(false);
     const [isGoogleVerified, setIsGoogleVerified] = useState(false);
-    const [otpTimer, setOtpTimer] = useState(0);
-    const [isOtpSending, setIsOtpSending] = useState(false);
     const [isUploadingProfile, setIsUploadingProfile] = useState(false);
 
     // Persist form data to session storage during Google redirect
@@ -63,7 +67,6 @@ export default function StudentSignupPage() {
         if (session?.user?.email) {
             setFormData(prev => ({ ...prev, email: session.user?.email || prev.email, name: prev.name || session.user?.name || "" }));
             setIsGoogleVerified(true);
-            setOtpSent(false); // No need for OTP if Google verified
         }
     }, [session]);
 
@@ -75,9 +78,6 @@ export default function StudentSignupPage() {
             setErrors((prev) => ({ ...prev, [field]: "" }));
         }
     };
-
-    // Upload a file to the API
-
 
     // Handle profile photo upload
     const handleProfilePhotoUpload = async (
@@ -102,7 +102,7 @@ export default function StudentSignupPage() {
             const formDataUpload = new FormData();
             formDataUpload.append("file", file);
             formDataUpload.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-            formDataUpload.append("folder", "profiles"); // 👈 organize in Cloudinary
+            formDataUpload.append("folder", "profiles");
 
             const res = await fetch(
                 `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
@@ -145,16 +145,9 @@ export default function StudentSignupPage() {
             if (!formData.name.trim()) newErrors.name = "Name is required";
             if (!formData.email.trim()) newErrors.email = "Email is required";
             else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Invalid email";
-            
-            if (!isGoogleVerified) {
-                newErrors.email = "Please verify your email via Google first";
-            }
-
             if (!formData.phone.trim()) newErrors.phone = "Phone is required";
-            else if (formData.phone.length < 10) newErrors.phone = "Invalid phone number";
             if (!formData.password) newErrors.password = "Password is required";
             else if (formData.password.length < 6) newErrors.password = "Password must be at least 6 characters";
-            if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = "Passwords don't match";
         }
 
         if (stepNum === 2) {
@@ -173,6 +166,9 @@ export default function StudentSignupPage() {
     const nextStep = () => {
         if (validateStep(step)) {
             setStep((prev) => Math.min(prev + 1, 3));
+        } else {
+            const firstError = Object.values(errors)[0] || "Please fill in all required fields";
+            toast.error(firstError);
         }
     };
 
@@ -181,7 +177,6 @@ export default function StudentSignupPage() {
     };
 
     const verifyWithGoogle = async () => {
-        // Save current form data before redirecting
         sessionStorage.setItem("signup_form_data", JSON.stringify({
             name: formData.name,
             phone: formData.phone,
@@ -220,7 +215,6 @@ export default function StudentSignupPage() {
             setSuccess(true);
             toast.success("Registration successful!");
 
-            // Auto login
             setTimeout(async () => {
                 await signIn("credentials", {
                     email: formData.email,
@@ -237,16 +231,16 @@ export default function StudentSignupPage() {
 
     if (success) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 via-slate-50 to-blue-50 p-4">
-                <div className="bg-white/80 backdrop-blur-xl p-8 rounded-3xl shadow-2xl w-full max-w-md text-center">
-                    <div className="w-20 h-20 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="min-h-screen flex items-center justify-center bg-slate-900 p-4 font-sans">
+                <div className="bg-white/95 backdrop-blur-xl p-8 rounded-3xl shadow-2xl w-full max-w-md text-center">
+                    <div className="w-20 h-20 bg-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-500/30">
                         <CheckCircle2 className="w-10 h-10 text-white" />
                     </div>
-                    <h2 className="text-2xl font-bold text-slate-900 mb-2">Welcome Aboard!</h2>
-                    <p className="text-slate-500 mb-4">
-                        Your account has been created. Redirecting to your dashboard...
+                    <h2 className="text-2xl font-black text-slate-900 mb-2">Welcome Aboard!</h2>
+                    <p className="text-slate-500 text-sm font-medium mb-6">
+                        Your student account has been created. Redirecting to your dashboard...
                     </p>
-                    <div className="flex items-center justify-center gap-2 text-blue-600">
+                    <div className="flex items-center justify-center gap-2 text-teal-700 font-bold">
                         <Loader2 className="w-5 h-5 animate-spin" />
                         <span>Redirecting...</span>
                     </div>
@@ -256,173 +250,209 @@ export default function StudentSignupPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-blue-50 py-8 px-4">
-            <div className="max-w-2xl mx-auto">
-                {/* Back Link */}
-                <Link
-                    href="/signup"
-                    className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-6 transition-colors"
-                >
-                    <ArrowLeft className="w-4 h-4" />
-                    Back to role selection
-                </Link>
-
-                {/* Header */}
-                <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl border border-slate-200/50 overflow-hidden">
-                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white">
-                        <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center">
-                                <GraduationCap className="w-7 h-7" />
-                            </div>
-                            <div>
-                                <h1 className="text-2xl font-bold">Student Registration</h1>
-                                <p className="text-blue-100">Step {step} of 3</p>
-                            </div>
+        <div className="min-h-screen bg-slate-100 flex items-center justify-center p-3 sm:p-6 font-sans">
+            <div className="max-w-6xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden grid lg:grid-cols-12 min-h-[640px]">
+                
+                {/* LEFT SIDEBAR: Overview & Process Steps */}
+                <div className="lg:col-span-5 bg-[#1f5961] p-6 sm:p-10 text-white flex flex-col justify-between relative overflow-hidden">
+                    {/* Background Subtle Accent */}
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+                    
+                    <div>
+                        {/* Header Branding */}
+                        <div className="flex items-center justify-between mb-8">
+                            <Link href="/signup" className="inline-flex items-center gap-2 text-teal-200 hover:text-white text-xs font-bold transition-colors">
+                                <ArrowLeft className="w-4 h-4" />
+                                <span>Role Selection</span>
+                            </Link>
+                            <span className="bg-white/10 text-teal-100 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase">
+                                Student Portal
+                            </span>
                         </div>
-                        {/* Progress Bar */}
-                        <div className="mt-6 h-2 bg-white/20 rounded-full overflow-hidden">
-                            <div
-                                className="h-full bg-white transition-all duration-500 rounded-full"
-                                style={{ width: `${(step / 3) * 100}%` }}
-                            />
+
+                        <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight leading-tight mb-8">
+                            We match you with the tutor who fits you best
+                        </h1>
+
+                        {/* Step Overview List */}
+                        <div className="space-y-6 relative before:absolute before:left-4 before:top-3 before:bottom-3 before:w-0.5 before:bg-white/20">
+                            {STEPS.map((s) => {
+                                const isActive = step === s.id;
+                                const isDone = step > s.id;
+                                return (
+                                    <div key={s.id} className="flex items-start gap-4 relative z-10">
+                                        <div 
+                                            className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0 transition-all duration-300 ${
+                                                isActive 
+                                                    ? "bg-white text-[#1f5961] shadow-lg scale-110" 
+                                                    : isDone 
+                                                        ? "bg-emerald-400 text-slate-900" 
+                                                        : "bg-white/10 text-white/70 border border-white/20"
+                                            }`}
+                                        >
+                                            {isDone ? <CheckCircle2 className="w-5 h-5" /> : s.id}
+                                        </div>
+                                        <div className="pt-1">
+                                            <h3 className={`text-sm font-bold leading-none ${isActive ? "text-white" : "text-white/80"}`}>
+                                                {s.title}
+                                            </h3>
+                                            <p className="text-xs text-teal-100/70 mt-1 font-medium">
+                                                {s.desc}
+                                            </p>
+                                        </div>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
 
-                    <div className="p-6">
-                        {/* Step 1: Basic Info */}
+                    {/* Left Bottom Testimonial Card */}
+                    <div className="mt-10 bg-white/10 border border-white/15 backdrop-blur-md rounded-2xl p-4 sm:p-5">
+                        <div className="flex text-amber-300 gap-1 mb-2">
+                            {[1, 2, 3, 4, 5].map((i) => (
+                                <Star key={i} className="w-3.5 h-3.5 fill-current" />
+                            ))}
+                        </div>
+                        <p className="text-xs text-teal-50 italic font-medium leading-relaxed mb-3">
+                            &quot;They helped me find an amazing teacher who really understands my learning needs. Totally recommend it to any student!&quot;
+                        </p>
+                        <h4 className="text-xs font-bold text-white tracking-wide">
+                            Ankit Jaisawal <span className="text-teal-200 font-normal">(Class 8th Student)</span>
+                        </h4>
+                    </div>
+                </div>
+
+                {/* RIGHT SIDE: Form Step Contents */}
+                <div className="lg:col-span-7 p-6 sm:p-10 flex flex-col justify-between">
+                    <div>
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
+                            <div>
+                                <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+                                    {step === 1 && "Account & Contact"}
+                                    {step === 2 && "Personal Details & Address"}
+                                    {step === 3 && "Subjects of Interest"}
+                                </h2>
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-1">
+                                    Step {step} of 3
+                                </p>
+                            </div>
+                            <span className="text-xs font-bold px-3 py-1 bg-slate-100 text-slate-600 rounded-full">
+                                Student Registration
+                            </span>
+                        </div>
+
+                        {/* STEP 1 */}
                         {step === 1 && (
                             <div className="space-y-4">
-                                <h2 className="text-lg font-semibold text-slate-900 mb-4">Basic Information</h2>
-
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Full Name *</label>
                                     <div className="relative">
-                                        <User className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
+                                        <User className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
                                         <input
                                             type="text"
                                             value={formData.name}
                                             onChange={(e) => updateField("name", e.target.value)}
-                                            className={`w-full pl-10 pr-4 py-3 border ${errors.name ? 'border-red-300' : 'border-slate-200'} rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-slate-50/50`}
-                                            placeholder="John Doe"
+                                            className={`w-full pl-10 pr-4 py-3 text-xs font-bold border ${errors.name ? 'border-red-400 bg-red-50/20' : 'border-slate-200'} rounded-xl focus:ring-2 focus:ring-[#1f5961]/20 focus:border-[#1f5961] outline-none bg-slate-50/50`}
+                                            placeholder="e.g. Rahul Sharma"
                                         />
                                     </div>
-                                    {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+                                    {errors.name && <p className="text-red-500 text-xs font-semibold mt-1">{errors.name}</p>}
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
-                                    <div className="flex gap-2">
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Email Address *</label>
+                                    <div className="flex flex-col sm:flex-row gap-2">
                                         <div className="relative flex-1">
-                                            <Mail className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
+                                            <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
                                             <input
                                                 type="email"
                                                 value={formData.email}
                                                 onChange={(e) => updateField("email", e.target.value)}
-                                                className={`w-full pl-10 pr-4 py-3 border ${errors.email ? 'border-red-300' : 'border-slate-200'} rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-slate-50/50`}
-                                                placeholder="john@example.com"
+                                                className={`w-full pl-10 pr-4 py-3 text-xs font-bold border ${errors.email ? 'border-red-400 bg-red-50/20' : 'border-slate-200'} rounded-xl focus:ring-2 focus:ring-[#1f5961]/20 focus:border-[#1f5961] outline-none bg-slate-50/50`}
+                                                placeholder="rahul@example.com"
                                                 disabled={isGoogleVerified}
                                             />
                                         </div>
                                         {isGoogleVerified ? (
-                                            <div className="flex items-center gap-2 px-4 py-3 bg-green-100 text-green-700 font-medium rounded-xl border border-green-200">
-                                                <CheckCircle2 className="w-5 h-5" />
+                                            <div className="flex items-center gap-1.5 px-4 py-3 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-xl border border-emerald-200">
+                                                <CheckCircle2 className="w-4 h-4 shrink-0" />
                                                 <span>Verified</span>
                                             </div>
                                         ) : (
                                             <button
                                                 type="button"
                                                 onClick={verifyWithGoogle}
-                                                className="px-4 py-3 bg-white text-slate-700 font-medium rounded-xl hover:bg-slate-50 transition-colors border border-slate-200 flex items-center gap-2 shadow-sm"
+                                                className="px-4 py-3 bg-white text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-50 transition-colors border border-slate-200 flex items-center justify-center gap-2 shadow-sm shrink-0"
                                             >
                                                 <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4" />
-                                                Verify with Google
+                                                Verify Google
                                             </button>
                                         )}
                                     </div>
-                                    {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+                                    {errors.email && <p className="text-red-500 text-xs font-semibold mt-1">{errors.email}</p>}
                                 </div>
 
-                                {false && otpSent && (
-                                    <div className="animate-in fade-in slide-in-from-top-4 duration-300">
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">Enter Verification Code</label>
-                                        <input
-                                            type="text"
-                                            value={formData.otp}
-                                            onChange={(e) => updateField("otp", e.target.value)}
-                                            className={`w-full px-4 py-3 border ${errors.otp ? 'border-red-300' : 'border-slate-200'} rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-slate-50/50 tracking-widest text-center text-lg`}
-                                            placeholder="••••••"
-                                            maxLength={6}
-                                        />
-                                        {errors.otp && <p className="text-red-500 text-sm mt-1">{errors.otp}</p>}
-                                        <p className="text-xs text-slate-500 mt-2">
-                                            We sent a 6-digit code to <span className="font-medium text-slate-900">{formData.email}</span>
-                                        </p>
-                                    </div>
-                                )}
-
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">Phone Number</label>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Phone Number *</label>
                                     <div className="relative">
-                                        <Phone className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
+                                        <Phone className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
                                         <input
                                             type="tel"
                                             value={formData.phone}
                                             onChange={(e) => updateField("phone", e.target.value)}
-                                            className={`w-full pl-10 pr-4 py-3 border ${errors.phone ? 'border-red-300' : 'border-slate-200'} rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-slate-50/50`}
+                                            className={`w-full pl-10 pr-4 py-3 text-xs font-bold border ${errors.phone ? 'border-red-400 bg-red-50/20' : 'border-slate-200'} rounded-xl focus:ring-2 focus:ring-[#1f5961]/20 focus:border-[#1f5961] outline-none bg-slate-50/50`}
                                             placeholder="+91 98765 43210"
                                         />
                                     </div>
-                                    {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+                                    {errors.phone && <p className="text-red-500 text-xs font-semibold mt-1">{errors.phone}</p>}
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid sm:grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Password *</label>
                                         <input
                                             type="password"
                                             value={formData.password}
                                             onChange={(e) => updateField("password", e.target.value)}
-                                            className={`w-full px-4 py-3 border ${errors.password ? 'border-red-300' : 'border-slate-200'} rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-slate-50/50`}
+                                            className={`w-full px-4 py-3 text-xs font-bold border ${errors.password ? 'border-red-400 bg-red-50/20' : 'border-slate-200'} rounded-xl focus:ring-2 focus:ring-[#1f5961]/20 focus:border-[#1f5961] outline-none bg-slate-50/50`}
                                             placeholder="••••••••"
                                         />
-                                        {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+                                        {errors.password && <p className="text-red-500 text-xs font-semibold mt-1">{errors.password}</p>}
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">Confirm Password</label>
+                                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Confirm Password *</label>
                                         <input
                                             type="password"
                                             value={formData.confirmPassword}
                                             onChange={(e) => updateField("confirmPassword", e.target.value)}
-                                            className={`w-full px-4 py-3 border ${errors.confirmPassword ? 'border-red-300' : 'border-slate-200'} rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-slate-50/50`}
+                                            className={`w-full px-4 py-3 text-xs font-bold border ${errors.confirmPassword ? 'border-red-400 bg-red-50/20' : 'border-slate-200'} rounded-xl focus:ring-2 focus:ring-[#1f5961]/20 focus:border-[#1f5961] outline-none bg-slate-50/50`}
                                             placeholder="••••••••"
                                         />
-                                        {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>}
+                                        {errors.confirmPassword && <p className="text-red-500 text-xs font-semibold mt-1">{errors.confirmPassword}</p>}
                                     </div>
                                 </div>
                             </div>
                         )}
 
-                        {/* Step 2: Personal Details */}
+                        {/* STEP 2 */}
                         {step === 2 && (
                             <div className="space-y-4">
-                                <h2 className="text-lg font-semibold text-slate-900 mb-4">Personal Details</h2>
-
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">Date of Birth</label>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Date of Birth *</label>
                                     <div className="relative">
-                                        <Calendar className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
+                                        <Calendar className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
                                         <input
                                             type="date"
                                             value={formData.dob}
                                             onChange={(e) => updateField("dob", e.target.value)}
-                                            className={`w-full pl-10 pr-4 py-3 border ${errors.dob ? 'border-red-300' : 'border-slate-200'} rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-slate-50/50`}
+                                            className={`w-full pl-10 pr-4 py-3 text-xs font-bold border ${errors.dob ? 'border-red-400 bg-red-50/20' : 'border-slate-200'} rounded-xl focus:ring-2 focus:ring-[#1f5961]/20 focus:border-[#1f5961] outline-none bg-slate-50/50`}
                                         />
                                     </div>
-                                    {errors.dob && <p className="text-red-500 text-sm mt-1">{errors.dob}</p>}
+                                    {errors.dob && <p className="text-red-500 text-xs font-semibold mt-1">{errors.dob}</p>}
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">Address</label>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Select Location / Address *</label>
                                     <MapLocationPicker
                                         onLocationSelect={(loc) => {
                                             setFormData(prev => ({ ...prev, address: loc.address }));
@@ -430,25 +460,24 @@ export default function StudentSignupPage() {
                                         }}
                                         initialAddress={formData.address}
                                         accentColor="blue"
-                                        height="250px"
+                                        height="220px"
                                     />
-                                    {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
+                                    {errors.address && <p className="text-red-500 text-xs font-semibold mt-1">{errors.address}</p>}
                                 </div>
 
-                                {/* Profile Photo Upload */}
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">Profile Photo (Optional)</label>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Profile Photo (Optional)</label>
                                     <div className="flex items-center gap-4">
                                         <div
-                                            className="w-20 h-20 bg-slate-100 rounded-2xl flex items-center justify-center border-2 border-dashed border-slate-300 cursor-pointer hover:border-blue-400 hover:bg-blue-50/50 transition-all overflow-hidden"
+                                            className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center border-2 border-dashed border-slate-300 cursor-pointer hover:border-[#1f5961] hover:bg-slate-50 transition-all overflow-hidden shrink-0"
                                             onClick={() => profileInputRef.current?.click()}
                                         >
                                             {isUploadingProfile ? (
-                                                <Loader2 className="w-6 h-6 text-blue-500 animate-spin" />
+                                                <Loader2 className="w-5 h-5 text-[#1f5961] animate-spin" />
                                             ) : formData.profilePhoto ? (
                                                 <img src={formData.profilePhoto} alt="Profile" className="w-full h-full object-cover" />
                                             ) : (
-                                                <Camera className="w-8 h-8 text-slate-400" />
+                                                <Camera className="w-6 h-6 text-slate-400" />
                                             )}
                                         </div>
                                         <div className="flex-1">
@@ -456,7 +485,7 @@ export default function StudentSignupPage() {
                                                 type="button"
                                                 onClick={() => profileInputRef.current?.click()}
                                                 disabled={isUploadingProfile}
-                                                className="px-4 py-2.5 bg-blue-50 text-blue-700 font-medium rounded-xl hover:bg-blue-100 transition-colors border border-blue-200 disabled:opacity-50 flex items-center gap-2"
+                                                className="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-200 transition-colors border border-slate-200 disabled:opacity-50 flex items-center gap-2"
                                             >
                                                 {isUploadingProfile ? (
                                                     <>
@@ -470,7 +499,7 @@ export default function StudentSignupPage() {
                                                     </>
                                                 )}
                                             </button>
-                                            <p className="text-xs text-slate-500 mt-1.5">JPG, PNG or WebP. Max 4MB.</p>
+                                            <p className="text-[11px] text-slate-400 mt-1 font-semibold">JPG, PNG or WebP. Max 4MB.</p>
                                         </div>
                                         {formData.profilePhoto && (
                                             <button
@@ -493,15 +522,13 @@ export default function StudentSignupPage() {
                             </div>
                         )}
 
-                        {/* Step 3: Subjects */}
+                        {/* STEP 3 */}
                         {step === 3 && (
                             <div className="space-y-4">
-                                <h2 className="text-lg font-semibold text-slate-900 mb-2">Subjects of Interest</h2>
-                                <p className="text-slate-500 text-sm mb-4">Select subjects you want to learn</p>
+                                <p className="text-xs text-slate-500 font-semibold mb-2">Select the subjects you require tutoring for:</p>
+                                {errors.subjects && <p className="text-red-500 text-xs font-semibold mb-2">{errors.subjects}</p>}
 
-                                {errors.subjects && <p className="text-red-500 text-sm mb-2">{errors.subjects}</p>}
-
-                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[300px] overflow-y-auto pr-1">
                                     {SUBJECTS.map((subject) => {
                                         const isSelected = formData.subjects.includes(subject);
                                         return (
@@ -510,16 +537,16 @@ export default function StudentSignupPage() {
                                                 type="button"
                                                 onClick={() => toggleSubject(subject)}
                                                 className={`p-3 rounded-xl border-2 text-left transition-all ${isSelected
-                                                    ? "border-blue-500 bg-blue-50 text-blue-700"
-                                                    : "border-slate-200 hover:border-slate-300 text-slate-600"
+                                                    ? "border-[#1f5961] bg-[#1f5961]/10 text-[#1f5961]"
+                                                    : "border-slate-200 hover:border-slate-300 text-slate-700"
                                                     }`}
                                             >
                                                 <div className="flex items-center gap-2">
-                                                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${isSelected ? "border-blue-500 bg-blue-500" : "border-slate-300"
+                                                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${isSelected ? "border-[#1f5961] bg-[#1f5961]" : "border-slate-300"
                                                         }`}>
                                                         {isSelected && <CheckCircle2 className="w-3 h-3 text-white" />}
                                                     </div>
-                                                    <span className="text-sm font-medium">{subject}</span>
+                                                    <span className="text-xs font-bold leading-snug">{subject}</span>
                                                 </div>
                                             </button>
                                         );
@@ -527,54 +554,53 @@ export default function StudentSignupPage() {
                                 </div>
                             </div>
                         )}
+                    </div>
 
-                        {/* Navigation Buttons */}
-                        <div className="flex justify-between mt-8 pt-6 border-t border-slate-200">
-                            {step > 1 ? (
-                                <button
-                                    type="button"
-                                    onClick={prevStep}
-                                    className="flex items-center gap-2 px-6 py-3 text-slate-600 hover:text-slate-900 transition-colors"
-                                >
-                                    <ArrowLeft className="w-4 h-4" />
-                                    Previous
-                                </button>
-                            ) : (
-                                <div />
-                            )}
+                    {/* Bottom Controls */}
+                    <div className="flex items-center justify-between pt-6 mt-8 border-t border-slate-100">
+                        {step > 1 ? (
+                            <button
+                                type="button"
+                                onClick={prevStep}
+                                className="px-5 py-2.5 text-xs font-extrabold text-slate-500 hover:text-slate-900 transition-colors flex items-center gap-2"
+                            >
+                                <ArrowLeft className="w-4 h-4" />
+                                Back
+                            </button>
+                        ) : <div />}
 
-                            {step < 3 ? (
-                                <button
-                                    type="button"
-                                    onClick={nextStep}
-                                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg shadow-blue-500/30"
-                                >
-                                    Next
-                                    <ArrowRight className="w-4 h-4" />
-                                </button>
-                            ) : (
-                                <button
-                                    type="button"
-                                    onClick={handleSubmit}
-                                    disabled={loading}
-                                    className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all shadow-lg shadow-green-500/30 disabled:opacity-50"
-                                >
-                                    {loading ? (
-                                        <>
-                                            <Loader2 className="w-4 h-4 animate-spin" />
-                                            Registering...
-                                        </>
-                                    ) : (
-                                        <>
-                                            Complete Registration
-                                            <CheckCircle2 className="w-4 h-4" />
-                                        </>
-                                    )}
-                                </button>
-                            )}
-                        </div>
+                        {step < 3 ? (
+                            <button
+                                type="button"
+                                onClick={nextStep}
+                                className="px-7 py-3 bg-[#1f5961] hover:bg-[#1a4a51] text-white text-xs font-bold rounded-xl transition-all shadow-md flex items-center gap-2"
+                            >
+                                Next Step
+                                <ArrowRight className="w-4 h-4" />
+                            </button>
+                        ) : (
+                            <button
+                                type="button"
+                                onClick={handleSubmit}
+                                disabled={loading}
+                                className="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all shadow-md disabled:opacity-50 flex items-center gap-2"
+                            >
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                        Registering...
+                                    </>
+                                ) : (
+                                    <>
+                                        Complete Registration
+                                        <CheckCircle2 className="w-4 h-4" />
+                                    </>
+                                )}
+                            </button>
+                        )}
                     </div>
                 </div>
+
             </div>
         </div>
     );

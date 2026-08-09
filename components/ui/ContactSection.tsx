@@ -5,7 +5,7 @@ import ReCAPTCHA from 'react-google-recaptcha';
 import {
    Phone, Mail, MapPin, ArrowRight, MessageSquare,
    User, AtSign, Smartphone, GraduationCap, ChevronDown,
-   Loader2, CheckCircle
+   Loader2, CheckCircle, Clock, ShieldCheck
 } from 'lucide-react';
 
 const ContactSection: React.FC = () => {
@@ -64,127 +64,180 @@ const ContactSection: React.FC = () => {
    };
 
    return (
-      <section className="relative py-24 bg-slate-50 overflow-hidden font-sans" id="contact">
-         <div className="absolute top-0 right-0 w-1/2 h-full bg-amber-50 -skew-x-12 translate-x-32 z-0"></div>
-         <div className="absolute bottom-0 left-0 w-64 h-64 bg-slate-200 rounded-full blur-3xl opacity-50 z-0"></div>
+      <section className="relative py-20 bg-slate-50 overflow-hidden font-sans" id="contact">
+         {/* Background accent lines */}
+         <div className="absolute top-0 right-0 w-1/2 h-full bg-slate-100 -skew-x-12 translate-x-32 z-0"></div>
+         <div className="absolute bottom-0 left-0 w-64 h-64 bg-slate-200/50 rounded-full blur-3xl opacity-50 z-0"></div>
 
          <div className="container mx-auto px-4 md:px-8 max-w-7xl relative z-10">
-            <div className="text-center mb-16">
-               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-slate-200 shadow-sm mb-4">
-                  <MessageSquare className="w-4 h-4 text-amber-500" />
-                  <span className="text-xs font-bold text-slate-600 uppercase tracking-widest">Admissions Open</span>
+            
+            {/* Header */}
+            <div className="text-center mb-16 space-y-3">
+               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-slate-200 shadow-sm">
+                  <MessageSquare className="w-4 h-4 text-primary" />
+                  <span className="text-xs font-bold text-slate-600 uppercase tracking-widest">Connect with Us</span>
                </div>
-               <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4">
-                  Start Your Journey <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-yellow-500">
-                     With Aacharya.
-                  </span>
+               <h2 className="text-3xl md:text-5xl font-black text-slate-950 tracking-tight leading-none">
+                  Start Your Learning Journey <br />
+                  <span className="text-gradient-gold">With Aacharya Platform</span>
                </h2>
+               <p className="text-slate-500 text-xs md:text-sm font-semibold max-w-xl mx-auto">
+                  Have questions about tutor rates, demo sessions, background checks, or want to register as an expert trainer? Send us a message!
+               </p>
             </div>
 
             <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+               
                {/* --- LEFT: Contact Info --- */}
                <div className="w-full lg:w-5/12">
-                  <div className="bg-slate-900 rounded-[2.5rem] p-8 md:p-12 text-white relative overflow-hidden shadow-2xl shadow-slate-900/20 h-full flex flex-col justify-between">
-                     <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/20 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2"></div>
-                     <div className="relative z-10">
-                        <h3 className="text-2xl font-bold mb-2">Contact Information</h3>
+                  <div className="bg-slate-900 rounded-[2.5rem] p-8 md:p-12 text-white relative overflow-hidden shadow-2xl flex flex-col justify-between h-full space-y-12">
+                     <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2"></div>
+                     
+                     <div className="space-y-6 relative z-10">
+                        <h3 className="text-2xl font-black tracking-tight">Contact Information</h3>
+                        <p className="text-slate-400 text-xs font-medium leading-relaxed">
+                           Our helpdesk is operational Monday to Saturday from 9:00 AM to 7:00 PM to help match you with verified home & online tutors.
+                        </p>
+                        
                         <div className="space-y-8 mt-10">
+                           {/* Call */}
                            <div className="flex items-start gap-4">
-                              <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
-                                 <Phone className="w-5 h-5 text-amber-500" />
+                              <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 shadow-inner">
+                                 <Phone className="w-5 h-5 text-amber-400" />
                               </div>
                               <div>
-                                 <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Call Us</p>
-                                 <p className="text-lg font-medium text-white">+91 80741 03400</p>
+                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Call Support</p>
+                                 <p className="text-base font-bold text-white">+91 80741 03400</p>
                               </div>
                            </div>
+
+                           {/* Email */}
                            <div className="flex items-start gap-4">
-                              <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
-                                 <Mail className="w-5 h-5 text-amber-500" />
+                              <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 shadow-inner">
+                                 <Mail className="w-5 h-5 text-amber-400" />
                               </div>
                               <div>
-                                 <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Email Us</p>
-                                 <p className="text-lg font-medium text-white">info@aacharya.net</p>
+                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Email Team</p>
+                                 <p className="text-base font-bold text-white">aacharyateam@gmail.com</p>
+                              </div>
+                           </div>
+
+                           {/* Address */}
+                           <div className="flex items-start gap-4">
+                              <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 shadow-inner">
+                                 <MapPin className="w-5 h-5 text-amber-400" />
+                              </div>
+                              <div>
+                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Academy Address</p>
+                                 <p className="text-xs font-medium text-slate-200 leading-relaxed">
+                                    Aacharya, Opposite Indrakeeladri Apartment, Lalitha Nagar, Swathi Road, Near Sivalayam Center, Bhavanipuram, Vijayawada - 520012, Andhra Pradesh.
+                                 </p>
                               </div>
                            </div>
                         </div>
                      </div>
+
+                     {/* Extra Trust Badge */}
+                     <div className="bg-white/5 border border-white/10 p-5 rounded-2xl space-y-3 relative z-10">
+                        <div className="flex items-center gap-2 text-xs font-bold text-slate-200">
+                           <ShieldCheck className="w-4 h-4 text-emerald-400" /> Verified Safety Audit
+                        </div>
+                        <p className="text-[10px] text-slate-400 leading-relaxed font-medium">
+                           All tutors matched through Aacharya have their degrees, government IDs, and physical address audited by our team.
+                        </p>
+                     </div>
+
                   </div>
                </div>
 
                {/* --- RIGHT: The Form --- */}
                <div className="w-full lg:w-7/12">
-                  <div className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-xl shadow-slate-200/50 border border-slate-100">
+                  <div className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-xl border border-slate-100/50">
                      {status === 'success' ? (
-                        <div className="text-center py-12">
-                           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-                           <h3 className="text-2xl font-bold text-slate-900">Enquiry Sent!</h3>
-                           <p className="text-slate-500 mt-2">We will get back to you shortly.</p>
-                           <button onClick={() => setStatus('idle')} className="mt-6 text-amber-600 font-bold hover:underline">Send another enquiry</button>
+                        <div className="text-center py-12 space-y-4">
+                           <div className="w-16 h-16 bg-emerald-50 border border-emerald-100 text-emerald-500 rounded-full flex items-center justify-center mx-auto shadow-md">
+                              <CheckCircle className="w-9 h-9" />
+                           </div>
+                           <h3 className="text-2xl font-black text-slate-950 tracking-tight">Enquiry Received!</h3>
+                           <p className="text-xs text-slate-500 font-semibold max-w-sm mx-auto">
+                              Our academic coordinator will evaluate your request and contact you directly with matching tutor quotes within 2 hours.
+                           </p>
+                           <button 
+                              onClick={() => setStatus('idle')} 
+                              className="text-xs font-extrabold text-primary hover:underline block mx-auto pt-2"
+                           >
+                              Send Another Request &rarr;
+                           </button>
                         </div>
                      ) : (
-                        <form onSubmit={handleSubmit} className="space-y-6">
-                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                              <div className="space-y-2">
-                                 <label className="text-sm font-bold text-slate-700 ml-1">Parent's Name <span className="text-red-500">*</span></label>
+                        <form onSubmit={handleSubmit} className="space-y-5">
+                           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                              
+                              {/* Parent Name */}
+                              <div className="space-y-1.5">
+                                 <label className="text-xs font-bold text-slate-600 uppercase tracking-wider ml-1">Parent's Name <span className="text-red-500">*</span></label>
                                  <div className="relative">
-                                    <User className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
-                                    <input required name="parentName" value={formData.parentName} onChange={handleChange} type="text" placeholder="Enter your name" className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all font-medium text-slate-900 placeholder:text-slate-400" />
+                                    <User className="absolute left-4 top-3.5 w-4 h-4 text-slate-400" />
+                                    <input required name="parentName" value={formData.parentName} onChange={handleChange} type="text" placeholder="e.g. Rajesh Kumar" className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:bg-white transition-all text-xs font-semibold text-slate-900 placeholder:text-slate-400" />
                                  </div>
                               </div>
 
-                              <div className="space-y-2">
-                                 <label className="text-sm font-bold text-slate-700 ml-1">Student's Name <span className="text-red-500">*</span></label>
+                              {/* Student Name */}
+                              <div className="space-y-1.5">
+                                 <label className="text-xs font-bold text-slate-600 uppercase tracking-wider ml-1">Student's Name <span className="text-red-500">*</span></label>
                                  <div className="relative">
-                                    <User className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
-                                    <input required name="studentName" value={formData.studentName} onChange={handleChange} type="text" placeholder="Enter child's name" className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all font-medium text-slate-900 placeholder:text-slate-400" />
+                                    <User className="absolute left-4 top-3.5 w-4 h-4 text-slate-400" />
+                                    <input required name="studentName" value={formData.studentName} onChange={handleChange} type="text" placeholder="e.g. Rohan Kumar" className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:bg-white transition-all text-xs font-semibold text-slate-900 placeholder:text-slate-400" />
                                  </div>
                               </div>
 
-                              <div className="space-y-2">
-                                 <label className="text-sm font-bold text-slate-700 ml-1">Email Address <span className="text-red-500">*</span></label>
+                              {/* Email Address */}
+                              <div className="space-y-1.5">
+                                 <label className="text-xs font-bold text-slate-600 uppercase tracking-wider ml-1">Email Address <span className="text-red-500">*</span></label>
                                  <div className="relative">
-                                    <AtSign className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
-                                    <input required name="email" value={formData.email} onChange={handleChange} type="email" placeholder="aacharyateam@gmail.com" className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all font-medium text-slate-900 placeholder:text-slate-400" />
+                                    <AtSign className="absolute left-4 top-3.5 w-4 h-4 text-slate-400" />
+                                    <input required name="email" value={formData.email} onChange={handleChange} type="email" placeholder="e.g. parent@example.com" className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:bg-white transition-all text-xs font-semibold text-slate-900 placeholder:text-slate-400" />
                                  </div>
                               </div>
 
-                              <div className="space-y-2">
-                                 <label className="text-sm font-bold text-slate-700 ml-1">Phone Number <span className="text-red-500">*</span></label>
+                              {/* Phone Number */}
+                              <div className="space-y-1.5">
+                                 <label className="text-xs font-bold text-slate-600 uppercase tracking-wider ml-1">Phone Number <span className="text-red-500">*</span></label>
                                  <div className="relative">
-                                    <Smartphone className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
-                                    <input required name="phone" value={formData.phone} onChange={handleChange} type="tel" placeholder="+91 80741 03400" className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all font-medium text-slate-900 placeholder:text-slate-400" />
+                                    <Smartphone className="absolute left-4 top-3.5 w-4 h-4 text-slate-400" />
+                                    <input required name="phone" value={formData.phone} onChange={handleChange} type="tel" placeholder="e.g. 9876543210" className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:bg-white transition-all text-xs font-semibold text-slate-900 placeholder:text-slate-400" />
                                  </div>
                               </div>
 
-                              {/* --- NEW DROPDOWN --- */}
-                              <div className="md:col-span-2 space-y-2">
-                                 <label className="text-sm font-bold text-slate-700 ml-1">What is query about? <span className="text-red-500">*</span></label>
+                              {/* --- QUERY TYPE DROPDOWN --- */}
+                              <div className="md:col-span-2 space-y-1.5">
+                                 <label className="text-xs font-bold text-slate-600 uppercase tracking-wider ml-1">What is this query about? <span className="text-red-500">*</span></label>
                                  <div className="relative">
-                                    <GraduationCap className="absolute left-4 top-3.5 w-5 h-5 text-slate-400 pointer-events-none" />
+                                    <GraduationCap className="absolute left-4 top-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
                                     <select
                                        required
                                        name="queryType"
                                        value={formData.queryType}
                                        onChange={handleChange}
-                                       className="w-full pl-12 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all font-medium text-slate-900 appearance-none cursor-pointer"
+                                       className="w-full pl-11 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:bg-white transition-all text-xs font-semibold text-slate-950 appearance-none cursor-pointer"
                                     >
                                        <option value="" disabled>Select a category</option>
-                                       <option value="Pre School Admission">Pre School Admission</option>
-                                       <option value="Chess Class Admission">Chess Class Admission</option>
-                                       <option value="Robotics Class Admission">Robotics Class Admission</option>
-                                       <option value="Abacus Class Admission">Abacus Class Admission</option>
-                                       <option value="Tuition point Admission">Tuition point Admission</option>
-                                       <option value="Other enquiries">Other enquiries</option>
+                                       <option value="School Tuition (Class 1-12)">School Tuition (Class 1-12)</option>
+                                       <option value="Coding & AI Robotics Class">Coding & AI Robotics Class</option>
+                                       <option value="Abacus Speed Math Class">Abacus Speed Math Class</option>
+                                       <option value="Grandmaster Chess Coaching">Grandmaster Chess Coaching</option>
+                                       <option value="JEE / NEET Competitive Exam Prep">JEE / NEET Competitive Exam Prep</option>
+                                       <option value="Tutor Registration / Join Network">Tutor Registration / Join Network</option>
+                                       <option value="General Enquiries">General Enquiries</option>
                                     </select>
-                                    <ChevronDown className="absolute right-4 top-3.5 w-5 h-5 text-slate-400 pointer-events-none" />
+                                    <ChevronDown className="absolute right-4 top-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
                                  </div>
                               </div>
 
-                              <div className="md:col-span-2 space-y-2">
-                                 <label className="text-sm font-bold text-slate-700 ml-1">Message / Query</label>
-                                 <textarea name="message" value={formData.message} onChange={handleChange} rows={4} placeholder="Tell us about your requirements..." className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all font-medium text-slate-900 placeholder:text-slate-400 resize-none"></textarea>
+                              {/* Message */}
+                              <div className="md:col-span-2 space-y-1.5">
+                                 <label className="text-xs font-bold text-slate-600 uppercase tracking-wider ml-1">Message / Detail</label>
+                                 <textarea name="message" value={formData.message} onChange={handleChange} rows={4} placeholder="Mention class level, subjects, timing preferences, home or online choice..." className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:bg-white transition-all text-xs font-semibold text-slate-900 placeholder:text-slate-400 resize-none"></textarea>
                               </div>
 
                               {/* --- reCAPTCHA --- */}
@@ -195,20 +248,20 @@ const ContactSection: React.FC = () => {
                                     onChange={(token) => { setCaptchaToken(token); setCaptchaError(''); }}
                                     onExpired={() => setCaptchaToken(null)}
                                  />
-                                 {captchaError && <p className="text-red-500 text-sm font-medium mt-2">{captchaError}</p>}
+                                 {captchaError && <p className="text-red-500 text-xs font-semibold mt-2">{captchaError}</p>}
                               </div>
                            </div>
 
-                           <div className="pt-4">
+                           <div className="pt-2">
                               <button
                                  disabled={status === 'loading'}
                                  type="submit"
-                                 className="w-full md:w-auto bg-amber-500 hover:bg-amber-600 disabled:bg-slate-300 text-white font-bold py-4 px-10 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-amber-500/20 hover:-translate-y-1"
+                                 className="w-full md:w-auto bg-primary hover:bg-primary/95 disabled:bg-slate-300 text-white font-bold py-4 px-10 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary/20 hover:-translate-y-0.5 active:translate-y-0 text-xs uppercase tracking-wider"
                               >
-                                 {status === 'loading' ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Submit Enquiry'}
-                                 <ArrowRight className="w-5 h-5" />
+                                 {status === 'loading' ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Submit Inquiry'}
+                                 <ArrowRight className="w-4 h-4" />
                               </button>
-                              {status === 'error' && <p className="text-red-500 text-sm mt-2 font-medium">Something went wrong. Please try again.</p>}
+                              {status === 'error' && <p className="text-red-500 text-xs mt-2 font-semibold">Something went wrong. Please try again.</p>}
                            </div>
                         </form>
                      )}

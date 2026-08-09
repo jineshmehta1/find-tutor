@@ -60,21 +60,9 @@ const Header: React.FC = () => {
 
   const navItems: NavItem[] = [
     { name: "Home", href: "/" },
-    { name: "About Us", href: "/about" },
-    {
-      name: "Programs Offered",
-      hasDropdown: true,
-      subMenu: [
-        { name: "Pre School", href: "/pre-school" },
-        { name: "Chess Coaching", href: "/chess-academy" },
-        { name: "Abacus Training", href: "/abacus-training" },
-        { name: "Robotics, AI & IOT", href: "/robotics-center" },
-        { name: "Tuition Point", href: "/tuition-center" },
-      ],
-    },
-    { name: "Gallery", href: "/gallery" },
     { name: "Find Tutor", href: "/find-tutor-nearby" },
-    { name: "Events", href: "/events" },
+    { name: "Reviews", href: "/reviews" },
+    { name: "About Us", href: "/about" },
     { name: "Contact", href: "/contact" },
   ];
 
@@ -83,8 +71,8 @@ const Header: React.FC = () => {
       <header
         className={`w-full transition-all duration-300 ${
           scrolled
-            ? "fixed top-0 bg-white shadow-md py-3"
-            : "relative bg-white py-4 md:py-6"
+            ? "fixed top-0 glass-header shadow-sm py-2.5"
+            : "relative bg-white/40 backdrop-blur-md py-2.5 md:py-3.5 border-b border-slate-100/50"
         }`}
       >
         <div className="max-w-[1400px] mx-auto px-4 md:px-8 flex items-center justify-between">
@@ -111,14 +99,14 @@ const Header: React.FC = () => {
             {navItems.map((item) => (
               <div key={item.name} className="relative group">
                 {item.hasDropdown ? (
-                  <button className="flex items-center gap-1 text-[15px] font-semibold text-slate-700 hover:text-yellow-600 transition-colors">
+                  <button className="flex items-center gap-1 text-[15px] font-semibold text-slate-700 hover:text-primary transition-colors">
                     {item.name}
                     <ChevronDown className="w-4 h-4" />
                   </button>
                 ) : (
                   <a
                     href={item.href}
-                    className="text-[15px] font-semibold text-slate-700 hover:text-yellow-600 transition-colors"
+                    className="text-[15px] font-bold text-slate-700 hover:text-primary transition-all duration-200 nav-link-hover py-1"
                   >
                     {item.name}
                   </a>
@@ -127,12 +115,12 @@ const Header: React.FC = () => {
                 {/* Dropdown Menu */}
                 {item.hasDropdown && (
                   <div className="absolute top-full left-0 pt-4 w-56 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                    <div className="bg-white rounded-lg shadow-xl border border-slate-100 overflow-hidden">
+                    <div className="bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden">
                       {item.subMenu?.map((sub) => (
                         <a
                           key={sub.name}
                           href={sub.href}
-                          className="block px-5 py-3 text-sm font-medium text-slate-600 hover:text-yellow-700 hover:bg-yellow-50 transition-colors"
+                          className="block px-5 py-3 text-sm font-medium text-slate-600 hover:text-primary hover:bg-slate-50 transition-colors"
                         >
                           {sub.name}
                         </a>
@@ -150,23 +138,23 @@ const Header: React.FC = () => {
               {session ? (
                 <button
                   onClick={() => signOut({ callbackUrl: "/" })}
-                  className="px-5 py-2.5 text-sm font-bold text-red-600 border border-red-100 rounded-lg hover:bg-red-50 transition-all"
+                  className="px-5 py-2.5 text-sm font-bold text-red-600 border border-red-100 rounded-xl hover:bg-red-50 transition-all"
                 >
                   Logout
                 </button>
               ) : (
                 <a
                   href="/signup"
-                  className="px-6 py-2.5 text-[15px] font-bold text-slate-700 border border-slate-200 rounded-lg hover:border-slate-400 transition-all"
+                  className="px-6 py-2.5 text-[15px] font-bold text-slate-700 border border-slate-200 rounded-xl hover:bg-slate-50 transition-all shadow-sm"
                 >
                   Sign Up
                 </a>
               )}
               <a
-                href="/bookdemo"
-                className="px-7 py-2.5 text-[15px] font-bold text-slate-900 bg-[#ffcc00] hover:bg-[#ffdb4d] rounded-lg shadow-sm transition-all"
+                href="/request-tutor"
+                className="px-7 py-2.5 text-[15px] font-bold text-white bg-primary hover:bg-primary/95 rounded-xl shadow-md shadow-primary/10 transition-all hover:scale-102"
               >
-                Enroll Now
+                Request a Tutor
               </a>
             </div>
 
@@ -203,18 +191,18 @@ const Header: React.FC = () => {
                       className="flex items-center justify-between w-full text-left font-semibold text-slate-700 py-2"
                     >
                       {item.name}
-                      <ChevronDown className={`w-5 h-5 transition-transform ${mobileSubMenuOpen === item.name ? "rotate-180 text-yellow-600" : ""}`} />
+                      <ChevronDown className={`w-5 h-5 transition-transform ${mobileSubMenuOpen === item.name ? "rotate-180 text-primary" : ""}`} />
                     </button>
                     <div className={`pl-4 overflow-hidden transition-all duration-300 ${mobileSubMenuOpen === item.name ? "max-h-60 mt-2" : "max-h-0"}`}>
                       {item.subMenu?.map((sub) => (
-                        <a key={sub.name} href={sub.href} className="block py-2.5 text-sm font-medium text-slate-500 hover:text-yellow-600">
+                        <a key={sub.name} href={sub.href} className="block py-2.5 text-sm font-medium text-slate-500 hover:text-primary">
                           {sub.name}
                         </a>
                       ))}
                     </div>
                   </>
                 ) : (
-                  <a href={item.href} className="block py-2 font-semibold text-slate-700 hover:text-yellow-600">
+                  <a href={item.href} className="block py-2 font-semibold text-slate-700 hover:text-primary">
                     {item.name}
                   </a>
                 )}
@@ -223,11 +211,11 @@ const Header: React.FC = () => {
           </div>
 
           <div className="p-5 border-t border-slate-100 bg-slate-50 gap-3 flex flex-col">
-            <a href="/signup" className="w-full py-3 text-center text-slate-700 font-bold border border-slate-300 rounded-xl">
+            <a href="/signup" className="w-full py-3 text-center text-slate-700 font-bold border border-slate-200 rounded-xl bg-white shadow-sm">
               Sign Up
             </a>
-            <a href="/bookdemo" className="w-full py-3 text-center text-slate-900 bg-[#ffcc00] font-bold rounded-xl shadow-md">
-              Enroll Now
+            <a href="/request-tutor" className="w-full py-3 text-center text-white bg-primary font-bold rounded-xl shadow-md">
+              Request a Tutor
             </a>
           </div>
         </div>

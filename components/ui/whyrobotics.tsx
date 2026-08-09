@@ -109,7 +109,7 @@ export default function WhyChooseRoboticsSection() {
   );
 }
 
-function BenefitCard({ benefit, colors }) {
+function BenefitCard({ benefit, colors }: { benefit: any; colors: any }) {
   return (
     <div
       className={`

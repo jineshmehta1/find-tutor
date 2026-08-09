@@ -6,49 +6,78 @@ import { prisma } from "@/lib/prisma";
 export async function POST(request: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
-
-        if (!session?.user) {
-            return NextResponse.json(
-                { error: "Unauthorized" },
-                { status: 401 }
-            );
-        }
-
-        // Only students can create leads
-        if (session.user.role !== "STUDENT") {
-            return NextResponse.json(
-                { error: "Only students can contact teachers" },
-                { status: 403 }
-            );
-        }
-
         const body = await request.json();
-        const { message, location, latitude, longitude, subject, classLevel, mode } = body;
+        const { message, location, latitude, longitude, subject, classLevel, mode, teacherId, name, email, phone } = body;
 
-        // Get the student record
-        const student = await prisma.student.findFirst({
-            where: {
-                user: {
-                    email: session.user.email,
+        let studentId = "";
+
+        if (session?.user) {
+            const student = await prisma.student.findFirst({
+                where: {
+                    user: {
+                        email: session.user.email,
+                    },
                 },
-            },
-        });
+            });
+            if (student) {
+                studentId = student.id;
+            }
+        }
 
-        if (!student) {
+        if (!studentId) {
+            const targetEmail = email || session?.user?.email || `anonymous_${Date.now()}@aacharya.net`;
+            let student = await prisma.student.findFirst({
+                where: {
+                    user: {
+                        email: targetEmail
+                    }
+                }
+            });
+
+            if (!student) {
+                const randomPassword = Math.random().toString(36).slice(-8);
+                const passwordHash = await require("bcryptjs").hash(randomPassword, 10);
+                const newUser = await prisma.user.create({
+                    data: {
+                        name: name || "Anonymous Student",
+                        email: targetEmail,
+                        phone: phone || "0000000000",
+                        password: passwordHash,
+                        role: "STUDENT",
+                        dob: new Date(),
+                        address: location || "Vijayawada",
+                        student: {
+                            create: {
+                                subjects: JSON.stringify([subject || "General"])
+                            }
+                        }
+                    },
+                    include: {
+                        student: true
+                    }
+                });
+                student = newUser.student as any;
+            }
+            if (student) {
+                studentId = student.id;
+            }
+        }
+
+        if (!studentId) {
             return NextResponse.json(
-                { error: "Student profile not found" },
-                { status: 404 }
+                { error: "Could not create student profile" },
+                { status: 500 }
             );
         }
 
-        // Create broadcast lead (visible to all teachers)
         const lead = await prisma.lead.create({
             data: {
-                studentId: student.id,
+                studentId: studentId,
+                teacherId: teacherId || null,
                 message: message || null,
                 location: location || null,
-                latitude: latitude || null,
-                longitude: longitude || null,
+                latitude: latitude ? parseFloat(latitude.toString()) : null,
+                longitude: longitude ? parseFloat(longitude.toString()) : null,
                 subject: subject || null,
                 classLevel: classLevel || null,
                 mode: mode || null,
@@ -204,9 +233,16 @@ export async function PATCH(request: NextRequest) {
             );
         }
 
+        const teacher = await prisma.teacher.findFirst({
+            where: { user: { email: session.user.email } }
+        });
+
         const lead = await prisma.lead.update({
             where: { id: leadId },
-            data: { status },
+            data: { 
+                status,
+                teacherId: teacher?.id
+            },
         });
 
         return NextResponse.json({

@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import {
     User, Mail, Phone, Calendar, MapPin, BookOpen,
     Loader2, Save, Camera, CheckCircle2, GraduationCap, Briefcase, Award, Plus, X,
-    Upload, ImageIcon
+    Upload, ImageIcon, Sparkles
 } from "lucide-react";
 import { toast } from "sonner";
 import MapLocationPicker from "@/components/ui/DynamicMapPicker";
@@ -16,8 +16,10 @@ const SUBJECTS = [
     "Accountancy", "Business Studies", "Political Science", "Psychology",
     "Sociology", "Sanskrit", "French", "German", "Music", "Art"
 ];
+
 const CLOUDINARY_CLOUD_NAME = "dx2o9yq2t";
-const CLOUDINARY_UPLOAD_PRESET = "gallery"; // or create "profiles"
+const CLOUDINARY_UPLOAD_PRESET = "gallery";
+
 interface Certification {
     text: string;
     image?: string;
@@ -86,7 +88,6 @@ export default function TeacherProfilePage() {
             const data = await res.json();
             setProfile(data);
 
-            // Parse certifications — handle both old string[] and new {text, image}[] formats
             let parsedCerts: Certification[] = [];
             if (data.teacher?.certifications) {
                 try {
@@ -126,149 +127,60 @@ export default function TeacherProfilePage() {
         }
     };
 
-    const updateField = (field: string, value: string) => {
+    const updateField = (field: string, value: any) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
-
-
-    // Handle profile photo upload
-    const handleProfilePhotoUpload = async (
-        e: React.ChangeEvent<HTMLInputElement>
-    ) => {
+    const handleProfilePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-
-        if (!file.type.startsWith("image/")) {
-            toast.error("Please select an image file");
-            return;
-        }
-
-        if (file.size > 4 * 1024 * 1024) {
-            toast.error("Image must be less than 4MB");
-            return;
-        }
-
         setIsUploadingProfile(true);
-
         try {
             const form = new FormData();
             form.append("file", file);
             form.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
             form.append("folder", "profiles");
-
-            const res = await fetch(
-                `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-                {
-                    method: "POST",
-                    body: form,
-                }
-            );
-
-            if (!res.ok) throw new Error("Upload failed");
-
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: form });
+            if (!res.ok) throw new Error();
             const data = await res.json();
-
-            setFormData((prev) => ({
-                ...prev,
-                profilePhoto: data.secure_url,
-            }));
-
+            setFormData(prev => ({ ...prev, profilePhoto: data.secure_url }));
             toast.success("Profile photo uploaded!");
-        } catch {
-            toast.error("Upload failed. Please try again.");
-        } finally {
-            setIsUploadingProfile(false);
-        }
+        } catch { toast.error("Upload failed."); } finally { setIsUploadingProfile(false); }
     };
 
-    // Handle certification image upload
-    const handleCertImageUpload = async (
-        e: React.ChangeEvent<HTMLInputElement>
-    ) => {
+    const handleCertImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-
-        if (!file.type.startsWith("image/")) {
-            toast.error("Please select an image file");
-            return;
-        }
-
-        if (file.size > 4 * 1024 * 1024) {
-            toast.error("Image must be less than 4MB");
-            return;
-        }
-
         setIsUploadingCertImage(true);
-
-        // Show local preview immediately
         const reader = new FileReader();
-        reader.onload = (ev) =>
-            setCertImagePreview(ev.target?.result as string);
+        reader.onload = (ev) => setCertImagePreview(ev.target?.result as string);
         reader.readAsDataURL(file);
-
         try {
             const form = new FormData();
             form.append("file", file);
             form.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
             form.append("folder", "certificates");
-
-            const res = await fetch(
-                `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-                {
-                    method: "POST",
-                    body: form,
-                }
-            );
-
-            if (!res.ok) throw new Error("Upload failed");
-
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: form });
+            if (!res.ok) throw new Error();
             const data = await res.json();
-
             setPendingCertImage(data.secure_url);
             toast.success("Certificate image uploaded!");
-        } catch {
-            toast.error("Upload failed. Please try again.");
-            setCertImagePreview(null);
-        } finally {
-            setIsUploadingCertImage(false);
-        }
+        } catch { toast.error("Upload failed."); setCertImagePreview(null); } finally { setIsUploadingCertImage(false); }
     };
 
     const addCertification = () => {
         if (certInput.trim()) {
-            const newCert: Certification = {
-                text: certInput.trim(),
-                image: pendingCertImage || undefined,
-            };
+            const newCert: Certification = { text: certInput.trim(), image: pendingCertImage || undefined };
             if (!formData.certifications.some((c) => c.text === newCert.text)) {
-                setFormData((prev) => ({
-                    ...prev,
-                    certifications: [...prev.certifications, newCert],
-                }));
+                setFormData(prev => ({ ...prev, certifications: [...prev.certifications, newCert] }));
             }
-            setCertInput("");
-            setPendingCertImage("");
-            setCertImagePreview(null);
+            setCertInput(""); setPendingCertImage(""); setCertImagePreview(null);
             if (certImageInputRef.current) certImageInputRef.current.value = "";
         }
     };
 
-    const removeCertification = (text: string) => {
-        setFormData((prev) => ({
-            ...prev,
-            certifications: prev.certifications.filter((c) => c.text !== text),
-        }));
-    };
-
-    const toggleSubject = (subject: string) => {
-        setFormData((prev) => ({
-            ...prev,
-            subjects: prev.subjects.includes(subject)
-                ? prev.subjects.filter((s) => s !== subject)
-                : [...prev.subjects, subject],
-        }));
-    };
+    const removeCertification = (text: string) => setFormData(prev => ({ ...prev, certifications: prev.certifications.filter(c => c.text !== text) }));
+    const toggleSubject = (subject: string) => setFormData(prev => ({ ...prev, subjects: prev.subjects.includes(subject) ? prev.subjects.filter(s => s !== subject) : [...prev.subjects, subject] }));
 
     const handleSave = async () => {
         setSaving(true);
@@ -278,384 +190,238 @@ export default function TeacherProfilePage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData),
             });
-
-            if (!res.ok) throw new Error("Failed to save");
-
+            if (!res.ok) throw new Error();
             toast.success("Profile updated successfully!");
-            await fetchProfile();
-        } catch (error) {
-            toast.error("Failed to save profile");
-        } finally {
-            setSaving(false);
-        }
+            fetchProfile();
+        } catch { toast.error("Failed to update profile"); } finally { setSaving(false); }
     };
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-[60vh]">
-                <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />
+            <div className="flex items-center justify-center py-20">
+                <Loader2 className="w-8 h-8 text-[#1f5961] animate-spin" />
             </div>
         );
     }
 
     return (
-        <div className="space-y-6 max-w-3xl">
-            {/* Header */}
-            <div>
-                <h1 className="text-3xl font-bold text-slate-900">My Profile</h1>
-                <p className="text-slate-500 mt-1">Manage your teacher profile</p>
+        <div className="space-y-8 font-sans pb-12 max-w-4xl mx-auto">
+            {/* Header Banner */}
+            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+                <div className="relative z-10 space-y-2">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                        <span>Teacher Credentials</span>
+                    </div>
+                    <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Instructor Profile & Qualifications</h1>
+                    <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                        Manage your teaching qualifications, certifications, subject selection, center map pin, and achievements.
+                    </p>
+                </div>
             </div>
 
-            {/* Profile Card */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                {/* Profile Header */}
-                <div className="bg-gradient-to-r from-slate-800 to-slate-900 p-8 text-white">
-                    <div className="flex items-center gap-6">
-                        <div className="relative">
-                            <div
-                                className="w-24 h-24 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center overflow-hidden cursor-pointer hover:bg-white/30 transition-colors"
-                                onClick={() => profileInputRef.current?.click()}
-                            >
-                                {isUploadingProfile ? (
-                                    <Loader2 className="w-8 h-8 text-white animate-spin" />
-                                ) : formData.profilePhoto ? (
-                                    <img src={formData.profilePhoto} alt="Profile" className="w-full h-full object-cover" />
-                                ) : (
-                                    <User className="w-12 h-12 text-white" />
-                                )}
-                            </div>
-                            {profile?.teacher?.isApproved ? (
-                                <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center border-4 border-white">
-                                    <CheckCircle2 className="w-5 h-5 text-white" />
-                                </div>
-                            ) : null}
-                            {/* Camera overlay */}
-                            <button
-                                type="button"
-                                onClick={() => profileInputRef.current?.click()}
-                                disabled={isUploadingProfile}
-                                className="absolute -bottom-1 -left-1 w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center border-2 border-white hover:bg-amber-600 transition-colors disabled:opacity-50"
-                            >
-                                <Camera className="w-4 h-4 text-white" />
-                            </button>
-                        </div>
-                        <div>
-                            <h2 className="text-2xl font-bold">{formData.name || "Your Name"}</h2>
-                            <p className="text-slate-300 flex items-center gap-2 mt-1">
-                                <Mail className="w-4 h-4" />
-                                {profile?.email}
-                            </p>
-                            <span className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium ${profile?.teacher?.isApproved
-                                ? "bg-green-500/20 text-green-300"
-                                : "bg-amber-500/20 text-amber-300"
-                                }`}>
-                                {profile?.teacher?.isApproved ? "Approved" : "Pending Approval"}
-                            </span>
-                        </div>
-                    </div>
-                    <input
-                        ref={profileInputRef}
-                        type="file"
-                        accept="image/*"
-                        onChange={handleProfilePhotoUpload}
-                        className="hidden"
-                    />
-                </div>
-
-                {/* Profile Form */}
-                <div className="p-8 space-y-6">
-                    {/* Basic Info */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
-                            <div className="relative">
-                                <User className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
-                                <input
-                                    type="text"
-                                    value={formData.name}
-                                    onChange={(e) => updateField("name", e.target.value)}
-                                    className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none"
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Phone Number</label>
-                            <div className="relative">
-                                <Phone className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
-                                <input
-                                    type="tel"
-                                    value={formData.phone}
-                                    onChange={(e) => updateField("phone", e.target.value)}
-                                    className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none"
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Profile Photo Upload */}
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Profile Photo</label>
-                        <div className="flex items-center gap-4">
-                            <div
-                                className="w-16 h-16 bg-slate-100 rounded-xl flex items-center justify-center border-2 border-dashed border-slate-300 cursor-pointer hover:border-amber-400 hover:bg-amber-50/50 transition-all overflow-hidden"
-                                onClick={() => profileInputRef.current?.click()}
-                            >
-                                {isUploadingProfile ? (
-                                    <Loader2 className="w-5 h-5 text-amber-500 animate-spin" />
-                                ) : formData.profilePhoto ? (
-                                    <img src={formData.profilePhoto} alt="Profile" className="w-full h-full object-cover" />
-                                ) : (
-                                    <Camera className="w-6 h-6 text-slate-400" />
-                                )}
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => profileInputRef.current?.click()}
-                                disabled={isUploadingProfile}
-                                className="px-4 py-2.5 bg-amber-50 text-amber-700 font-medium rounded-xl hover:bg-amber-100 transition-colors border border-amber-200 disabled:opacity-50 flex items-center gap-2 text-sm"
-                            >
-                                {isUploadingProfile ? (
-                                    <><Loader2 className="w-4 h-4 animate-spin" /> Uploading...</>
-                                ) : (
-                                    <><Upload className="w-4 h-4" /> {formData.profilePhoto ? "Change Photo" : "Upload Photo"}</>
-                                )}
-                            </button>
-                            {formData.profilePhoto && (
-                                <button
-                                    type="button"
-                                    onClick={() => setFormData((prev) => ({ ...prev, profilePhoto: "" }))}
-                                    className="p-2 text-slate-400 hover:text-red-500 transition-colors"
-                                >
-                                    <X className="w-4 h-4" />
-                                </button>
+            {/* Profile Form Card */}
+            <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200/80 space-y-6">
+                {/* Avatar Section */}
+                <div className="flex flex-col sm:flex-row items-center gap-6 border-b border-slate-100 pb-6">
+                    <div className="relative group">
+                        <div className="w-24 h-24 rounded-3xl bg-teal-50 border-2 border-teal-200 flex items-center justify-center overflow-hidden shadow-md">
+                            {formData.profilePhoto ? (
+                                <img src={formData.profilePhoto} alt="Profile" className="w-full h-full object-cover" />
+                            ) : (
+                                <User className="w-10 h-10 text-[#1f5961]" />
                             )}
                         </div>
+                        <button
+                            type="button"
+                            onClick={() => profileInputRef.current?.click()}
+                            disabled={isUploadingProfile}
+                            className="absolute -bottom-2 -right-2 p-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-2xl shadow-lg transition-transform hover:scale-105"
+                        >
+                            {isUploadingProfile ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4 stroke-[3]" />}
+                        </button>
+                        <input ref={profileInputRef} type="file" accept="image/*" onChange={handleProfilePhotoUpload} className="hidden" />
+                    </div>
+                    <div className="text-center sm:text-left space-y-1">
+                        <h2 className="text-lg font-black text-slate-900">{formData.name || "Instructor"}</h2>
+                        <p className="text-xs font-bold text-slate-400">{profile?.email}</p>
+                        <span className="inline-block px-3 py-1 bg-teal-50 text-[#1f5961] border border-teal-200/60 rounded-full text-[10px] font-black uppercase tracking-wider mt-1">
+                            Verified Instructor Profile
+                        </span>
+                    </div>
+                </div>
+
+                {/* Basic Details */}
+                <div className="space-y-4">
+                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">1. Basic Information</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Full Name</label>
+                            <input type="text" value={formData.name} onChange={(e) => updateField("name", e.target.value)} className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#1f5961] outline-none" />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Phone Number</label>
+                            <input type="tel" value={formData.phone} onChange={(e) => updateField("phone", e.target.value)} className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#1f5961] outline-none" />
+                        </div>
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Address</label>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">📍 Center / Home Location (Map Pin)</label>
                         <MapLocationPicker
-                            onLocationSelect={(loc) => {
-                                setFormData(prev => ({ ...prev, address: loc.address }));
-                            }}
+                            onLocationSelect={(loc) => updateField("address", loc.address)}
                             initialAddress={formData.address}
-                            accentColor="amber"
-                            height="250px"
+                            accentColor="blue"
+                            height="180px"
+                            compact={true}
                         />
                     </div>
+                </div>
 
-                    {/* Qualifications */}
-                    <div className="border-t border-slate-200 pt-6">
-                        <h3 className="text-lg font-bold text-slate-900 mb-4">Qualifications</h3>
+                {/* Education & Experience */}
+                <div className="space-y-4 pt-4 border-t border-slate-100">
+                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">2. Education & Experience</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Highest Qualification</label>
+                            <input type="text" value={formData.education} onChange={(e) => updateField("education", e.target.value)} className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#1f5961] outline-none" placeholder="M.Sc Physics / B.Tech" />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Experience Years</label>
+                            <input type="text" value={formData.experience} onChange={(e) => updateField("experience", e.target.value)} className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#1f5961] outline-none" placeholder="5 Years Experience" />
+                        </div>
+                    </div>
 
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">
-                                    <GraduationCap className="w-4 h-4 inline mr-1" />
-                                    Education
-                                </label>
-                                <input
-                                    type="text"
-                                    value={formData.education}
-                                    onChange={(e) => updateField("education", e.target.value)}
-                                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none"
-                                    placeholder="e.g., M.Sc. Mathematics, B.Ed."
-                                />
-                            </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Qualification Level</label>
+                            <select
+                                value={formData.qualificationLevel}
+                                onChange={(e) => updateField("qualificationLevel", e.target.value)}
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#1f5961] outline-none bg-slate-50/50 cursor-pointer"
+                            >
+                                <option value="">Select Level</option>
+                                <option value="Degree">Degree</option>
+                                <option value="PG">PG</option>
+                                <option value="M.Phil">M.Phil</option>
+                                <option value="PhD">PhD</option>
+                                <option value="PostDoc">PostDoc</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Qualification Name</label>
+                            <input type="text" value={formData.qualificationName} onChange={(e) => updateField("qualificationName", e.target.value)} className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#1f5961] outline-none" placeholder="e.g. BSc, B.Tech, MSc" />
+                        </div>
+                    </div>
+                </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">
-                                    <Briefcase className="w-4 h-4 inline mr-1" />
-                                    Experience
-                                </label>
-                                <input
-                                    type="text"
-                                    value={formData.experience}
-                                    onChange={(e) => updateField("experience", e.target.value)}
-                                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none"
-                                    placeholder="e.g., 5 years teaching in schools"
-                                />
-                            </div>
+                {/* Certifications Uploader */}
+                <div className="space-y-4 pt-4 border-t border-slate-100">
+                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">3. Certifications & Proof Documents</h3>
+                    <div className="space-y-3">
+                        <div className="flex flex-col sm:flex-row gap-2">
+                            <input
+                                type="text"
+                                value={certInput}
+                                onChange={(e) => setCertInput(e.target.value)}
+                                className="flex-1 px-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#1f5961] outline-none"
+                                placeholder="Certificate Title (e.g. B.Ed Certified, CBSE Board Evaluator)"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => certImageInputRef.current?.click()}
+                                disabled={isUploadingCertImage}
+                                className="px-4 py-3 bg-teal-50 border border-teal-200/80 text-[#1f5961] font-bold rounded-xl text-xs flex items-center justify-center gap-2 hover:bg-teal-100 transition-colors"
+                            >
+                                {isUploadingCertImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                                <span>{pendingCertImage ? "Photo Attached ✓" : "Upload Photo"}</span>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={addCertification}
+                                className="px-5 py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shrink-0 shadow-md"
+                            >
+                                Add Certificate
+                            </button>
+                        </div>
+                        <input ref={certImageInputRef} type="file" accept="image/*" onChange={handleCertImageUpload} className="hidden" />
 
-                            {/* Certifications with Image Support */}
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">
-                                    <Award className="w-4 h-4 inline mr-1" />
-                                    Certifications
-                                </label>
-                                <div className="space-y-3 mb-3">
-                                    <div className="flex gap-2">
-                                        <input
-                                            type="text"
-                                            value={certInput}
-                                            onChange={(e) => setCertInput(e.target.value)}
-                                            onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addCertification())}
-                                            className="flex-1 px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none"
-                                            placeholder="Add a certification"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => certImageInputRef.current?.click()}
-                                            disabled={isUploadingCertImage}
-                                            className="px-3 py-3 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-colors border border-slate-200 disabled:opacity-50"
-                                            title="Attach certificate image"
-                                        >
-                                            {isUploadingCertImage ? (
-                                                <Loader2 className="w-5 h-5 animate-spin" />
-                                            ) : (
-                                                <ImageIcon className="w-5 h-5" />
+                        {formData.certifications.length > 0 && (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
+                                {formData.certifications.map((cert) => (
+                                    <div key={cert.text} className="flex items-center justify-between p-3 bg-slate-50 border border-slate-200/80 rounded-2xl">
+                                        <div className="flex items-center gap-3 min-w-0">
+                                            {cert.image && (
+                                                <img src={cert.image} alt={cert.text} className="w-10 h-10 rounded-xl object-cover border border-slate-200 shrink-0" />
                                             )}
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={addCertification}
-                                            disabled={!certInput.trim()}
-                                            className="px-4 py-3 bg-amber-500 text-white rounded-xl hover:bg-amber-600 transition-colors disabled:opacity-50"
-                                        >
-                                            <Plus className="w-5 h-5" />
+                                            <span className="text-xs font-bold text-slate-800 truncate">{cert.text}</span>
+                                        </div>
+                                        <button type="button" onClick={() => removeCertification(cert.text)} className="p-1 text-slate-400 hover:text-rose-600 transition-colors">
+                                            <X className="w-4 h-4" />
                                         </button>
                                     </div>
-
-                                    {/* Certificate image preview (pending) */}
-                                    {certImagePreview && (
-                                        <div className="flex items-center gap-2 p-2 bg-amber-50 rounded-xl border border-amber-200">
-                                            <img src={certImagePreview} alt="Certificate" className="w-12 h-12 rounded-lg object-cover" />
-                                            <span className="text-xs text-amber-700 flex-1">Certificate image attached</span>
-                                            <button
-                                                type="button"
-                                                onClick={() => {
-                                                    setCertImagePreview(null);
-                                                    setPendingCertImage("");
-                                                    if (certImageInputRef.current) certImageInputRef.current.value = "";
-                                                }}
-                                                className="p-1 text-amber-500 hover:text-red-500 transition-colors"
-                                            >
-                                                <X className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    )}
-
-                                    <input
-                                        ref={certImageInputRef}
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleCertImageUpload}
-                                        className="hidden"
-                                    />
-                                </div>
-
-                                {/* Added certifications list */}
-                                <div className="space-y-2">
-                                    {formData.certifications.map((cert) => (
-                                        <div
-                                            key={cert.text}
-                                            className="flex items-center gap-3 p-3 bg-amber-50 border border-amber-200 rounded-xl"
-                                        >
-                                            {cert.image && (
-                                                <img src={cert.image} alt={cert.text} className="w-10 h-10 rounded-lg object-cover border border-amber-300" />
-                                            )}
-                                            <span className="flex-1 text-sm font-medium text-amber-800">{cert.text}</span>
-                                            <button type="button" onClick={() => removeCertification(cert.text)} className="p-1 text-amber-500 hover:text-red-500 transition-colors">
-                                                <X className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    ))}
-                                </div>
+                                ))}
                             </div>
-                        </div>
+                        )}
                     </div>
+                </div>
 
-                    {/* Subjects */}
-                    <div className="border-t border-slate-200 pt-6">
-                        <label className="block text-sm font-medium text-slate-700 mb-3">
-                            <BookOpen className="w-4 h-4 inline mr-2" />
-                            Subjects You Teach
-                        </label>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                            {SUBJECTS.map((subject) => {
-                                const isSelected = formData.subjects.includes(subject);
-                                return (
-                                    <button
-                                        key={subject}
-                                        type="button"
-                                        onClick={() => toggleSubject(subject)}
-                                        className={`p-3 rounded-xl border-2 text-left transition-all ${isSelected
-                                            ? "border-amber-500 bg-amber-50 text-amber-700"
-                                            : "border-slate-200 hover:border-slate-300 text-slate-600"
-                                            }`}
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${isSelected ? "border-amber-500 bg-amber-500" : "border-slate-300"
-                                                }`}>
-                                                {isSelected && <CheckCircle2 className="w-3 h-3 text-white" />}
-                                            </div>
-                                            <span className="text-sm font-medium">{subject}</span>
-                                        </div>
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </div>
-
-                    {/* Teaching Mode & Qualification */}
-                    <div className="border-t border-slate-200 pt-6 space-y-4">
-                        <label className="block text-sm font-medium text-slate-700 mb-1">
-                            Teaching Mode
-                        </label>
-                        <select
-                            value={formData.teachingMode}
-                            onChange={(e) => updateField("teachingMode", e.target.value)}
-                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-slate-50/50 appearance-none"
-                        >
-                            <option value="">Select Mode</option>
-                            <option value="Home Tutor">Home Tutor</option>
-                            <option value="Online Tutor">Online Tutor</option>
-                            <option value="At Centre">At Centre</option>
-                        </select>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Qualification Level</label>
-                                <select
-                                    value={formData.qualificationLevel}
-                                    onChange={(e) => updateField("qualificationLevel", e.target.value)}
-                                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-slate-50/50 appearance-none"
+                {/* Subjects Offered */}
+                <div className="space-y-4 pt-4 border-t border-slate-100">
+                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">4. Teaching Subjects</h3>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {SUBJECTS.map((sub) => {
+                            const isSel = formData.subjects.includes(sub);
+                            return (
+                                <button
+                                    key={sub}
+                                    type="button"
+                                    onClick={() => toggleSubject(sub)}
+                                    className={`p-3 rounded-xl border text-xs font-bold text-left transition-all flex items-center justify-between ${isSel ? "border-[#1f5961] bg-teal-50 text-[#1f5961]" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}
                                 >
-                                    <option value="">Select Level</option>
-                                    <option value="Degree">Degree</option>
-                                    <option value="PG">PG</option>
-                                    <option value="M.Phil">M.Phil</option>
-                                    <option value="PhD">PhD</option>
-                                    <option value="PostDoc">PostDoc</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Qualification Name</label>
-                                <input
-                                    value={formData.qualificationName}
-                                    onChange={(e) => updateField("qualificationName", e.target.value)}
-                                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-slate-50/50"
-                                    placeholder="e.g., BSc, B.Tech, MSc..."
-                                />
-                            </div>
-                        </div>
+                                    <span>{sub}</span>
+                                    {isSel && <CheckCircle2 className="w-4 h-4 text-[#1f5961]" />}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
 
+                {/* Teaching Mode, Classes & Achievements */}
+                <div className="space-y-4 pt-4 border-t border-slate-100">
+                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">5. Mode, Classes & Awards</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Achievements / Awards</label>
-                            <textarea
+                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Teaching Mode</label>
+                            <select
+                                value={formData.teachingMode}
+                                onChange={(e) => updateField("teachingMode", e.target.value)}
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#1f5961] outline-none bg-slate-50/50 cursor-pointer"
+                            >
+                                <option value="">Select Teaching Mode</option>
+                                <option value="Home Tutor">Home Tutor</option>
+                                <option value="Online Tutor">Online Tutor</option>
+                                <option value="At Centre">At Centre</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Achievements / Awards</label>
+                            <input
+                                type="text"
                                 value={formData.achievements}
                                 onChange={(e) => updateField("achievements", e.target.value)}
-                                rows={3}
-                                className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none bg-slate-50/50 resize-none"
-                                placeholder="Describe your achievements..."
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#1f5961] outline-none"
+                                placeholder="e.g. Best Physics Teacher Award 2024"
                             />
                         </div>
+                    </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">Classes / Age Group</label>
-                            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-                                {["Nursery", "LKG", "UKG", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12", "Age 3-5", "Age 5-8", "Age 8-12", "Age 12-16", "Age 16+"].map((c) => (
+                    <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Classes & Age Group Taught</label>
+                        <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                            {["Nursery", "LKG", "UKG", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12", "Age 3-5", "Age 5-8", "Age 8-12", "Age 12-16", "Age 16+"].map((c) => {
+                                const isSel = formData.classesOrAgeGroup.includes(c);
+                                return (
                                     <button
                                         key={c}
                                         type="button"
@@ -665,37 +431,25 @@ export default function TeacherProfilePage() {
                                                 ? prev.classesOrAgeGroup.filter(x => x !== c)
                                                 : [...prev.classesOrAgeGroup, c]
                                         }))}
-                                        className={`p-2 rounded-xl border-2 text-xs font-medium transition-all ${formData.classesOrAgeGroup.includes(c)
-                                            ? "border-amber-500 bg-amber-50 text-amber-700"
-                                            : "border-slate-200 text-slate-600 hover:border-slate-300"
-                                            }`}
+                                        className={`p-2.5 rounded-xl border text-xs font-bold text-center transition-all ${isSel ? "border-[#1f5961] bg-teal-50 text-[#1f5961]" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}
                                     >
                                         {c}
                                     </button>
-                                ))}
-                            </div>
+                                );
+                            })}
                         </div>
                     </div>
-
-                    {/* Save Button */}
-                    <button
-                        onClick={handleSave}
-                        disabled={saving}
-                        className="w-full py-4 bg-amber-500 text-white rounded-xl font-semibold hover:bg-amber-600 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                    >
-                        {saving ? (
-                            <>
-                                <Loader2 className="w-5 h-5 animate-spin" />
-                                Saving...
-                            </>
-                        ) : (
-                            <>
-                                <Save className="w-5 h-5" />
-                                Save Changes
-                            </>
-                        )}
-                    </button>
                 </div>
+
+                {/* Save Button */}
+                <button
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="w-full py-4 bg-[#1f5961] hover:bg-[#1a4a51] text-white font-black rounded-xl text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 transition-all mt-6"
+                >
+                    {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                    <span>Save Profile Changes</span>
+                </button>
             </div>
         </div>
     );

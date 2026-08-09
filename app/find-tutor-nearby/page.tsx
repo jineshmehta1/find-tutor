@@ -88,7 +88,7 @@ interface Teacher {
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 const YellowBadge = ({ text, icon: Icon }: { text: string; icon?: any }) => (
-    <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-400 text-slate-950 text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-yellow-400/20 border border-yellow-300 rounded-full">
+    <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white text-[10px] font-extrabold uppercase tracking-[0.2em] shadow-lg shadow-primary/20 border border-primary/20 rounded-full">
         {Icon && <Icon className="w-3 h-3" />}
         {text}
     </div>
@@ -96,21 +96,21 @@ const YellowBadge = ({ text, icon: Icon }: { text: string; icon?: any }) => (
 
 const SectionTitle = ({ title, subTitle, centered = false }: { title: string; subTitle: string; centered?: boolean }) => (
     <div className={`space-y-4 ${centered ? 'text-center flex flex-col items-center' : 'text-left'}`}>
-        <h2 className={`text-3xl md:text-5xl font-[1000] text-slate-900 leading-tight uppercase tracking-tighter`}>
+        <h2 className={`text-3xl md:text-5xl font-extrabold text-slate-900 leading-tight uppercase tracking-tighter`}>
             {title}
         </h2>
-        <div className={`w-20 h-2 bg-yellow-400 rounded-full ${centered ? 'mx-auto' : ''}`} />
-        <p className="text-slate-400 font-black uppercase text-xs tracking-[0.25em]">{subTitle}</p>
+        <div className={`w-20 h-2 bg-primary rounded-full ${centered ? 'mx-auto' : ''}`} />
+        <p className="text-slate-400 font-bold uppercase text-xs tracking-[0.25em]">{subTitle}</p>
     </div>
 );
 
 const StatCard = ({ icon: Icon, value, label }: { icon: any, value: string, label: string }) => (
-    <div className="flex flex-col items-center text-center p-8 bg-white rounded-[3rem] shadow-xl border border-slate-50 transition-all hover:shadow-yellow-400/10 group">
-        <div className="w-16 h-16 bg-yellow-400 rounded-2xl flex items-center justify-center text-slate-950 mb-6 group-hover:scale-110 transition-transform">
+    <div className="flex flex-col items-center text-center p-8 bg-white rounded-[3rem] shadow-xl border border-slate-50 transition-all hover:shadow-primary/10 group">
+        <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform">
             <Icon className="w-8 h-8" />
         </div>
-        <h4 className="text-4xl font-[1000] text-slate-900 tracking-tighter leading-none mb-2">{value}</h4>
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</p>
+        <h4 className="text-4xl font-extrabold text-slate-900 tracking-tighter leading-none mb-2">{value}</h4>
+        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">{label}</p>
     </div>
 );
 
@@ -129,12 +129,18 @@ export default function FindTutorNearbyPage() {
     const [subject, setSubject] = useState("");
     const [showSubjectSuggestions, setShowSubjectSuggestions] = useState(false);
     
-    const [teachers, setTeachers] = useState<Teacher[]>([]);
-    const [filtered, setFiltered] = useState<Teacher[]>([]);
+    const [teachers, setTeachers] = useState<any[]>([]);
+    const [filtered, setFiltered] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [searched, setSearched] = useState(false);
     const [showHeroMap, setShowHeroMap] = useState(false);
     
+    // Advanced Filters & Sort States
+    const [showFilterPanel, setShowFilterPanel] = useState(false);
+    const [selectedMode, setSelectedMode] = useState("All");
+    const [selectedClass, setSelectedClass] = useState("All");
+    const [sortBy, setSortBy] = useState("default");
+
     const [faqOpen, setFaqOpen] = useState<number | null>(null);
 
     /* ── 4.2 Form States ── */
@@ -169,8 +175,29 @@ export default function FindTutorNearbyPage() {
                 const res = await fetch("/api/teachers");
                 if (!res.ok) throw new Error("Network response was not ok");
                 const data = await res.json();
-                setTeachers(data);
-                setFiltered(data);
+                
+                // Fetch reviews for each teacher to calculate rating and reviewsCount
+                const teachersWithReviews = await Promise.all(data.map(async (t: any) => {
+                    let rating = 5.0;
+                    let reviewsCount = 0;
+                    try {
+                        const revRes = await fetch(`/api/review?pageKey=${t.id}`);
+                        if (revRes.ok) {
+                            const revs = await revRes.json();
+                            reviewsCount = revs.length;
+                            if (reviewsCount > 0) {
+                                const sum = revs.reduce((acc: number, r: any) => acc + r.rating, 0);
+                                rating = Math.round((sum / reviewsCount) * 100) / 100;
+                            }
+                        }
+                    } catch (e) {
+                        console.error(e);
+                    }
+                    return { ...t, rating, reviewsCount };
+                }));
+
+                setTeachers(teachersWithReviews);
+                setFiltered(teachersWithReviews);
             } catch (err) {
                 console.error("Failed to fetch tutors:", err);
                 toast.error("Could not load tutors. Please try refreshing.");
@@ -195,7 +222,7 @@ export default function FindTutorNearbyPage() {
         }
 
         if (s.trim()) {
-            result = result.filter(t => t.subjects?.some(sub => sub.toLowerCase().includes(s.toLowerCase())));
+            result = result.filter(t => t.subjects?.some((sub: string) => sub.toLowerCase().includes(s.toLowerCase())));
         }
 
         // Simulate network delay for UX
@@ -209,11 +236,45 @@ export default function FindTutorNearbyPage() {
         }, 300);
     }, [subject, location, teachers]);
 
+    // Memoize the filtered and sorted list of teachers based on sidebar filters
+    const processedTeachers = useMemo(() => {
+        let result = [...filtered];
+
+        if (selectedMode !== "All") {
+            result = result.filter(t => t.teachingMode && t.teachingMode.toLowerCase().includes(selectedMode.toLowerCase()));
+        }
+
+        if (selectedClass !== "All") {
+            result = result.filter(t => {
+                if (!t.classesOrAgeGroup) return false;
+                if (Array.isArray(t.classesOrAgeGroup)) {
+                    return t.classesOrAgeGroup.some((c: string) => c.toLowerCase().includes(selectedClass.toLowerCase()));
+                }
+                return String(t.classesOrAgeGroup).toLowerCase().includes(selectedClass.toLowerCase());
+            });
+        }
+
+        if (sortBy === "experience") {
+            result.sort((a, b) => {
+                const expA = parseInt(a.experience) || 0;
+                const expB = parseInt(b.experience) || 0;
+                return expB - expA;
+            });
+        } else if (sortBy === "rating") {
+            result.sort((a, b) => (b.rating || 5) - (a.rating || 5));
+        }
+
+        return result;
+    }, [filtered, selectedMode, selectedClass, sortBy]);
+
     const handleSearchClick = () => performSearch();
 
     const handleClearFilters = () => {
         setSubject("");
         setLocation("");
+        setSelectedMode("All");
+        setSelectedClass("All");
+        setSortBy("default");
         setFiltered(teachers);
         setSearched(false);
         toast.info("All search filters have been reset.");
@@ -261,8 +322,8 @@ export default function FindTutorNearbyPage() {
             <section className="relative w-full overflow-hidden bg-white pt-10 pb-16 md:pt-14 md:pb-24 lg:pb-32">
     {/* Background Decorative Blobs - Adjusted for mobile overflow */}
     <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
-        <div className="absolute top-[-5%] left-[-15%] w-[70%] md:w-[60%] h-[90%] bg-yellow-400/10 rounded-full blur-[80px] md:blur-[140px]" />
-        <div className="absolute top-[20%] left-[-5%] w-[250px] md:w-[400px] h-[250px] md:h-[400px] bg-yellow-200/20 rounded-full blur-[60px] md:blur-[100px]" />
+        <div className="absolute top-[-5%] left-[-15%] w-[70%] md:w-[60%] h-[90%] bg-primary/10 rounded-full blur-[80px] md:blur-[140px]" />
+        <div className="absolute top-[20%] left-[-5%] w-[250px] md:w-[400px] h-[250px] md:h-[400px] bg-primary/5 rounded-full blur-[60px] md:blur-[100px]" />
     </div>
 
     <div className="container mx-auto px-4 md:px-6">
@@ -285,7 +346,7 @@ export default function FindTutorNearbyPage() {
                     <motion.div 
                         animate={{ y: [0, -10, 0] }}
                         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                        className="absolute -top-5 -right-2 md:-top-10 md:-right-4 bg-white p-3 md:p-5 rounded-2xl md:rounded-3xl shadow-2xl border border-yellow-100 hidden sm:flex"
+                        className="absolute -top-5 -right-2 md:-top-10 md:-right-4 bg-white p-3 md:p-5 rounded-2xl md:rounded-3xl shadow-2xl border border-slate-100/50 hidden sm:flex"
                     >
                         {/* You can add an icon or stat here if needed later */}
                     </motion.div>
@@ -305,12 +366,12 @@ export default function FindTutorNearbyPage() {
 
                 <div className="space-y-3 md:space-y-4">
                     {/* Mobile: 3xl, Desktop: 5xl */}
-                    <h1 className="text-3xl md:text-5xl font-[1000] text-slate-900 leading-tight uppercase tracking-tighter">
-                        Find <span className="text-yellow-500 underline decoration-yellow-500/20 underline-offset-4 md:underline-offset-8">Experienced</span> <br className="hidden md:block" />
+                    <h1 className="text-3xl md:text-5xl font-extrabold text-slate-900 leading-tight uppercase tracking-tighter">
+                        Find <span className="text-primary underline decoration-primary/20 underline-offset-4 md:underline-offset-8">Experienced</span> <br className="hidden md:block" />
                         Mentors Today.
                     </h1>
-                    <p className="text-slate-400 font-black uppercase text-[10px] md:text-xs tracking-[0.2em] md:tracking-[0.25em]">
-                        VERIFIED TUTORS <span className="text-slate-950 font-black">DELIVERED WITHIN 30 MINUTES</span>
+                    <p className="text-slate-400 font-semibold uppercase text-[10px] md:text-xs tracking-[0.2em] md:tracking-[0.25em]">
+                        VERIFIED TUTORS <span className="text-slate-950 font-bold">DELIVERED WITHIN 30 MINUTES</span>
                     </p>
                 </div>
 
@@ -322,17 +383,17 @@ export default function FindTutorNearbyPage() {
                             
                             {/* Field 1: Subject */}
                             <div className="relative group" ref={subjectRef}>
-                                <div className="flex items-center h-14 md:h-16 px-4 md:px-6 bg-white border border-slate-100 rounded-2xl md:rounded-[2rem] focus-within:ring-4 ring-yellow-400/20 transition-all">
-                                    <BookOpen className="w-5 h-5 md:w-6 md:h-6 text-yellow-500 mr-3 md:mr-4 shrink-0" />
+                                <div className="flex items-center h-14 md:h-16 px-4 md:px-6 bg-white border border-slate-100 rounded-2xl md:rounded-[2rem] focus-within:ring-4 ring-primary/20 transition-all">
+                                    <BookOpen className="w-5 h-5 md:w-6 md:h-6 text-primary mr-3 md:mr-4 shrink-0" />
                                     <div className="flex-1 text-left">
-                                        <p className="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Subject</p>
+                                        <p className="text-[8px] md:text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-0.5">Subject</p>
                                         <input 
                                             type="text"
                                             value={subject}
                                             onChange={(e) => { setSubject(e.target.value); setShowSubjectSuggestions(true); }}
                                             onFocus={() => setShowSubjectSuggestions(true)}
                                             placeholder="Maths, Piano..."
-                                            className="w-full bg-transparent outline-none text-sm md:text-base font-[900] text-slate-800 placeholder:text-slate-300"
+                                            className="w-full bg-transparent outline-none text-sm md:text-base font-semibold text-slate-800 placeholder:text-slate-300"
                                         />
                                     </div>
                                 </div>
@@ -344,7 +405,7 @@ export default function FindTutorNearbyPage() {
                                         >
                                             {SUBJECTS.filter(s => s.toLowerCase().includes(subject.toLowerCase())).map(s => (
                                                 <button key={s} onClick={() => { setSubject(s); setShowSubjectSuggestions(false); performSearch(s); }}
-                                                    className="w-full px-5 py-3 text-left hover:bg-yellow-50 text-xs md:text-sm font-black text-slate-700 transition-colors flex items-center justify-between">
+                                                    className="w-full px-5 py-3 text-left hover:bg-primary/5 text-xs md:text-sm font-semibold text-slate-700 transition-colors flex items-center justify-between">
                                                     {s} <ChevronRight className="w-4 h-4 text-slate-300" />
                                                 </button>
                                             ))}
@@ -355,11 +416,11 @@ export default function FindTutorNearbyPage() {
 
                             {/* Field 2: Location */}
                             <div className="relative group">
-                                <div className="flex items-center h-14 md:h-16 px-4 md:px-6 bg-white border border-slate-100 rounded-2xl md:rounded-[2rem] focus-within:ring-4 ring-yellow-400/20 transition-all">
+                                <div className="flex items-center h-14 md:h-16 px-4 md:px-6 bg-white border border-slate-100 rounded-2xl md:rounded-[2rem] focus-within:ring-4 ring-primary/20 transition-all">
                                     <MapPin className="w-5 h-5 md:w-6 md:h-6 text-red-500 mr-3 md:mr-4 shrink-0" />
                                     <div onClick={() => setShowHeroMap(!showHeroMap)} className="flex-1 text-left cursor-pointer">
-                                        <p className="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Location</p>
-                                        <p className={`text-sm md:text-base font-[900] truncate ${location ? 'text-slate-900' : 'text-slate-300'}`}>
+                                        <p className="text-[8px] md:text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-0.5">Location</p>
+                                        <p className={`text-sm md:text-base font-semibold truncate ${location ? 'text-slate-900' : 'text-slate-300'}`}>
                                             {location || "Search Area"}
                                         </p>
                                     </div>
@@ -372,7 +433,7 @@ export default function FindTutorNearbyPage() {
                                             className="absolute top-[110%] right-0 w-[92vw] sm:w-[400px] md:w-[450px] bg-white rounded-[2rem] shadow-2xl border border-slate-100 p-4 md:p-6 z-[150]"
                                         >
                                             <div className="flex items-center justify-between mb-4 px-2">
-                                                <span className="text-xs md:text-sm font-[1000] text-slate-900 uppercase tracking-wider">Select Location</span>
+                                                <span className="text-xs md:text-sm font-bold text-slate-900 uppercase tracking-wider">Select Location</span>
                                                 <X onClick={() => setShowHeroMap(false)} className="w-5 h-5 cursor-pointer text-slate-400 hover:text-slate-900" />
                                             </div>
                                             <div className="rounded-2xl overflow-hidden border border-slate-50 shadow-inner">
@@ -394,12 +455,12 @@ export default function FindTutorNearbyPage() {
                         <div className="flex flex-col sm:flex-row items-center gap-3">
                             <button 
                                 onClick={handleSearchClick}
-                                className="w-full sm:flex-[1.5] h-14 md:h-16 bg-yellow-400 hover:bg-slate-950 text-slate-950 hover:text-white font-[1000] rounded-2xl md:rounded-[2rem] transition-all duration-500 shadow-xl shadow-yellow-400/20 active:scale-95 flex items-center justify-center gap-3 uppercase text-xs md:text-sm tracking-widest"
+                                className="w-full sm:flex-[1.5] h-14 md:h-16 bg-primary hover:bg-primary/90 text-white font-extrabold rounded-2xl md:rounded-[2rem] transition-all duration-500 shadow-xl shadow-primary/10 active:scale-95 flex items-center justify-center gap-3 uppercase text-xs md:text-sm tracking-widest"
                             >
                                 <Search className="w-4 h-4 md:w-5 md:h-5" /> Start Search
                             </button>
                             {searched && (
-                                <button onClick={handleClearFilters} className="w-full sm:w-auto px-8 h-14 md:h-16 bg-white border border-slate-100 text-slate-400 hover:text-red-500 font-black rounded-2xl md:rounded-[2rem] transition-all uppercase text-[10px] tracking-widest">
+                                <button onClick={handleClearFilters} className="w-full sm:w-auto px-8 h-14 md:h-16 bg-white border border-slate-100 text-slate-400 hover:text-red-500 font-bold rounded-2xl md:rounded-[2rem] transition-all uppercase text-[10px] tracking-widest">
                                     Reset
                                 </button>
                             )}
@@ -408,12 +469,12 @@ export default function FindTutorNearbyPage() {
 
                     {/* Popular Cities */}
                     <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 md:gap-4 mt-8 md:mt-10">
-                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Popular:</span>
+                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Popular:</span>
                         {POPULAR_CITIES.slice(0, 4).map(city => (
                             <button 
                                 key={city} 
                                 onClick={() => { setLocation(city); performSearch(subject, city); }} 
-                                className="text-[10px] font-black text-slate-900 hover:text-yellow-600 underline underline-offset-4 md:underline-offset-8 decoration-yellow-400/40 uppercase tracking-tighter"
+                                className="text-[10px] font-bold text-slate-900 hover:text-primary underline underline-offset-4 md:underline-offset-8 decoration-primary/20 uppercase tracking-tighter"
                             >
                                 {city}
                             </button>
@@ -444,12 +505,18 @@ export default function FindTutorNearbyPage() {
 </section>
 
             {/* ──── 5.3 WHAT ARE YOU LOOKING FOR? (REPLICATED AS PER REQUEST) ──── */}
-            <section className="py-16 md:py-24 bg-yellow-400 relative overflow-hidden">
+            <section className="py-16 md:py-24 bg-slate-900 text-white relative overflow-hidden">
     {/* Visual texture */}
-    <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 2px, transparent 2px)', backgroundSize: '40px 40px' }} />
+    <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#fff 2px, transparent 2px)', backgroundSize: '40px 40px' }} />
     
     <div className="container mx-auto px-4 md:px-6">
-        <SectionTitle title="What Are You Looking For?" subTitle="CHOOSE YOUR PATH" centered={true} />
+        <div className="space-y-4 text-center flex flex-col items-center">
+            <h2 className="text-3xl md:text-5xl font-[1000] text-white leading-tight uppercase tracking-tighter">
+                What Are You Looking For?
+            </h2>
+            <div className="w-20 h-2 bg-primary rounded-full" />
+            <p className="text-slate-400 font-black uppercase text-xs tracking-[0.25em]">CHOOSE YOUR PATH</p>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10 max-w-6xl mx-auto mt-12 md:mt-20">
             
@@ -468,7 +535,7 @@ export default function FindTutorNearbyPage() {
                     </p>
                     <button 
                         onClick={() => router.push("/signup/teacher")}
-                        className="px-8 md:px-10 py-3 md:py-4 bg-red-500 hover:bg-slate-950 text-white font-[1000] text-[10px] md:text-xs uppercase tracking-widest rounded-xl md:rounded-2xl transition-all shadow-xl active:scale-95"
+                        className="px-8 md:px-10 py-3 md:py-4 bg-primary hover:bg-slate-950 text-white font-[1000] text-[10px] md:text-xs uppercase tracking-widest rounded-xl md:rounded-2xl transition-all shadow-xl active:scale-95"
                     >
                         Sign Up Free
                     </button>
@@ -490,7 +557,7 @@ export default function FindTutorNearbyPage() {
                     </p>
                     <button 
                         onClick={() => router.push("/signup")}
-                        className="px-8 md:px-10 py-3 md:py-4 bg-red-500 hover:bg-slate-950 text-white font-[1000] text-[10px] md:text-xs uppercase tracking-widest rounded-xl md:rounded-2xl transition-all shadow-xl active:scale-95"
+                        className="px-8 md:px-10 py-3 md:py-4 bg-primary hover:bg-slate-950 text-white font-[1000] text-[10px] md:text-xs uppercase tracking-widest rounded-xl md:rounded-2xl transition-all shadow-xl active:scale-95"
                     >
                         Hire a Tutor
                     </button>
@@ -507,7 +574,7 @@ export default function FindTutorNearbyPage() {
     <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12 md:mb-20">
         <SectionTitle 
             title={searched ? "Results Found" : "Featured Mentors"} 
-            subTitle={`Explored ${filtered.length} verified profile(s) matching your orbit.`} 
+            subTitle={`Explored ${processedTeachers.length} verified profile(s) matching your orbit.`} 
         />
         
         <div className="flex items-center gap-3">
@@ -519,11 +586,68 @@ export default function FindTutorNearbyPage() {
                     <X className="w-4 h-4" /> Reset
                 </button>
             )}
-            <button className="flex items-center gap-2 px-5 py-3 bg-slate-50 border border-slate-100 text-slate-400 hover:text-yellow-600 hover:border-yellow-200 rounded-2xl transition-all shadow-sm">
+            <button 
+                onClick={() => setShowFilterPanel(!showFilterPanel)}
+                className={`flex items-center gap-2 px-5 py-3 border rounded-2xl transition-all shadow-sm ${showFilterPanel ? 'bg-primary border-primary text-white shadow-primary/20' : 'bg-slate-50 border-slate-100 text-slate-400 hover:text-primary hover:border-primary/20'}`}
+            >
                 <Filter className="w-4 h-4" /> <span className="text-[10px] font-black uppercase">Filter</span>
             </button>
         </div>
     </div>
+
+    {/* Advanced Filters Panel */}
+    <AnimatePresence>
+        {showFilterPanel && (
+            <motion.div 
+                initial={{ opacity: 0, height: 0 }} 
+                animate={{ opacity: 1, height: "auto" }} 
+                exit={{ opacity: 0, height: 0 }}
+                className="mb-8 p-6 bg-slate-50 border border-slate-100 rounded-[2rem] overflow-hidden"
+            >
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Teaching Mode Filter */}
+                    <div className="space-y-2">
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Teaching Mode</label>
+                        <select 
+                            value={selectedMode} 
+                            onChange={(e) => setSelectedMode(e.target.value)}
+                            className="w-full h-12 px-4 bg-white border border-slate-200/80 rounded-xl outline-none font-bold text-xs text-slate-700 shadow-sm"
+                        >
+                            <option value="All">All Modes</option>
+                            {MODES.map(m => <option key={m} value={m}>{m}</option>)}
+                        </select>
+                    </div>
+
+                    {/* Class/Grade level Filter */}
+                    <div className="space-y-2">
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Class / Grade Level</label>
+                        <select 
+                            value={selectedClass} 
+                            onChange={(e) => setSelectedClass(e.target.value)}
+                            className="w-full h-12 px-4 bg-white border border-slate-200/80 rounded-xl outline-none font-bold text-xs text-slate-700 shadow-sm"
+                        >
+                            <option value="All">All Classes</option>
+                            {CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
+                        </select>
+                    </div>
+
+                    {/* Sorting Filter */}
+                    <div className="space-y-2">
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Sort By</label>
+                        <select 
+                            value={sortBy} 
+                            onChange={(e) => setSortBy(e.target.value)}
+                            className="w-full h-12 px-4 bg-white border border-slate-200/80 rounded-xl outline-none font-bold text-xs text-slate-700 shadow-sm"
+                        >
+                            <option value="default">Default Sort</option>
+                            <option value="rating">Rating (High to Low)</option>
+                            <option value="experience">Experience (High to Low)</option>
+                        </select>
+                    </div>
+                </div>
+            </motion.div>
+        )}
+    </AnimatePresence>
 
     {loading ? (
         /* Responsive Loading Grid */
@@ -532,7 +656,7 @@ export default function FindTutorNearbyPage() {
                 <div key={i} className="h-[450px] md:h-[550px] bg-slate-50 rounded-[2.5rem] md:rounded-[3.5rem] animate-pulse border border-slate-100" />
             ))}
         </div>
-    ) : filtered.length === 0 ? (
+    ) : processedTeachers.length === 0 ? (
         /* Responsive Empty State */
         <motion.div 
             initial={{ opacity: 0, scale: 0.95 }} 
@@ -542,12 +666,12 @@ export default function FindTutorNearbyPage() {
             <div className="w-24 h-24 md:w-32 md:h-32 bg-white rounded-full flex items-center justify-center text-5xl md:text-7xl mx-auto mb-8 md:mb-10 shadow-xl">🔭</div>
             <h3 className="text-2xl md:text-3xl font-[1000] text-slate-900 uppercase tracking-tighter">No tutors found in this area</h3>
             <p className="text-slate-500 mt-4 font-bold max-w-sm mx-auto uppercase text-[10px] tracking-widest leading-loose">Try broadening your search or resetting the filters.</p>
-            <button onClick={handleClearFilters} className="mt-10 px-10 md:px-12 py-4 md:py-5 bg-yellow-400 text-slate-950 font-[1000] rounded-2xl shadow-xl uppercase text-[10px] md:text-xs tracking-widest hover:bg-slate-900 hover:text-white transition-all">Show All Profiles</button>
+            <button onClick={handleClearFilters} className="mt-10 px-10 md:px-12 py-4 md:py-5 bg-primary text-white font-[1000] rounded-2xl shadow-xl uppercase text-[10px] md:text-xs tracking-widest hover:bg-slate-900 transition-all">Show All Profiles</button>
         </motion.div>
     ) : (
         /* Responsive Tutor Grid */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
-            {filtered.map((t, idx) => (
+            {processedTeachers.map((t, idx) => (
                 <motion.div 
                     layout
                     key={t.id} 
@@ -565,21 +689,30 @@ export default function FindTutorNearbyPage() {
                                 <span className="text-[9px] md:text-[10px] font-black text-slate-900 uppercase tracking-widest">Verified Expert</span>
                             </div>
                         </div>
+
+                        {/* Top Right Rating Badge */}
+                        <div className="absolute top-5 right-5 z-20">
+                            <div className="bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg border border-white/30 text-[10px] font-black text-amber-500">
+                                <Star className="w-3.5 h-3.5 fill-current" />
+                                <span>{t.rating || 5.0}</span>
+                                <span className="text-slate-400 font-sans">({t.reviewsCount || 0})</span>
+                            </div>
+                        </div>
                         
                         {t.profilePhoto ? (
                             <img src={t.profilePhoto} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt={t.name} />
                         ) : (
-                            <div className="w-full h-full bg-yellow-50 flex items-center justify-center text-6xl md:text-7xl font-[1000] text-yellow-300 uppercase">
+                            <div className="w-full h-full bg-primary/10 flex items-center justify-center text-6xl md:text-7xl font-[1000] text-primary/40 uppercase">
                                 {t.name?.[0]}
                             </div>
                         )}
 
                         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-transparent opacity-80" />
                         <div className="absolute bottom-6 left-6 right-6 md:bottom-8 md:left-8 md:right-8">
-                            <h3 className="text-2xl md:text-3xl font-[1000] text-white tracking-tighter leading-none group-hover:text-yellow-400 transition-colors uppercase truncate">{t.name}</h3>
+                            <h3 className="text-2xl md:text-3xl font-[1000] text-white tracking-tighter leading-none group-hover:text-primary transition-colors uppercase truncate">{t.name}</h3>
                             <div className="flex items-center gap-4 mt-3 md:mt-4 text-[9px] md:text-[10px] font-black text-white/80 uppercase tracking-widest">
-                                <span className="flex items-center gap-1.5"><MapPin className="w-3 h-3 md:w-3.5 md:h-3.5 text-yellow-400" /> {t.address?.split(',')[0]}</span>
-                                <span className="flex items-center gap-1.5"><Zap className="w-3 h-3 md:w-3.5 md:h-3.5 text-yellow-400" /> {t.teachingMode || "Online"}</span>
+                                <span className="flex items-center gap-1.5"><MapPin className="w-3 h-3 md:w-3.5 md:h-3.5 text-primary" /> {t.address?.split(',')[0]}</span>
+                                <span className="flex items-center gap-1.5"><Zap className="w-3 h-3 md:w-3.5 md:h-3.5 text-primary" /> {t.teachingMode || "Online"}</span>
                             </div>
                         </div>
                     </div>
@@ -588,8 +721,8 @@ export default function FindTutorNearbyPage() {
                     <div className="p-6 md:p-10 space-y-6 md:space-y-8 flex-1 flex flex-col justify-between">
                         <div className="space-y-4 md:space-y-6">
                             <div className="flex flex-wrap gap-2 md:gap-2.5">
-                                {t.subjects?.slice(0, 3).map(s => (
-                                    <span key={s} className="px-3 py-1.5 md:px-4 md:py-2 bg-yellow-50 text-yellow-700 text-[8px] md:text-[9px] font-black uppercase rounded-xl border border-yellow-100 shadow-sm group-hover:bg-yellow-400 group-hover:text-slate-950 transition-all">{s}</span>
+                                {t.subjects?.slice(0, 3).map((s: string) => (
+                                    <span key={s} className="px-3 py-1.5 md:px-4 md:py-2 bg-primary/5 text-primary text-[8px] md:text-[9px] font-black uppercase rounded-xl border border-primary/10 shadow-sm group-hover:bg-primary group-hover:text-white transition-all">{s}</span>
                                 ))}
                                 {t.subjects && t.subjects.length > 3 && (
                                     <span className="px-3 py-1.5 md:px-4 md:py-2 bg-slate-50 text-slate-400 text-[8px] md:text-[9px] font-black uppercase rounded-xl">+{t.subjects.length - 3} More</span>
@@ -603,9 +736,10 @@ export default function FindTutorNearbyPage() {
                         {/* Price & Action Footer */}
                         <div className="flex items-center justify-between pt-6 md:pt-10 border-t border-slate-50">
                             <div>
-                                <p className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Tuition Fees</p>
-                                <p className="text-2xl md:text-3xl font-[1000] text-slate-900 tracking-tighter">₹1,200<span className="text-xs md:text-sm font-bold text-slate-400 tracking-normal ml-1">/hr</span></p>
+                                <p className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Experience</p>
+                                <p className="text-xl md:text-2xl font-[1000] text-slate-900 tracking-tighter">{t.experience || "Verified"}</p>
                             </div>
+
                             <div className="flex gap-2 md:gap-3">
                                 <button 
                                     onClick={() => { if (!session) { router.push("/signup"); return; } window.open(`https://wa.me/91${t.phone?.replace(/\D/g, "").slice(-10)}`) }}
@@ -615,7 +749,7 @@ export default function FindTutorNearbyPage() {
                                 </button>
                                 <button 
                                     onClick={() => router.push(`/tutor/${t.id}`)}
-                                    className="px-5 py-3 md:px-8 md:py-4 bg-slate-950 text-white text-[9px] md:text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-yellow-400 hover:text-slate-950 transition-all duration-300 shadow-2xl active:scale-95"
+                                    className="px-5 py-3 md:px-8 md:py-4 bg-slate-950 text-white text-[9px] md:text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-primary hover:text-white transition-all duration-300 shadow-2xl active:scale-95"
                                 >
                                     Profile
                                 </button>
@@ -646,10 +780,10 @@ export default function FindTutorNearbyPage() {
         */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 mt-12 md:mt-20">
             {[
-                { title: "Search & Filter", desc: "Browse through verified mentors based on subject, location, and rating.", icon: Search, color: "bg-yellow-400" },
+                { title: "Search & Filter", desc: "Browse through verified mentors based on subject, location, and rating.", icon: Search, color: "bg-primary text-white" },
                 { title: "Check Profile", desc: "Read achievements, teaching methodology, and parent testimonials.", icon: BookMarked, color: "bg-slate-950 text-white" },
-                { title: "Demo Session", desc: "Book a free demonstration class to ensure the perfect student-teacher fit.", icon: UserCheck, color: "bg-white border-2 border-yellow-400" },
-                { title: "Start Learning", desc: "Begin your customized learning path and track academic progress.", icon: Rocket, color: "bg-yellow-400" }
+                { title: "Demo Session", desc: "Book a free demonstration class to ensure the perfect student-teacher fit.", icon: UserCheck, color: "bg-white border-2 border-primary" },
+                { title: "Start Learning", desc: "Begin your customized learning path and track academic progress.", icon: Rocket, color: "bg-primary text-white" }
             ].map((step, i) => (
                 <motion.div 
                     key={i}
@@ -673,9 +807,9 @@ export default function FindTutorNearbyPage() {
                         rounded-2xl md:rounded-3xl 
                         flex items-center justify-center 
                         shadow-lg 
-                        ${step.color.includes('slate') ? 'bg-white/10' : 'bg-white shadow-inner'}
+                        ${step.color.includes('slate') || step.color.includes('primary') ? 'bg-white/10' : 'bg-white shadow-inner'}
                     `}>
-                        <step.icon className={`w-6 h-6 md:w-8 md:h-8 ${step.color.includes('slate') ? 'text-yellow-400' : 'text-slate-950'}`} />
+                        <step.icon className={`w-6 h-6 md:w-8 md:h-8 ${step.color.includes('slate') || step.color.includes('primary') ? 'text-white' : 'text-slate-950'}`} />
                     </div>
 
                     {/* Content Spacing - Adjusted for smaller screens */}
@@ -710,7 +844,7 @@ export default function FindTutorNearbyPage() {
                         { text: "Personal Support Desk", icon: PhoneCall },
                     ].map((li, i) => (
                         <li key={i} className="flex items-center gap-4 md:gap-6 text-slate-800 font-[900] text-[10px] md:text-[11px] uppercase tracking-widest group cursor-default">
-                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-yellow-400 flex items-center justify-center text-slate-950 shadow-lg group-hover:scale-110 transition-transform shrink-0">
+                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-primary flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform shrink-0">
                                 <li.icon className="w-5 h-5 md:w-6 md:h-6" />
                             </div>
                             <span>{li.text}</span>
@@ -724,7 +858,7 @@ export default function FindTutorNearbyPage() {
                     <p className="text-[10px] md:text-xs font-bold text-slate-400 leading-relaxed">
                         Our relationship managers are available from 10 AM to 7 PM.
                     </p>
-                    <button className="flex items-center gap-2 text-yellow-600 font-[1000] uppercase text-[10px] md:text-xs hover:gap-4 transition-all">
+                    <button className="flex items-center gap-2 text-primary font-[1000] uppercase text-[10px] md:text-xs hover:gap-4 transition-all">
                         Connect Now <ArrowUpRight className="w-4 h-4" />
                     </button>
                 </div>
@@ -738,21 +872,21 @@ export default function FindTutorNearbyPage() {
                         <div className="space-y-6 lg:space-y-8">
                             <div className="space-y-2 md:space-y-3">
                                 <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Learning Subject</label>
-                                <select value={reqSubject} onChange={e => setReqSubject(e.target.value)} className="w-full h-14 md:h-16 px-6 md:px-8 bg-slate-50 border-none rounded-2xl md:rounded-[2rem] outline-none focus:ring-4 ring-yellow-400/20 font-black text-slate-700 appearance-none shadow-inner text-sm">
+                                <select value={reqSubject} onChange={e => setReqSubject(e.target.value)} className="w-full h-14 md:h-16 px-6 md:px-8 bg-slate-50 border-none rounded-2xl md:rounded-[2rem] outline-none focus:ring-4 ring-primary/20 font-black text-slate-700 appearance-none shadow-inner text-sm">
                                     <option value="">Select Subject</option>
                                     {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
                                 </select>
                             </div>
                             <div className="space-y-2 md:space-y-3">
                                 <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Target Class</label>
-                                <select value={reqClass} onChange={e => setReqClass(e.target.value)} className="w-full h-14 md:h-16 px-6 md:px-8 bg-slate-50 border-none rounded-2xl md:rounded-[2rem] outline-none focus:ring-4 ring-yellow-400/20 font-black text-slate-700 appearance-none shadow-inner text-sm">
+                                <select value={reqClass} onChange={e => setReqClass(e.target.value)} className="w-full h-14 md:h-16 px-6 md:px-8 bg-slate-50 border-none rounded-2xl md:rounded-[2rem] outline-none focus:ring-4 ring-primary/20 font-black text-slate-700 appearance-none shadow-inner text-sm">
                                     <option value="">Choose Class</option>
                                     {CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
                                 </select>
                             </div>
                             <div className="space-y-2 md:space-y-3">
                                 <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Learning Mode</label>
-                                <select value={reqMode} onChange={e => setReqMode(e.target.value)} className="w-full h-14 md:h-16 px-6 md:px-8 bg-slate-50 border-none rounded-2xl md:rounded-[2rem] outline-none focus:ring-4 ring-yellow-400/20 font-black text-slate-700 appearance-none shadow-inner text-sm">
+                                <select value={reqMode} onChange={e => setReqMode(e.target.value)} className="w-full h-14 md:h-16 px-6 md:px-8 bg-slate-50 border-none rounded-2xl md:rounded-[2rem] outline-none focus:ring-4 ring-primary/20 font-black text-slate-700 appearance-none shadow-inner text-sm">
                                     <option value="">Home / Online</option>
                                     {MODES.map(m => <option key={m} value={m}>{m}</option>)}
                                 </select>
@@ -777,14 +911,14 @@ export default function FindTutorNearbyPage() {
                         <textarea 
                             value={reqMessage} onChange={e => setReqMessage(e.target.value)} 
                             placeholder="Specific goals, timing preferences, or teacher gender preference..."
-                            className="w-full p-6 md:p-8 bg-slate-50 border-none rounded-[1.5rem] md:rounded-[2.5rem] min-h-[120px] md:min-h-[160px] outline-none focus:ring-4 ring-yellow-400/20 font-bold text-slate-700 shadow-inner resize-none text-sm"
+                            className="w-full p-6 md:p-8 bg-slate-50 border-none rounded-[1.5rem] md:rounded-[2.5rem] min-h-[120px] md:min-h-[160px] outline-none focus:ring-4 ring-primary/20 font-bold text-slate-700 shadow-inner resize-none text-sm"
                         />
                     </div>
 
                     {/* SUBMIT BUTTON */}
                     <button 
                         onClick={handlePostRequirement} disabled={submittingReq}
-                        className="w-full h-16 md:h-20 bg-yellow-400 hover:bg-slate-950 text-slate-950 hover:text-white font-[1000] rounded-[1.5rem] md:rounded-[2.5rem] transition-all duration-500 shadow-2xl shadow-yellow-400/20 active:scale-95 disabled:opacity-50 uppercase text-xs md:text-sm tracking-[0.25em]"
+                        className="w-full h-16 md:h-20 bg-primary hover:bg-primary/95 text-white font-[1000] rounded-[1.5rem] md:rounded-[2.5rem] transition-all duration-300 shadow-2xl shadow-primary/20 active:scale-95 disabled:opacity-50 uppercase text-xs md:text-sm tracking-[0.25em]"
                     >
                         {submittingReq ? "Submitting Request..." : "Submit Requirement Now"}
                     </button>
@@ -797,12 +931,12 @@ export default function FindTutorNearbyPage() {
           {/* ──── 5.7 TESTIMONIALS STRIP (IMAGE STYLE) ──── */}
 {/* ──── 5.7 TESTIMONIALS STRIP (MATCHING IMAGE STYLE) ──── */}
 {/* ──── 5.7 TESTIMONIALS STRIP (RESPONSIVE BLOB STYLE) ──── */}
-<section className="bg-[#fdf8f0] py-16 md:py-24 relative overflow-hidden">
+<section className="bg-[#fcfdfa] py-16 md:py-24 relative overflow-hidden">
     <div className="container mx-auto px-4 md:px-6">
         {/* Header Section */}
         <div className="text-center mb-16 md:mb-20 space-y-4">
             <h2 className="text-2xl md:text-5xl font-[1000] text-slate-900 tracking-tighter uppercase leading-none">
-                Client Feedback <span className="text-[#f7941d]">& Testimonial</span>
+                Client Feedback <span className="text-primary">& Testimonial</span>
             </h2>
             <p className="text-slate-500 max-w-2xl mx-auto text-xs md:text-sm font-bold leading-relaxed px-2 md:px-4">
                 We take pride in the success of our students. Here is what parents and learners 
@@ -815,15 +949,15 @@ export default function FindTutorNearbyPage() {
             {[
                 { name: "Ananya Iyer", role: "Parent of Class 10th Student", color: "bg-[#8cc63f]" },
                 { name: "Rajesh Verma", role: "Software Aspirant", color: "bg-[#00aeef]" },
-                { name: "Suman Rao", role: "Hobby Learner (Violin)", color: "bg-[#f7941d]" }
+                { name: "Suman Rao", role: "Hobby Learner (Violin)", color: "bg-primary" }
             ].map((client, i) => (
                 <motion.div 
                     key={i}
                     whileHover={{ y: -12 }}
                     className="relative bg-white p-8 md:p-10 pt-16 shadow-[0_30px_70px_-15px_rgba(0,0,0,0.08)] transition-all duration-500
-                               rounded-tl-[60px] rounded-br-[60px] rounded-tr-[30px] rounded-bl-[30px] 
-                               md:rounded-tl-[100px] md:rounded-br-[100px] md:rounded-tr-[40px] md:rounded-bl-[40px] 
-                               flex flex-col h-full"
+                                rounded-tl-[60px] rounded-br-[60px] rounded-tr-[30px] rounded-bl-[30px] 
+                                md:rounded-tl-[100px] md:rounded-br-[100px] md:rounded-tr-[40px] md:rounded-bl-[40px] 
+                                flex flex-col h-full"
                 >
                     {/* Top Floating Quote Icon - Adjusted size for mobile */}
                     <div className={`absolute -top-6 md:-top-8 left-8 md:left-10 w-16 h-16 md:w-20 md:h-20 rounded-full ${client.color} 
@@ -855,7 +989,7 @@ export default function FindTutorNearbyPage() {
 
                     {/* Bottom Subtle "Watermark" Quote */}
                     <div className="mt-auto self-end opacity-[0.05] text-slate-900">
-                        <svg width="40" height="40" className="md:w-[50px] md:h-[50px]" viewBox="0 0 24 24" fill="currentColor" className="rotate-180">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor" className="md:w-[50px] md:h-[50px] rotate-180">
                             <path d="M11.192 15.757c0 1.964-1.594 3.557-3.558 3.557-1.963 0-3.557-1.593-3.557-3.557 0-1.964 1.594-3.558 3.557-3.558h.721c-.347-1.545-1.127-2.659-2.339-3.344l.804-1.411c2.148 1.055 3.194 3.102 3.412 5.313h1.01zm9.25 0c0 1.964-1.594 3.557-3.558 3.557-1.963 0-3.557-1.593-3.557-3.557 0-1.964 1.594-3.558 3.557-3.558h.721c-.347-1.545-1.127-2.659-2.339-3.344l.804-1.411c2.148 1.055 3.194 3.102 3.412 5.313h1.01z" />
                         </svg>
                     </div>
@@ -865,11 +999,11 @@ export default function FindTutorNearbyPage() {
 
         {/* Pagination Controls */}
         <div className="flex justify-center items-center gap-3 mt-12 md:mt-20">
-            <button className="w-3 h-3 rounded-full border-2 border-slate-300 hover:bg-yellow-400 hover:border-yellow-400 transition-all"></button>
-            <button className="w-3 h-3 rounded-full border-2 border-slate-300 hover:bg-yellow-400 hover:border-yellow-400 transition-all"></button>
+            <button className="w-3 h-3 rounded-full border-2 border-slate-300 hover:bg-primary hover:border-primary transition-all"></button>
+            <button className="w-3 h-3 rounded-full border-2 border-slate-300 hover:bg-primary hover:border-primary transition-all"></button>
             {/* The Active Pill shape */}
             <div className="w-12 h-3.5 md:w-14 md:h-4 rounded-full bg-slate-200 border-2 border-slate-300 shadow-inner relative overflow-hidden">
-                <div className="absolute inset-y-0 left-0 w-1/2 bg-yellow-400"></div>
+                <div className="absolute inset-y-0 left-0 w-1/2 bg-primary"></div>
             </div>
         </div>
     </div>
@@ -887,7 +1021,7 @@ export default function FindTutorNearbyPage() {
                     key={i} 
                     className={`rounded-3xl md:rounded-[2.5rem] border-2 transition-all duration-500 overflow-hidden ${
                         faqOpen === i 
-                        ? "border-yellow-400 bg-white shadow-xl shadow-yellow-400/5" 
+                        ? "border-primary bg-white shadow-xl shadow-primary/5" 
                         : "border-slate-50 bg-slate-50/50 md:bg-white"
                     }`}
                 >
@@ -896,13 +1030,13 @@ export default function FindTutorNearbyPage() {
                         className="w-full p-5 md:p-8 lg:p-10 text-left flex justify-between items-center group gap-4"
                     >
                         <span className={`text-sm md:text-lg lg:text-xl font-[1000] tracking-tighter uppercase transition-colors leading-tight ${
-                            faqOpen === i ? "text-yellow-600" : "text-slate-900"
+                            faqOpen === i ? "text-primary" : "text-slate-900"
                         }`}>
                             {f.q}
                         </span>
                         <div className={`shrink-0 p-2 md:p-3 rounded-xl transition-all shadow-sm ${
                             faqOpen === i 
-                            ? "bg-yellow-400 text-slate-950 rotate-180 shadow-yellow-400/20" 
+                            ? "bg-primary text-white rotate-180 shadow-primary/20" 
                             : "bg-white text-slate-300 group-hover:text-slate-500"
                         }`}>
                             <ChevronRight className="-rotate-90 w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" />
@@ -930,43 +1064,41 @@ export default function FindTutorNearbyPage() {
 </section>
 
             {/* ──── 5.9 PREMIUM CHESS BANNER (PREVIEW) ──── */}
-           <section className="container mx-auto px-4 md:px-6 pb-16 md:pb-32">
-    <div className="relative rounded-[2.5rem] md:rounded-[5rem] bg-[#1e1b4b] p-8 md:p-16 lg:p-28 overflow-hidden group shadow-[0_50px_100px_-20px_rgba(30,27,75,0.3)]">
-        {/* Animated Background Blobs */}
-        <div className="absolute top-0 right-0 w-[60%] h-full bg-yellow-400/10 rounded-full blur-[80px] md:blur-[120px] translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-[250px] md:w-[300px] h-[250px] md:h-[300px] bg-indigo-500/20 rounded-full blur-[60px] md:blur-[80px] -translate-x-1/2 translate-y-1/2" />
-        
-        <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-10 md:gap-16 lg:gap-20 text-center lg:text-left">
-            {/* Text Content Area */}
-            <div className="space-y-6 md:space-y-10">
-                <div className="flex justify-center lg:justify-start">
-                    <YellowBadge text="Exclusive Coaching Track" icon={Swords} />
+            <section className="container mx-auto px-4 md:px-6 pb-16 md:pb-24">
+                <div className="relative rounded-[2rem] md:rounded-[3.5rem] bg-[#1e1b4b] p-6 md:p-12 lg:p-16 overflow-hidden group shadow-xl">
+                    {/* Animated Background Blobs */}
+                    <div className="absolute top-0 right-0 w-[60%] h-full bg-primary/10 rounded-full blur-[80px] md:blur-[120px] translate-x-1/2" />
+                    <div className="absolute bottom-0 left-0 w-[250px] md:w-[300px] h-[250px] md:h-[300px] bg-indigo-500/20 rounded-full blur-[60px] md:blur-[80px] -translate-x-1/2 translate-y-1/2" />
+                    
+                    <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8 md:gap-12 lg:gap-16 text-center lg:text-left">
+                        {/* Text Content Area */}
+                        <div className="space-y-4 md:space-y-6">
+                            <div className="flex justify-center lg:justify-start">
+                                <YellowBadge text="Exclusive Coaching Track" icon={Swords} />
+                            </div>
+                            
+                            <h2 className="text-2xl md:text-4xl font-extrabold text-white tracking-tighter uppercase leading-[1.1] md:leading-[0.85]">
+                                Master Everything with <br className="hidden md:block" />
+                                <span className="text-primary font-black">Our Expert</span>{" "}
+                                Tutors.
+                            </h2>
+                            
+                            <p className="text-indigo-200/60 font-medium text-[10px] md:text-xs uppercase tracking-[0.3em] md:tracking-[0.4em] leading-relaxed max-w-lg mx-auto lg:mx-0">
+                                Comprehensive training from board basics to international competitive strategies. Enrollment open for all ages.
+                            </p>
+                        </div>
+
+                        {/* CTA Button */}
+                        <button 
+                            onClick={() => router.push("/signup")}
+                            className="w-full sm:w-auto px-8 md:px-10 py-3.5 md:py-4 bg-white hover:bg-primary hover:text-white text-slate-950 font-extrabold text-xs md:text-sm rounded-xl md:rounded-2xl transition-all duration-500 shadow-xl active:scale-95 flex items-center justify-center gap-3 md:gap-4 group uppercase tracking-widest"
+                        >
+                            Get Started Now 
+                            <ArrowUpRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
+                        </button>
+                    </div>
                 </div>
-                
-                <h2 className="text-3xl md:text-5xl font-[1000] text-white tracking-tighter uppercase leading-[1.1] md:leading-[0.85]">
-                    Master Everything with <br className="hidden md:block" />
-                    <span className="text-yellow-400 font-black">Our Expert</span>{" "}
-                    Tutors.
-                </h2>
-                
-                <p className="text-indigo-200/60 font-[900] text-[10px] md:text-xs uppercase tracking-[0.3em] md:tracking-[0.4em] leading-relaxed max-w-lg mx-auto lg:mx-0">
-                    Comprehensive training from board basics to international competitive strategies. Enrollment open for all ages.
-                </p>
-            </div>
-
-            {/* CTA Button - Adjusted sizing for Mobile */}
-            <button 
-                onClick={() => router.push("/signup")}
-                className="w-full sm:w-auto px-10 md:px-16 py-5 md:py-8 bg-white hover:bg-yellow-400 text-slate-950 font-[1000] text-base md:text-xl rounded-2xl md:rounded-[2.5rem] transition-all duration-500 shadow-2xl active:scale-95 flex items-center justify-center gap-4 md:gap-6 group uppercase tracking-widest"
-            >
-                Get Started Now 
-                <ArrowUpRight className="w-6 h-6 md:w-8 md:h-8 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
-            </button>
-        </div>
-    </div>
-</section>
-
-          
+            </section>
 
             {/* ──── 5.11 GLOBAL ANIMATIONS & OVERRIDES ──── */}
             <style jsx global>{`
@@ -986,8 +1118,8 @@ export default function FindTutorNearbyPage() {
                 }
 
                 ::selection {
-                    background-color: #FACC15;
-                    color: #000;
+                    background-color: var(--primary);
+                    color: #fff;
                 }
 
                 @keyframes float {

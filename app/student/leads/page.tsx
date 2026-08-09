@@ -1,25 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
 import {
     Users, Clock, Loader2, Mail, Phone,
-    CheckCircle, XCircle, MessageSquare, Send, Plus, X, MapPin, BookOpen, GraduationCap, Home
+    CheckCircle, XCircle, MessageSquare, Send, Plus, X, MapPin, BookOpen, GraduationCap,
+    Sparkles, ShieldCheck, CheckCircle2, ArrowRight
 } from "lucide-react";
 import { toast } from "sonner";
-import MapLocationPicker from "@/components/ui/DynamicMapPicker";
 
 const SUBJECTS = [
     "Mathematics", "Physics", "Chemistry", "Biology", "English", "Hindi",
-    "History", "Geography", "Computer Science", "Economics", "Accountancy",
-    "Business Studies", "Political Science", "Psychology", "Sociology",
-    "Sanskrit", "French", "German", "Music", "Art",
-    "Chess", "Abacus", "Robotics", "Coding", "Spoken English", "Aptitude"
+    "History", "Geography", "Computer Science", "Economics", "Abacus", "Chess", "Coding"
 ];
 const CLASSES = [
-    "Nursery", "LKG", "UKG", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5",
-    "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12",
-    "Age 3-5", "Age 5-8", "Age 8-12", "Age 12-16", "Age 16+"
+    "Class 1", "Class 2", "Class 3", "Class 4", "Class 5",
+    "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12"
 ];
 const MODES = ["Home Tutor", "Online Tutor", "At Centre"];
 
@@ -33,26 +28,19 @@ interface LeadData {
     status: string;
     createdAt: string;
     teacher?: {
-        id: string;
         user: {
-            id: string;
             name: string;
             email: string;
+            phone?: string;
         };
     } | null;
 }
 
 export default function StudentLeadsPage() {
-    const { data: session } = useSession();
     const [leads, setLeads] = useState<LeadData[]>([]);
     const [loading, setLoading] = useState(true);
-    const [filter, setFilter] = useState("all");
-
-    // Create lead modal
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [leadLocation, setLeadLocation] = useState("");
-    const [leadLat, setLeadLat] = useState<number | undefined>();
-    const [leadLng, setLeadLng] = useState<number | undefined>();
     const [leadSubject, setLeadSubject] = useState("");
     const [leadClass, setLeadClass] = useState("");
     const [leadMode, setLeadMode] = useState("");
@@ -64,387 +52,201 @@ export default function StudentLeadsPage() {
     }, []);
 
     const fetchLeads = async () => {
+        setLoading(true);
         try {
             const res = await fetch("/api/leads");
-            if (!res.ok) throw new Error("Failed to fetch");
+            if (!res.ok) throw new Error();
             const data = await res.json();
-            setLeads(Array.isArray(data) ? data : []);
-        } catch (error) {
-            toast.error("Failed to load leads");
+            if (Array.isArray(data)) {
+                setLeads(data);
+            }
+        } catch {
+            toast.error("Failed to load requests timeline");
         } finally {
             setLoading(false);
         }
     };
 
     const handleCreateLead = async () => {
-        if (!leadSubject && !leadLocation && !leadClass && !leadMode) {
-            toast.error("Please fill in at least one field");
+        if (!leadSubject || !leadLocation || !leadClass || !leadMode) {
+            toast.error("Please fill in all required fields.");
             return;
         }
-
         setSubmittingLead(true);
         try {
             const res = await fetch("/api/leads", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    location: leadLocation.trim(),
-                    latitude: leadLat,
-                    longitude: leadLng,
+                    location: leadLocation,
                     subject: leadSubject,
                     classLevel: leadClass,
                     mode: leadMode,
-                    message: leadMessage.trim(),
+                    message: leadMessage
                 }),
             });
-
-            const data = await res.json();
-
-            if (!res.ok) {
-                toast.error(data.error || "Failed to create lead");
-                return;
-            }
-
-            toast.success("Lead created successfully! Teachers will be able to see your request.");
+            if (!res.ok) throw new Error();
+            toast.success("Tutor request posted successfully! Tutors will be matched shortly.");
             setShowCreateModal(false);
             setLeadLocation(""); setLeadSubject(""); setLeadClass(""); setLeadMode(""); setLeadMessage("");
-            setLeadLat(undefined); setLeadLng(undefined);
             fetchLeads();
         } catch {
-            toast.error("Failed to create lead");
+            toast.error("Failed to post tutor request");
         } finally {
             setSubmittingLead(false);
         }
     };
 
-    const filteredLeads = filter === "all"
-        ? leads
-        : leads.filter(l => l.status === filter);
-
-    const getStatusBadge = (status: string) => {
-        switch (status) {
-            case "CONTACTED":
-                return (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700">
-                        <MessageSquare className="w-3.5 h-3.5" />
-                        Contacted
-                    </span>
-                );
-            case "CONVERTED":
-                return (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">
-                        <CheckCircle className="w-3.5 h-3.5" />
-                        Converted
-                    </span>
-                );
-            case "REJECTED":
-                return (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700">
-                        <XCircle className="w-3.5 h-3.5" />
-                        Rejected
-                    </span>
-                );
-            case "PENDING":
-            default:
-                return (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700">
-                        <Clock className="w-3.5 h-3.5" />
-                        Pending
-                    </span>
-                );
-        }
-    };
-
-    const stats = {
-        total: leads.length,
-        pending: leads.filter(l => l.status === "PENDING").length,
-        contacted: leads.filter(l => l.status === "CONTACTED").length,
-        converted: leads.filter(l => l.status === "CONVERTED").length,
+    const STATUS_COLOR: Record<string, string> = {
+        PENDING:   "bg-amber-50 text-amber-700 border-amber-200",
+        CONTACTED: "bg-blue-50 text-blue-700 border-blue-200",
+        CONVERTED: "bg-emerald-50 text-emerald-700 border-emerald-200",
+        REJECTED:  "bg-rose-50 text-rose-700 border-rose-200",
     };
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold text-slate-900">My Leads</h1>
-                    <p className="text-slate-500 mt-1">Post inquiries for teachers to see and respond</p>
-                </div>
-                <button
-                    onClick={() => { setShowCreateModal(true); setLeadLocation(""); setLeadSubject(""); setLeadClass(""); setLeadMode(""); setLeadMessage(""); setLeadLat(undefined); setLeadLng(undefined); }}
-                    className="px-5 py-2 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-600 transition-colors flex items-center gap-2 shadow-sm"
-                >
-                    <Plus className="w-5 h-5" />
-                    Create Lead
-                </button>
-            </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-slate-500 text-sm">Total Leads</p>
-                            <p className="text-3xl font-bold text-slate-900">{stats.total}</p>
+        <div className="space-y-8 pb-12 font-sans">
+            {/* Header banner */}
+            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+                <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                    <div className="space-y-2">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
+                            <Send className="w-3.5 h-3.5" />
+                            <span>Requests Timeline</span>
                         </div>
-                        <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                            <Users className="w-6 h-6 text-blue-600" />
-                        </div>
+                        <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Tutor Requests Board</h1>
+                        <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                            Track the status of your teaching requirements. Receive matches and communicate with tutors directly.
+                        </p>
                     </div>
-                </div>
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-slate-500 text-sm">Pending</p>
-                            <p className="text-3xl font-bold text-amber-600">{stats.pending}</p>
-                        </div>
-                        <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
-                            <Clock className="w-6 h-6 text-amber-600" />
-                        </div>
-                    </div>
-                </div>
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-slate-500 text-sm">Contacted</p>
-                            <p className="text-3xl font-bold text-blue-600">{stats.contacted}</p>
-                        </div>
-                        <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                            <MessageSquare className="w-6 h-6 text-blue-600" />
-                        </div>
-                    </div>
-                </div>
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-slate-500 text-sm">Converted</p>
-                            <p className="text-3xl font-bold text-green-600">{stats.converted}</p>
-                        </div>
-                        <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                            <CheckCircle className="w-6 h-6 text-green-600" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Filter Tabs */}
-            <div className="flex gap-2 bg-white p-1.5 rounded-xl border border-slate-100 w-fit">
-                {[
-                    { value: "all", label: "All" },
-                    { value: "PENDING", label: "Pending" },
-                    { value: "CONTACTED", label: "Contacted" },
-                    { value: "CONVERTED", label: "Converted" },
-                    { value: "REJECTED", label: "Rejected" },
-                ].map(tab => (
-                    <button
-                        key={tab.value}
-                        onClick={() => setFilter(tab.value)}
-                        className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${filter === tab.value
-                            ? "bg-blue-500 text-white shadow-sm"
-                            : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"}`}
-                    >
-                        {tab.label}
+                    <button onClick={() => setShowCreateModal(true)}
+                        className="px-5 py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black uppercase tracking-wider rounded-2xl transition-all shadow-md shrink-0 flex items-center gap-2">
+                        <Plus className="w-4 h-4" /> New Request
                     </button>
-                ))}
+                </div>
             </div>
 
             {/* Leads List */}
             {loading ? (
-                <div className="flex items-center justify-center py-20">
-                    <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+                <div className="flex flex-col items-center justify-center py-24 space-y-3">
+                    <Loader2 className="w-8 h-8 text-[#1f5961] animate-spin" />
+                    <p className="text-slate-400 font-bold uppercase tracking-wider text-xs">Loading timeline...</p>
                 </div>
-            ) : filteredLeads.length === 0 ? (
-                <div className="text-center py-20 bg-white rounded-2xl border border-slate-100">
-                    <Users className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-slate-900 mb-2">
-                        {filter === "all" ? "No Leads Yet" : `No ${filter.toLowerCase()} leads`}
-                    </h3>
-                    <p className="text-slate-500 mb-6">
-                        {filter === "all"
-                            ? "Create your first lead — all teachers will be able to see it and reach out to you."
-                            : "Try a different filter."}
-                    </p>
-                    {filter === "all" && (
-                        <button
-                            onClick={() => { setShowCreateModal(true); setLeadLocation(""); setLeadSubject(""); setLeadClass(""); setLeadMode(""); setLeadMessage(""); }}
-                            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-600 transition-colors"
-                        >
-                            <Plus className="w-5 h-5" />
-                            Create Lead
-                        </button>
-                    )}
+            ) : leads.length === 0 ? (
+                <div className="bg-white rounded-3xl border border-slate-200/80 p-16 text-center space-y-4 shadow-sm">
+                    <div className="text-5xl">📋</div>
+                    <div className="space-y-1">
+                        <h3 className="text-lg font-black text-slate-800">No requests submitted yet</h3>
+                        <p className="text-xs text-slate-400 font-medium max-w-xs mx-auto">Create a tutor request to get matched with verified teachers in Vijayawada.</p>
+                    </div>
+                    <button onClick={() => setShowCreateModal(true)}
+                        className="px-5 py-2.5 bg-[#1f5961] text-white text-xs font-bold rounded-xl shadow-sm hover:bg-[#163e44] transition-all">
+                        Create Request
+                    </button>
                 </div>
             ) : (
                 <div className="space-y-4">
-                    {filteredLeads.map((lead) => (
-                        <div key={lead.id} className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition-shadow">
-                            <div className="flex items-start justify-between mb-3">
+                    {leads.map(lead => (
+                        <div key={lead.id} className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row md:items-center justify-between gap-6">
+                            <div className="space-y-3">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white">
-                                        <MessageSquare className="w-5 h-5" />
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-slate-400">
-                                            {new Date(lead.createdAt).toLocaleDateString("en-IN", {
-                                                day: "numeric", month: "short", year: "numeric",
-                                                hour: "2-digit", minute: "2-digit"
-                                            })}
-                                        </p>
-                                    </div>
+                                    <h3 className="text-sm font-black text-slate-900">{lead.subject}</h3>
+                                    <span className={`text-[9px] px-2 py-0.5 rounded-full font-black uppercase border ${STATUS_COLOR[lead.status] || "bg-slate-50 text-slate-500 border-slate-200"}`}>
+                                        {lead.status}
+                                    </span>
                                 </div>
-                                {getStatusBadge(lead.status)}
+                                <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px] font-bold text-slate-400">
+                                    <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5 text-[#1f5961]" /> {lead.classLevel}</span>
+                                    <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-rose-500" /> {lead.location}</span>
+                                    <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-blue-500" /> {lead.mode}</span>
+                                </div>
+                                {lead.message && (
+                                    <p className="text-xs text-slate-500 font-medium leading-relaxed bg-slate-50 rounded-2xl p-3 border border-slate-100/50">
+                                        &quot;{lead.message}&quot;
+                                    </p>
+                                )}
                             </div>
 
-                            {/* Message */}
-                            {/* Requirement details */}
-                            <div className="flex flex-wrap gap-2 mb-3">
-                                {lead.location && (
-                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-50 text-purple-700 rounded-lg text-xs font-semibold">
-                                        <MapPin className="w-3 h-3" /> {lead.location}
-                                    </span>
-                                )}
-                                {lead.subject && (
-                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-semibold">
-                                        <BookOpen className="w-3 h-3" /> {lead.subject}
-                                    </span>
-                                )}
-                                {lead.classLevel && (
-                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-green-50 text-green-700 rounded-lg text-xs font-semibold">
-                                        <GraduationCap className="w-3 h-3" /> {lead.classLevel}
-                                    </span>
-                                )}
-                                {lead.mode && (
-                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 text-amber-700 rounded-lg text-xs font-semibold">
-                                        <Home className="w-3 h-3" /> {lead.mode}
-                                    </span>
+                            <div className="shrink-0 flex flex-col items-start md:items-end gap-2 border-t md:border-t-0 border-slate-50 pt-4 md:pt-0">
+                                {lead.teacher ? (
+                                    <div className="space-y-1.5 text-left md:text-right">
+                                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Matched Tutor</div>
+                                        <div className="text-xs font-black text-slate-900">{lead.teacher.user.name}</div>
+                                        <div className="text-[10px] font-medium text-slate-500">{lead.teacher.user.email}</div>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-2 text-xs font-bold text-slate-400">
+                                        <Clock className="w-4 h-4 text-amber-500 animate-pulse" />
+                                        <span>Matching tutor...</span>
+                                    </div>
                                 )}
                             </div>
-                            {lead.message && (
-                                <div className="bg-slate-50 rounded-xl p-4 mb-3">
-                                    <p className="text-sm text-slate-700">{lead.message}</p>
-                                </div>
-                            )}
-
-                            {/* Teacher response info */}
-                            {lead.teacher && lead.status !== "PENDING" && (
-                                <div className="mt-3 pt-3 border-t border-slate-100 flex items-center gap-2 text-sm text-slate-500">
-                                    <Mail className="w-4 h-4 text-blue-500" />
-                                    <span>Responded by <strong className="text-slate-700">{lead.teacher.user.name}</strong></span>
-                                </div>
-                            )}
                         </div>
                     ))}
                 </div>
             )}
 
-            {/* Create Lead Modal */}
+            {/* Modal Box */}
             {showCreateModal && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden max-h-[90vh] flex flex-col">
-                        {/* Modal Header */}
-                        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-                            <div>
-                                <h2 className="text-xl font-bold text-slate-900">Create New Lead</h2>
-                                <p className="text-sm text-slate-500">All teachers will see your inquiry</p>
-                            </div>
-                            <button
-                                onClick={() => setShowCreateModal(false)}
-                                className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+                    <div className="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8 space-y-6 shadow-2xl relative">
+                        <button onClick={() => setShowCreateModal(false)} className="absolute top-6 right-6 p-1 text-slate-400 hover:text-slate-900 transition-colors">
+                            <X className="w-5 h-5" />
+                        </button>
+                        <div>
+                            <h2 className="text-lg font-black text-slate-900">Post Tuition Requirement</h2>
+                            <p className="text-xs text-slate-400 font-medium">Verified tutors will contact you after review</p>
                         </div>
 
-                        {/* Modal Body */}
-                        <div className="p-6 space-y-4 overflow-y-auto flex-1">
-                            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
-                                <p className="text-sm text-blue-700">
-                                    <strong>How it works:</strong> Your lead will be visible to all teachers on the platform.
-                                    Any interested teacher can then contact you directly.
-                                </p>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-semibold text-slate-700 mb-2">📍 Location / Area / Pincode</label>
-                                <MapLocationPicker
-                                    onLocationSelect={(loc) => {
-                                        setLeadLocation(loc.address);
-                                        setLeadLat(loc.latitude);
-                                        setLeadLng(loc.longitude);
-                                    }}
-                                    initialAddress={leadLocation}
-                                    accentColor="blue"
-                                    height="200px"
-                                    compact={true}
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-semibold text-slate-700 mb-2">📘 Subject / Skill</label>
-                                <select
-                                    value={leadSubject}
-                                    onChange={(e) => setLeadSubject(e.target.value)}
-                                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm appearance-none bg-white"
-                                >
-                                    <option value="">Select Subject</option>
-                                    {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
-                                </select>
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-2">🎓 Class / Age Group</label>
-                                    <select
-                                        value={leadClass}
-                                        onChange={(e) => setLeadClass(e.target.value)}
-                                        className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm appearance-none bg-white"
-                                    >
-                                        <option value="">Select Class</option>
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Subject</label>
+                                    <select value={leadSubject} onChange={e => setLeadSubject(e.target.value)}
+                                        className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50 appearance-none cursor-pointer">
+                                        <option value="">Select subject</option>
+                                        {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
+                                    </select>
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Class Level</label>
+                                    <select value={leadClass} onChange={e => setLeadClass(e.target.value)}
+                                        className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50 appearance-none cursor-pointer">
+                                        <option value="">Select class</option>
                                         {CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
                                     </select>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-2">🏠 Mode</label>
-                                    <select
-                                        value={leadMode}
-                                        onChange={(e) => setLeadMode(e.target.value)}
-                                        className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm appearance-none bg-white"
-                                    >
-                                        <option value="">Select Mode</option>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Teaching Mode</label>
+                                    <select value={leadMode} onChange={e => setLeadMode(e.target.value)}
+                                        className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50 appearance-none cursor-pointer">
+                                        <option value="">Select mode</option>
                                         {MODES.map(m => <option key={m} value={m}>{m}</option>)}
                                     </select>
                                 </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Location / Area</label>
+                                    <input type="text" value={leadLocation} onChange={e => setLeadLocation(e.target.value)} placeholder="e.g. Patamata, Vijayawada"
+                                        className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50" />
+                                </div>
                             </div>
-                            <div>
-                                <label className="block text-sm font-semibold text-slate-700 mb-2">💬 Additional Details (Optional)</label>
-                                <textarea
-                                    value={leadMessage}
-                                    onChange={(e) => setLeadMessage(e.target.value)}
-                                    rows={3}
-                                    placeholder="Any specific requirements — timing, budget, learning goals..."
-                                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm resize-none"
-                                />
+
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Additional Notes</label>
+                                <textarea value={leadMessage} onChange={e => setLeadMessage(e.target.value)} placeholder="Specify days, timings, or any custom goals..." rows={3}
+                                    className="w-full px-4 py-3 text-xs font-medium border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50 resize-none" />
                             </div>
                         </div>
 
-                        {/* Modal Footer */}
-                        <div className="p-6 border-t border-slate-100 flex gap-3">
-                            <button
-                                onClick={() => setShowCreateModal(false)}
-                                className="flex-1 px-4 py-3 text-slate-700 font-semibold rounded-xl hover:bg-slate-100 transition-colors border border-slate-200"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleCreateLead}
-                                disabled={(!leadSubject && !leadLocation && !leadClass && !leadMode) || submittingLead}
-                                className="flex-1 px-4 py-3 bg-blue-500 text-white font-semibold rounded-xl hover:bg-blue-600 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                            >
-                                {submittingLead ? (
-                                    <><Loader2 className="w-4 h-4 animate-spin" /> Posting...</>
-                                ) : (
-                                    <><Send className="w-4 h-4" /> Post Lead</>
-                                )}
-                            </button>
-                        </div>
+                        <button onClick={handleCreateLead} disabled={submittingLead}
+                            className="w-full py-3.5 bg-[#1f5961] hover:bg-[#163e44] disabled:opacity-50 text-white font-black text-xs rounded-2xl flex items-center justify-center gap-2.5 transition-all shadow-md">
+                            {submittingLead ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                            Post Requirement
+                        </button>
                     </div>
                 </div>
             )}

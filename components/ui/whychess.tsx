@@ -118,7 +118,7 @@ export default function WhyChooseUsSection() {
   );
 }
 
-function BenefitCard({ benefit }) {
+function BenefitCard({ benefit }: { benefit: any }) {
   const Icon = benefit.icon;
   return (
     <motion.div

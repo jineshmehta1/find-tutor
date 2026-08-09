@@ -107,7 +107,7 @@ export default function WhyChooseCoachingSection() {
   );
 }
 
-function BenefitCard({ benefit, colors }) {
+function BenefitCard({ benefit, colors }: { benefit: any; colors: any }) {
   return (
     <div
       className={`

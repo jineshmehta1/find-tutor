@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from "react";
 import {
-    Search, MapPin, BookOpen, Filter, Star, Phone, Mail,
-    User, GraduationCap, Briefcase, Award, X, Loader2, MessageCircle
+    Search, MapPin, BookOpen, Filter, Star, Phone,
+    User, GraduationCap, Briefcase, Award, X, Loader2,
+    Sparkles, ShieldCheck, CheckCircle2, ArrowRight
 } from "lucide-react";
 import { toast } from "sonner";
-import MapLocationPicker from "@/components/ui/DynamicMapPicker";
+import { QuickDemoModal } from "@/components/QuickDemoModal";
 
 interface Teacher {
     id: string;
@@ -18,13 +19,13 @@ interface Teacher {
     address: string;
     education: string;
     experience: string;
-    certifications: string[];
     subjects: string[];
+    teachingMode?: string;
 }
 
 const SUBJECTS = [
     "All Subjects", "Mathematics", "Physics", "Chemistry", "Biology", "English",
-    "Hindi", "History", "Geography", "Computer Science", "Economics"
+    "Hindi", "History", "Geography", "Computer Science", "Economics", "Abacus", "Chess", "Coding"
 ];
 
 export default function TeachersPage() {
@@ -33,392 +34,180 @@ export default function TeachersPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedSubject, setSelectedSubject] = useState("All Subjects");
     const [areaFilter, setAreaFilter] = useState("");
-    const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
-    const [contactModalOpen, setContactModalOpen] = useState(false);
-    const [contactMessage, setContactMessage] = useState("");
-    const [sending, setSending] = useState(false);
+    const [isDemoOpen, setIsDemoOpen] = useState(false);
+    const [demoTutorName, setDemoTutorName] = useState("");
+    const [demoSubject, setDemoSubject] = useState("");
 
     useEffect(() => {
         fetchTeachers();
     }, []);
 
     const fetchTeachers = async () => {
+        setLoading(true);
         try {
             const res = await fetch("/api/teachers");
-            if (!res.ok) throw new Error("Failed to fetch");
+            if (!res.ok) throw new Error();
             const data = await res.json();
-            setTeachers(data);
-        } catch (error) {
-            toast.error("Failed to load teachers");
+            if (Array.isArray(data)) {
+                setTeachers(data);
+            }
+        } catch {
+            toast.error("Failed to load tutors directory");
         } finally {
             setLoading(false);
         }
     };
 
-    const filteredTeachers = teachers.filter((teacher) => {
-        const matchesSearch = teacher.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            teacher.subjects.some(s => s.toLowerCase().includes(searchTerm.toLowerCase()));
+    const handleOpenDemo = (tutorName: string, subject: string) => {
+        setDemoTutorName(tutorName);
+        setDemoSubject(subject);
+        setIsDemoOpen(true);
+    };
 
+    const filteredTeachers = teachers.filter(t => {
+        const matchesSearch = t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            t.education.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesSubject = selectedSubject === "All Subjects" ||
-            teacher.subjects.includes(selectedSubject);
-
-        const matchesArea = !areaFilter || (() => {
-            const filterParts = areaFilter.toLowerCase().split(",").map(p => p.trim()).filter(p => p.length > 1 && !/^\d+$/.test(p));
-            const teacherAddr = teacher.address.toLowerCase();
-            return filterParts.some(part => teacherAddr.includes(part));
-        })();
-
+            t.subjects.some(s => s.toLowerCase().includes(selectedSubject.toLowerCase()));
+        const matchesArea = !areaFilter || t.address.toLowerCase().includes(areaFilter.toLowerCase());
         return matchesSearch && matchesSubject && matchesArea;
     });
 
-    const handleContact = async () => {
-        if (!selectedTeacher || !contactMessage.trim()) {
-            toast.error("Please enter a message");
-            return;
-        }
-
-        setSending(true);
-        try {
-            const res = await fetch("/api/leads", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    teacherId: selectedTeacher.id,
-                    message: contactMessage,
-                }),
-            });
-
-            if (!res.ok) {
-                const data = await res.json();
-                throw new Error(data.error || "Failed to send");
-            }
-
-            toast.success("Message sent successfully!");
-            setContactModalOpen(false);
-            setContactMessage("");
-            setSelectedTeacher(null);
-        } catch (error: any) {
-            toast.error(error.message || "Failed to send message");
-        } finally {
-            setSending(false);
-        }
-    };
-
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div>
-                <h1 className="text-3xl font-bold text-slate-900">Find Teachers</h1>
-                <p className="text-slate-500 mt-1">Browse qualified teachers in your area</p>
+        <div className="space-y-8 pb-12 font-sans">
+            {/* Header banner */}
+            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+                <div className="relative z-10 space-y-2">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
+                        <GraduationCap className="w-3.5 h-3.5" />
+                        <span>Educator Directory</span>
+                    </div>
+                    <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Verified Mentors & Tutors</h1>
+                    <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                        Directly connect with top-rated tutors near Vijayawada. Book a free 30-minute demo session.
+                    </p>
+                </div>
             </div>
 
-            {/* Filters */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+            {/* Filters panel */}
+            <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {/* Search */}
-                    <div className="relative">
-                        <Search className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
+                    {/* Search name */}
+                    <div className="relative flex items-center">
+                        <Search className="absolute left-4 w-4 h-4 text-slate-400" />
                         <input
                             type="text"
+                            placeholder="Search tutor name or education..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                            placeholder="Search by name or subject..."
+                            className="w-full pl-11 pr-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50"
                         />
                     </div>
-
-                    {/* Subject Filter */}
-                    <div className="relative">
-                        <BookOpen className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
+                    {/* Area filter */}
+                    <div className="relative flex items-center">
+                        <MapPin className="absolute left-4 w-4 h-4 text-slate-400" />
+                        <input
+                            type="text"
+                            placeholder="Filter by locality (e.g. Benz Circle)..."
+                            value={areaFilter}
+                            onChange={(e) => setAreaFilter(e.target.value)}
+                            className="w-full pl-11 pr-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50"
+                        />
+                    </div>
+                    {/* Select subject */}
+                    <div className="relative flex items-center">
+                        <BookOpen className="absolute left-4 w-4 h-4 text-slate-400" />
                         <select
                             value={selectedSubject}
                             onChange={(e) => setSelectedSubject(e.target.value)}
-                            className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none appearance-none bg-white"
+                            className="w-full pl-11 pr-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50 appearance-none cursor-pointer"
                         >
-                            {SUBJECTS.map((subject) => (
-                                <option key={subject} value={subject}>{subject}</option>
-                            ))}
+                            {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
                         </select>
                     </div>
-
-                    {/* Area Filter - Map */}
-                    <div className="md:col-span-3">
-                        <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">📍 Filter by Area</label>
-                        <MapLocationPicker
-                            onLocationSelect={(loc) => {
-                                setAreaFilter(loc.address);
-                            }}
-                            initialAddress={areaFilter}
-                            accentColor="blue"
-                            height="200px"
-                            compact={true}
-                        />
-                    </div>
                 </div>
             </div>
 
-            {/* Results Count */}
-            <div className="flex items-center justify-between">
-                <p className="text-slate-500">
-                    Showing <span className="font-semibold text-slate-900">{filteredTeachers.length}</span> teachers
-                </p>
-            </div>
-
-            {/* Teachers Grid */}
+            {/* Tutors Grid */}
             {loading ? (
-                <div className="flex items-center justify-center py-20">
-                    <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+                <div className="flex flex-col items-center justify-center py-24 space-y-3">
+                    <Loader2 className="w-8 h-8 text-[#1f5961] animate-spin" />
+                    <p className="text-slate-400 font-bold uppercase tracking-wider text-xs">Loading tutors...</p>
                 </div>
             ) : filteredTeachers.length === 0 ? (
-                <div className="text-center py-20 bg-white rounded-2xl border border-slate-100">
-                    <User className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-slate-900 mb-2">No Teachers Found</h3>
-                    <p className="text-slate-500">Try adjusting your filters or search term</p>
+                <div className="bg-white rounded-3xl border border-slate-200/80 p-16 text-center space-y-4 shadow-sm">
+                    <div className="text-5xl">🔍</div>
+                    <div className="space-y-1">
+                        <h3 className="text-lg font-black text-slate-800">No matching tutors found</h3>
+                        <p className="text-xs text-slate-400 font-medium max-w-xs mx-auto">Try clearing search filters or broadening your area check.</p>
+                    </div>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredTeachers.map((teacher) => (
-                        <div
-                            key={teacher.id}
-                            className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-lg transition-all duration-300 group"
-                        >
-                            {/* Profile Header */}
-                            <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white relative">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center overflow-hidden">
-                                        {teacher.profilePhoto ? (
-                                            <img src={teacher.profilePhoto} alt={teacher.name} className="w-full h-full object-cover" />
+                    {filteredTeachers.map(tutor => (
+                        <div key={tutor.id} className="bg-white rounded-3xl border border-slate-200/80 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group relative">
+                            <div className="space-y-4">
+                                <div className="flex items-start gap-4">
+                                    <div className="relative w-14 h-14 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
+                                        {tutor.profilePhoto ? (
+                                            <img src={tutor.profilePhoto} alt={tutor.name} className="w-full h-full object-cover" />
                                         ) : (
-                                            <User className="w-8 h-8 text-white" />
+                                            <div className="w-full h-full bg-[#1f5961]/10 flex items-center justify-center text-[#1f5961] font-black text-lg">
+                                                {tutor.name[0]}
+                                            </div>
                                         )}
+                                        <span className="absolute bottom-0.5 right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white" />
                                     </div>
-                                    <div>
-                                        <h3 className="text-xl font-bold">{teacher.name}</h3>
-                                        <p className="text-blue-100 text-sm flex items-center gap-1">
-                                            <MapPin className="w-4 h-4" />
-                                            {teacher.address.split(",")[0]}
-                                        </p>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-1 text-amber-500 mb-0.5">
+                                            <Star className="w-3.5 h-3.5 fill-current" />
+                                            <span className="text-xs font-black text-slate-800">4.9</span>
+                                        </div>
+                                        <h3 className="font-black text-sm text-slate-900 truncate leading-snug group-hover:text-[#1f5961] transition-colors">{tutor.name}</h3>
+                                        <p className="text-[11px] font-bold text-slate-400 truncate mt-0.5">{tutor.education}</p>
+                                    </div>
+                                </div>
+
+                                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100 space-y-1.5 text-[11px] font-bold text-slate-500">
+                                    <div className="flex items-center gap-2 truncate">
+                                        <Award className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                                        <span>{tutor.experience || "Verified Educator"}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 truncate">
+                                        <MapPin className="w-3.5 h-3.5 text-[#1f5961] shrink-0" />
+                                        <span className="truncate">{tutor.address || "Vijayawada"}</span>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div className="text-[9px] font-black uppercase tracking-wider text-slate-400 mb-1.5">Subjects Taught</div>
+                                    <div className="flex flex-wrap gap-1">
+                                        {tutor.subjects.map(sub => (
+                                            <span key={sub} className="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-md text-[10px] font-bold">
+                                                {sub}
+                                            </span>
+                                        ))}
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Content */}
-                            <div className="p-6 space-y-4">
-                                {/* Subjects */}
-                                <div>
-                                    <p className="text-xs font-semibold text-slate-400 uppercase mb-2">Subjects</p>
-                                    <div className="flex flex-wrap gap-1">
-                                        {teacher.subjects.slice(0, 3).map((subject) => (
-                                            <span key={subject} className="px-2 py-1 bg-blue-50 text-blue-600 rounded-lg text-xs font-medium">
-                                                {subject}
-                                            </span>
-                                        ))}
-                                        {teacher.subjects.length > 3 && (
-                                            <span className="px-2 py-1 bg-slate-100 text-slate-500 rounded-lg text-xs">
-                                                +{teacher.subjects.length - 3} more
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* Quick Info */}
-                                <div className="space-y-2">
-                                    <div className="flex items-center gap-2 text-sm text-slate-600">
-                                        <GraduationCap className="w-4 h-4 text-slate-400" />
-                                        <span className="truncate">{teacher.education}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-sm text-slate-600">
-                                        <Briefcase className="w-4 h-4 text-slate-400" />
-                                        <span className="truncate">{teacher.experience}</span>
-                                    </div>
-                                </div>
-
-                                {/* Actions */}
-                                <div className="flex gap-2 pt-2">
-                                    <button
-                                        onClick={() => setSelectedTeacher(teacher)}
-                                        className="flex-1 px-4 py-2.5 bg-slate-100 text-slate-700 rounded-xl text-sm font-medium hover:bg-slate-200 transition-colors"
-                                    >
-                                        View Profile
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            setSelectedTeacher(teacher);
-                                            setContactModalOpen(true);
-                                        }}
-                                        className="flex-1 px-4 py-2.5 bg-blue-500 text-white rounded-xl text-sm font-medium hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
-                                    >
-                                        <MessageCircle className="w-4 h-4" />
-                                        Contact
-                                    </button>
-                                </div>
+                            <div className="pt-4 mt-4 border-t border-slate-100 grid grid-cols-2 gap-2">
+                                <button onClick={() => handleOpenDemo(tutor.name, tutor.subjects[0])}
+                                    className="w-full py-2.5 bg-[#1f5961] hover:bg-[#163e44] text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors">
+                                    <Sparkles className="w-3.5 h-3.5 text-amber-300" /> Free Demo
+                                </button>
+                                <a href={`tel:${tutor.phone}`}
+                                    className="w-full py-2.5 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 border border-slate-200 transition-colors">
+                                    <Phone className="w-3.5 h-3.5 text-teal-600" /> Call Tutor
+                                </a>
                             </div>
                         </div>
                     ))}
                 </div>
             )}
 
-            {/* Teacher Profile Modal */}
-            {selectedTeacher && !contactModalOpen && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                        {/* Modal Header */}
-                        <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-8 text-white relative">
-                            <button
-                                onClick={() => setSelectedTeacher(null)}
-                                className="absolute top-4 right-4 p-2 hover:bg-white/20 rounded-xl transition-colors"
-                            >
-                                <X className="w-6 h-6" />
-                            </button>
-                            <div className="flex items-center gap-6">
-                                <div className="w-24 h-24 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center overflow-hidden">
-                                    {selectedTeacher.profilePhoto ? (
-                                        <img src={selectedTeacher.profilePhoto} alt={selectedTeacher.name} className="w-full h-full object-cover" />
-                                    ) : (
-                                        <User className="w-12 h-12 text-white" />
-                                    )}
-                                </div>
-                                <div>
-                                    <h2 className="text-3xl font-bold">{selectedTeacher.name}</h2>
-                                    <p className="text-blue-100 flex items-center gap-2 mt-1">
-                                        <MapPin className="w-4 h-4" />
-                                        {selectedTeacher.address}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Modal Content */}
-                        <div className="p-8 space-y-6">
-                            {/* Contact Info */}
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl">
-                                    <Mail className="w-5 h-5 text-blue-500" />
-                                    <div>
-                                        <p className="text-xs text-slate-400">Email</p>
-                                        <p className="font-medium text-slate-900">{selectedTeacher.email}</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl">
-                                    <Phone className="w-5 h-5 text-blue-500" />
-                                    <div>
-                                        <p className="text-xs text-slate-400">Phone</p>
-                                        <p className="font-medium text-slate-900">{selectedTeacher.phone}</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Education & Experience */}
-                            <div className="space-y-4">
-                                <div>
-                                    <h3 className="font-semibold text-slate-900 flex items-center gap-2 mb-2">
-                                        <GraduationCap className="w-5 h-5 text-blue-500" />
-                                        Education
-                                    </h3>
-                                    <p className="text-slate-600">{selectedTeacher.education}</p>
-                                </div>
-                                <div>
-                                    <h3 className="font-semibold text-slate-900 flex items-center gap-2 mb-2">
-                                        <Briefcase className="w-5 h-5 text-blue-500" />
-                                        Experience
-                                    </h3>
-                                    <p className="text-slate-600">{selectedTeacher.experience}</p>
-                                </div>
-                            </div>
-
-                            {/* Certifications */}
-                            <div>
-                                <h3 className="font-semibold text-slate-900 flex items-center gap-2 mb-3">
-                                    <Award className="w-5 h-5 text-blue-500" />
-                                    Certifications
-                                </h3>
-                                <div className="flex flex-wrap gap-2">
-                                    {selectedTeacher.certifications.map((cert) => (
-                                        <span key={cert} className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-sm">
-                                            {cert}
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Subjects */}
-                            <div>
-                                <h3 className="font-semibold text-slate-900 flex items-center gap-2 mb-3">
-                                    <BookOpen className="w-5 h-5 text-blue-500" />
-                                    Subjects
-                                </h3>
-                                <div className="flex flex-wrap gap-2">
-                                    {selectedTeacher.subjects.map((subject) => (
-                                        <span key={subject} className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
-                                            {subject}
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Contact Button */}
-                            <button
-                                onClick={() => setContactModalOpen(true)}
-                                className="w-full py-4 bg-blue-500 text-white rounded-xl font-semibold hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
-                            >
-                                <MessageCircle className="w-5 h-5" />
-                                Contact Teacher
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Contact Modal */}
-            {contactModalOpen && selectedTeacher && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-3xl w-full max-w-md p-6">
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-xl font-bold text-slate-900">Contact {selectedTeacher.name}</h2>
-                            <button
-                                onClick={() => {
-                                    setContactModalOpen(false);
-                                    setContactMessage("");
-                                }}
-                                className="p-2 hover:bg-slate-100 rounded-xl transition-colors"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
-
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-2">Your Message</label>
-                                <textarea
-                                    value={contactMessage}
-                                    onChange={(e) => setContactMessage(e.target.value)}
-                                    rows={4}
-                                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none"
-                                    placeholder="Introduce yourself and describe what you'd like to learn..."
-                                />
-                            </div>
-
-                            <button
-                                onClick={handleContact}
-                                disabled={sending}
-                                className="w-full py-3 bg-blue-500 text-white rounded-xl font-semibold hover:bg-blue-600 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                            >
-                                {sending ? (
-                                    <>
-                                        <Loader2 className="w-5 h-5 animate-spin" />
-                                        Sending...
-                                    </>
-                                ) : (
-                                    <>
-                                        <MessageCircle className="w-5 h-5" />
-                                        Send Message
-                                    </>
-                                )}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <QuickDemoModal isOpen={isDemoOpen} onClose={() => setIsDemoOpen(false)} defaultSubject={demoSubject} defaultTutor={demoTutorName} />
         </div>
     );
 }

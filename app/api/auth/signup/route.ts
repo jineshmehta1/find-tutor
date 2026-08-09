@@ -9,8 +9,8 @@ const baseUserSchema = z.object({
     email: z.string().email("Invalid email address"),
     phone: z.string().min(10, "Phone must be at least 10 digits"),
     password: z.string().min(6, "Password must be at least 6 characters"),
-    dob: z.string().transform((str) => new Date(str)),
-    address: z.string().min(5, "Address is required"),
+    dob: z.string().optional().transform((str) => str ? new Date(str) : new Date("2000-01-01")),
+    address: z.string().optional().default("Bhavanipuram, Vijayawada"),
     profilePhoto: z.string().optional(),
     latitude: z.number().optional(),
     longitude: z.number().optional(),
@@ -21,9 +21,9 @@ const teacherSchema = baseUserSchema.extend({
     certifications: z.array(z.object({
         text: z.string().min(1, "Certification name is required"),
         image: z.string().optional(),
-    })).min(1, "At least one certification required"),
-    education: z.string().min(2, "Education is required"),
-    experience: z.string().min(2, "Experience is required"),
+    })).optional().default([]),
+    education: z.string().optional().default("Bachelor's Degree"),
+    experience: z.string().optional().default("1 Year"),
     subjects: z.array(z.string()).min(1, "At least one subject required"),
     teachingMode: z.string().optional(),
     classesOrAgeGroup: z.array(z.string()).optional(),
@@ -57,17 +57,10 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Verify Email (Google or OTP)
-        const { otp, isGoogleVerified } = body;
+        // Verify Email (Google or OTP or Direct Password)
+        const { otp, isGoogleVerified, password } = body;
         
-        if (!isGoogleVerified) {
-            if (!otp) {
-                return NextResponse.json(
-                    { error: "Verification is required" },
-                    { status: 400 }
-                );
-            }
-
+        if (!isGoogleVerified && !password && otp) {
             const verificationRequest = await prisma.verificationRequest.findFirst({
                 where: {
                     identifier: validatedData.email,
@@ -196,6 +189,7 @@ export async function POST(request: NextRequest) {
         console.error("Signup error:", error);
 
         if (error instanceof z.ZodError) {
+            console.error("Zod Validation Error Details:", JSON.stringify(error.errors, null, 2));
             return NextResponse.json(
                 { error: "Validation failed", details: error.errors },
                 { status: 400 }

@@ -14,6 +14,11 @@ const baseUserSchema = z.object({
     profilePhoto: z.string().optional(),
     latitude: z.number().optional(),
     longitude: z.number().optional(),
+    accountCreator: z.string().optional(),
+    gender: z.string().optional(),
+    preferredLanguage: z.string().optional().default("English"),
+    securityQuestion: z.string().optional(),
+    securityAnswer: z.string().optional(),
 });
 
 const teacherSchema = baseUserSchema.extend({
@@ -118,6 +123,11 @@ export async function POST(request: NextRequest) {
                     latitude: teacherData.latitude,
                     longitude: teacherData.longitude,
                     role: "TEACHER",
+                    accountCreator: teacherData.accountCreator || "teacher",
+                    gender: teacherData.gender,
+                    preferredLanguage: teacherData.preferredLanguage,
+                    securityQuestion: teacherData.securityQuestion,
+                    securityAnswer: teacherData.securityAnswer,
                     teacher: {
                         create: {
                             certifications: JSON.stringify(teacherData.certifications),
@@ -164,6 +174,11 @@ export async function POST(request: NextRequest) {
                     latitude: studentData.latitude,
                     longitude: studentData.longitude,
                     role: "STUDENT",
+                    accountCreator: studentData.accountCreator,
+                    gender: studentData.gender,
+                    preferredLanguage: studentData.preferredLanguage,
+                    securityQuestion: studentData.securityQuestion,
+                    securityAnswer: studentData.securityAnswer,
                     student: {
                         create: {
                             subjects: JSON.stringify(studentData.subjects),

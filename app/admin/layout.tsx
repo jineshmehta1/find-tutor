@@ -52,7 +52,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="min-h-screen bg-slate-50 flex font-sans">
 
       {/* Mobile Header Bar */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-[#19484e] text-white px-4 py-3 flex items-center justify-between shadow-md">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-[#0a1829] text-white px-4 py-3 flex items-center justify-between shadow-md">
         <Link href="/admin" className="flex items-center gap-2">
           <img src="/image.png" alt="Aacharya Logo" className="h-8 w-auto object-contain bg-white/90 p-1 rounded-lg" />
           <span className="font-black text-sm tracking-tight text-white">ADMIN PORTAL</span>
@@ -75,7 +75,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Sidebar */}
       <aside className={cn(
-        "fixed lg:static inset-y-0 left-0 z-50 w-64 bg-[#19484e] text-white flex flex-col justify-between transform transition-transform duration-300 lg:translate-x-0 shadow-2xl shrink-0 h-screen",
+        "fixed lg:static inset-y-0 left-0 z-50 w-64 bg-[#0a1829] text-white flex flex-col justify-between transform transition-transform duration-300 lg:translate-x-0 shadow-2xl shrink-0 h-screen",
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="flex flex-col flex-1 min-h-0">
@@ -87,7 +87,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </div>
               <div>
                 <h1 className="text-base font-black text-white leading-tight tracking-tight">Aacharya</h1>
-                <p className="text-[10px] text-teal-200 uppercase tracking-widest font-extrabold flex items-center gap-1">
+                <p className="text-[10px] text-amber-200 uppercase tracking-widest font-extrabold flex items-center gap-1">
                   <ShieldCheck className="w-3 h-3 text-amber-300" />
                   Admin Panel
                 </p>
@@ -102,7 +102,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-xs font-black text-white truncate">{session?.user?.name || "System Admin"}</p>
-              <p className="text-[10px] text-teal-200 truncate">{session?.user?.email || "admin@aacharya.net"}</p>
+              <p className="text-[10px] text-amber-200 truncate">{session?.user?.email || "admin@aacharya.net"}</p>
             </div>
           </div>
 
@@ -124,7 +124,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                           "flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all",
                           isActive
                             ? "bg-amber-500 text-slate-950 shadow-md font-black"
-                            : "text-teal-100 hover:bg-white/10 hover:text-white"
+                            : "text-amber-100 hover:bg-white/10 hover:text-white"
                         )}
                       >
                         <Icon className="w-4 h-4 shrink-0" />

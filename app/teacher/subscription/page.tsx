@@ -139,7 +139,7 @@ export default function TeacherSubscriptionPage() {
                     email: session?.user?.email || "",
                 },
                 theme: {
-                    color: "#1f5961",
+                    color: "#ffb800",
                 },
                 modal: {
                     ondismiss: () => {
@@ -160,7 +160,7 @@ export default function TeacherSubscriptionPage() {
     if (loading) {
         return (
             <div className="flex items-center justify-center py-20">
-                <Loader2 className="w-8 h-8 text-[#1f5961] animate-spin" />
+                <Loader2 className="w-8 h-8 text-[#ffb800] animate-spin" />
             </div>
         );
     }
@@ -171,15 +171,15 @@ export default function TeacherSubscriptionPage() {
     return (
         <div className="space-y-8 font-sans pb-12 max-w-5xl mx-auto">
             {/* Header Banner */}
-            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+            <div className="bg-[#ffb800] p-6 sm:p-8 rounded-3xl text-slate-950 shadow-md relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
                 <div className="relative z-10 space-y-2">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
-                        <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-950/10 text-slate-900 text-xs font-black rounded-full border border-slate-950/10">
+                        <Sparkles className="w-3.5 h-3.5 text-slate-950" />
                         <span>Tutor Membership</span>
                     </div>
                     <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Subscription Plans</h1>
-                    <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                    <p className="text-xs sm:text-sm text-slate-800 font-medium max-w-xl">
                         Unlock unlimited student leads, zero commission cuts, and verified instructor badge in Bhavanipuram & Vijayawada.
                     </p>
                 </div>
@@ -232,7 +232,7 @@ export default function TeacherSubscriptionPage() {
                             return (
                                 <div
                                     key={plan.id}
-                                    className={`bg-white rounded-3xl p-6 shadow-sm border transition-all relative flex flex-col justify-between ${isPopular ? "border-[#1f5961] ring-2 ring-[#1f5961]/20 shadow-md" : "border-slate-200/80"}`}
+                                    className={`bg-white rounded-3xl p-6 shadow-sm border transition-all relative flex flex-col justify-between ${isPopular ? "border-[#ffb800] ring-2 ring-[#ffb800]/20 shadow-md" : "border-slate-200/80"}`}
                                 >
                                     {isPopular && (
                                         <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-amber-400 text-slate-950 text-[10px] font-black uppercase tracking-wider rounded-full shadow-md">
@@ -247,7 +247,7 @@ export default function TeacherSubscriptionPage() {
                                         </div>
 
                                         <div className="flex items-baseline gap-1 border-y border-slate-100 py-3">
-                                            <span className="text-3xl font-black text-[#1f5961]">₹{plan.price}</span>
+                                            <span className="text-3xl font-black text-[#ffb800]">₹{plan.price}</span>
                                             <span className="text-xs text-slate-500 font-bold">/ {plan.duration} Days</span>
                                         </div>
 
@@ -265,7 +265,7 @@ export default function TeacherSubscriptionPage() {
                                     <button
                                         onClick={() => handleSubscribe(plan)}
                                         disabled={processing === plan.id}
-                                        className={`w-full mt-6 py-3.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-md ${isPopular ? "bg-amber-500 hover:bg-amber-600 text-slate-950" : "bg-[#1f5961] hover:bg-[#1a4a51] text-white"}`}
+                                        className={`w-full mt-6 py-3.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-md ${isPopular ? "bg-amber-500 hover:bg-amber-600 text-slate-950" : "bg-[#ffb800] hover:bg-[#ffa000] text-white"}`}
                                     >
                                         {processing === plan.id ? (
                                             <Loader2 className="w-4 h-4 animate-spin" />

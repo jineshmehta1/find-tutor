@@ -121,17 +121,17 @@ export default function TeacherLeadsPage() {
     };
 
     return (
-        <div className="space-y-8 font-sans pb-12">
+        <div className="space-y-8 font-sans pb-12 p-6 sm:p-8 bg-slate-50 min-h-[calc(100vh-70px)]">
             {/* Header Banner */}
-            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+            <div className="bg-[#ffb800] p-6 sm:p-8 rounded-3xl text-slate-950 shadow-md relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
                 <div className="relative z-10 space-y-2">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
-                        <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-950/10 text-slate-900 text-xs font-black rounded-full border border-slate-950/10">
+                        <Sparkles className="w-3.5 h-3.5 text-slate-950" />
                         <span>Student Inquiries Desk</span>
                     </div>
                     <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Student Tuition Leads</h1>
-                    <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                    <p className="text-xs sm:text-sm text-slate-800 font-medium max-w-xl">
                         Review parent inquiries in Vijayawada, contact students directly, and update application status.
                     </p>
                 </div>
@@ -145,7 +145,7 @@ export default function TeacherLeadsPage() {
                         type="text"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#1f5961] outline-none bg-slate-50/50"
+                        className="w-full pl-10 pr-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#ffb800] outline-none bg-slate-50/50"
                         placeholder="Search leads by student name, email, or subject..."
                     />
                 </div>
@@ -154,7 +154,7 @@ export default function TeacherLeadsPage() {
                     <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
-                        className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#1f5961] outline-none bg-slate-50/50 cursor-pointer"
+                        className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#ffb800] outline-none bg-slate-50/50 cursor-pointer"
                     >
                         <option value="ALL">All Application Status</option>
                         <option value="PENDING">Action Needed (Pending)</option>
@@ -168,7 +168,7 @@ export default function TeacherLeadsPage() {
             {/* Leads Count Bar */}
             <div className="flex items-center justify-between text-xs font-bold text-slate-600 px-1">
                 <span>Showing {filteredLeads.length} student leads</span>
-                <span className="text-[#1f5961]">0% Commission Markup</span>
+                <span className="text-[#ffb800]">0% Commission Markup</span>
             </div>
 
             {/* Leads List */}
@@ -198,18 +198,18 @@ export default function TeacherLeadsPage() {
                         >
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 rounded-2xl bg-teal-50 text-[#1f5961] flex items-center justify-center font-bold shrink-0 overflow-hidden border border-teal-200/60">
+                                    <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#ffb800] flex items-center justify-center font-bold shrink-0 overflow-hidden border border-amber-200/60">
                                         {lead.student.user.profilePhoto ? (
                                             <img src={lead.student.user.profilePhoto} alt={lead.student.user.name} className="w-full h-full object-cover" />
                                         ) : (
-                                            <User className="w-6 h-6 text-[#1f5961]" />
+                                            <User className="w-6 h-6 text-[#ffb800]" />
                                         )}
                                     </div>
                                     <div>
                                         <h3 className="font-extrabold text-base text-slate-900 leading-tight">
                                             {lead.student.user.name}
                                         </h3>
-                                        <p className="text-xs font-bold text-[#1f5961] mt-0.5">
+                                        <p className="text-xs font-bold text-[#ffb800] mt-0.5">
                                             Requested: {lead.subject || "General Tuition"}
                                         </p>
                                     </div>
@@ -221,12 +221,12 @@ export default function TeacherLeadsPage() {
                             <div className="flex flex-wrap items-center gap-2 text-xs font-bold text-slate-700">
                                 {lead.classLevel && (
                                     <span className="px-3 py-1 bg-slate-100 rounded-lg flex items-center gap-1">
-                                        <GraduationCap className="w-3.5 h-3.5 text-teal-600" />
+                                        <GraduationCap className="w-3.5 h-3.5 text-amber-600" />
                                         {lead.classLevel}
                                     </span>
                                 )}
                                 {lead.mode && (
-                                    <span className="px-3 py-1 bg-teal-50 text-[#1f5961] border border-teal-200/60 rounded-lg flex items-center gap-1">
+                                    <span className="px-3 py-1 bg-amber-50 text-[#ffb800] border border-amber-200/60 rounded-lg flex items-center gap-1">
                                         <Home className="w-3.5 h-3.5" />
                                         {lead.mode}
                                     </span>
@@ -275,11 +275,11 @@ export default function TeacherLeadsPage() {
                     <div className="bg-white rounded-3xl w-full max-w-lg p-6 sm:p-8 space-y-6 shadow-2xl">
                         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-teal-50 text-[#1f5961] flex items-center justify-center font-bold shrink-0 overflow-hidden">
+                                <div className="w-10 h-10 rounded-xl bg-amber-50 text-[#ffb800] flex items-center justify-center font-bold shrink-0 overflow-hidden">
                                     {selectedLead.student.user.profilePhoto ? (
                                         <img src={selectedLead.student.user.profilePhoto} alt={selectedLead.student.user.name} className="w-full h-full object-cover" />
                                     ) : (
-                                        <User className="w-5 h-5 text-[#1f5961]" />
+                                        <User className="w-5 h-5 text-[#ffb800]" />
                                     )}
                                 </div>
                                 <div>
@@ -308,7 +308,7 @@ export default function TeacherLeadsPage() {
 
                             <a
                                 href={`mailto:${selectedLead.student.user.email}?subject=Aacharya Academy - Home Tuition Inquiry`}
-                                className="py-3 px-4 bg-[#1f5961] hover:bg-[#1a4a51] text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-md transition-colors"
+                                className="py-3 px-4 bg-[#ffb800] hover:bg-[#ffa000] text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-md transition-colors"
                             >
                                 <Mail className="w-4 h-4" />
                                 <span>Email Student</span>

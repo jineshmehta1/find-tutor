@@ -57,18 +57,18 @@ export default function TeacherResourcesPage() {
     };
 
     return (
-        <div className="space-y-8 pb-12 font-sans">
+        <div className="space-y-8 pb-12 font-sans p-6 sm:p-8 bg-slate-50 min-h-[calc(100vh-70px)]">
             {/* Header */}
-            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+            <div className="bg-[#ffb800] p-6 sm:p-8 rounded-3xl text-slate-950 shadow-md relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
                 <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                     <div className="space-y-2">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-950/10 text-slate-900 text-xs font-black rounded-full border border-slate-950/10">
                             <Upload className="w-3.5 h-3.5" />
                             <span>Resource Vault</span>
                         </div>
                         <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Upload Study Files</h1>
-                        <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                        <p className="text-xs sm:text-sm text-slate-800 font-medium max-w-xl">
                             Upload worksheets, homework files, and revisions cheat sheets for students to download.
                         </p>
                     </div>
@@ -88,12 +88,12 @@ export default function TeacherResourcesPage() {
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">File Title</label>
                             <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Binomial Theorems Formula Sheet"
-                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50" />
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50" />
                         </div>
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Category / Subject</label>
                             <select value={category} onChange={e => setCategory(e.target.value)}
-                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50 appearance-none cursor-pointer">
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50 appearance-none cursor-pointer">
                                 <option value="Mathematics">Mathematics</option>
                                 <option value="Physics">Physics</option>
                                 <option value="Chemistry">Chemistry</option>
@@ -106,17 +106,17 @@ export default function TeacherResourcesPage() {
                     <div className="space-y-1.5">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">File Size Estimate</label>
                         <input type="text" value={fileSize} onChange={e => setFileSize(e.target.value)} placeholder="e.g. 1.5 MB"
-                            className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50" />
+                            className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50" />
                     </div>
 
                     <div className="space-y-1.5">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Description</label>
                         <textarea value={description} onChange={e => setDescription(e.target.value)} placeholder="Briefly describe what formulas, exercises, or homework problems this sheet covers..." rows={3}
-                            className="w-full px-4 py-3 text-xs font-medium border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50 resize-none" />
+                            className="w-full px-4 py-3 text-xs font-medium border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50 resize-none" />
                     </div>
 
                     <button onClick={handleUploadResource} disabled={saving}
-                        className="w-full py-3.5 bg-[#1f5961] hover:bg-[#163e44] disabled:opacity-50 text-white font-black text-xs rounded-2xl flex items-center justify-center gap-2.5 transition-all shadow-md">
+                        className="w-full py-3.5 bg-[#ffb800] hover:bg-[#ffa000] disabled:opacity-50 text-white font-black text-xs rounded-2xl flex items-center justify-center gap-2.5 transition-all shadow-md">
                         {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                         Upload Study File
                     </button>
@@ -135,7 +135,7 @@ export default function TeacherResourcesPage() {
                             <div key={res.id} className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm flex flex-col justify-between space-y-4 hover:shadow-md transition-all">
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between">
-                                        <span className="text-[9px] px-2 py-0.5 bg-teal-50 text-[#1f5961] font-black rounded-md border border-teal-100">
+                                        <span className="text-[9px] px-2 py-0.5 bg-amber-50 text-[#ffb800] font-black rounded-md border border-amber-100">
                                             {res.category}
                                         </span>
                                         <span className="text-[10px] text-slate-400 font-bold">{res.fileSize}</span>

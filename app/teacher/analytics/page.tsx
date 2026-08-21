@@ -73,17 +73,17 @@ export default function TeacherAnalyticsPage() {
     };
 
     return (
-        <div className="space-y-8 pb-12 font-sans">
+        <div className="space-y-8 pb-12 font-sans p-6 sm:p-8 bg-slate-50 min-h-[calc(100vh-70px)]">
             {/* Header */}
-            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+            <div className="bg-[#ffb800] p-6 sm:p-8 rounded-3xl text-slate-950 shadow-md relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
                 <div className="relative z-10 space-y-2">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-950/10 text-slate-900 text-xs font-black rounded-full border border-slate-950/10">
                         <BarChart3 className="w-3.5 h-3.5" />
                         <span>KPI Metrics</span>
                     </div>
                     <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Performance Analytics</h1>
-                    <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                    <p className="text-xs sm:text-sm text-slate-800 font-medium max-w-xl">
                         Monitor your educational throughput, student retention, hours logged, and rating insights.
                     </p>
                 </div>
@@ -91,14 +91,14 @@ export default function TeacherAnalyticsPage() {
 
             {loading ? (
                 <div className="flex items-center justify-center py-20">
-                    <Loader2 className="w-8 h-8 text-[#1f5961] animate-spin" />
+                    <Loader2 className="w-8 h-8 text-[#ffb800] animate-spin" />
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-4">
                         <div className="flex justify-between items-start">
                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Hours Logged</span>
-                            <div className="p-2 bg-teal-50 text-[#1f5961] rounded-xl"><Clock className="w-4 h-4" /></div>
+                            <div className="p-2 bg-amber-50 text-[#ffb800] rounded-xl"><Clock className="w-4 h-4" /></div>
                         </div>
                         <div>
                             <h2 className="text-3xl font-black text-slate-800">{stats.hoursTaught} hrs</h2>

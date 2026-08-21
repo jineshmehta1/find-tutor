@@ -61,18 +61,18 @@ export default function StudentEventsPage() {
     });
 
     return (
-        <div className="space-y-8 pb-12 font-sans">
+        <div className="space-y-8 pb-12 p-6 sm:p-8 bg-slate-50 min-h-[calc(100vh-70px)] font-sans">
             {/* Header banner */}
-            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+            <div className="bg-[#ffb800] p-6 sm:p-10 rounded-3xl text-slate-950 shadow-xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
                 <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                     <div className="space-y-2">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-950/10 text-slate-900 text-xs font-bold rounded-full border border-slate-950/10">
                             <Calendar className="w-3.5 h-3.5" />
                             <span>My Bookings</span>
                         </div>
                         <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Events & Camps</h1>
-                        <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                        <p className="text-xs sm:text-sm text-slate-900/85 font-medium max-w-xl">
                             Manage your registrations for tournaments, workshops, and educational camps.
                         </p>
                     </div>
@@ -89,7 +89,7 @@ export default function StudentEventsPage() {
                     <button key={opt.key} onClick={() => setFilter(opt.key)}
                         className={`px-4 py-2 rounded-xl text-xs font-black border transition-all ${
                             filter === opt.key
-                                ? "bg-[#1f5961] text-white border-transparent shadow-sm"
+                                ? "bg-[#ffb800] text-white border-transparent shadow-sm"
                                 : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"
                         }`}>
                         {opt.label}
@@ -100,7 +100,7 @@ export default function StudentEventsPage() {
             {/* Bookings List */}
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-24 space-y-3">
-                    <Loader2 className="w-8 h-8 text-[#1f5961] animate-spin" />
+                    <Loader2 className="w-8 h-8 text-[#ffb800] animate-spin" />
                     <p className="text-slate-400 font-bold uppercase tracking-wider text-xs">Loading bookings...</p>
                 </div>
             ) : filtered.length === 0 ? (
@@ -121,7 +121,7 @@ export default function StudentEventsPage() {
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center text-3xl">🎪</div>
                                 )}
-                                <span className="absolute top-3 left-3 bg-[#1f5961] text-white text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md">
+                                <span className="absolute top-3 left-3 bg-[#ffb800] text-white text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md">
                                     {reg.event.category}
                                 </span>
                             </div>
@@ -135,7 +135,7 @@ export default function StudentEventsPage() {
                                         }`}>{reg.status}</span>
                                     </div>
                                     <div className="space-y-1.5 text-[11px] font-bold text-slate-400 mt-2">
-                                        <div className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-[#1f5961]" /> {new Date(reg.event.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</div>
+                                        <div className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-[#ffb800]" /> {new Date(reg.event.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</div>
                                         <div className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-blue-500" /> {reg.event.time}</div>
                                         <div className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-rose-500" /> {reg.event.location}</div>
                                     </div>

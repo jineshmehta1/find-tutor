@@ -105,7 +105,7 @@ export default function AdminSubscriptionsPage() {
     return (
         <div className="space-y-8 font-sans pb-12">
             {/* Header Banner */}
-            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+            <div className="bg-[#ffb800] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
                 <div className="relative z-10 space-y-2">
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
@@ -113,7 +113,7 @@ export default function AdminSubscriptionsPage() {
                         <span>Membership Activity</span>
                     </div>
                     <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Active Instructor Subscriptions</h1>
-                    <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                    <p className="text-xs sm:text-sm text-amber-100 font-medium max-w-xl">
                         Monitor active tutor memberships, Razorpay payment reference IDs, trial durations, and expiration dates.
                     </p>
                 </div>
@@ -167,7 +167,7 @@ export default function AdminSubscriptionsPage() {
                         type="text"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#1f5961] outline-none bg-slate-50/50"
+                        className="w-full pl-10 pr-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#ffb800] outline-none bg-slate-50/50"
                         placeholder="Filter tutors by name or email address..."
                     />
                 </div>
@@ -175,7 +175,7 @@ export default function AdminSubscriptionsPage() {
                 <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="px-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#1f5961] outline-none bg-slate-50/50 cursor-pointer"
+                    className="px-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#ffb800] outline-none bg-slate-50/50 cursor-pointer"
                 >
                     <option value="all">All Subscription Tiers</option>
                     <option value="trial">Free Trial</option>
@@ -203,11 +203,11 @@ export default function AdminSubscriptionsPage() {
                         <div key={t.id} className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 space-y-4">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 rounded-2xl bg-teal-50 text-[#1f5961] flex items-center justify-center font-bold overflow-hidden border border-teal-200/60 shrink-0">
+                                    <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#ffb800] flex items-center justify-center font-bold overflow-hidden border border-amber-200/60 shrink-0">
                                         {t.user.profilePhoto ? (
                                             <img src={t.user.profilePhoto} alt={t.user.name} className="w-full h-full object-cover" />
                                         ) : (
-                                            <Users className="w-6 h-6 text-[#1f5961]" />
+                                            <Users className="w-6 h-6 text-[#ffb800]" />
                                         )}
                                     </div>
                                     <div>

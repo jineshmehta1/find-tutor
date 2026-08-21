@@ -131,18 +131,18 @@ export default function TeacherSchedulePage() {
     };
 
     return (
-        <div className="space-y-8 pb-12 font-sans">
+        <div className="space-y-8 pb-12 font-sans p-6 sm:p-8 bg-slate-50 min-h-[calc(100vh-70px)]">
             {/* Header */}
-            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+            <div className="bg-[#ffb800] p-6 sm:p-8 rounded-3xl text-slate-950 shadow-md relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
                 <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                     <div className="space-y-2">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-950/10 text-slate-900 text-xs font-black rounded-full border border-slate-950/10">
                             <Calendar className="w-3.5 h-3.5" />
                             <span>Academic Calendar</span>
                         </div>
                         <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Class Schedule Manager</h1>
-                        <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                        <p className="text-xs sm:text-sm text-slate-800 font-medium max-w-xl">
                             Plan live tutoring classes, set time slots, and invite students to virtual classroom environments.
                         </p>
                     </div>
@@ -168,7 +168,7 @@ export default function TeacherSchedulePage() {
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select Matched Student</label>
                             <select value={studentId} onChange={e => setStudentId(e.target.value)}
-                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50 appearance-none cursor-pointer">
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50 appearance-none cursor-pointer">
                                 <option value="">Select a student</option>
                                 {students.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                             </select>
@@ -179,7 +179,7 @@ export default function TeacherSchedulePage() {
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Subject</label>
                             <input type="text" value={subject} onChange={e => setSubject(e.target.value)} placeholder="e.g. Physics"
-                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50" />
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50" />
                         </div>
                     </div>
 
@@ -187,17 +187,17 @@ export default function TeacherSchedulePage() {
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</label>
                             <input type="date" value={date} onChange={e => setDate(e.target.value)}
-                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50" />
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50" />
                         </div>
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Time Slot</label>
                             <input type="text" value={time} onChange={e => setTime(e.target.value)} placeholder="e.g. 05:00 PM"
-                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50" />
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50" />
                         </div>
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Duration</label>
                             <input type="text" value={duration} onChange={e => setDuration(e.target.value)} placeholder="e.g. 1.5 hours"
-                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50" />
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50" />
                         </div>
                     </div>
 
@@ -205,17 +205,17 @@ export default function TeacherSchedulePage() {
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Google Meet Link (Optional)</label>
                             <input type="text" value={meetLink} onChange={e => setMeetLink(e.target.value)} placeholder="https://meet.google.com/..."
-                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50" />
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50" />
                         </div>
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Payout Amount / Class Rate (₹)</label>
                             <input type="number" value={classRate} onChange={e => setClassRate(e.target.value)} placeholder="500"
-                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50" />
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50" />
                         </div>
                     </div>
 
                     <button onClick={handleCreateSession} disabled={saving || students.length === 0}
-                        className="w-full py-3.5 bg-[#1f5961] hover:bg-[#163e44] disabled:opacity-50 text-white font-black text-xs rounded-2xl flex items-center justify-center gap-2 transition-all shadow-md">
+                        className="w-full py-3.5 bg-[#ffb800] hover:bg-[#ffa000] disabled:opacity-50 text-white font-black text-xs rounded-2xl flex items-center justify-center gap-2 transition-all shadow-md">
                         {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                         Save Session Slot
                     </button>
@@ -226,7 +226,7 @@ export default function TeacherSchedulePage() {
                     <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">Scheduled Sessions</h3>
                     {loading ? (
                         <div className="flex items-center justify-center py-12">
-                            <Loader2 className="w-6 h-6 text-[#1f5961] animate-spin" />
+                            <Loader2 className="w-6 h-6 text-[#ffb800] animate-spin" />
                         </div>
                     ) : (
                         <div className="space-y-4">
@@ -237,7 +237,7 @@ export default function TeacherSchedulePage() {
                             ) : sessions.map(s => (
                                 <div key={s.id} className="p-5 bg-slate-50 border border-slate-100 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
                                     <div className="flex gap-4">
-                                        <div className="w-10 h-10 rounded-xl bg-teal-50 text-[#1f5961] flex items-center justify-center shrink-0">
+                                        <div className="w-10 h-10 rounded-xl bg-amber-50 text-[#ffb800] flex items-center justify-center shrink-0">
                                             <BookOpen className="w-5 h-5" />
                                         </div>
                                         <div>
@@ -276,8 +276,8 @@ export default function TeacherSchedulePage() {
                                         )}
                                         {s.meetLink && s.status === "CONFIRMED" && (
                                             <button onClick={() => handleLaunch(s.meetLink)}
-                                                className="px-3 py-1.5 bg-[#1f5961] hover:bg-[#163e44] text-white text-[10px] font-black rounded-lg flex items-center gap-1 transition-all shadow-sm">
-                                                <Video className="w-3.5 h-3.5 text-amber-300" /> Start Meet
+                                                className="px-3 py-1.5 bg-[#ffb800] hover:bg-[#ffa000] text-white text-[10px] font-black rounded-lg flex items-center gap-1 transition-all shadow-sm">
+                                                <Video className="w-3.5 h-3.5 text-slate-950" /> Start Meet
                                             </button>
                                         )}
                                         {!s.meetLink && s.status === "CONFIRMED" && (

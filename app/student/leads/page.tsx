@@ -105,18 +105,18 @@ export default function StudentLeadsPage() {
     };
 
     return (
-        <div className="space-y-8 pb-12 font-sans">
+        <div className="space-y-8 pb-12 p-6 sm:p-8 bg-slate-50 min-h-[calc(100vh-70px)] font-sans">
             {/* Header banner */}
-            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+            <div className="bg-[#ffb800] p-6 sm:p-10 rounded-3xl text-slate-950 shadow-xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
                 <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                     <div className="space-y-2">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-950/10 text-slate-900 text-xs font-bold rounded-full border border-slate-950/10">
                             <Send className="w-3.5 h-3.5" />
                             <span>Requests Timeline</span>
                         </div>
                         <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Tutor Requests Board</h1>
-                        <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                        <p className="text-xs sm:text-sm text-slate-900/85 font-medium max-w-xl">
                             Track the status of your teaching requirements. Receive matches and communicate with tutors directly.
                         </p>
                     </div>
@@ -130,7 +130,7 @@ export default function StudentLeadsPage() {
             {/* Leads List */}
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-24 space-y-3">
-                    <Loader2 className="w-8 h-8 text-[#1f5961] animate-spin" />
+                    <Loader2 className="w-8 h-8 text-[#ffb800] animate-spin" />
                     <p className="text-slate-400 font-bold uppercase tracking-wider text-xs">Loading timeline...</p>
                 </div>
             ) : leads.length === 0 ? (
@@ -141,7 +141,7 @@ export default function StudentLeadsPage() {
                         <p className="text-xs text-slate-400 font-medium max-w-xs mx-auto">Create a tutor request to get matched with verified teachers in Vijayawada.</p>
                     </div>
                     <button onClick={() => setShowCreateModal(true)}
-                        className="px-5 py-2.5 bg-[#1f5961] text-white text-xs font-bold rounded-xl shadow-sm hover:bg-[#163e44] transition-all">
+                        className="px-5 py-2.5 bg-[#ffb800] text-white text-xs font-bold rounded-xl shadow-sm hover:bg-[#ffa000] transition-all">
                         Create Request
                     </button>
                 </div>
@@ -157,7 +157,7 @@ export default function StudentLeadsPage() {
                                     </span>
                                 </div>
                                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px] font-bold text-slate-400">
-                                    <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5 text-[#1f5961]" /> {lead.classLevel}</span>
+                                    <span className="flex items-center gap-1.5"><GraduationCap className="w-3.5 h-3.5 text-[#ffb800]" /> {lead.classLevel}</span>
                                     <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-rose-500" /> {lead.location}</span>
                                     <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-blue-500" /> {lead.mode}</span>
                                 </div>
@@ -204,7 +204,7 @@ export default function StudentLeadsPage() {
                                 <div className="space-y-1.5">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Subject</label>
                                     <select value={leadSubject} onChange={e => setLeadSubject(e.target.value)}
-                                        className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50 appearance-none cursor-pointer">
+                                        className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50 appearance-none cursor-pointer">
                                         <option value="">Select subject</option>
                                         {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
                                     </select>
@@ -212,7 +212,7 @@ export default function StudentLeadsPage() {
                                 <div className="space-y-1.5">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Class Level</label>
                                     <select value={leadClass} onChange={e => setLeadClass(e.target.value)}
-                                        className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50 appearance-none cursor-pointer">
+                                        className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50 appearance-none cursor-pointer">
                                         <option value="">Select class</option>
                                         {CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
                                     </select>
@@ -223,7 +223,7 @@ export default function StudentLeadsPage() {
                                 <div className="space-y-1.5">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Teaching Mode</label>
                                     <select value={leadMode} onChange={e => setLeadMode(e.target.value)}
-                                        className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50 appearance-none cursor-pointer">
+                                        className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50 appearance-none cursor-pointer">
                                         <option value="">Select mode</option>
                                         {MODES.map(m => <option key={m} value={m}>{m}</option>)}
                                     </select>
@@ -231,19 +231,19 @@ export default function StudentLeadsPage() {
                                 <div className="space-y-1.5">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Location / Area</label>
                                     <input type="text" value={leadLocation} onChange={e => setLeadLocation(e.target.value)} placeholder="e.g. Patamata, Vijayawada"
-                                        className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50" />
+                                        className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50" />
                                 </div>
                             </div>
 
                             <div className="space-y-1.5">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Additional Notes</label>
                                 <textarea value={leadMessage} onChange={e => setLeadMessage(e.target.value)} placeholder="Specify days, timings, or any custom goals..." rows={3}
-                                    className="w-full px-4 py-3 text-xs font-medium border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50 resize-none" />
+                                    className="w-full px-4 py-3 text-xs font-medium border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50 resize-none" />
                             </div>
                         </div>
 
                         <button onClick={handleCreateLead} disabled={submittingLead}
-                            className="w-full py-3.5 bg-[#1f5961] hover:bg-[#163e44] disabled:opacity-50 text-white font-black text-xs rounded-2xl flex items-center justify-center gap-2.5 transition-all shadow-md">
+                            className="w-full py-3.5 bg-[#ffb800] hover:bg-[#ffa000] disabled:opacity-50 text-white font-black text-xs rounded-2xl flex items-center justify-center gap-2.5 transition-all shadow-md">
                             {submittingLead ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                             Post Requirement
                         </button>

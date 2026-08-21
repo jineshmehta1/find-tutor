@@ -72,7 +72,7 @@ export default function TransactionsLedger() {
     return (
         <div className="space-y-8 font-sans pb-12">
             {/* Header Banner */}
-            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+            <div className="bg-[#ffb800] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
                 <div className="relative z-10 space-y-2">
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
@@ -80,7 +80,7 @@ export default function TransactionsLedger() {
                         <span>Finance Ledger</span>
                     </div>
                     <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Payments & Revenue Ledger</h1>
-                    <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                    <p className="text-xs sm:text-sm text-amber-100 font-medium max-w-xl">
                         Monitor payment gateways, Razorpay transaction IDs, parent enrollment dues, and premium instructor spotlight subscriptions.
                     </p>
                 </div>
@@ -119,10 +119,10 @@ export default function TransactionsLedger() {
                 <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm flex items-center justify-between">
                     <div>
                         <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active Run-Rate</div>
-                        <div className="text-3xl font-black text-[#1f5961] mt-1">₹{activeRunRate.toLocaleString("en-IN")}/mo</div>
+                        <div className="text-3xl font-black text-[#ffb800] mt-1">₹{activeRunRate.toLocaleString("en-IN")}/mo</div>
                         <div className="text-[10px] font-bold text-slate-400 mt-1">Projected MRR</div>
                     </div>
-                    <div className="w-12 h-12 bg-teal-50 text-[#1f5961] rounded-2xl flex items-center justify-center">
+                    <div className="w-12 h-12 bg-amber-50 text-[#ffb800] rounded-2xl flex items-center justify-center">
                         <TrendingUp className="w-6 h-6" />
                     </div>
                 </div>
@@ -137,7 +137,7 @@ export default function TransactionsLedger() {
                             type="text"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-9 pr-4 py-2.5 text-xs font-bold border border-slate-200 rounded-xl outline-none focus:border-[#1f5961] bg-slate-50/50"
+                            className="w-full pl-9 pr-4 py-2.5 text-xs font-bold border border-slate-200 rounded-xl outline-none focus:border-[#ffb800] bg-slate-50/50"
                             placeholder="Search by name, transaction ID..."
                         />
                     </div>
@@ -163,7 +163,7 @@ export default function TransactionsLedger() {
                     </button>
                     <button 
                         onClick={() => handleExport("PDF")}
-                        className="px-4 py-2.5 bg-[#1f5961] hover:bg-[#163e44] text-white text-xs font-bold rounded-xl flex items-center gap-2 transition-colors"
+                        className="px-4 py-2.5 bg-[#ffb800] hover:bg-[#ffa000] text-white text-xs font-bold rounded-xl flex items-center gap-2 transition-colors"
                     >
                         <FileText className="w-4 h-4" />
                         <span>PDF Receipts</span>
@@ -174,7 +174,7 @@ export default function TransactionsLedger() {
             {/* Transactions Ledger Table */}
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-slate-200/80 shadow-sm space-y-3">
-                    <Loader2 className="w-8 h-8 text-[#1f5961] animate-spin" />
+                    <Loader2 className="w-8 h-8 text-[#ffb800] animate-spin" />
                     <p className="text-slate-500 font-bold uppercase tracking-wider text-xs">Loading transaction ledger...</p>
                 </div>
             ) : (

@@ -128,7 +128,7 @@ export default function RequestTutorPage() {
       <div className="container mx-auto px-4 max-w-7xl">
         
         {/* HERO BANNER */}
-        <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden mb-8">
+        <div className="bg-[#ffb800] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden mb-8">
           <div className="absolute top-0 right-0 w-80 h-80 bg-white/5 rounded-full blur-3xl pointer-events-none" />
           <div className="relative z-10 space-y-3 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 text-amber-300 text-xs font-bold tracking-wider uppercase border border-white/15">
@@ -138,7 +138,7 @@ export default function RequestTutorPage() {
             <h1 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
               Request a Private Home or Online Tutor
             </h1>
-            <p className="text-xs sm:text-sm text-teal-100 font-medium leading-relaxed">
+            <p className="text-xs sm:text-sm text-amber-100 font-medium leading-relaxed">
               We match your child with verified local instructors for CBSE, ICSE, JEE/NEET, Coding, Abacus & Chess. Zero agency markup cuts.
             </p>
           </div>
@@ -165,7 +165,7 @@ export default function RequestTutorPage() {
                 </div>
 
                 <div className="flex items-start gap-3.5">
-                  <div className="w-10 h-10 rounded-xl bg-teal-50 text-[#1f5961] flex items-center justify-center font-bold shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-amber-50 text-[#ffb800] flex items-center justify-center font-bold shrink-0">
                     <HeartHandshake className="w-5 h-5" />
                   </div>
                   <div>
@@ -231,7 +231,7 @@ export default function RequestTutorPage() {
                     onChange={handleChange}
                     placeholder="e.g. Mathematics, Physics, Abacus, Chess, Coding"
                     required
-                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1f5961]/20 focus:border-[#1f5961] focus:bg-white text-xs font-bold transition-all"
+                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#ffb800]/20 focus:border-[#ffb800] focus:bg-white text-xs font-bold transition-all"
                   />
                 </div>
 
@@ -246,7 +246,7 @@ export default function RequestTutorPage() {
                       value={formData.classLevel}
                       onChange={handleChange}
                       required
-                      className="w-full px-3 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1f5961]/20 focus:border-[#1f5961] focus:bg-white text-xs font-bold transition-all cursor-pointer"
+                      className="w-full px-3 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#ffb800]/20 focus:border-[#ffb800] focus:bg-white text-xs font-bold transition-all cursor-pointer"
                     >
                       <option value="">Select Level</option>
                       <option value="Class 1-5">Class 1-5</option>
@@ -269,7 +269,7 @@ export default function RequestTutorPage() {
                       value={formData.mode}
                       onChange={handleChange}
                       required
-                      className="w-full px-3 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1f5961]/20 focus:border-[#1f5961] focus:bg-white text-xs font-bold transition-all cursor-pointer"
+                      className="w-full px-3 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#ffb800]/20 focus:border-[#ffb800] focus:bg-white text-xs font-bold transition-all cursor-pointer"
                     >
                       <option value="Home Tuition">Home Tuition (Instructor Visits)</option>
                       <option value="Online Tutor">Online Class (1-on-1)</option>
@@ -288,7 +288,7 @@ export default function RequestTutorPage() {
                       type="button"
                       onClick={handleDetectLocation}
                       disabled={detectingLocation}
-                      className="text-[11px] font-bold text-[#1f5961] hover:underline flex items-center gap-1"
+                      className="text-[11px] font-bold text-[#ffb800] hover:underline flex items-center gap-1"
                     >
                       {detectingLocation ? (
                         <>
@@ -310,7 +310,7 @@ export default function RequestTutorPage() {
                     onChange={handleChange}
                     placeholder="e.g. Bhavanipuram, Vijayawada"
                     required
-                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1f5961]/20 focus:border-[#1f5961] focus:bg-white text-xs font-bold transition-all"
+                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#ffb800]/20 focus:border-[#ffb800] focus:bg-white text-xs font-bold transition-all"
                   />
                 </div>
 
@@ -327,7 +327,7 @@ export default function RequestTutorPage() {
                       onChange={handleChange}
                       placeholder="e.g. Rajesh Kumar"
                       required
-                      className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1f5961]/20 focus:border-[#1f5961] focus:bg-white text-xs font-bold transition-all"
+                      className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#ffb800]/20 focus:border-[#ffb800] focus:bg-white text-xs font-bold transition-all"
                     />
                   </div>
 
@@ -343,7 +343,7 @@ export default function RequestTutorPage() {
                       onChange={handleChange}
                       placeholder="e.g. 98765 43210"
                       required
-                      className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1f5961]/20 focus:border-[#1f5961] focus:bg-white text-xs font-bold transition-all"
+                      className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#ffb800]/20 focus:border-[#ffb800] focus:bg-white text-xs font-bold transition-all"
                     />
                   </div>
                 </div>
@@ -359,7 +359,7 @@ export default function RequestTutorPage() {
                     onChange={handleChange}
                     rows={3}
                     placeholder="Specify preferred timing, days per week, or academic goals..."
-                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#1f5961]/20 focus:border-[#1f5961] focus:bg-white text-xs font-medium transition-all"
+                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#ffb800]/20 focus:border-[#ffb800] focus:bg-white text-xs font-medium transition-all"
                   />
                 </div>
 
@@ -377,7 +377,7 @@ export default function RequestTutorPage() {
                 <button 
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-[#1f5961] hover:bg-[#1a4a51] text-white font-black py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-70 text-xs uppercase tracking-wider"
+                  className="w-full bg-[#ffb800] hover:bg-[#ffa000] text-white font-black py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-70 text-xs uppercase tracking-wider"
                 >
                   {isSubmitting ? (
                     <>

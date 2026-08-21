@@ -63,18 +63,18 @@ export default function TeacherReviewsPage() {
     };
 
     return (
-        <div className="space-y-8 pb-12 font-sans">
+        <div className="space-y-8 pb-12 font-sans p-6 sm:p-8 bg-slate-50 min-h-[calc(100vh-70px)]">
             {/* Header */}
-            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+            <div className="bg-[#ffb800] p-6 sm:p-8 rounded-3xl text-slate-950 shadow-md relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
                 <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                     <div className="space-y-2">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-950/10 text-slate-900 text-xs font-black rounded-full border border-slate-950/10">
                             <Star className="w-3.5 h-3.5" />
                             <span>Tutor Ratings</span>
                         </div>
                         <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Student Feedback</h1>
-                        <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                        <p className="text-xs sm:text-sm text-slate-800 font-medium max-w-xl">
                             Read reviews, see rating summaries, and monitor your educator score.
                         </p>
                     </div>
@@ -98,7 +98,7 @@ export default function TeacherReviewsPage() {
                     </div>
                 </div>
                 <div className="bg-white p-5 rounded-2xl border border-slate-200/70 shadow-sm flex items-center gap-4">
-                    <div className="w-11 h-11 rounded-xl bg-teal-50 text-[#1f5961] flex items-center justify-center shrink-0">
+                    <div className="w-11 h-11 rounded-xl bg-amber-50 text-[#ffb800] flex items-center justify-center shrink-0">
                         <MessageSquare className="w-6 h-6" />
                     </div>
                     <div>
@@ -111,7 +111,7 @@ export default function TeacherReviewsPage() {
             {/* Reviews List */}
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-24 space-y-3">
-                    <Loader2 className="w-8 h-8 text-[#1f5961] animate-spin" />
+                    <Loader2 className="w-8 h-8 text-[#ffb800] animate-spin" />
                     <p className="text-slate-400 font-bold uppercase tracking-wider text-xs">Loading feedback...</p>
                 </div>
             ) : reviews.length === 0 ? (
@@ -131,7 +131,7 @@ export default function TeacherReviewsPage() {
                                     <h4 className="text-xs font-black text-slate-900">{review.studentName}</h4>
                                     <p className="text-[9px] text-slate-400 font-bold uppercase mt-0.5">{new Date(review.createdAt).toLocaleDateString()}</p>
                                 </div>
-                                <div className="flex text-amber-400">
+                                <div className="flex text-slate-950">
                                     {"★".repeat(review.rating)}
                                     {"☆".repeat(5 - review.rating)}
                                 </div>

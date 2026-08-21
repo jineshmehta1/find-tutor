@@ -74,7 +74,7 @@ export default function TutorAnalytics() {
     return (
         <div className="space-y-8 font-sans pb-12">
             {/* Header Banner */}
-            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+            <div className="bg-[#ffb800] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
                 <div className="relative z-10 space-y-2">
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
@@ -82,7 +82,7 @@ export default function TutorAnalytics() {
                         <span>Tutor Engagement Stats</span>
                     </div>
                     <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Tutor Engagement Analytics</h1>
-                    <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                    <p className="text-xs sm:text-sm text-amber-100 font-medium max-w-xl">
                         Monitor tutor signups growth curve, average rating distributions, and lead contact counts — all from live database.
                     </p>
                 </div>
@@ -91,7 +91,7 @@ export default function TutorAnalytics() {
             {/* Metrics cards — real data only */}
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-slate-200/80 shadow-sm space-y-3">
-                    <Loader2 className="w-8 h-8 text-[#1f5961] animate-spin" />
+                    <Loader2 className="w-8 h-8 text-[#ffb800] animate-spin" />
                     <p className="text-slate-500 font-bold uppercase tracking-wider text-xs">Loading analytics data...</p>
                 </div>
             ) : (
@@ -103,7 +103,7 @@ export default function TutorAnalytics() {
                                 <div className="text-2xl font-black text-slate-900 mt-1">{totalTutors}</div>
                                 <p className="text-[9px] font-bold text-emerald-600 mt-1">Registered in system</p>
                             </div>
-                            <div className="w-10 h-10 bg-teal-50 text-[#1f5961] rounded-xl flex items-center justify-center shrink-0">
+                            <div className="w-10 h-10 bg-amber-50 text-[#ffb800] rounded-xl flex items-center justify-center shrink-0">
                                 <Users className="w-5 h-5" />
                             </div>
                         </div>
@@ -128,7 +128,7 @@ export default function TutorAnalytics() {
                             <div>
                                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Lead Contacts</div>
                                 <div className="text-2xl font-black text-slate-900 mt-1">{totalLeadContacts}</div>
-                                <p className="text-[9px] font-bold text-[#1f5961] mt-1">Across all tutors</p>
+                                <p className="text-[9px] font-bold text-[#ffb800] mt-1">Across all tutors</p>
                             </div>
                             <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center shrink-0">
                                 <MessageSquare className="w-5 h-5" />
@@ -138,7 +138,7 @@ export default function TutorAnalytics() {
                         <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-sm flex items-center justify-between">
                             <div>
                                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Months Tracked</div>
-                                <div className="text-2xl font-black text-[#1f5961] mt-1">{signupsTrend.length}</div>
+                                <div className="text-2xl font-black text-[#ffb800] mt-1">{signupsTrend.length}</div>
                                 <p className="text-[9px] font-bold text-slate-400 mt-1">This calendar year</p>
                             </div>
                             <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center shrink-0">
@@ -162,15 +162,15 @@ export default function TutorAnalytics() {
                                         <AreaChart data={signupsTrend} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                             <defs>
                                                 <linearGradient id="tutorsGrad" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="5%" stopColor="#1f5961" stopOpacity={0.2} />
-                                                    <stop offset="95%" stopColor="#1f5961" stopOpacity={0} />
+                                                    <stop offset="5%" stopColor="#ffb800" stopOpacity={0.2} />
+                                                    <stop offset="95%" stopColor="#ffb800" stopOpacity={0} />
                                                 </linearGradient>
                                             </defs>
                                             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                                             <XAxis dataKey="month" stroke="#94a3b8" fontSize={10} tickLine={false} />
                                             <YAxis stroke="#94a3b8" fontSize={10} tickLine={false} allowDecimals={false} />
                                             <Tooltip />
-                                            <Area type="monotone" dataKey="tutors" stroke="#1f5961" strokeWidth={2.5} fillOpacity={1} fill="url(#tutorsGrad)" />
+                                            <Area type="monotone" dataKey="tutors" stroke="#ffb800" strokeWidth={2.5} fillOpacity={1} fill="url(#tutorsGrad)" />
                                         </AreaChart>
                                     </ResponsiveContainer>
                                 </div>

@@ -128,7 +128,7 @@ export default function LeadsBoard() {
     return (
         <div className="space-y-8 font-sans pb-12">
             {/* Header Banner */}
-            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+            <div className="bg-[#ffb800] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
                 <div className="relative z-10 space-y-2">
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
@@ -136,7 +136,7 @@ export default function LeadsBoard() {
                         <span>Sales Pipeline</span>
                     </div>
                     <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Leads Kanban & Assignments</h1>
-                    <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                    <p className="text-xs sm:text-sm text-amber-100 font-medium max-w-xl">
                         Track student requirements, match verified teachers, schedule demo sessions, and manage the student conversions.
                     </p>
                 </div>
@@ -150,7 +150,7 @@ export default function LeadsBoard() {
                         type="text"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#1f5961] outline-none bg-slate-50/50"
+                        className="w-full pl-10 pr-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#ffb800] outline-none bg-slate-50/50"
                         placeholder="Search leads by student name or teaching subject..."
                     />
                 </div>
@@ -158,7 +158,7 @@ export default function LeadsBoard() {
 
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-20 space-y-3">
-                    <Loader2 className="w-8 h-8 text-[#1f5961] animate-spin" />
+                    <Loader2 className="w-8 h-8 text-[#ffb800] animate-spin" />
                     <p className="text-slate-500 font-bold uppercase tracking-wider text-xs">Loading Leads Kanban board...</p>
                 </div>
             ) : (
@@ -181,12 +181,12 @@ export default function LeadsBoard() {
                                             className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md cursor-pointer transition-all space-y-3 group"
                                         >
                                             <div>
-                                                <h4 className="text-xs font-black text-slate-900 group-hover:text-[#1f5961] transition-colors">{lead.student.user.name}</h4>
+                                                <h4 className="text-xs font-black text-slate-900 group-hover:text-[#ffb800] transition-colors">{lead.student.user.name}</h4>
                                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">{lead.subject || "No Subject"}</p>
                                             </div>
 
                                             <div className="text-[10px] font-semibold text-slate-500 space-y-1">
-                                                <div className="flex items-center gap-1"><MapPin className="w-3 h-3 text-[#1f5961]" /> {lead.location?.split(',')[0] || "Vijayawada"}</div>
+                                                <div className="flex items-center gap-1"><MapPin className="w-3 h-3 text-[#ffb800]" /> {lead.location?.split(',')[0] || "Vijayawada"}</div>
                                                 <div className="flex items-center gap-1"><BookOpen className="w-3 h-3 text-amber-500" /> {lead.classLevel || "Any Class"}</div>
                                             </div>
 
@@ -266,7 +266,7 @@ export default function LeadsBoard() {
                                         <button
                                             key={col.key}
                                             onClick={() => updateLeadStatus(selectedLead.id, col.key)}
-                                            className={`py-2 px-1 text-[9px] font-black rounded-xl uppercase border tracking-wider transition-all text-center ${selectedLead.status === col.key ? "bg-[#1f5961] text-white border-[#1f5961]" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"}`}
+                                            className={`py-2 px-1 text-[9px] font-black rounded-xl uppercase border tracking-wider transition-all text-center ${selectedLead.status === col.key ? "bg-[#ffb800] text-white border-[#ffb800]" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"}`}
                                         >
                                             {col.key.replace('_', ' ')}
                                         </button>

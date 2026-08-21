@@ -26,17 +26,17 @@ export default function StudentBillingPage() {
     };
 
     return (
-        <div className="space-y-8 pb-12 font-sans">
+        <div className="space-y-8 pb-12 p-6 sm:p-8 bg-slate-50 min-h-[calc(100vh-70px)] font-sans">
             {/* Header */}
-            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+            <div className="bg-[#ffb800] p-6 sm:p-10 rounded-3xl text-slate-950 shadow-xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
                 <div className="relative z-10 space-y-2">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-950/10 text-slate-900 text-xs font-bold rounded-full border border-slate-950/10">
                         <CreditCard className="w-3.5 h-3.5" />
                         <span>Billing & Ledgers</span>
                     </div>
                     <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Payments & Invoices</h1>
-                    <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                    <p className="text-xs sm:text-sm text-slate-900/85 font-medium max-w-xl">
                         Monitor payment transactions, enrollment receipts, and download class pack invoices.
                     </p>
                 </div>
@@ -53,7 +53,7 @@ export default function StudentBillingPage() {
                     ) : txns.map(t => (
                         <div key={t.id} className="p-5 bg-slate-50 border border-slate-100 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div className="flex gap-4">
-                                <div className="w-10 h-10 rounded-xl bg-teal-50 text-[#1f5961] flex items-center justify-center shrink-0">
+                                <div className="w-10 h-10 rounded-xl bg-amber-50 text-[#ffb800] flex items-center justify-center shrink-0">
                                     <ArrowUpRight className="w-5 h-5 text-emerald-500" />
                                 </div>
                                 <div>

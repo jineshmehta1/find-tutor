@@ -75,7 +75,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="relative bg-slate-900 text-slate-300 overflow-hidden pt-16 pb-8">
+    <footer className="relative bg-[#091a30] text-slate-300 overflow-hidden pt-16 pb-8 border-t border-slate-800">
 
       {/* -------------------- FLOATING WHATSAPP BUTTON -------------------- */}
       <a
@@ -99,66 +99,115 @@ export default function Footer() {
 
       {/* -------------------- BACKGROUND DOODLES -------------------- */}
       <div className="absolute inset-0 pointer-events-none select-none overflow-hidden">
-        <ChessKnightDoodle className="absolute -top-10 -right-10 w-48 h-48 text-slate-800/50 rotate-12" />
-        <ChessPawnDoodle className="absolute -bottom-10 -left-10 w-40 h-40 text-slate-800/50 -rotate-12" />
-        <StarDoodle className="absolute top-20 left-[20%] w-8 h-8 text-yellow-400/20 animate-pulse" />
-        <StarDoodle className="absolute bottom-32 right-[20%] w-6 h-6 text-yellow-400/20" />
+        <ChessKnightDoodle className="absolute -top-10 -right-10 w-48 h-48 text-slate-800/20 rotate-12" />
+        <ChessPawnDoodle className="absolute -bottom-10 -left-10 w-40 h-40 text-slate-800/20 -rotate-12" />
+        <StarDoodle className="absolute top-20 left-[20%] w-8 h-8 text-yellow-400/10 animate-pulse" />
+        <StarDoodle className="absolute bottom-32 right-[20%] w-6 h-6 text-yellow-400/10" />
       </div>
 
-      <div className="container mx-auto px-4 md:px-8 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+      <div className="max-w-[1400px] mx-auto px-4 md:px-8 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 md:gap-10">
 
           {/* 1. BRAND INFO */}
-          <div className="space-y-6">
-            <a href="/" className="flex items-center gap-3 group">
+          <div className="space-y-5 lg:col-span-1">
+            <a href="/" className="flex items-center gap-2.5 group">
               <img
                 src="/image.png"
                 alt="Aacharya Academy"
-                className="w-12 h-12 object-contain bg-white rounded-full p-1"
+                className="w-10 h-10 object-contain bg-white rounded-full p-1"
               />
               <div className="flex flex-col">
-                <span className="font-black text-2xl text-white leading-none tracking-tight">
+                <span className="font-black text-lg text-white leading-none tracking-tight">
                   AACHARYA
+                </span>
+                <span className="text-[7px] font-black text-amber-500 tracking-wider mt-0.5 uppercase">
+                  FIND TUTORS NEARBY
                 </span>
               </div>
             </a>
-            <p className="text-sm leading-relaxed text-slate-400">
-              Empowering young minds through academic excellence, strategic chess mastery, and creative robotics. Building the leaders of tomorrow.
+            <p className="text-[12px] leading-relaxed text-slate-400">
+              Connecting students and parents with the right teachers and coaches nearby.
             </p>
 
             {/* SOCIAL LINKS SECTION */}
-            <div className="flex flex-wrap gap-3">
-              {socialLinks.map((social, i) => (
+            <div className="flex flex-wrap gap-2 pt-2">
+              {socialLinks.slice(0, 4).map((social, i) => (
                 <a
                   key={i}
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={social.label}
-                  className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300"
+                  className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-amber-500 hover:text-slate-950 transition-all duration-300"
                 >
-                  <social.Icon className="w-5 h-5" />
+                  <social.Icon className="w-4 h-4" />
                 </a>
               ))}
             </div>
           </div>
 
-          {/* 2. QUICK LINKS */}
+          {/* 2. FOR STUDENTS & PARENTS */}
           <div>
-            <h3 className="text-white font-bold text-lg mb-6 flex items-center gap-2">
-              <span className="w-2 h-6 bg-primary rounded-full"></span>
-              Quick Links
+            <h3 className="text-white font-bold text-sm mb-4 tracking-wide uppercase">
+              For Students & Parents
             </h3>
-            <ul className="space-y-3">
+            <ul className="space-y-2.5 text-[12px]">
               {[
-                { name: "About Us", href: "/about" },
-                { name: "Find Tutor Nearby", href: "/find-tutor-nearby" },
+                { name: "Find a Teacher", href: "/find-tutor-nearby" },
+                { name: "Find a Coach", href: "/find-tutor-nearby?type=coach" },
+                { name: "How It Works", href: "/#how-it-works" },
+                { name: "Post Requirement", href: "/#post-requirement" },
+                { name: "Browse Subjects/Activities", href: "/find-tutor-nearby" },
+                { name: "Browse Locations", href: "/find-tutor-nearby" },
+                { name: "Help Center", href: "/contact" },
+              ].map((link) => (
+                <li key={link.name}>
+                  <a href={link.href} className="hover:text-amber-500 transition-colors">
+                    {link.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* 3. FOR TEACHERS & COACHES */}
+          <div>
+            <h3 className="text-white font-bold text-sm mb-4 tracking-wide uppercase">
+              For Teachers & Coaches
+            </h3>
+            <ul className="space-y-2.5 text-[12px]">
+              {[
+                { name: "Join as a Teacher / Coach", href: "/signup" },
+                { name: "Teacher / Coach Login", href: "/login" },
+                { name: "Create Your Profile", href: "/signup" },
+                { name: "Benefits", href: "/signup" },
+                { name: "Success Stories", href: "/#success-stories" },
+                { name: "Blog", href: "/" },
+              ].map((link) => (
+                <li key={link.name}>
+                  <a href={link.href} className="hover:text-amber-500 transition-colors">
+                    {link.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* 4. SUPPORT */}
+          <div>
+            <h3 className="text-white font-bold text-sm mb-4 tracking-wide uppercase">
+              Support
+            </h3>
+            <ul className="space-y-2.5 text-[12px]">
+              {[
+                { name: "Help Center", href: "/contact" },
                 { name: "Contact Us", href: "/contact" },
-                { name: "Request a Tutor", href: "/request-tutor" },
+                { name: "Safety & Verification", href: "/about" },
+                { name: "Privacy Policy", href: "/privacy" },
+                { name: "Terms & Conditions", href: "/terms" },
               ].map((link) => (
                 <li key={link.name}>
-                  <a href={link.href} className="flex items-center gap-2 text-sm hover:text-primary transition-colors group">
-                    <ArrowRight className="w-3 h-3 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <a href={link.href} className="hover:text-amber-500 transition-colors">
                     {link.name}
                   </a>
                 </li>
@@ -166,66 +215,36 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* 3. POPULAR SUBJECTS */}
-          <div>
-            <h3 className="text-white font-bold text-lg mb-6 flex items-center gap-2">
-              <span className="w-2 h-6 bg-primary rounded-full"></span>
-              Popular Subjects
-            </h3>
-            <ul className="space-y-3">
-              {[
-                { name: "Mathematics", href: "/find-tutor-nearby?subject=Mathematics" },
-                { name: "Physics", href: "/find-tutor-nearby?subject=Physics" },
-                { name: "Coding & AI", href: "/find-tutor-nearby?subject=Coding" },
-                { name: "Chess & Robotics", href: "/find-tutor-nearby?subject=Chess" },
-                { name: "Languages", href: "/find-tutor-nearby?subject=English" },
-              ].map((link) => (
-                <li key={link.name}>
-                  <a href={link.href} className="flex items-center gap-2 text-sm hover:text-primary transition-colors group">
-                    <ArrowRight className="w-3 h-3 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
-                    {link.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* 4. CONTACT */}
-          <div>
-            <h3 className="text-white font-bold text-lg mb-6 flex items-center gap-2">
-              <span className="w-2 h-6 bg-primary rounded-full"></span>
+          {/* 5. CONTACT US */}
+          <div className="space-y-4 text-[12px]">
+            <h3 className="text-white font-bold text-sm mb-4 tracking-wide uppercase">
               Contact Us
             </h3>
-            <div className="space-y-4">
-              <a
-                href={googleMapsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-start gap-3 text-sm group hover:text-white transition-colors"
-              >
-                <MapPin className="w-5 h-5 text-primary shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
-                <span>
-                  Aacharya, Opposite Indrakeeladri Apartment, Lalitha Nagar, Swathi Road, Near Sivalayam Center, Bhavanipuram, Vijayawada - 520012. Andhra Pradesh.
-                </span>
-              </a>
-              <div className="flex items-center gap-3 text-sm">
-                <Phone className="w-5 h-5 text-primary shrink-0" />
-                <span>+91 80741 03400</span>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2.5">
+                <Phone className="w-4 h-4 text-amber-500 shrink-0" />
+                <a href="tel:+918074103400" className="hover:text-amber-500">+91 80741 03400</a>
               </div>
-              <div className="flex items-center gap-3 text-sm">
-                <Mail className="w-5 h-5 text-primary shrink-0" />
-                <span>aacharyateam@gmail.com</span>
+              <div className="flex items-center gap-2.5">
+                <Mail className="w-4 h-4 text-amber-500 shrink-0" />
+                <a href="mailto:support@aacharya.net" className="hover:text-amber-500">support@aacharya.net</a>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <MapPin className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                <span>
+                  Vijayawada,<br />Andhra Pradesh, India
+                </span>
               </div>
             </div>
           </div>
         </div>
 
         {/* BOTTOM BAR */}
-        <div className="border-t border-slate-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
-          <p>© {new Date().getFullYear()} Aacharya. All Rights Reserved.</p>
-          <div className="flex gap-6">
-            <a href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</a>
-            <a href="/terms" className="hover:text-primary transition-colors">Terms of Service</a>
+        <div className="border-t border-slate-800 mt-12 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-[11px] text-slate-500">
+          <p>© 2025 AACHARYA. All rights reserved.</p>
+          <div className="flex gap-4">
+            <a href="/privacy" className="hover:text-amber-500 transition-colors">Privacy Policy</a>
+            <a href="/terms" className="hover:text-amber-500 transition-colors">Terms & Conditions</a>
           </div>
         </div>
       </div>

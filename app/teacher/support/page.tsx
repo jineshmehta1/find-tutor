@@ -74,18 +74,18 @@ export default function TeacherSupportPage() {
     };
 
     return (
-        <div className="space-y-8 pb-12 font-sans">
+        <div className="space-y-8 pb-12 font-sans p-6 sm:p-8 bg-slate-50 min-h-[calc(100vh-70px)]">
             {/* Header */}
-            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+            <div className="bg-[#ffb800] p-6 sm:p-8 rounded-3xl text-slate-950 shadow-md relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
                 <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                     <div className="space-y-2">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-950/10 text-slate-900 text-xs font-black rounded-full border border-slate-950/10">
                             <MessageSquare className="w-3.5 h-3.5" />
                             <span>Helpdesk</span>
                         </div>
                         <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Support Helpdesk</h1>
-                        <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                        <p className="text-xs sm:text-sm text-slate-800 font-medium max-w-xl">
                             Report issues with match credits, billing transactions, verification delay, or profile edits.
                         </p>
                     </div>
@@ -100,13 +100,13 @@ export default function TeacherSupportPage() {
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Issue Subject</label>
                             <input type="text" value={subject} onChange={e => setSubject(e.target.value)} placeholder="e.g. Verification pending since 2 days"
-                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50" />
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50" />
                         </div>
 
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Priority</label>
                             <select value={priority} onChange={e => setPriority(e.target.value)}
-                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50 appearance-none cursor-pointer">
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50 appearance-none cursor-pointer">
                                 <option value="LOW">Low</option>
                                 <option value="MEDIUM">Medium</option>
                                 <option value="HIGH">High</option>
@@ -117,11 +117,11 @@ export default function TeacherSupportPage() {
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Description</label>
                             <textarea value={message} onChange={e => setMessage(e.target.value)} placeholder="Explain the problem in detail..." rows={4}
-                                className="w-full px-4 py-3 text-xs font-medium border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50 resize-none" />
+                                className="w-full px-4 py-3 text-xs font-medium border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50 resize-none" />
                         </div>
 
                         <button onClick={handleCreateTicket} disabled={submitting}
-                            className="w-full py-3.5 bg-[#1f5961] hover:bg-[#163e44] disabled:opacity-50 text-white font-black text-xs rounded-2xl flex items-center justify-center gap-2 transition-all shadow-md">
+                            className="w-full py-3.5 bg-[#ffb800] hover:bg-[#ffa000] disabled:opacity-50 text-white font-black text-xs rounded-2xl flex items-center justify-center gap-2 transition-all shadow-md">
                             {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                             Submit Ticket
                         </button>
@@ -139,7 +139,7 @@ export default function TeacherSupportPage() {
 
                     {loading ? (
                         <div className="flex flex-col items-center justify-center py-12">
-                            <Loader2 className="w-6 h-6 text-[#1f5961] animate-spin" />
+                            <Loader2 className="w-6 h-6 text-[#ffb800] animate-spin" />
                         </div>
                     ) : tickets.length === 0 ? (
                         <div className="text-center py-12 text-xs text-slate-400 font-bold uppercase tracking-wider">
@@ -162,8 +162,8 @@ export default function TeacherSupportPage() {
                                         </div>
                                         <p className="text-xs text-slate-650 font-medium">{ticket.message}</p>
                                         {ticket.adminNote && (
-                                            <div className="bg-[#1f5961]/5 border border-[#1f5961]/15 rounded-xl p-3 space-y-1">
-                                                <div className="text-[9px] font-black text-[#1f5961] uppercase tracking-wider">Admin Response</div>
+                                            <div className="bg-[#ffb800]/5 border border-[#ffb800]/15 rounded-xl p-3 space-y-1">
+                                                <div className="text-[9px] font-black text-[#ffb800] uppercase tracking-wider">Admin Response</div>
                                                 <p className="text-xs text-slate-750 font-semibold">{ticket.adminNote}</p>
                                             </div>
                                         )}

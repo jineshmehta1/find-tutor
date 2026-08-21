@@ -246,7 +246,7 @@ export default function AdminUsersPage() {
     return (
         <div className="space-y-8 font-sans pb-12">
             {/* Header Banner */}
-            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+            <div className="bg-[#ffb800] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
                 <div className="relative z-10 space-y-2">
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
@@ -254,7 +254,7 @@ export default function AdminUsersPage() {
                         <span>Platform User Approvals</span>
                     </div>
                     <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Users & Instructor Approvals</h1>
-                    <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                    <p className="text-xs sm:text-sm text-amber-100 font-medium max-w-xl">
                         Verify teacher credentials, approve home tuition accounts, and manage student learning profiles across Vijayawada.
                     </p>
                 </div>
@@ -266,14 +266,14 @@ export default function AdminUsersPage() {
                     <div className="flex items-center bg-slate-100 p-1.5 rounded-2xl">
                         <button
                             onClick={() => { setActiveTab("TEACHER"); setApprovalFilter("ALL"); }}
-                            className={`px-5 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${activeTab === "TEACHER" ? "bg-[#1f5961] text-white shadow-md" : "text-slate-600 hover:text-slate-900"}`}
+                            className={`px-5 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${activeTab === "TEACHER" ? "bg-[#ffb800] text-white shadow-md" : "text-slate-600 hover:text-slate-900"}`}
                         >
                             <User className="w-4 h-4" />
                             <span>Tutors / Instructors</span>
                         </button>
                         <button
                             onClick={() => { setActiveTab("STUDENT"); setApprovalFilter("ALL"); }}
-                            className={`px-5 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${activeTab === "STUDENT" ? "bg-[#1f5961] text-white shadow-md" : "text-slate-600 hover:text-slate-900"}`}
+                            className={`px-5 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${activeTab === "STUDENT" ? "bg-[#ffb800] text-white shadow-md" : "text-slate-600 hover:text-slate-900"}`}
                         >
                             <GraduationCap className="w-4 h-4" />
                             <span>Students</span>
@@ -286,7 +286,7 @@ export default function AdminUsersPage() {
                             <select
                                 value={approvalFilter}
                                 onChange={(e) => setApprovalFilter(e.target.value)}
-                                className="px-3.5 py-2 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#1f5961] outline-none bg-slate-50/50 cursor-pointer"
+                                className="px-3.5 py-2 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#ffb800] outline-none bg-slate-50/50 cursor-pointer"
                             >
                                 <option value="ALL">All Approvals</option>
                                 <option value="pending">Pending Approval</option>
@@ -302,7 +302,7 @@ export default function AdminUsersPage() {
                         type="text"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#1f5961] outline-none bg-slate-50/50"
+                        className="w-full pl-10 pr-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#ffb800] outline-none bg-slate-50/50"
                         placeholder={`Search ${activeTab.toLowerCase()}s by name or email address...`}
                     />
                 </div>
@@ -316,7 +316,7 @@ export default function AdminUsersPage() {
                             <div className="text-2xl font-black text-slate-900">{allTeachers.length}</div>
                             <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">Registered Tutors</div>
                         </div>
-                        <div className="w-10 h-10 rounded-xl bg-teal-50 text-[#1f5961] flex items-center justify-center font-bold">
+                        <div className="w-10 h-10 rounded-xl bg-amber-50 text-[#ffb800] flex items-center justify-center font-bold">
                             <User className="w-5 h-5" />
                         </div>
                     </div>
@@ -365,11 +365,11 @@ export default function AdminUsersPage() {
                             <div key={user.id} className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 space-y-4">
                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-3">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-12 h-12 rounded-2xl bg-teal-50 text-[#1f5961] flex items-center justify-center font-bold shrink-0 overflow-hidden border border-teal-200/60">
+                                        <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#ffb800] flex items-center justify-center font-bold shrink-0 overflow-hidden border border-amber-200/60">
                                             {user.profilePhoto ? (
                                                 <img src={user.profilePhoto} alt={user.name} className="w-full h-full object-cover" />
                                             ) : (
-                                                <User className="w-6 h-6 text-[#1f5961]" />
+                                                <User className="w-6 h-6 text-[#ffb800]" />
                                             )}
                                         </div>
                                         <div>
@@ -455,11 +455,11 @@ export default function AdminUsersPage() {
                     <div className="bg-white rounded-3xl w-full max-w-lg p-6 sm:p-8 space-y-6 shadow-2xl my-8">
                         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                             <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-2xl bg-teal-50 text-[#1f5961] flex items-center justify-center font-bold overflow-hidden border border-teal-200/60">
+                                <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#ffb800] flex items-center justify-center font-bold overflow-hidden border border-amber-200/60">
                                     {selectedUser.profilePhoto ? (
                                         <img src={selectedUser.profilePhoto} alt={selectedUser.name} className="w-full h-full object-cover" />
                                     ) : (
-                                        <User className="w-6 h-6 text-[#1f5961]" />
+                                        <User className="w-6 h-6 text-[#ffb800]" />
                                     )}
                                 </div>
                                 <div>
@@ -489,7 +489,7 @@ export default function AdminUsersPage() {
                                         type="text"
                                         value={editName}
                                         onChange={(e) => setEditName(e.target.value)}
-                                        className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/50 outline-none focus:border-[#1f5961]"
+                                        className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/50 outline-none focus:border-[#ffb800]"
                                         placeholder="Full Name"
                                     />
                                 </div>
@@ -499,7 +499,7 @@ export default function AdminUsersPage() {
                                         type="text"
                                         value={editPhone}
                                         onChange={(e) => setEditPhone(e.target.value)}
-                                        className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/50 outline-none focus:border-[#1f5961]"
+                                        className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/50 outline-none focus:border-[#ffb800]"
                                         placeholder="Phone Number"
                                     />
                                 </div>
@@ -509,7 +509,7 @@ export default function AdminUsersPage() {
                                         value={editAddress}
                                         onChange={(e) => setEditAddress(e.target.value)}
                                         rows={2}
-                                        className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/50 outline-none focus:border-[#1f5961] resize-none"
+                                        className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/50 outline-none focus:border-[#ffb800] resize-none"
                                         placeholder="Address"
                                     />
                                 </div>
@@ -522,7 +522,7 @@ export default function AdminUsersPage() {
                                                 type="text"
                                                 value={editEducation}
                                                 onChange={(e) => setEditEducation(e.target.value)}
-                                                className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/50 outline-none focus:border-[#1f5961]"
+                                                className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/50 outline-none focus:border-[#ffb800]"
                                                 placeholder="Degree, College"
                                             />
                                         </div>
@@ -532,7 +532,7 @@ export default function AdminUsersPage() {
                                                 type="text"
                                                 value={editExperience}
                                                 onChange={(e) => setEditExperience(e.target.value)}
-                                                className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/50 outline-none focus:border-[#1f5961]"
+                                                className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold bg-slate-50/50 outline-none focus:border-[#ffb800]"
                                                 placeholder="e.g. 5+ Years Exp"
                                             />
                                         </div>
@@ -560,7 +560,7 @@ export default function AdminUsersPage() {
                                                 <button 
                                                     type="button" 
                                                     onClick={() => { if (newSubjectInput.trim() && !editSubjects.includes(newSubjectInput.trim())) { setEditSubjects(prev => [...prev, newSubjectInput.trim()]); setNewSubjectInput(""); } }}
-                                                    className="px-4 py-2 bg-[#1f5961] hover:bg-[#163e44] text-white text-xs font-bold rounded-xl transition-colors"
+                                                    className="px-4 py-2 bg-[#ffb800] hover:bg-[#ffa000] text-white text-xs font-bold rounded-xl transition-colors"
                                                 >
                                                     Add
                                                 </button>

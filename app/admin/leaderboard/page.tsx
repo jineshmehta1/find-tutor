@@ -58,7 +58,7 @@ export default function LeaderboardPage() {
     return (
         <div className="space-y-8 font-sans pb-12">
             {/* Header */}
-            <div className="bg-gradient-to-br from-[#1f5961] to-[#0f3237] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+            <div className="bg-gradient-to-br from-[#ffb800] to-[#0f3237] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
                 <div className="absolute -top-16 -right-16 w-64 h-64 bg-amber-400/10 rounded-full blur-3xl" />
                 <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-teal-400/10 rounded-full blur-2xl" />
                 <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -68,7 +68,7 @@ export default function LeaderboardPage() {
                             <span>Platform Rankings</span>
                         </div>
                         <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Tutor Leaderboard</h1>
-                        <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                        <p className="text-xs sm:text-sm text-amber-100 font-medium max-w-xl">
                             Top tutors ranked by composite score — based on leads, ratings, and reviews from real students.
                         </p>
                     </div>
@@ -92,7 +92,7 @@ export default function LeaderboardPage() {
                     <button key={opt.key} onClick={() => setSortBy(opt.key)}
                         className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
                             sortBy === opt.key
-                                ? "bg-[#1f5961] text-white border-transparent shadow-md"
+                                ? "bg-[#ffb800] text-white border-transparent shadow-md"
                                 : "bg-slate-50 text-slate-500 border-slate-200 hover:border-slate-300"
                         }`}>
                         {opt.label}
@@ -102,7 +102,7 @@ export default function LeaderboardPage() {
 
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-24 bg-white rounded-3xl border border-slate-200/80 shadow-sm space-y-3">
-                    <Loader2 className="w-8 h-8 text-[#1f5961] animate-spin" />
+                    <Loader2 className="w-8 h-8 text-[#ffb800] animate-spin" />
                     <p className="text-slate-500 font-bold uppercase tracking-wider text-xs">Loading leaderboard...</p>
                 </div>
             ) : (
@@ -121,7 +121,7 @@ export default function LeaderboardPage() {
                                             {t.profilePhoto ? (
                                                 <img src={t.profilePhoto} alt={t.name} className="w-full h-full object-cover" />
                                             ) : (
-                                                <div className="w-full h-full bg-[#1f5961]/10 flex items-center justify-center text-2xl font-black text-[#1f5961]">
+                                                <div className="w-full h-full bg-[#ffb800]/10 flex items-center justify-center text-2xl font-black text-[#ffb800]">
                                                     {t.name?.[0]}
                                                 </div>
                                             )}
@@ -171,11 +171,11 @@ export default function LeaderboardPage() {
                                             </td>
                                             <td className="p-4 sm:p-5">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-9 h-9 rounded-xl overflow-hidden bg-[#1f5961]/10 shrink-0">
+                                                    <div className="w-9 h-9 rounded-xl overflow-hidden bg-[#ffb800]/10 shrink-0">
                                                         {t.profilePhoto ? (
                                                             <img src={t.profilePhoto} alt={t.name} className="w-full h-full object-cover" />
                                                         ) : (
-                                                            <div className="w-full h-full flex items-center justify-center text-sm font-black text-[#1f5961]">{t.name?.[0]}</div>
+                                                            <div className="w-full h-full flex items-center justify-center text-sm font-black text-[#ffb800]">{t.name?.[0]}</div>
                                                         )}
                                                     </div>
                                                     <div className="font-extrabold text-slate-900">{t.name}</div>
@@ -184,7 +184,7 @@ export default function LeaderboardPage() {
                                             <td className="p-4 sm:p-5">
                                                 <div className="flex flex-wrap gap-1">
                                                     {t.subjects.slice(0, 2).map(s => (
-                                                        <span key={s} className="text-[9px] px-2 py-0.5 bg-teal-50 text-[#1f5961] rounded-md font-bold border border-teal-100">{s}</span>
+                                                        <span key={s} className="text-[9px] px-2 py-0.5 bg-amber-50 text-[#ffb800] rounded-md font-bold border border-amber-100">{s}</span>
                                                     ))}
                                                     {t.subjects.length > 2 && <span className="text-[9px] text-slate-400 font-bold">+{t.subjects.length - 2}</span>}
                                                 </div>
@@ -214,7 +214,7 @@ export default function LeaderboardPage() {
                                                 }`}>{t.subscriptionStatus}</span>
                                             </td>
                                             <td className="p-4 sm:p-5 text-right">
-                                                <span className="font-black text-[#1f5961] text-sm">{t.score}</span>
+                                                <span className="font-black text-[#ffb800] text-sm">{t.score}</span>
                                                 <span className="text-[10px] text-slate-400 font-medium ml-1">pts</span>
                                             </td>
                                         </tr>

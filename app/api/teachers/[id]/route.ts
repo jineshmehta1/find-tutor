@@ -8,23 +8,50 @@ export async function GET(
     try {
         const id = params.id;
 
-        const teacher = await prisma.teacher.findUnique({
-            where: { id },
-            include: {
-                user: {
-                    select: {
-                        id: true,
-                        name: true,
-                        email: true,
-                        phone: true,
-                        profilePhoto: true,
-                        address: true,
-                        latitude: true,
-                        longitude: true,
+        // Atomically increment views count when profile is fetched
+        let teacher;
+        try {
+            teacher = await prisma.teacher.update({
+                where: { id },
+                data: {
+                    views: {
+                        increment: 1
+                    }
+                },
+                include: {
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true,
+                            phone: true,
+                            profilePhoto: true,
+                            address: true,
+                            latitude: true,
+                            longitude: true,
+                        },
                     },
                 },
-            },
-        });
+            });
+        } catch {
+            teacher = await prisma.teacher.findUnique({
+                where: { id },
+                include: {
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true,
+                            phone: true,
+                            profilePhoto: true,
+                            address: true,
+                            latitude: true,
+                            longitude: true,
+                        },
+                    },
+                },
+            });
+        }
 
         if (!teacher) {
             return NextResponse.json(

@@ -152,7 +152,7 @@ export default function AdminPlansPage() {
     return (
         <div className="space-y-8 font-sans pb-12">
             {/* Header Banner */}
-            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+            <div className="bg-[#ffb800] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
                 <div className="relative z-10 space-y-2">
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
@@ -160,7 +160,7 @@ export default function AdminPlansPage() {
                         <span>Pricing & Tiers</span>
                     </div>
                     <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Subscription Plan Tier Manager</h1>
-                    <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                    <p className="text-xs sm:text-sm text-amber-100 font-medium max-w-xl">
                         Create, modify pricing, and configure active membership tiers for instructors looking for student leads.
                     </p>
                 </div>
@@ -217,7 +217,7 @@ export default function AdminPlansPage() {
                                     </div>
 
                                     <div className="flex items-baseline gap-1 border-y border-slate-100 py-3">
-                                        <span className="text-3xl font-black text-[#1f5961]">₹{plan.price}</span>
+                                        <span className="text-3xl font-black text-[#ffb800]">₹{plan.price}</span>
                                         <span className="text-xs text-slate-500 font-bold">/ {plan.duration} Days</span>
                                     </div>
 
@@ -258,28 +258,28 @@ export default function AdminPlansPage() {
                         <div className="space-y-4 text-xs font-bold">
                             <div>
                                 <label className="block text-slate-500 uppercase mb-1">Plan Name</label>
-                                <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none focus:border-[#1f5961]" placeholder="e.g. Premium Monthly" />
+                                <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none focus:border-[#ffb800]" placeholder="e.g. Premium Monthly" />
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-slate-500 uppercase mb-1">Price (₹ INR)</label>
-                                    <input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} className="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none focus:border-[#1f5961]" placeholder="999" />
+                                    <input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} className="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none focus:border-[#ffb800]" placeholder="999" />
                                 </div>
                                 <div>
                                     <label className="block text-slate-500 uppercase mb-1">Duration (Days)</label>
-                                    <input type="number" value={form.duration} onChange={(e) => setForm({ ...form, duration: e.target.value })} className="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none focus:border-[#1f5961]" placeholder="30" />
+                                    <input type="number" value={form.duration} onChange={(e) => setForm({ ...form, duration: e.target.value })} className="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none focus:border-[#ffb800]" placeholder="30" />
                                 </div>
                             </div>
 
                             <div>
                                 <label className="block text-slate-500 uppercase mb-1">Description Summary</label>
-                                <input type="text" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none focus:border-[#1f5961]" placeholder="Full access to student lead contact numbers" />
+                                <input type="text" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none focus:border-[#ffb800]" placeholder="Full access to student lead contact numbers" />
                             </div>
 
                             <div>
                                 <label className="block text-slate-500 uppercase mb-1">Features (One feature per line)</label>
-                                <textarea rows={4} value={form.features} onChange={(e) => setForm({ ...form, features: e.target.value })} className="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none focus:border-[#1f5961]" placeholder={"Unlimited Student Calls\nZero Commission\nVerified Badge"} />
+                                <textarea rows={4} value={form.features} onChange={(e) => setForm({ ...form, features: e.target.value })} className="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none focus:border-[#ffb800]" placeholder={"Unlimited Student Calls\nZero Commission\nVerified Badge"} />
                             </div>
                         </div>
 
@@ -287,7 +287,7 @@ export default function AdminPlansPage() {
                             <button onClick={() => setShowForm(false)} className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold">
                                 Cancel
                             </button>
-                            <button onClick={handleSubmit} disabled={processing} className="px-5 py-2.5 bg-[#1f5961] hover:bg-[#1a4a51] text-white rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2">
+                            <button onClick={handleSubmit} disabled={processing} className="px-5 py-2.5 bg-[#ffb800] hover:bg-[#ffa000] text-white rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2">
                                 {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save Plan Tier"}
                             </button>
                         </div>

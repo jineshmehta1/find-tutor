@@ -74,17 +74,17 @@ export default function TeachersPage() {
     });
 
     return (
-        <div className="space-y-8 pb-12 font-sans">
+        <div className="space-y-8 pb-12 p-6 sm:p-8 bg-slate-50 min-h-[calc(100vh-70px)] font-sans">
             {/* Header banner */}
-            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+            <div className="bg-[#ffb800] p-6 sm:p-10 rounded-3xl text-slate-950 shadow-xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
                 <div className="relative z-10 space-y-2">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-950/10 text-slate-900 text-xs font-bold rounded-full border border-slate-950/10">
                         <GraduationCap className="w-3.5 h-3.5" />
                         <span>Educator Directory</span>
                     </div>
                     <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Verified Mentors & Tutors</h1>
-                    <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                    <p className="text-xs sm:text-sm text-slate-900/85 font-medium max-w-xl">
                         Directly connect with top-rated tutors near Vijayawada. Book a free 30-minute demo session.
                     </p>
                 </div>
@@ -101,7 +101,7 @@ export default function TeachersPage() {
                             placeholder="Search tutor name or education..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-11 pr-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50"
+                            className="w-full pl-11 pr-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50"
                         />
                     </div>
                     {/* Area filter */}
@@ -112,7 +112,7 @@ export default function TeachersPage() {
                             placeholder="Filter by locality (e.g. Benz Circle)..."
                             value={areaFilter}
                             onChange={(e) => setAreaFilter(e.target.value)}
-                            className="w-full pl-11 pr-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50"
+                            className="w-full pl-11 pr-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50"
                         />
                     </div>
                     {/* Select subject */}
@@ -121,7 +121,7 @@ export default function TeachersPage() {
                         <select
                             value={selectedSubject}
                             onChange={(e) => setSelectedSubject(e.target.value)}
-                            className="w-full pl-11 pr-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50 appearance-none cursor-pointer"
+                            className="w-full pl-11 pr-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50 appearance-none cursor-pointer"
                         >
                             {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
                         </select>
@@ -132,7 +132,7 @@ export default function TeachersPage() {
             {/* Tutors Grid */}
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-24 space-y-3">
-                    <Loader2 className="w-8 h-8 text-[#1f5961] animate-spin" />
+                    <Loader2 className="w-8 h-8 text-[#ffb800] animate-spin" />
                     <p className="text-slate-400 font-bold uppercase tracking-wider text-xs">Loading tutors...</p>
                 </div>
             ) : filteredTeachers.length === 0 ? (
@@ -153,7 +153,7 @@ export default function TeachersPage() {
                                         {tutor.profilePhoto ? (
                                             <img src={tutor.profilePhoto} alt={tutor.name} className="w-full h-full object-cover" />
                                         ) : (
-                                            <div className="w-full h-full bg-[#1f5961]/10 flex items-center justify-center text-[#1f5961] font-black text-lg">
+                                            <div className="w-full h-full bg-[#ffb800]/10 flex items-center justify-center text-[#ffb800] font-black text-lg">
                                                 {tutor.name[0]}
                                             </div>
                                         )}
@@ -164,7 +164,7 @@ export default function TeachersPage() {
                                             <Star className="w-3.5 h-3.5 fill-current" />
                                             <span className="text-xs font-black text-slate-800">4.9</span>
                                         </div>
-                                        <h3 className="font-black text-sm text-slate-900 truncate leading-snug group-hover:text-[#1f5961] transition-colors">{tutor.name}</h3>
+                                        <h3 className="font-black text-sm text-slate-900 truncate leading-snug group-hover:text-[#ffb800] transition-colors">{tutor.name}</h3>
                                         <p className="text-[11px] font-bold text-slate-400 truncate mt-0.5">{tutor.education}</p>
                                     </div>
                                 </div>
@@ -175,7 +175,7 @@ export default function TeachersPage() {
                                         <span>{tutor.experience || "Verified Educator"}</span>
                                     </div>
                                     <div className="flex items-center gap-2 truncate">
-                                        <MapPin className="w-3.5 h-3.5 text-[#1f5961] shrink-0" />
+                                        <MapPin className="w-3.5 h-3.5 text-[#ffb800] shrink-0" />
                                         <span className="truncate">{tutor.address || "Vijayawada"}</span>
                                     </div>
                                 </div>
@@ -194,12 +194,12 @@ export default function TeachersPage() {
 
                             <div className="pt-4 mt-4 border-t border-slate-100 grid grid-cols-2 gap-2">
                                 <button onClick={() => handleOpenDemo(tutor.name, tutor.subjects[0])}
-                                    className="w-full py-2.5 bg-[#1f5961] hover:bg-[#163e44] text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors">
+                                    className="w-full py-2.5 bg-[#ffb800] hover:bg-[#ffa000] text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors">
                                     <Sparkles className="w-3.5 h-3.5 text-amber-300" /> Free Demo
                                 </button>
                                 <a href={`tel:${tutor.phone}`}
                                     className="w-full py-2.5 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 border border-slate-200 transition-colors">
-                                    <Phone className="w-3.5 h-3.5 text-teal-600" /> Call Tutor
+                                    <Phone className="w-3.5 h-3.5 text-amber-600" /> Call Tutor
                                 </a>
                             </div>
                         </div>

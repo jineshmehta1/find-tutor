@@ -14,7 +14,7 @@ const AdminMapView = dynamic(() => import("@/components/admin/AdminMapView"), {
     ssr: false,
     loading: () => (
         <div className="w-full h-full flex flex-col items-center justify-center bg-slate-100 rounded-3xl space-y-3">
-            <Loader2 className="w-8 h-8 text-[#1f5961] animate-spin" />
+            <Loader2 className="w-8 h-8 text-[#ffb800] animate-spin" />
             <p className="text-slate-500 font-bold uppercase text-xs tracking-widest">Rendering map...</p>
         </div>
     ),
@@ -88,7 +88,7 @@ export default function MapAnalytics() {
     return (
         <div className="space-y-6 font-sans pb-12">
             {/* ── Header ── */}
-            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+            <div className="bg-[#ffb800] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
                 <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-teal-400/10 rounded-full blur-2xl pointer-events-none" />
                 <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -100,7 +100,7 @@ export default function MapAnalytics() {
                         <h1 className="text-2xl sm:text-4xl font-black tracking-tight">
                             Locality Coverage Map
                         </h1>
-                        <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                        <p className="text-xs sm:text-sm text-amber-100 font-medium max-w-xl">
                             Real-time geographic distribution of tutors, students, and unmatched demand leads across the city.
                         </p>
                     </div>
@@ -174,7 +174,7 @@ export default function MapAnalytics() {
             <div className="relative rounded-3xl overflow-hidden border border-slate-200/80 shadow-xl" style={{ height: "65vh" }}>
                 {loading ? (
                     <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-50 z-10 space-y-3">
-                        <Loader2 className="w-10 h-10 text-[#1f5961] animate-spin" />
+                        <Loader2 className="w-10 h-10 text-[#ffb800] animate-spin" />
                         <p className="text-slate-500 font-bold uppercase text-xs tracking-widest">Loading live map data...</p>
                     </div>
                 ) : !data || (data.tutors.length + data.students.length + data.leads.length === 0) ? (

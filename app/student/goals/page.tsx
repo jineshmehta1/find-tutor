@@ -45,18 +45,18 @@ export default function StudentGoalsPage() {
     const completedCount = goals.filter(g => g.completed).length;
 
     return (
-        <div className="space-y-8 pb-12 font-sans">
+        <div className="space-y-8 pb-12 p-6 sm:p-8 bg-slate-50 min-h-[calc(100vh-70px)] font-sans">
             {/* Header */}
-            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+            <div className="bg-[#ffb800] p-6 sm:p-10 rounded-3xl text-slate-950 shadow-xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
                 <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                     <div className="space-y-2">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-950/10 text-slate-900 text-xs font-bold rounded-full border border-slate-950/10">
                             <Target className="w-3.5 h-3.5" />
                             <span>Milestones</span>
                         </div>
                         <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Goals & Streaks</h1>
-                        <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                        <p className="text-xs sm:text-sm text-slate-900/85 font-medium max-w-xl">
                             Gamify your learning targets. Mark items as completed to maintain your study streak.
                         </p>
                     </div>
@@ -79,12 +79,12 @@ export default function StudentGoalsPage() {
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Goal / Target</label>
                             <input type="text" value={newGoal} onChange={e => setNewGoal(e.target.value)} placeholder="e.g. Revise 15 organic naming formulas"
-                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50" />
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50" />
                         </div>
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Category</label>
                             <select value={category} onChange={e => setCategory(e.target.value)}
-                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50 appearance-none cursor-pointer">
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50 appearance-none cursor-pointer">
                                 <option value="General">General</option>
                                 <option value="Math">Mathematics</option>
                                 <option value="Physics">Physics</option>
@@ -92,7 +92,7 @@ export default function StudentGoalsPage() {
                             </select>
                         </div>
                         <button onClick={handleAddGoal}
-                            className="w-full py-3.5 bg-[#1f5961] hover:bg-[#163e44] text-white font-black text-xs rounded-2xl flex items-center justify-center gap-2.5 transition-all shadow-md">
+                            className="w-full py-3.5 bg-[#ffb800] hover:bg-[#ffa000] text-white font-black text-xs rounded-2xl flex items-center justify-center gap-2.5 transition-all shadow-md">
                             <Plus className="w-4 h-4" /> Add Goal
                         </button>
                     </div>
@@ -113,7 +113,7 @@ export default function StudentGoalsPage() {
                                 g.completed ? "bg-emerald-50/30 border-emerald-100 text-slate-400" : "bg-slate-50 border-slate-100 text-slate-700"
                             }`}>
                                 <div className="flex items-center gap-3.5">
-                                    <button onClick={() => toggleGoal(g.id)} className="shrink-0 text-[#1f5961] hover:scale-105 transition-transform">
+                                    <button onClick={() => toggleGoal(g.id)} className="shrink-0 text-[#ffb800] hover:scale-105 transition-transform">
                                         {g.completed ? <CheckCircle2 className="w-5 h-5 text-emerald-500 fill-emerald-50" /> : <Circle className="w-5 h-5 text-slate-400" />}
                                     </button>
                                     <div>

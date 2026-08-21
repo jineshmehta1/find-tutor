@@ -54,7 +54,7 @@ export async function PATCH(request: NextRequest) {
         }
 
         const body = await request.json();
-        const { name, phone, address, profilePhoto, subjects, education, experience, certifications,
+        const { name, phone, address, profilePhoto, subjects, children, education, experience, certifications,
             teachingMode, classesOrAgeGroup, qualificationLevel, qualificationName, achievements,
             achievementCertificate, qualificationCertificate } = body;
 
@@ -75,13 +75,17 @@ export async function PATCH(request: NextRequest) {
         });
 
         // Update role-specific data
-        if (user.role === "STUDENT" && subjects && user.student) {
-            await prisma.student.update({
-                where: { id: user.student.id },
-                data: {
-                    subjects: JSON.stringify(subjects),
-                },
-            });
+        if (user.role === "STUDENT" && user.student) {
+            const studentUpdateData: any = {};
+            if (subjects) studentUpdateData.subjects = JSON.stringify(subjects);
+            if (children) studentUpdateData.children = JSON.stringify(children);
+
+            if (Object.keys(studentUpdateData).length > 0) {
+                await prisma.student.update({
+                    where: { id: user.student.id },
+                    data: studentUpdateData,
+                });
+            }
         }
 
         if (user.role === "TEACHER" && user.teacher) {

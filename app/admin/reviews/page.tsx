@@ -102,7 +102,7 @@ export default function ReviewsAdmin() {
   return (
     <div className="space-y-8 font-sans pb-12">
       {/* Header Banner */}
-      <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+      <div className="bg-[#ffb800] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 space-y-2">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
@@ -110,7 +110,7 @@ export default function ReviewsAdmin() {
             <span>Tutor Ratings & Reviews</span>
           </div>
           <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Instructor Reviews Manager</h1>
-          <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+          <p className="text-xs sm:text-sm text-amber-100 font-medium max-w-xl">
             Select a verified tutor from the database, attach parent or student testimonials, and assign star ratings.
           </p>
         </div>
@@ -128,7 +128,7 @@ export default function ReviewsAdmin() {
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Select Registered Tutor</label>
               <select
-                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#1f5961] outline-none bg-slate-50/50 cursor-pointer"
+                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#ffb800] outline-none bg-slate-50/50 cursor-pointer"
                 value={form.pageKey}
                 onChange={(e) => setForm({ ...form, pageKey: e.target.value })}
                 required
@@ -146,7 +146,7 @@ export default function ReviewsAdmin() {
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Author Name (Parent/Student)</label>
               <input
                 placeholder="e.g. Ramesh Kumar"
-                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#1f5961] outline-none"
+                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#ffb800] outline-none"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 required
@@ -157,7 +157,7 @@ export default function ReviewsAdmin() {
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Role / Relation</label>
               <input
                 placeholder="e.g. Class 10 Parent"
-                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#1f5961] outline-none"
+                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#ffb800] outline-none"
                 value={form.role}
                 onChange={(e) => setForm({ ...form, role: e.target.value })}
                 required
@@ -169,7 +169,7 @@ export default function ReviewsAdmin() {
             <div className="sm:col-span-1">
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Star Rating</label>
               <select
-                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#1f5961] outline-none bg-slate-50/50 cursor-pointer"
+                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#ffb800] outline-none bg-slate-50/50 cursor-pointer"
                 value={form.rating}
                 onChange={(e) => setForm({ ...form, rating: Number(e.target.value) })}
               >
@@ -183,7 +183,7 @@ export default function ReviewsAdmin() {
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Review Content</label>
               <input
                 placeholder="Write parent feedback about this instructor's teaching performance..."
-                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#1f5961] outline-none"
+                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#ffb800] outline-none"
                 value={form.content}
                 onChange={(e) => setForm({ ...form, content: e.target.value })}
                 required
@@ -193,7 +193,7 @@ export default function ReviewsAdmin() {
 
           <button
             disabled={loading}
-            className="w-full py-3.5 bg-[#1f5961] hover:bg-[#1a4a51] text-white font-black rounded-xl text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+            className="w-full py-3.5 bg-[#ffb800] hover:bg-[#ffa000] text-white font-black rounded-xl text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 transition-all disabled:opacity-50"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4 stroke-[3]" />}
             <span>Publish Tutor Review</span>
@@ -223,7 +223,7 @@ export default function ReviewsAdmin() {
               <div key={rev.id} className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 space-y-3 flex flex-col justify-between">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-teal-50 text-[#1f5961] border border-teal-200/60 flex items-center gap-1">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-50 text-[#ffb800] border border-amber-200/60 flex items-center gap-1">
                       <GraduationCap className="w-3 h-3" />
                       <span>Instructor: {rev.pageKey}</span>
                     </span>

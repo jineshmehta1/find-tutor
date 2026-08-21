@@ -88,18 +88,18 @@ export default function TeacherAvailabilityPage() {
     };
 
     return (
-        <div className="space-y-8 pb-12 font-sans">
+        <div className="space-y-8 pb-12 font-sans p-6 sm:p-8 bg-slate-50 min-h-[calc(100vh-70px)]">
             {/* Header */}
-            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+            <div className="bg-[#ffb800] p-6 sm:p-8 rounded-3xl text-slate-950 shadow-md relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
                 <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                     <div className="space-y-2">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-950/10 text-slate-900 text-xs font-black rounded-full border border-slate-950/10">
                             <Clock className="w-3.5 h-3.5" />
                             <span>Availability Configuration</span>
                         </div>
                         <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Active Hours Manager</h1>
-                        <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                        <p className="text-xs sm:text-sm text-slate-800 font-medium max-w-xl">
                             Configure the days and times you are available to teach, so students can plan accordingly.
                         </p>
                     </div>
@@ -120,7 +120,7 @@ export default function TeacherAvailabilityPage() {
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select Day</label>
                             <select value={selectedDay} onChange={e => setSelectedDay(parseInt(e.target.value))}
-                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50 appearance-none cursor-pointer">
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50 appearance-none cursor-pointer">
                                 {DAYS.map((day, idx) => <option key={idx} value={idx}>{day}</option>)}
                             </select>
                         </div>
@@ -129,17 +129,17 @@ export default function TeacherAvailabilityPage() {
                             <div className="space-y-1.5">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">From</label>
                                 <input type="time" value={startTime} onChange={e => setStartTime(e.target.value)}
-                                    className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50" />
+                                    className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50" />
                             </div>
                             <div className="space-y-1.5">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">To</label>
                                 <input type="time" value={endTime} onChange={e => setEndTime(e.target.value)}
-                                    className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50" />
+                                    className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50" />
                             </div>
                         </div>
 
                         <button onClick={handleAddSlot}
-                            className="w-full py-3.5 bg-[#1f5961] hover:bg-[#163e44] text-white font-black text-xs rounded-2xl flex items-center justify-center gap-2 transition-all shadow-md">
+                            className="w-full py-3.5 bg-[#ffb800] hover:bg-[#ffa000] text-white font-black text-xs rounded-2xl flex items-center justify-center gap-2 transition-all shadow-md">
                             <Plus className="w-4 h-4" /> Add Slot
                         </button>
                     </div>
@@ -156,7 +156,7 @@ export default function TeacherAvailabilityPage() {
 
                     {loading ? (
                         <div className="flex flex-col items-center justify-center py-12">
-                            <Loader2 className="w-6 h-6 text-[#1f5961] animate-spin" />
+                            <Loader2 className="w-6 h-6 text-[#ffb800] animate-spin" />
                         </div>
                     ) : slots.length === 0 ? (
                         <div className="text-center py-12 text-xs text-slate-400 font-bold uppercase tracking-wider">
@@ -167,7 +167,7 @@ export default function TeacherAvailabilityPage() {
                             {slots.map((slot, idx) => (
                                 <div key={idx} className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-between gap-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-lg bg-teal-50 text-[#1f5961] flex items-center justify-center font-bold text-xs">
+                                        <div className="w-8 h-8 rounded-lg bg-amber-50 text-[#ffb800] flex items-center justify-center font-bold text-xs">
                                             {DAYS[slot.dayOfWeek].substring(0,3)}
                                         </div>
                                         <div>

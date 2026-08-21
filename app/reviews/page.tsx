@@ -15,8 +15,8 @@ interface Review {
 }
 
 const CARD_STYLES = [
-    { bg: "bg-gradient-to-br from-teal-900 to-[#1f5961]", text: "text-white", badge: "bg-white/15 text-amber-300 border-white/20", quote: "text-teal-200/50", subtext: "text-teal-100", border: "border-teal-700/50 shadow-xl" },
-    { bg: "bg-white", text: "text-slate-900", badge: "bg-teal-50 text-[#1f5961] border-teal-200/80", quote: "text-amber-200", subtext: "text-slate-500", border: "border-teal-200/80 shadow-md ring-1 ring-teal-500/10" },
+    { bg: "bg-gradient-to-br from-teal-900 to-[#ffb800]", text: "text-white", badge: "bg-white/15 text-amber-300 border-white/20", quote: "text-amber-200/50", subtext: "text-amber-100", border: "border-teal-700/50 shadow-xl" },
+    { bg: "bg-white", text: "text-slate-900", badge: "bg-amber-50 text-[#ffb800] border-amber-200/80", quote: "text-amber-200", subtext: "text-slate-500", border: "border-amber-200/80 shadow-md ring-1 ring-teal-500/10" },
     { bg: "bg-gradient-to-br from-amber-500 to-amber-600", text: "text-slate-950", badge: "bg-slate-950/15 text-slate-950 border-slate-950/20 font-black", quote: "text-amber-900/40", subtext: "text-slate-900", border: "border-amber-400 shadow-xl" },
 ];
 
@@ -40,7 +40,7 @@ export default function ReviewsPage() {
 
             <main className="max-w-[1400px] mx-auto px-4 md:px-8 py-10 w-full space-y-12 flex-1">
                 {/* Hero Banner */}
-                <div className="bg-[#1f5961] p-8 sm:p-14 rounded-3xl text-white shadow-2xl relative overflow-hidden text-center sm:text-left">
+                <div className="bg-[#ffb800] p-8 sm:p-14 rounded-3xl text-white shadow-2xl relative overflow-hidden text-center sm:text-left">
                     <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none" />
                     <div className="relative z-10 space-y-4 max-w-3xl">
                         <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 text-amber-300 text-xs font-black rounded-full border border-white/15 shadow-sm">
@@ -48,7 +48,7 @@ export default function ReviewsPage() {
                             <span>Parent & Student Testimonials</span>
                         </div>
                         <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">What Parents & Students Say About Aacharya</h1>
-                        <p className="text-xs sm:text-base text-teal-100 font-medium leading-relaxed">
+                        <p className="text-xs sm:text-base text-amber-100 font-medium leading-relaxed">
                             Verified reviews and testimonials from families in Bhavanipuram & Vijayawada taking home tuitions and academy coaching.
                         </p>
                     </div>
@@ -93,14 +93,14 @@ export default function ReviewsPage() {
 
                                         <div className="relative pt-2">
                                             <Quote className={`w-8 h-8 ${style.quote} absolute -top-3 -left-2 rotate-180 pointer-events-none`} />
-                                            <p className={`text-xs sm:text-sm font-semibold leading-relaxed pl-5 relative z-10 ${isDark ? "text-teal-50" : isAmber ? "text-slate-950 font-bold" : "text-slate-800"}`}>
+                                            <p className={`text-xs sm:text-sm font-semibold leading-relaxed pl-5 relative z-10 ${isDark ? "text-amber-50" : isAmber ? "text-slate-950 font-bold" : "text-slate-800"}`}>
                                                 "{rev.content}"
                                             </p>
                                         </div>
                                     </div>
 
                                     <div className={`flex items-center gap-3 border-t pt-4 ${isDark ? "border-white/10" : isAmber ? "border-slate-950/15" : "border-slate-100"}`}>
-                                        <div className={`w-11 h-11 rounded-2xl flex items-center justify-center font-black text-sm shrink-0 shadow-md ${isDark ? "bg-white/15 text-white" : isAmber ? "bg-slate-950 text-amber-400" : "bg-[#1f5961] text-white"}`}>
+                                        <div className={`w-11 h-11 rounded-2xl flex items-center justify-center font-black text-sm shrink-0 shadow-md ${isDark ? "bg-white/15 text-white" : isAmber ? "bg-slate-950 text-amber-400" : "bg-[#ffb800] text-white"}`}>
                                             {rev.name.charAt(0)}
                                         </div>
                                         <div>

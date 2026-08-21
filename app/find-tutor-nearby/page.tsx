@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback, Suspense } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import MapLocationPicker from "@/components/ui/DynamicMapPicker";
@@ -16,7 +16,7 @@ import {
     HelpCircle, PhoneCall, Mail, Facebook, Twitter, 
     Instagram, Linkedin, ArrowUpRight, Filter,
     CheckCircle, UserCheck, Timer, Smile, Laptop, 
-    Home, School, BookMarked, Sparkles
+    Home, School, BookMarked, Sparkles, Loader2
 } from "lucide-react";
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -88,7 +88,7 @@ interface Teacher {
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 const YellowBadge = ({ text, icon: Icon }: { text: string; icon?: any }) => (
-    <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white text-[10px] font-extrabold uppercase tracking-[0.2em] shadow-lg shadow-primary/20 border border-primary/20 rounded-full">
+    <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-slate-950 text-[10px] font-extrabold uppercase tracking-[0.2em] shadow-lg shadow-primary/20 border border-primary/20 rounded-full">
         {Icon && <Icon className="w-3 h-3" />}
         {text}
     </div>
@@ -119,8 +119,22 @@ const StatCard = ({ icon: Icon, value, label }: { icon: any, value: string, labe
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 export default function FindTutorNearbyPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex flex-col items-center justify-center min-h-screen space-y-3 bg-white">
+                <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />
+                <p className="text-slate-500 font-bold uppercase tracking-wider text-xs">Loading Orbit...</p>
+            </div>
+        }>
+            <FindTutorNearbyPageContent />
+        </Suspense>
+    );
+}
+
+function FindTutorNearbyPageContent() {
     const { data: session } = useSession();
     const router = useRouter();
+    const searchParams = useSearchParams();
 
     /* ── 4.1 Search & UI States ── */
     const [location, setLocation] = useState("");
@@ -172,7 +186,8 @@ export default function FindTutorNearbyPage() {
     useEffect(() => {
         const fetchTeachers = async () => {
             try {
-                const res = await fetch("/api/teachers");
+                // Fetch both approved and pending teachers to facilitate visual testing in dev environment
+                const res = await fetch("/api/teachers?approved=false");
                 if (!res.ok) throw new Error("Network response was not ok");
                 const data = await res.json();
                 
@@ -207,6 +222,60 @@ export default function FindTutorNearbyPage() {
         };
         fetchTeachers();
     }, []);
+
+    // Read URL Search Parameters on Page Load
+    useEffect(() => {
+        if (teachers.length === 0) return;
+
+        const urlSubject = searchParams.get("subject") || "";
+        const urlLocation = searchParams.get("location") || "";
+        const urlClass = searchParams.get("classLevel") || searchParams.get("class") || "";
+        const urlMode = searchParams.get("mode") || "";
+        const urlType = searchParams.get("type") || "";
+
+        let hasParams = false;
+
+        if (urlSubject) {
+            setSubject(urlSubject);
+            hasParams = true;
+        }
+        if (urlLocation) {
+            setLocation(urlLocation);
+            hasParams = true;
+        }
+        if (urlClass) {
+            setSelectedClass(urlClass);
+            hasParams = true;
+        }
+        if (urlMode) {
+            setSelectedMode(urlMode);
+            hasParams = true;
+        } else if (urlType === "coach") {
+            // For general coaches redirect, pre-set to general coaches or popular chess
+            setSubject("Chess");
+            hasParams = true;
+        }
+
+        if (hasParams) {
+            setLoading(true);
+            let result = [...teachers];
+
+            if (urlLocation.trim()) {
+                const terms = urlLocation.toLowerCase().split(/[\s,]+/).filter(Boolean);
+                result = result.filter(t => t.address && terms.some(term => t.address.toLowerCase().includes(term)));
+            }
+
+            if (urlSubject.trim()) {
+                result = result.filter(t => t.subjects?.some((sub: string) => sub.toLowerCase().includes(urlSubject.toLowerCase())));
+            }
+
+            setTimeout(() => {
+                setFiltered(result);
+                setSearched(true);
+                setLoading(false);
+            }, 100);
+        }
+    }, [teachers, searchParams]);
 
     /* ── 4.6 Search Logic ── */
     const performSearch = useCallback((overrideSub?: string, overrideLoc?: string) => {
@@ -455,7 +524,7 @@ export default function FindTutorNearbyPage() {
                         <div className="flex flex-col sm:flex-row items-center gap-3">
                             <button 
                                 onClick={handleSearchClick}
-                                className="w-full sm:flex-[1.5] h-14 md:h-16 bg-primary hover:bg-primary/90 text-white font-extrabold rounded-2xl md:rounded-[2rem] transition-all duration-500 shadow-xl shadow-primary/10 active:scale-95 flex items-center justify-center gap-3 uppercase text-xs md:text-sm tracking-widest"
+                                className="w-full sm:flex-[1.5] h-14 md:h-16 bg-primary hover:bg-primary/90 text-slate-950 font-extrabold rounded-2xl md:rounded-[2rem] transition-all duration-500 shadow-xl shadow-primary/10 active:scale-95 flex items-center justify-center gap-3 uppercase text-xs md:text-sm tracking-widest"
                             >
                                 <Search className="w-4 h-4 md:w-5 md:h-5" /> Start Search
                             </button>

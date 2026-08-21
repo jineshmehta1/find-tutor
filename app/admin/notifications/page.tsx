@@ -65,7 +65,7 @@ export default function NotificationsPage() {
     return (
         <div className="space-y-8 font-sans pb-12">
             {/* Header */}
-            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+            <div className="bg-[#ffb800] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
                 <div className="relative z-10 space-y-2">
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
@@ -73,7 +73,7 @@ export default function NotificationsPage() {
                         <span>Broadcast Center</span>
                     </div>
                     <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Notifications Center</h1>
-                    <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                    <p className="text-xs sm:text-sm text-amber-100 font-medium max-w-xl">
                         Send targeted announcements, alerts, and platform updates to tutors and students instantly.
                     </p>
                 </div>
@@ -99,7 +99,7 @@ export default function NotificationsPage() {
                                         onClick={() => setAudience(opt.value)}
                                         className={`flex flex-col items-center gap-2 py-3 px-2 rounded-2xl border text-xs font-bold transition-all ${
                                             audience === opt.value
-                                                ? "bg-[#1f5961] text-white border-[#1f5961] shadow-md"
+                                                ? "bg-[#ffb800] text-white border-[#ffb800] shadow-md"
                                                 : "bg-slate-50 text-slate-500 border-slate-200 hover:border-slate-300"
                                         }`}
                                     >
@@ -141,7 +141,7 @@ export default function NotificationsPage() {
                             onChange={e => setTitle(e.target.value)}
                             placeholder="e.g. New event this weekend!"
                             maxLength={80}
-                            className="w-full px-4 py-3 text-sm font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50 placeholder:text-slate-300 placeholder:font-normal"
+                            className="w-full px-4 py-3 text-sm font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50 placeholder:text-slate-300 placeholder:font-normal"
                         />
                         <div className="text-right text-[10px] text-slate-400 font-bold">{title.length}/80</div>
                     </div>
@@ -154,7 +154,7 @@ export default function NotificationsPage() {
                             onChange={e => setBody(e.target.value.slice(0, charLimit))}
                             placeholder="Write your announcement here..."
                             rows={4}
-                            className="w-full px-4 py-3 text-sm font-medium border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50 resize-none placeholder:text-slate-300"
+                            className="w-full px-4 py-3 text-sm font-medium border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50 resize-none placeholder:text-slate-300"
                         />
                         <div className="text-right text-[10px] text-slate-400 font-bold">{body.length}/{charLimit}</div>
                     </div>
@@ -163,7 +163,7 @@ export default function NotificationsPage() {
                     <button
                         onClick={handleSend}
                         disabled={sending || !title.trim() || !body.trim()}
-                        className="w-full py-3.5 bg-[#1f5961] hover:bg-[#163e44] disabled:opacity-50 disabled:cursor-not-allowed text-white font-black text-sm rounded-2xl flex items-center justify-center gap-2.5 transition-all shadow-md"
+                        className="w-full py-3.5 bg-[#ffb800] hover:bg-[#ffa000] disabled:opacity-50 disabled:cursor-not-allowed text-white font-black text-sm rounded-2xl flex items-center justify-center gap-2.5 transition-all shadow-md"
                     >
                         {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                         {sending ? "Sending..." : "Send Notification"}
@@ -190,7 +190,7 @@ export default function NotificationsPage() {
                             </p>
                         </div>
                         <div className="flex gap-2 text-[10px] font-bold">
-                            <span className="px-2 py-1 bg-teal-50 text-[#1f5961] rounded-lg border border-teal-100">
+                            <span className="px-2 py-1 bg-amber-50 text-[#ffb800] rounded-lg border border-amber-100">
                                 → {AUDIENCE_OPTIONS.find(o => o.value === audience)?.label}
                             </span>
                             <span className="px-2 py-1 bg-amber-50 text-amber-700 rounded-lg border border-amber-100">

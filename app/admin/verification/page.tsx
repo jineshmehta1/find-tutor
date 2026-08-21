@@ -84,7 +84,7 @@ export default function VerificationQueuePage() {
     return (
         <div className="space-y-8 font-sans pb-12">
             {/* Header */}
-            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+            <div className="bg-[#ffb800] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
                 <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="space-y-2">
@@ -93,7 +93,7 @@ export default function VerificationQueuePage() {
                             <span>KYC Review Queue</span>
                         </div>
                         <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Tutor Verification Queue</h1>
-                        <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                        <p className="text-xs sm:text-sm text-amber-100 font-medium max-w-xl">
                             Review qualification certificates, achievement documents, and approve or reject tutor applications.
                         </p>
                     </div>
@@ -123,7 +123,7 @@ export default function VerificationQueuePage() {
                     <button key={opt.key} onClick={() => setFilter(opt.key as any)}
                         className={`px-4 py-2 rounded-xl text-xs font-black border transition-all ${
                             filter === opt.key
-                                ? "bg-[#1f5961] text-white border-transparent shadow-md"
+                                ? "bg-[#ffb800] text-white border-transparent shadow-md"
                                 : opt.color
                         }`}>
                         {opt.label}
@@ -152,19 +152,19 @@ export default function VerificationQueuePage() {
                     </div>
                     {loading ? (
                         <div className="flex-1 flex items-center justify-center">
-                            <Loader2 className="w-6 h-6 text-[#1f5961] animate-spin" />
+                            <Loader2 className="w-6 h-6 text-[#ffb800] animate-spin" />
                         </div>
                     ) : (
                         <div className="flex-1 overflow-y-auto divide-y divide-slate-50">
                             {filtered.map(t => (
                                 <button key={t.id} onClick={() => setSelected(t)}
-                                    className={`w-full text-left p-4 hover:bg-slate-50 transition-colors ${selected?.id === t.id ? "bg-teal-50/60 border-r-2 border-[#1f5961]" : ""}`}>
+                                    className={`w-full text-left p-4 hover:bg-slate-50 transition-colors ${selected?.id === t.id ? "bg-amber-50/60 border-r-2 border-[#ffb800]" : ""}`}>
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-xl overflow-hidden bg-[#1f5961]/10 shrink-0">
+                                        <div className="w-10 h-10 rounded-xl overflow-hidden bg-[#ffb800]/10 shrink-0">
                                             {t.profilePhoto ? (
                                                 <img src={t.profilePhoto} alt={t.name} className="w-full h-full object-cover" />
                                             ) : (
-                                                <div className="w-full h-full flex items-center justify-center font-black text-sm text-[#1f5961]">{t.name[0]}</div>
+                                                <div className="w-full h-full flex items-center justify-center font-black text-sm text-[#ffb800]">{t.name[0]}</div>
                                             )}
                                         </div>
                                         <div className="flex-1 min-w-0">
@@ -216,11 +216,11 @@ export default function VerificationQueuePage() {
                         <div className="flex-1 overflow-y-auto p-6 space-y-6">
                             {/* Profile Header */}
                             <div className="flex items-center gap-4">
-                                <div className="w-16 h-16 rounded-2xl overflow-hidden bg-[#1f5961]/10 shrink-0">
+                                <div className="w-16 h-16 rounded-2xl overflow-hidden bg-[#ffb800]/10 shrink-0">
                                     {selected.profilePhoto ? (
                                         <img src={selected.profilePhoto} alt={selected.name} className="w-full h-full object-cover" />
                                     ) : (
-                                        <div className="w-full h-full flex items-center justify-center font-black text-2xl text-[#1f5961]">{selected.name[0]}</div>
+                                        <div className="w-full h-full flex items-center justify-center font-black text-2xl text-[#ffb800]">{selected.name[0]}</div>
                                     )}
                                 </div>
                                 <div className="flex-1">
@@ -259,7 +259,7 @@ export default function VerificationQueuePage() {
                                 <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Subjects</div>
                                 <div className="flex flex-wrap gap-2">
                                     {selected.subjects.map(s => (
-                                        <span key={s} className="text-xs px-3 py-1 bg-teal-50 text-[#1f5961] rounded-xl font-bold border border-teal-100">{s}</span>
+                                        <span key={s} className="text-xs px-3 py-1 bg-amber-50 text-[#ffb800] rounded-xl font-bold border border-amber-100">{s}</span>
                                     ))}
                                 </div>
                             </div>

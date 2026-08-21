@@ -11,9 +11,9 @@ export default function SignupPage() {
             label: "Student / Parent",
             icon: GraduationCap,
             href: "/signup/student",
-            color: "from-[#1f5961] to-[#12363b]",
-            bgColor: "bg-teal-500/10",
-            borderColor: "border-teal-500/25",
+            color: "from-[#ffb800] to-[#ffa000]",
+            bgColor: "bg-amber-500/10",
+            borderColor: "border-amber-500/25",
             description: "Find qualified tutors near you",
             features: ["Browse tutors by subject", "Filter by location & distance", "Free 30-min demo session"],
         },
@@ -31,7 +31,7 @@ export default function SignupPage() {
     ];
 
     return (
-        <div className="min-h-screen flex flex-col justify-between bg-[#19484e] text-white p-4 sm:p-6 relative overflow-hidden font-sans">
+        <div className="min-h-screen flex flex-col justify-between bg-[#0a1829] text-white p-4 sm:p-6 relative overflow-hidden font-sans">
             {/* Background glowing effects */}
             <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-white/5 rounded-full blur-[140px] pointer-events-none" />
             <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-amber-400/10 rounded-full blur-[120px] pointer-events-none" />
@@ -44,7 +44,7 @@ export default function SignupPage() {
                     </div>
                     <div>
                         <span className="font-black text-lg tracking-tight text-white block leading-none">AACHARYA</span>
-                        <span className="text-[9px] font-extrabold text-teal-200 uppercase tracking-widest mt-0.5 block">Bhavanipuram, Vijayawada</span>
+                        <span className="text-[9px] font-extrabold text-amber-200 uppercase tracking-widest mt-0.5 block">Bhavanipuram, Vijayawada</span>
                     </div>
                 </Link>
 
@@ -128,7 +128,7 @@ export default function SignupPage() {
             </div>
 
             {/* Footer */}
-            <div className="text-center py-3 text-teal-100/70 text-[11px] font-medium relative z-10 border-t border-white/10 max-w-6xl w-full mx-auto">
+            <div className="text-center py-3 text-amber-100/70 text-[11px] font-medium relative z-10 border-t border-white/10 max-w-6xl w-full mx-auto">
                 © {new Date().getFullYear()} Aacharya Academy Bhavanipuram. All Rights Reserved.
             </div>
         </div>

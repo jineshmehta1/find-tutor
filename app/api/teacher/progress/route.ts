@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
 
-        let reports = [];
+        let reports: any[] = [];
         if (user.role === "TEACHER" && user.teacher) {
             reports = await prisma.studentProgressReport.findMany({
                 where: { teacherId: user.teacher.id },

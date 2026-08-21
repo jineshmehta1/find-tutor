@@ -41,18 +41,18 @@ export default function TeacherEarningsPage() {
     const completedPayouts = earnings.filter(e => e.status === "PAID").reduce((acc, curr) => acc + curr.amount, 0);
 
     return (
-        <div className="space-y-8 pb-12 font-sans">
+        <div className="space-y-8 pb-12 font-sans p-6 sm:p-8 bg-slate-50 min-h-[calc(100vh-70px)]">
             {/* Header */}
-            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+            <div className="bg-[#ffb800] p-6 sm:p-8 rounded-3xl text-slate-950 shadow-md relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
                 <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                     <div className="space-y-2">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-950/10 text-slate-900 text-xs font-black rounded-full border border-slate-950/10">
                             <DollarSign className="w-3.5 h-3.5" />
                             <span>Financials</span>
                         </div>
                         <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Earnings & Payouts</h1>
-                        <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                        <p className="text-xs sm:text-sm text-slate-800 font-medium max-w-xl">
                             Track your class completion revenue, pending payouts, and historical direct deposit ledger.
                         </p>
                     </div>
@@ -66,7 +66,7 @@ export default function TeacherEarningsPage() {
             {/* Metrics cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 <div className="bg-white border border-slate-200/80 rounded-3xl p-6 shadow-sm flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-teal-50 text-[#1f5961] flex items-center justify-center font-bold">
+                    <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#ffb800] flex items-center justify-center font-bold">
                         ₹
                     </div>
                     <div>
@@ -99,13 +99,13 @@ export default function TeacherEarningsPage() {
             {/* Earnings History */}
             <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm space-y-6">
                 <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-                    <History className="w-5 h-5 text-[#1f5961]" />
+                    <History className="w-5 h-5 text-[#ffb800]" />
                     <h3 className="text-sm font-black text-slate-800 uppercase tracking-wider">Transaction Ledger</h3>
                 </div>
 
                 {loading ? (
                     <div className="flex items-center justify-center py-12">
-                        <Loader2 className="w-6 h-6 text-[#1f5961] animate-spin" />
+                        <Loader2 className="w-6 h-6 text-[#ffb800] animate-spin" />
                     </div>
                 ) : earnings.length === 0 ? (
                     <div className="text-center py-12 text-xs text-slate-400 font-bold uppercase tracking-wider">

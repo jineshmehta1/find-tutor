@@ -203,7 +203,7 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
             {tutor.profilePhoto ? (
               <img src={tutor.profilePhoto} alt={tutor.name} className="w-32 h-32 md:w-40 md:h-40 rounded-3xl object-cover border-4 border-slate-800 shadow-2xl" />
             ) : (
-              <div className="w-32 h-32 md:w-40 md:h-40 bg-primary text-white rounded-3xl flex items-center justify-center font-black text-5xl">
+              <div className="w-32 h-32 md:w-40 md:h-40 bg-primary text-slate-950 rounded-3xl flex items-center justify-center font-black text-5xl">
                 {tutor.name[0]}
               </div>
             )}
@@ -399,7 +399,7 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
 
             <button
               onClick={() => setShowBookingModal(true)}
-              className="w-full py-4 bg-primary hover:bg-primary/95 text-white font-black rounded-2xl shadow-lg shadow-primary/10 uppercase tracking-widest text-xs transition-all active:scale-95"
+              className="w-full py-4 bg-primary hover:bg-primary/95 text-slate-950 font-black rounded-2xl shadow-lg shadow-primary/10 uppercase tracking-widest text-xs transition-all active:scale-95"
             >
               Book Free Trial
             </button>
@@ -508,7 +508,7 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
               <button
                 type="submit"
                 disabled={bookingSubmitting}
-                className="w-full py-4 bg-primary hover:bg-primary/95 disabled:bg-slate-200 disabled:text-slate-400 text-white font-black rounded-xl shadow-lg shadow-primary/20 uppercase tracking-wider text-xs transition-all"
+                className="w-full py-4 bg-primary hover:bg-primary/95 disabled:bg-slate-200 disabled:text-slate-400 text-slate-950 font-black rounded-xl shadow-lg shadow-primary/20 uppercase tracking-wider text-xs transition-all"
               >
                 {bookingSubmitting ? "Sending Request..." : "Confirm & Send"}
               </button>

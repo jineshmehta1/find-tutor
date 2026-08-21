@@ -1,180 +1,293 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
 import { 
   Search, MapPin, Star, GraduationCap, Users, ShieldCheck, 
   Sparkles, BookOpen, Music, Code, Beaker, Swords, ArrowRight,
-  CheckCircle, MessageSquare, Laptop, Home, School, DollarSign, HelpCircle,
-  PhoneCall, Zap, Calculator, Award, ChevronDown, Check, Play, UserCheck, Calendar
+  MessageSquare, Laptop, ChevronRight, Palette, Activity,
+  BrainCircuit, Clock, Locate
 } from "lucide-react";
 
-import { FeeEstimator } from "@/components/FeeEstimator";
-import { TutorSpotlight } from "@/components/TutorSpotlight";
-import { ComparisonSection } from "@/components/ComparisonSection";
 import { QuickDemoModal } from "@/components/QuickDemoModal";
 
-const CATEGORIES = [
+const ACADEMIC_SUBJECTS = [
+  "Mathematics", "Science", "Physics", "Chemistry", "Biology", "English", "Social Studies", "Computer Science"
+];
+
+const ACTIVITY_SUBJECTS = [
+  "Chess", "Yoga", "Abacus", "Music", "Drawing", "Dance"
+];
+
+// Static constants TEACHERS and COACHES removed to force real database content only.
+
+const POPULAR_ACTIVITIES = [
+  { name: "Mathematics", icon: BookOpen, image: "/math.jpeg" },
+  { name: "Science", icon: Beaker, image: "/science.avif" },
+  { name: "English", icon: BookOpen, image: "/english.jpeg" },
+  { name: "Social Studies", icon: BookOpen, image: "/social.jpeg" },
+  { name: "Computer Science", icon: Laptop, image: "/computer.jpeg" },
+  { name: "Chess", icon: Swords, image: "/chess1.jpeg" },
+  { name: "Yoga", icon: Activity, image: "/yoga.jpeg" },
+  { name: "Abacus", icon: BrainCircuit, image: "/abacus1.jpeg" },
+  { name: "Music", icon: Music, image: "/music.jpeg" },
+  { name: "Drawing", icon: Palette, image: "/drawing.jpeg" },
+  { name: "Dance", icon: Activity, image: "/dance.jpg" },
+];
+
+const TESTIMONIALS = [
   {
-    id: "school",
-    title: "School Tuitions (CBSE, ICSE, State)",
-    subtitle: "Class 1 to 12 - Math, Physics, Chemistry & Biology",
-    subjects: [
-      { name: "Mathematics", tag: "Class 1-12", icon: BookOpen },
-      { name: "Physics", tag: "Class 9-12 Prep", icon: Beaker },
-      { name: "Chemistry", tag: "Class 9-12 Prep", icon: Beaker },
-      { name: "Biology", tag: "Class 9-12 Prep", icon: Beaker },
-      { name: "English & Social", tag: "Class 1-10 Combo", icon: BookOpen }
-    ],
-    icon: BookOpen,
-    badge: "Most Popular",
-    iconColor: "text-blue-600",
-    bg: "bg-blue-50/50"
+    name: "Anita R.",
+    role: "Parent",
+    rating: 5,
+    text: "We found a wonderful Maths teacher for my son through AACHARYA. He explains concepts so well and is very patient.",
+    avatar: "/g1.avif"
   },
   {
-    id: "coding",
-    title: "Coding, Python & AI Skills",
-    subtitle: "Future-ready tech courses for kids & young adults",
-    subjects: [
-      { name: "Python Programming", tag: "Beginner to Adv", icon: Code },
-      { name: "AI & Robotics", tag: "Hands-on Kits", icon: Laptop },
-      { name: "Web Development", tag: "HTML, CSS, JS", icon: Code },
-      { name: "Scratch & Block Coding", tag: "Kids 6-12 Yrs", icon: Code },
-      { name: "Java Programming", tag: "ICSE & Tech", icon: Code }
-    ],
-    icon: Code,
-    badge: "High Demand",
-    iconColor: "text-emerald-600",
-    bg: "bg-emerald-50/50"
+    name: "Vijay M.",
+    role: "Parent",
+    rating: 5,
+    text: "The yoga classes are excellent! My daughter is more active and confident now. Thank you AACHARYA!",
+    avatar: "/boy.webp"
   },
   {
-    id: "abacus",
-    title: "Abacus & Mental Mathematics",
-    subtitle: "Boost concentration, calculation speed & memory",
-    subjects: [
-      { name: "Abacus Foundation", tag: "Level 1-3", icon: Zap },
-      { name: "Mental Math Speed", tag: "Level 4-8", icon: Zap },
-      { name: "Vedic Mathematics", tag: "Speed Shortcuts", icon: BookOpen },
-      { name: "Olympiad Math Prep", tag: "Competition Ready", icon: GraduationCap }
-    ],
-    icon: Zap,
-    badge: "Speed Booster",
-    iconColor: "text-amber-600",
-    bg: "bg-amber-50/50"
-  },
-  {
-    id: "chess",
-    title: "Grandmaster Chess Coaching",
-    subtitle: "Tactics, strategy & FIDE tournament training",
-    subjects: [
-      { name: "Beginner Chess", tag: "Rules & Tactics", icon: Swords },
-      { name: "Intermediate Strategy", tag: "Openings & Endgames", icon: Swords },
-      { name: "Advanced Tournament", tag: "FIDE Rating Prep", icon: Award }
-    ],
-    icon: Swords,
-    badge: "FIDE Trainers",
-    iconColor: "text-purple-600",
-    bg: "bg-purple-50/50"
-  },
-  {
-    id: "competitive",
-    title: "Competitive Exams (JEE & NEET)",
-    subtitle: "Top rank guidance by IIT & Medical graduates",
-    subjects: [
-      { name: "JEE Main & Advanced", tag: "Maths & Physics", icon: GraduationCap },
-      { name: "NEET Medical Prep", tag: "Biology & Chemistry", icon: GraduationCap },
-      { name: "NTSE & Olympiads", tag: "Class 8-10 Prep", icon: GraduationCap }
-    ],
-    icon: GraduationCap,
-    badge: "Top Ranks",
-    iconColor: "text-rose-600",
-    bg: "bg-rose-50/50"
+    name: "Karthik S.",
+    role: "Parent",
+    rating: 5,
+    text: "My daughter improved a lot in English and Science. Great platform to find the right teacher nearby.",
+    avatar: "/karthik.avif"
   }
 ];
 
-const SUCCESS_STORIES = [
-  {
-    studentName: "Meera Krishnan",
-    location: "Bhavanipuram, Vijayawada",
-    subject: "Class 10 CBSE Physics & Math",
-    tutorName: "Dr. Sandeep Kumar",
-    improvement: "+22% Score Boost (72% -> 94%)",
-    text: "The lead search was fast and straightforward! Within a couple of hours, we booked a free demo with Dr. Sandeep. His problem-solving techniques transformed my score in pre-boards.",
-    rating: 5,
-    mode: "Home Tuition"
-  },
-  {
-    studentName: "Aditya Verma",
-    location: "Vijayawada (Online 1-on-1)",
-    subject: "Python & AI Robotics",
-    tutorName: "Priya Sharma",
-    improvement: "Built 3 Live Projects in 60 Days",
-    text: "UrbanPro style lead system gave us quotes from top coders. Priya took a 30-min free demo class first. My son completed his first AI game within 2 months!",
-    rating: 5,
-    mode: "Live Online"
-  },
-  {
-    studentName: "Kavya & Rohan's Parent",
-    location: "Bhavanipuram, Vijayawada",
-    subject: "Abacus & Mental Math Level 3",
-    tutorName: "Master Ramesh Verma",
-    improvement: "1st Rank in Regional Olympiad",
-    text: "Finding a verified Abacus tutor at home was difficult until we tried Aacharya Academy. The fee is transparent, and progress reports keep us updated every fortnight.",
-    rating: 5,
-    mode: "Home Class"
-  }
-];
+// Helper to assign a premium banner image matching the tutor's subject
+const getSubjectCover = (subject: string): string => {
+  const sub = (subject || "").toLowerCase();
+  if (sub.includes("chess")) return "/kidchess.jpg";
+  if (sub.includes("abacus")) return "/kidabacus.jpg";
+  if (sub.includes("robot") || sub.includes("code") || sub.includes("computer")) return "/kidrobot.jpg";
+  if (sub.includes("math")) return "/kidcoaching.jpg";
+  if (sub.includes("science") || sub.includes("physic") || sub.includes("chemist") || sub.includes("biolog")) return "/tutor_teaching_card.png";
+  return "/coaching.jpg"; // Default banner
+};
 
-const FAQS = [
-  {
-    q: "How does Aacharya Academy connect me with tutors in Bhavanipuram?",
-    a: "When you post a requirement or search for a subject, our system matches you with verified tutors near Bhavanipuram and Vijayawada. Tutors reach out with transparent fee quotes and offer a free 30-minute demo session."
-  },
-  {
-    q: "Are demo classes really 100% free?",
-    a: "Yes! Every listed tutor offers a complimentary 30-minute trial demo session so parent and student can assess compatibility, teaching methodology, and communication before committing."
-  },
-  {
-    q: "Does Aacharya Academy charge any middleman commission from parents?",
-    a: "No! We operate on a 0% hidden markup policy for parents. You negotiate and agree on billing directly with your assigned instructor."
-  },
-  {
-    q: "How are tutor profiles physically verified?",
-    a: "We verify identity documents (Aadhaar/PAN), academic qualification certificates, degree marksheets, and address proof before granting verified instructor status."
-  },
-  {
-    q: "Can we switch between Home Tuition and Online Classes?",
-    a: "Yes! You can choose home visits, live 1-on-1 online interactive classes, or center-based batches based on convenience."
-  }
-];
+// Reusable card component to handle local image loading state cleanly
+function ShowcaseCard({ item, isCoach, handleOpenDemo }: { item: any; isCoach: boolean; handleOpenDemo: any }) {
+  const [imgError, setImgError] = useState(false);
+  const coverUrl = getSubjectCover(item.subject);
+
+  return (
+    <div className="bg-white border border-slate-100/80 rounded-[2rem] shadow-sm hover:shadow-xl hover:scale-[1.02] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between relative overflow-hidden group h-full text-left">
+      
+      {/* Cover Image Header */}
+      <div className="relative h-28 w-full overflow-hidden shrink-0">
+        <div className="absolute inset-0 bg-slate-900/10 z-10" />
+        <img 
+          src={coverUrl} 
+          alt={item.subject} 
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+        {/* Rating Badge - overlay on top right of cover */}
+        <span className="absolute top-3 right-3 z-20 flex items-center gap-1 px-2.5 py-1 bg-white/90 backdrop-blur-sm text-amber-600 rounded-full text-[10px] font-black shadow-sm">
+          <Star className="w-3 h-3 fill-current" />
+          <span>{item.rating}</span>
+        </span>
+      </div>
+
+      {/* Profile info overlay & details */}
+      <div className="p-5 pt-0 flex-1 flex flex-col justify-between space-y-4">
+        
+        {/* Profile Avatar overlapping cover */}
+        <div className="flex items-end gap-3 -mt-8 relative z-20">
+          <div className="relative w-16 h-16 shrink-0">
+            <div className={`profile-fallback w-16 h-16 rounded-full flex items-center justify-center font-black text-xl border-4 border-white shadow-md ${
+              isCoach 
+                ? "bg-gradient-to-tr from-indigo-500 to-purple-600 text-white" 
+                : "bg-gradient-to-tr from-amber-400 to-orange-500 text-white"
+            }`}>
+              {item.name.charAt(0)}
+            </div>
+            {item.image && !imgError && (
+              <img
+                src={item.image}
+                alt={item.name}
+                className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-md absolute inset-0 z-10"
+                onError={() => setImgError(true)}
+              />
+            )}
+          </div>
+          
+          <div className="pb-1">
+            <h4 className="font-extrabold text-sm text-[#0f223a] group-hover:text-amber-500 transition-colors line-clamp-1">
+              {item.name}
+            </h4>
+            {item.qualificationName && (
+              <p className="text-[10px] text-slate-400 font-bold line-clamp-1">
+                {item.qualificationName}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Details Area */}
+        <div className="space-y-2.5 w-full pt-1">
+          <div className="flex flex-wrap gap-1.5">
+            {/* Subject Pill */}
+            <span className="px-2.5 py-1 rounded-full text-[9px] font-black tracking-wide uppercase bg-slate-100 text-slate-600 group-hover:bg-amber-500/10 group-hover:text-amber-600 transition-all">
+              {item.subject}
+            </span>
+            
+            {/* Teaching Mode Badge */}
+            {item.teachingMode && (
+              <span className="px-2.5 py-1 rounded-full text-[9px] font-black tracking-wide uppercase bg-blue-50 text-blue-600">
+                {item.teachingMode}
+              </span>
+            )}
+          </div>
+
+          {/* Classes taught */}
+          <p className="text-[11px] text-slate-500 font-medium leading-tight">
+            <span className="font-extrabold text-slate-700">Teaches:</span> {item.classes}
+          </p>
+
+          {/* Short bio/education */}
+          {item.education && (
+            <p className="text-[10px] text-slate-400 font-medium line-clamp-2 italic leading-normal border-l-2 border-slate-100 pl-2">
+              "{item.education}"
+            </p>
+          )}
+        </div>
+
+        {/* Bottom Info Row */}
+        <div className="w-full border-t border-slate-100 pt-3 flex items-center justify-between text-[10px] text-slate-500 font-bold">
+          <span className="flex items-center gap-1.5 text-slate-400">
+            <Clock className="w-3.5 h-3.5 shrink-0 text-slate-300" />
+            <span>{item.experience}</span>
+          </span>
+          <span className="flex items-center gap-1.5 text-slate-400">
+            <MapPin className="w-3.5 h-3.5 shrink-0 text-slate-300" />
+            <span className="line-clamp-1 max-w-[120px]">{item.location}</span>
+          </span>
+        </div>
+
+        {/* CTA Button */}
+        <button
+          onClick={() => handleOpenDemo(item.name, item.subject)}
+          className="w-full py-2.5 bg-slate-50 group-hover:bg-amber-500 group-hover:text-slate-950 text-[#0f223a] font-black text-xs rounded-xl transition-all duration-300 border border-slate-100 cursor-pointer flex items-center justify-center gap-1.5"
+        >
+          <span>Connect & Book Demo</span>
+          <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+        </button>
+
+      </div>
+    </div>
+  );
+}
 
 export default function HomePage() {
   const router = useRouter();
   const { data: session } = useSession();
 
-  // Search States
+  // Hero Tab: "academics" or "activities"
+  const [activeSearchTab, setActiveSearchTab] = useState<"academics" | "activities">("academics");
+
+  // Search Fields
   const [searchSubject, setSearchSubject] = useState("");
-  const [searchLocation, setSearchLocation] = useState("");
+  const [searchClass, setSearchClass] = useState("");
+  const [searchLocation, setSearchLocation] = useState("Bhavanipuram, Vijayawada");
+  const [searchMode, setSearchMode] = useState("");
 
-  // Requirement Form States
-  const [reqSubject, setReqSubject] = useState("");
-  const [reqClass, setReqClass] = useState("");
-  const [reqMode, setReqMode] = useState("");
-  const [reqLocation, setReqLocation] = useState("");
-  const [reqMessage, setReqMessage] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // Real Database Tutors State
+  const [realTeachers, setRealTeachers] = useState<any[]>([]);
+  const [realCoaches, setRealCoaches] = useState<any[]>([]);
+  const [isLoadingTutors, setIsLoadingTutors] = useState(true);
+  const [apiError, setApiError] = useState<string | null>(null);
 
-  // Category Active Tab State
-  const [activeCategory, setActiveCategory] = useState(CATEGORIES[0].id);
+  useEffect(() => {
+    let active = true;
+    const fetchTutors = async () => {
+      try {
+        setIsLoadingTutors(true);
+        setApiError(null);
+        console.log("Fetching tutors from API...");
+        const res = await fetch("/api/teachers?approved=false", { cache: "no-store" });
+        console.log("API response status:", res.status);
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(`Server returned status ${res.status}: ${errText || "Internal Server Error"}`);
+        }
+        const data = await res.json();
+        console.log("Fetched tutors successfully, count:", data.length, data);
+        const teachersList: any[] = [];
+        const coachesList: any[] = [];
+        
+        data.forEach((item: any) => {
+          const subjects = item.subjects || [];
+          const isActivity = subjects.some((sub: string) => {
+            const lower = sub.toLowerCase();
+            return (
+              lower.includes("chess") || 
+              lower.includes("yoga") || 
+              lower.includes("abacus") || 
+              lower.includes("music") || 
+              lower.includes("dance") || 
+              lower.includes("cricket") || 
+              lower.includes("coach") || 
+              lower.includes("drawing") || 
+              lower.includes("art") ||
+              lower.includes("sports") ||
+              ACTIVITY_SUBJECTS.some(act => lower.includes(act.toLowerCase()))
+            );
+          });
 
-  // FAQ Search & Accordion State
-  const [faqQuery, setFaqQuery] = useState("");
-  const [expandedFaq, setExpandedFaq] = useState<number | null>(0);
+          // Convert raw user / teacher record to display properties
+          const formatted = {
+            id: item.id,
+            name: item.name,
+            subject: subjects[0] || (isActivity ? "Co-curricular Coach" : "Academic Teacher"),
+            classes: Array.isArray(item.classesOrAgeGroup) 
+              ? item.classesOrAgeGroup.join(", ") 
+              : item.classesOrAgeGroup || "All Levels",
+            experience: item.experience ? `${item.experience} Exp.` : "Experienced",
+            location: item.address ? item.address.split(",")[0] : "Vijayawada",
+            rating: item.rating || 5.0,
+            image: item.profilePhoto || null,
+            education: item.education || "",
+            qualificationName: item.qualificationName || item.qualificationLevel || "Qualified Mentor",
+            teachingMode: item.teachingMode || "Home / Online"
+          };
 
-  // Quick Demo Modal State
+          if (isActivity) {
+            coachesList.push(formatted);
+          } else {
+            teachersList.push(formatted);
+          }
+        });
+
+        if (active) {
+          console.log("Categorized - Academic Teachers:", teachersList.length, "Activity Coaches:", coachesList.length);
+          setRealTeachers(teachersList);
+          setRealCoaches(coachesList);
+        }
+      } catch (err: any) {
+        console.error("Error loading tutors for showcase:", err);
+        if (active) {
+          setApiError(err.message || String(err));
+        }
+      } finally {
+        if (active) {
+          setIsLoadingTutors(false);
+        }
+      }
+    };
+    fetchTutors();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Demo Modal State
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
   const [modalDefaultSubject, setModalDefaultSubject] = useState("");
   const [modalDefaultTutor, setModalDefaultTutor] = useState("");
@@ -185,695 +298,896 @@ export default function HomePage() {
     setIsDemoModalOpen(true);
   };
 
-  const handleQuickSearch = (e: React.FormEvent) => {
+  const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const query = new URLSearchParams();
     if (searchSubject) query.set("subject", searchSubject);
     if (searchLocation) query.set("location", searchLocation);
+    if (searchClass) query.set("classLevel", searchClass);
+    if (searchMode) query.set("mode", searchMode);
+    
+    // Pass active tab filter if not custom selected
+    if (activeSearchTab === "activities" && !searchSubject) {
+      query.set("type", "coach");
+    }
+    
     router.push(`/find-tutor-nearby?${query.toString()}`);
   };
 
-  const handlePostRequirement = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!session) {
-      toast.error("Please sign up or log in to post your tutor requirements.");
-      router.push("/signup");
-      return;
-    }
-    if (!reqSubject || !reqLocation) {
-      toast.error("Please fill out both Subject and Location fields.");
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      const res = await fetch("/api/leads", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          subject: reqSubject,
-          classLevel: reqClass,
-          mode: reqMode,
-          location: reqLocation,
-          message: reqMessage || `Looking for ${reqSubject} tutor for ${reqClass || 'any level'}`
-        }),
-      });
-
-      if (!res.ok) throw new Error("Failed to post");
-      toast.success("Success! Matching tutors near you will reach out within 24 hours.");
-      
-      setReqSubject("");
-      setReqClass("");
-      setReqMode("");
-      setReqLocation("");
-      setReqMessage("");
-    } catch (err) {
-      console.error(err);
-      toast.error("Could not post requirement. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
+  const selectPopularSearch = (subjectName: string, isCoach = false) => {
+    setSearchSubject(subjectName);
+    if (isCoach) setActiveSearchTab("activities");
+    else setActiveSearchTab("academics");
+    
+    const query = new URLSearchParams();
+    query.set("subject", subjectName);
+    query.set("location", searchLocation);
+    router.push(`/find-tutor-nearby?${query.toString()}`);
   };
 
-  const handleFeeEstimateSelect = (subject: string, level: string, mode: string) => {
-    setReqSubject(subject);
-    setReqClass(level);
-    setReqMode(mode);
-    setReqLocation("Bhavanipuram, Vijayawada");
-    // Scroll smoothly to lead form
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    toast.info("Pre-filled requirement form with your fee estimate parameters!");
+  const handleDetectLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error("Geolocation is not supported by your browser");
+      return;
+    }
+    
+    const loadingToast = toast.loading("Detecting your location...");
+    
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+          if (!res.ok) throw new Error();
+          const data = await res.json();
+          
+          const address = data.address;
+          const city = address.city || address.town || address.village || address.county || "Vijayawada";
+          const suburb = address.suburb || address.neighbourhood || address.residential || "";
+          
+          const cleanAddress = suburb ? `${suburb}, ${city}` : city;
+          setSearchLocation(cleanAddress);
+          toast.success(`Location detected: ${cleanAddress}`, { id: loadingToast });
+        } catch (error) {
+          setSearchLocation(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
+          toast.success("Location coordinates detected!", { id: loadingToast });
+        }
+      },
+      (error) => {
+        toast.error("Unable to retrieve location. Please check your browser permissions.", { id: loadingToast });
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+    );
   };
 
-  const filteredFaqs = FAQS.filter(f => 
-    f.q.toLowerCase().includes(faqQuery.toLowerCase()) || 
-    f.a.toLowerCase().includes(faqQuery.toLowerCase())
-  );
-
-  const selectedCategoryObj = CATEGORIES.find(c => c.id === activeCategory) || CATEGORIES[0];
+  // Fallbacks if database is empty
+  const displayTeachers = realTeachers;
+  const displayCoaches = realCoaches;
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans antialiased">
       
-      {/* 1. HERO SECTION WITH GLASSMORPHISM & REAL-TIME MATCH WIDGET */}
-      <section className="relative bg-gradient-premium text-white overflow-hidden pt-6 pb-12 lg:pt-8 lg:pb-16">
-        {/* Animated ambient light globes */}
-        <div className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] bg-primary/20 rounded-full blur-[140px] pointer-events-none animate-pulse-glow" />
-        <div className="absolute bottom-[-10%] right-[-5%] w-[500px] h-[500px] bg-amber-500/10 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute inset-0 opacity-5 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:28px_28px]" />
+      {/* 1. HERO SECTION */}
+      <section className="relative overflow-hidden bg-white pt-10 pb-20 md:pt-14 md:pb-24 border-b border-slate-100">
+        
+        {/* Dotted Grid Pattern in Top-Left */}
+        <div className="absolute top-10 left-6 w-20 h-32 pointer-events-none opacity-40">
+          <svg width="80" height="150" fill="currentColor" className="text-amber-500">
+            <defs>
+              <pattern id="heroDots" x="0" y="0" width="16" height="16" patternUnits="userSpaceOnUse">
+                <circle cx="2.5" cy="2.5" r="2.5" />
+              </pattern>
+            </defs>
+            <rect width="80" height="150" fill="url(#heroDots)" />
+          </svg>
+        </div>
 
-        <div className="max-w-[1400px] mx-auto px-4 md:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        {/* Bottom curve decoration */}
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-amber-400 rounded-tr-[10rem] opacity-90 -z-10" />
+
+        {/* DESKTOP BACKGROUND IMAGE: Placed absolutely on the right */}
+        <div className="absolute -top-26 right-0 w-[76%] h-[calc(100%+4rem)] z-10 hidden lg:block select-none pointer-events-none">
+          {/* Smooth curved shape background behind image */}
+          <div className="absolute inset-0 bg-[#fcf4e2] rounded-bl-[14rem] -z-10" />
+          
+          <img
+            src="/hero-bg.png"
+            alt="Find Right Teacher Near You"
+            className="w-full h-full object-cover object-left-bottom"
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+              const fallback = e.currentTarget.parentElement?.querySelector(".fallback-graphic-desktop");
+              if (fallback) fallback.classList.remove("hidden");
+            }}
+          />
+          {/* Desktop Fallback placeholder covering the background space */}
+          <div className="fallback-graphic-desktop hidden absolute inset-0 bg-gradient-to-br from-amber-400/20 to-orange-500/10 flex flex-col items-center justify-center text-center p-12 border-l border-[#f5e2bf]/40">
+            <div className="w-14 h-14 bg-amber-500/10 rounded-full flex items-center justify-center text-amber-600 mb-3">
+              <Users className="w-7 h-7" />
+            </div>
+            <h4 className="font-extrabold text-slate-800 text-base">Mother & Daughter Study Image</h4>
+            <p className="text-slate-500 text-xs max-w-[260px] mt-1 leading-normal">
+              Save your image file as `hero-bg.png` in your `public/` directory to show the picture here.
+            </p>
+          </div>
+        </div>
+
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8 relative z-20">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-y-8 lg:gap-y-0">
             
-            {/* LEFT HERO COLUMN */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="lg:col-span-7 space-y-6 lg:pr-4"
-            >
-              {/* Badge Pills */}
-              <div className="inline-flex flex-wrap items-center gap-2">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 text-amber-300 text-xs font-bold uppercase tracking-wider rounded-full border border-white/15 backdrop-blur-md">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                  <span>India's Most Trusted Local & Online Tutor Finder</span>
-                </div>
-                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/20 text-emerald-300 text-[11px] font-extrabold uppercase tracking-wider rounded-full border border-emerald-500/30">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>Bhavanipuram, Vijayawada</span>
-                </div>
-              </div>
-              
-              <h1 className="text-4xl md:text-6xl font-black tracking-tight leading-[1.08] text-white">
-                Connect with Top <span className="text-gradient-gold">Verified Tutors</span> & Trainers Near You
+            {/* LEFT HEADER AREA: TITLE & TAGLINE */}
+            <div className="lg:col-span-7 space-y-4 text-left self-center pb-6 lg:pb-12">
+              <h1 className="text-4xl md:text-5xl lg:text-[3.25rem] font-extrabold tracking-tight leading-[1.12] text-[#0f223a]">
+                Find the Right <br />
+                Teacher <span className="text-[#ffb800]">Near You</span>
               </h1>
               
-              <p className="text-base md:text-lg text-slate-300 font-medium leading-relaxed max-w-xl">
-                Compare custom fee quotes, credentials, and parent reviews for Home Tuitions, Online 1-on-1 Classes, Abacus, Chess & JEE/NEET Prep.
+              <p className="text-slate-600 text-sm md:text-[15px] font-medium leading-relaxed max-w-xl">
+                <strong className="font-extrabold text-[#0f223a]">AACHARYA</strong> connects students and parents with trusted teachers and coaches for Classes 1 to 12 – Academics, Activities & More.
               </p>
+            </div>
+
+            {/* MOBILE IMAGE AREA - Rendered only on mobile screens */}
+            <div className="lg:hidden w-full relative h-[240px] rounded-3xl overflow-hidden bg-slate-100/50 flex items-center justify-center border border-slate-200 shadow-inner">
+              <img
+                src="/hero-bg.png"
+                alt="Find Right Teacher Near You"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                  const fallback = e.currentTarget.parentElement?.querySelector(".fallback-graphic-mobile");
+                  if (fallback) fallback.classList.remove("hidden");
+                }}
+              />
+              <div className="fallback-graphic-mobile hidden absolute inset-0 bg-gradient-to-br from-amber-400/25 to-orange-500/10 flex flex-col items-center justify-center text-center p-4">
+                <Users className="w-6 h-6 text-amber-600 mb-1" />
+                <span className="font-bold text-slate-800 text-xs">Mother & Daughter Study Image</span>
+                <span className="text-[10px] text-slate-400 mt-0.5 font-medium">Place `hero-bg.png` in `public/` folder</span>
+              </div>
+            </div>
+
+            {/* FULL-WIDTH CARD WIDGET: OVERLAPS BOTTOM ROW */}
+            <div className="lg:col-span-12 bg-white rounded-3xl shadow-xl border border-slate-100 p-5 md:p-6 space-y-4">
               
-              {/* QUICK SEARCH WIDGET */}
-              <form onSubmit={handleQuickSearch} className="bg-white/10 backdrop-blur-md p-2 rounded-2xl border border-white/20 flex flex-col sm:flex-row items-center gap-2 max-w-xl shadow-2xl">
-                <div className="w-full flex items-center gap-2.5 px-3.5 py-2 text-white">
-                  <Search className="w-5 h-5 text-amber-400 shrink-0" />
-                  <input
-                    type="text"
-                    placeholder="Subject (e.g. Mathematics, Physics, Chess)"
-                    value={searchSubject}
-                    onChange={(e) => setSearchSubject(e.target.value)}
-                    className="w-full bg-transparent focus:outline-none placeholder:text-slate-400 text-sm font-medium text-white"
-                  />
-                </div>
-                <div className="w-full flex items-center gap-2.5 px-3.5 py-2 text-white sm:border-l border-white/15">
-                  <MapPin className="w-5 h-5 text-amber-400 shrink-0" />
-                  <input
-                    type="text"
-                    placeholder="Location / Pincode"
-                    value={searchLocation}
-                    onChange={(e) => setSearchLocation(e.target.value)}
-                    className="w-full bg-transparent focus:outline-none placeholder:text-slate-400 text-sm font-medium text-white"
-                  />
-                </div>
+              <h3 className="text-slate-900 font-extrabold text-sm md:text-base text-left">
+                What are you looking for?
+              </h3>
+
+              {/* Tab Toggles */}
+              <div className="flex flex-col sm:flex-row border-b border-slate-100 pb-3.5 gap-4">
+                
+                {/* Tab 1: Academics */}
                 <button
-                  type="submit"
-                  className="w-full sm:w-auto px-7 py-3.5 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl shadow-lg transition-all hover:scale-102 shrink-0 text-xs uppercase tracking-wider"
-                >
-                  Find Tutors
-                </button>
-              </form>
-
-              {/* Quick Tag Pills */}
-              <div className="flex flex-wrap gap-2 text-xs font-semibold text-slate-300 items-center pt-1">
-                <span className="text-slate-400 text-[11px] font-bold">Popular:</span>
-                {["Class 10 CBSE", "Class 12 Physics", "Python & AI", "Abacus Level 1", "Chess Coaching"].map((tag) => (
-                  <button
-                    key={tag}
-                    type="button"
-                    onClick={() => {
-                      setSearchSubject(tag);
-                      setReqSubject(tag);
-                    }}
-                    className="px-3 py-1 bg-white/5 hover:bg-white/15 rounded-lg border border-white/10 transition-colors text-slate-200 text-[11px]"
-                  >
-                    {tag}
-                  </button>
-                ))}
-              </div>
-
-              {/* Trust Indicators */}
-              <div className="grid grid-cols-3 gap-4 pt-4 border-t border-white/10 text-xs">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400 font-extrabold shrink-0">
-                    4.9★
-                  </div>
-                  <div>
-                    <div className="font-extrabold text-white">1,200+</div>
-                    <div className="text-[10px] text-slate-400">Parent Reviews</div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-extrabold shrink-0">
-                    100%
-                  </div>
-                  <div>
-                    <div className="font-extrabold text-white">ID Audited</div>
-                    <div className="text-[10px] text-slate-400">Physical Check</div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400 font-extrabold shrink-0">
-                    Free
-                  </div>
-                  <div>
-                    <div className="font-extrabold text-white">30-Min Demo</div>
-                    <div className="text-[10px] text-slate-400">No Commitment</div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* RIGHT HERO COLUMN: REQUIREMENT FORM */}
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="lg:col-span-5"
-            >
-              <div className="bg-white rounded-3xl p-6 md:p-8 text-slate-900 shadow-2xl border border-slate-100 relative">
-                <div className="absolute top-4 right-4 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-md flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  Matches in 24h
-                </div>
-
-                <h3 className="text-xl md:text-2xl font-black text-slate-950 tracking-tight leading-none mb-1">
-                  Post Tutor Request
-                </h3>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">
-                  Get custom quotes from top tutors
-                </p>
-
-                <form onSubmit={handlePostRequirement} className="space-y-4">
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-                      1. Subject or Course Required
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Class 10 Physics, Abacus, Python"
-                      required
-                      value={reqSubject}
-                      onChange={(e) => setReqSubject(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white text-sm font-semibold transition-all"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-                        2. Student Level
-                      </label>
-                      <select
-                        value={reqClass}
-                        onChange={(e) => setReqClass(e.target.value)}
-                        className="w-full px-3 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white text-xs font-semibold transition-all"
-                      >
-                        <option value="">Select Level</option>
-                        <option value="Class 1-5">Class 1-5</option>
-                        <option value="Class 6-8">Class 6-8</option>
-                        <option value="Class 9-10">Class 9-10</option>
-                        <option value="Class 11-12">Class 11-12</option>
-                        <option value="Undergraduate">Undergraduate / Tech</option>
-                        <option value="Hobbyist / Adult">Hobbyist / Adult</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-                        3. Mode
-                      </label>
-                      <select
-                        value={reqMode}
-                        onChange={(e) => setReqMode(e.target.value)}
-                        className="w-full px-3 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white text-xs font-semibold transition-all"
-                      >
-                        <option value="">Select Mode</option>
-                        <option value="Home Tutor">Home Tuition (We Visit)</option>
-                        <option value="Online Tutor">Online Class (1-on-1)</option>
-                        <option value="At Centre">At Center / Institute</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-                      4. Pincode or City
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Bhavanipuram, Vijayawada"
-                      required
-                      value={reqLocation}
-                      onChange={(e) => setReqLocation(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white text-sm font-semibold transition-all"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-                      5. Learning Goals / Preferred Timing (Optional)
-                    </label>
-                    <textarea
-                      rows={2}
-                      placeholder="Mention exam dates, target score goals..."
-                      value={reqMessage}
-                      onChange={(e) => setReqMessage(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white text-xs font-semibold resize-none transition-all"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full py-4 bg-primary hover:bg-primary/95 disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold rounded-xl shadow-lg shadow-primary/20 uppercase tracking-wider transition-all text-xs active:scale-98"
-                  >
-                    {isSubmitting ? "Posting Requirement..." : "Post Request & Match Tutors"}
-                  </button>
-
-                  <div className="flex items-center justify-between text-[10px] text-slate-400 font-semibold pt-1">
-                    <span className="flex items-center gap-1">
-                      <ShieldCheck className="w-3.5 h-3.5 text-primary" /> Verified Profiles
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => handleOpenDemo()}
-                      className="text-primary font-bold hover:underline"
-                    >
-                      Book 30-Min Free Demo Directly &rarr;
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </motion.div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* 2. THREE-STEP PROCESS & TRUST BAR */}
-      <section className="py-16 bg-white border-b border-slate-100">
-        <div className="max-w-[1400px] mx-auto px-4 md:px-8">
-          <div className="text-center space-y-3 mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-extrabold uppercase tracking-wider">
-              <span>Hassle-Free Experience</span>
-            </div>
-            <h2 className="text-2xl md:text-4xl font-black text-slate-950 tracking-tight">
-              Hire Top Tutors in 3 Simple Steps
-            </h2>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-              Zero risk, 100% transparent process
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <motion.div 
-              whileHover={{ y: -5 }}
-              className="flex gap-5 items-start p-6 rounded-3xl bg-slate-50/70 border border-slate-100 shadow-sm"
-            >
-              <div className="w-12 h-12 bg-slate-950 text-white font-black text-lg flex items-center justify-center rounded-2xl shrink-0 shadow-md">
-                1
-              </div>
-              <div>
-                <h4 className="font-extrabold text-lg text-slate-950 mb-1">Post Learning Requirement</h4>
-                <p className="text-xs text-slate-500 leading-relaxed font-medium">
-                  Specify your subject, grade level, home or online preference, and goal timeline in seconds.
-                </p>
-              </div>
-            </motion.div>
-
-            <motion.div 
-              whileHover={{ y: -5 }}
-              className="flex gap-5 items-start p-6 rounded-3xl bg-slate-50/70 border border-slate-100 shadow-sm"
-            >
-              <div className="w-12 h-12 bg-primary text-white font-black text-lg flex items-center justify-center rounded-2xl shrink-0 shadow-md">
-                2
-              </div>
-              <div>
-                <h4 className="font-extrabold text-lg text-slate-950 mb-1">Receive & Compare Quotes</h4>
-                <p className="text-xs text-slate-500 leading-relaxed font-medium">
-                  Verified background-checked tutors near Bhavanipuram contact you directly with fee quotations.
-                </p>
-              </div>
-            </motion.div>
-
-            <motion.div 
-              whileHover={{ y: -5 }}
-              className="flex gap-5 items-start p-6 rounded-3xl bg-slate-50/70 border border-slate-100 shadow-sm"
-            >
-              <div className="w-12 h-12 bg-amber-500 text-white font-black text-lg flex items-center justify-center rounded-2xl shrink-0 shadow-md">
-                3
-              </div>
-              <div>
-                <h4 className="font-extrabold text-lg text-slate-950 mb-1">Book Free Demo & Hire</h4>
-                <p className="text-xs text-slate-500 leading-relaxed font-medium">
-                  Take a 30-minute trial session. Agree on schedule and lock in your favorite educator.
-                </p>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. INTERACTIVE TUITION FEE ESTIMATOR */}
-      <section className="py-20 max-w-[1400px] mx-auto px-4 md:px-8">
-        <FeeEstimator onSelectEstimate={handleFeeEstimateSelect} />
-      </section>
-
-      {/* 4. DYNAMIC SUBJECT & COURSE EXPLORER MATRIX */}
-      <section className="py-20 bg-white border-y border-slate-100">
-        <div className="max-w-[1400px] mx-auto px-4 md:px-8 space-y-12">
-          
-          <div className="text-center space-y-3 max-w-2xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider">
-              <BookOpen className="w-4 h-4" />
-              <span>Comprehensive Subject Catalog</span>
-            </div>
-            <h2 className="text-3xl md:text-5xl font-black text-slate-950 tracking-tight">
-              Explore Popular <span className="text-gradient-gold">Learning Categories</span>
-            </h2>
-            <p className="text-slate-500 text-sm font-medium">
-              Over 50+ specialized subjects taught daily by verified home and online instructors.
-            </p>
-          </div>
-
-          {/* Interactive Category Selector Tabs */}
-          <div className="flex flex-wrap items-center justify-center gap-2 border-b border-slate-200 pb-4">
-            {CATEGORIES.map((cat) => {
-              const IconComp = cat.icon;
-              const isActive = activeCategory === cat.id;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => setActiveCategory(cat.id)}
-                  className={`px-5 py-3 rounded-2xl text-xs font-extrabold flex items-center gap-2.5 transition-all ${
-                    isActive
-                      ? "bg-slate-950 text-white shadow-lg shadow-slate-950/20 scale-102"
-                      : "bg-slate-50 text-slate-600 hover:bg-slate-100"
+                  type="button"
+                  onClick={() => {
+                    setActiveSearchTab("academics");
+                    setSearchSubject("");
+                  }}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 text-left border flex-1 cursor-pointer ${
+                    activeSearchTab === "academics" 
+                      ? "bg-[#fef9eb] border-[#fbebc6] text-slate-900 shadow-sm" 
+                      : "bg-white border-slate-200 text-slate-400 hover:bg-slate-50/50"
                   }`}
                 >
-                  <IconComp className={`w-4 h-4 ${isActive ? "text-amber-400" : cat.iconColor}`} />
-                  <span>{cat.title.split("(")[0]}</span>
+                  <div className={`p-2 rounded-xl shrink-0 transition-colors ${
+                    activeSearchTab === "academics" ? "bg-amber-100 text-amber-600" : "bg-slate-100 text-slate-400"
+                  }`}>
+                    <GraduationCap className="w-5 h-5" />
+                  </div>
+                  <div className="leading-tight">
+                    <span className="block font-black text-xs md:text-sm">Find a Teacher (Academics)</span>
+                    <span className="text-[10px] text-slate-400 block mt-0.5">For Classes 1 to 12 Subjects</span>
+                  </div>
+                </button>
+
+                {/* Tab 2: Activities */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveSearchTab("activities");
+                    setSearchSubject("");
+                  }}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 text-left border flex-1 cursor-pointer ${
+                    activeSearchTab === "activities" 
+                      ? "bg-[#f5f5ff] border-[#e0e0ff] text-slate-900 shadow-sm" 
+                      : "bg-white border-slate-200 text-slate-400 hover:bg-slate-50/50"
+                  }`}
+                >
+                  <div className={`p-2 rounded-xl shrink-0 transition-colors ${
+                    activeSearchTab === "activities" ? "bg-indigo-100 text-indigo-600" : "bg-slate-100 text-slate-400"
+                  }`}>
+                    <Users className="w-5 h-5" />
+                  </div>
+                  <div className="leading-tight">
+                    <span className="block font-black text-xs md:text-sm">Find a Coach (Activities)</span>
+                    <span className="text-[10px] text-slate-400 block mt-0.5">Curricular & Co-curricular Activities</span>
+                  </div>
+                </button>
+              </div>
+
+              {/* 5-Column Input Row Form */}
+              <form onSubmit={handleSearchSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 text-slate-700">
+                  
+                  {/* Subject Dropdown */}
+                  <div className="space-y-1 text-left lg:col-span-3">
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Subject / Activity</label>
+                    <div className="relative flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2.5 transition-colors focus-within:border-amber-500">
+                      <BookOpen className="w-4 h-4 text-slate-400 mr-2 shrink-0" />
+                      <select
+                        value={searchSubject}
+                        onChange={(e) => setSearchSubject(e.target.value)}
+                        className="w-full bg-transparent border-none text-[12px] font-bold outline-none text-slate-800 py-1 cursor-pointer"
+                      >
+                        <option value="">Select Subject / Activity</option>
+                        {(activeSearchTab === "academics" ? ACADEMIC_SUBJECTS : ACTIVITY_SUBJECTS).map((sub) => (
+                          <option key={sub} value={sub}>{sub}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Class Dropdown */}
+                  <div className="space-y-1 text-left lg:col-span-2">
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Class / Grade</label>
+                    <div className="relative flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2.5 transition-colors focus-within:border-amber-500">
+                      <GraduationCap className="w-4 h-4 text-slate-400 mr-2 shrink-0" />
+                      <select
+                        value={searchClass}
+                        onChange={(e) => setSearchClass(e.target.value)}
+                        className="w-full bg-transparent border-none text-[12px] font-bold outline-none text-slate-800 py-1 cursor-pointer"
+                      >
+                        <option value="">Select Class (1 - 12)</option>
+                        <option value="All">All Grades</option>
+                        <option value="Class 1">Class 1</option>
+                        <option value="Class 2">Class 2</option>
+                        <option value="Class 3">Class 3</option>
+                        <option value="Class 4">Class 4</option>
+                        <option value="Class 5">Class 5</option>
+                        <option value="Class 6">Class 6</option>
+                        <option value="Class 7">Class 7</option>
+                        <option value="Class 8">Class 8</option>
+                        <option value="Class 9">Class 9</option>
+                        <option value="Class 10">Class 10</option>
+                        <option value="Class 11">Class 11</option>
+                        <option value="Class 12">Class 12</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Location Input */}
+                  <div className="space-y-1 text-left lg:col-span-3">
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Location</label>
+                    <div className="relative flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2 transition-colors focus-within:border-amber-500">
+                      <MapPin className="w-4 h-4 text-slate-400 mr-2 shrink-0" />
+                      <input
+                        type="text"
+                        placeholder="Enter Your Location"
+                        value={searchLocation}
+                        onChange={(e) => setSearchLocation(e.target.value)}
+                        className="w-full bg-transparent border-none text-[12px] font-bold outline-none text-slate-800 py-1"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleDetectLocation}
+                        title="Detect Current Location"
+                        className="p-1 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-amber-500 transition-colors shrink-0 cursor-pointer flex items-center justify-center border-none bg-transparent"
+                      >
+                        <Locate className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Mode of Teaching Dropdown */}
+                  <div className="space-y-1 text-left lg:col-span-2">
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Mode of Teaching</label>
+                    <div className="relative flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2.5 transition-colors focus-within:border-amber-500">
+                      <Users className="w-4 h-4 text-slate-400 mr-2 shrink-0" />
+                      <select
+                        value={searchMode}
+                        onChange={(e) => setSearchMode(e.target.value)}
+                        className="w-full bg-transparent border-none text-[12px] font-bold outline-none text-slate-800 py-1 cursor-pointer"
+                      >
+                        <option value="">All Modes</option>
+                        <option value="Home Tutor">Home Tutor</option>
+                        <option value="Online Tutor">Online Class</option>
+                        <option value="At Centre">At Centre</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Search Button */}
+                  <div className="space-y-1 lg:col-span-2">
+                    <label className="block text-[11px] font-bold text-transparent select-none hidden lg:block">&nbsp;</label>
+                    <button
+                      type="submit"
+                      className="w-full py-3.5 bg-[#ffb800] hover:bg-[#ffa000] text-slate-950 font-extrabold text-[13px] uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <Search className="w-4 h-4 text-slate-950 shrink-0" />
+                      <span>Search Now</span>
+                    </button>
+                  </div>
+
+                </div>
+              </form>
+
+              {/* Popular Searches Row */}
+              <div className="border-t border-slate-100 pt-3.5 flex flex-wrap gap-2 items-center text-[12px] text-slate-500 font-bold">
+                <span className="text-slate-400">Popular Searches:</span>
+                <button type="button" onClick={() => selectPopularSearch("Mathematics")} className="px-3 py-1 bg-slate-50 hover:bg-slate-100 rounded-lg text-slate-600 border border-slate-100 transition-colors cursor-pointer">Maths Teacher</button>
+                <button type="button" onClick={() => selectPopularSearch("Physics")} className="px-3 py-1 bg-slate-50 hover:bg-slate-100 rounded-lg text-slate-600 border border-slate-100 transition-colors cursor-pointer">Science Teacher</button>
+                <button type="button" onClick={() => selectPopularSearch("English")} className="px-3 py-1 bg-slate-50 hover:bg-slate-100 rounded-lg text-slate-600 border border-slate-100 transition-colors cursor-pointer">English Teacher</button>
+                <button type="button" onClick={() => selectPopularSearch("Yoga", true)} className="px-3 py-1 bg-[#fff9eb] border border-[#ffe082] rounded-lg text-slate-700 transition-colors cursor-pointer">Yoga Coach</button>
+                <button type="button" onClick={() => selectPopularSearch("Abacus", true)} className="px-3 py-1 bg-slate-50 hover:bg-slate-100 rounded-lg text-slate-600 border border-slate-100 transition-colors cursor-pointer">Abacus Teacher</button>
+                <button type="button" onClick={() => selectPopularSearch("Chess", true)} className="px-3 py-1 bg-slate-50 hover:bg-slate-100 rounded-lg text-slate-600 border border-slate-100 transition-colors cursor-pointer">Chess Coach</button>
+                <a href="/find-tutor-nearby" className="text-blue-600 hover:underline ml-auto font-extrabold">View All</a>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* 2. SUB-HERO SPLIT BANNERS */}
+      <section className="py-12 bg-white border-b border-slate-100">
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            {/* Banner 1: For Students & Parents */}
+            <div className="bg-[#fff9e6] rounded-3xl p-6 md:p-8 flex items-start gap-5 border border-[#ffeebf] hover:shadow-lg transition-all duration-300">
+              <div className="w-14 h-14 bg-amber-500 rounded-full flex items-center justify-center shrink-0 text-slate-950">
+                <BookOpen className="w-7 h-7" />
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-lg md:text-xl font-black text-slate-900 leading-tight">For Students & Parents</h3>
+                  <p className="text-slate-500 text-xs md:text-sm font-medium mt-1">
+                    Find verified teachers and coaches nearby for the best learning experience.
+                  </p>
+                </div>
+                <button
+                  onClick={() => router.push("/find-tutor-nearby")}
+                  className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs uppercase tracking-widest rounded-xl transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer"
+                >
+                  <span>Browse Teachers & Coaches</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Banner 2: Can't Find Right Teacher */}
+            <div className="bg-[#eef4fc] rounded-3xl p-6 md:p-8 flex items-start gap-5 border border-[#d6e4f8] hover:shadow-lg transition-all duration-300">
+              <div className="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center shrink-0 text-white">
+                <Users className="w-7 h-7" />
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-lg md:text-xl font-black text-slate-900 leading-tight">Can't Find the Right Teacher?</h3>
+                  <p className="text-slate-500 text-xs md:text-sm font-medium mt-1">
+                    Post your requirement and we'll help you find the perfect match.
+                  </p>
+                </div>
+                <button
+                  onClick={() => router.push("/request-tutor")}
+                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer"
+                >
+                  <span>Post Requirement</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* 3. HOW IT WORKS SECTION */}
+      <section id="how-it-works" className="py-16 md:py-20 bg-white">
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8 space-y-12">
+          
+          <div className="space-y-2 text-center">
+            <h2 className="text-2xl md:text-3.5xl font-extrabold text-slate-900 tracking-tight">How It Works</h2>
+            <div className="w-12 h-1 bg-[#ffb800] mx-auto rounded-full" />
+          </div>
+
+          <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8 lg:gap-3 max-w-5xl mx-auto pt-4">
+            
+            {/* Step 1 */}
+            <div className="flex-1 flex flex-col items-center lg:items-start text-center lg:text-left space-y-3.5 max-w-xs">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full bg-[#f3e5f5] text-[#9c27b0] flex items-center justify-center border border-[#e1bee7] font-bold shadow-sm shrink-0">
+                  <Search className="w-7 h-7" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-[#ffb800] text-slate-900 font-extrabold text-[10px] flex items-center justify-center shrink-0">1</span>
+                  <h4 className="font-extrabold text-sm text-[#0f223a] uppercase tracking-wider">Search</h4>
+                </div>
+              </div>
+              <p className="text-[12px] text-slate-500 leading-relaxed font-medium pl-0 lg:pl-4">
+                Search by subject/activity, class, location and preferred mode.
+              </p>
+            </div>
+
+            {/* Arrow 1 to 2 */}
+            <div className="hidden lg:flex items-center justify-center text-slate-300 self-center pt-5">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+              </svg>
+            </div>
+
+            {/* Step 2 */}
+            <div className="flex-1 flex flex-col items-center lg:items-start text-center lg:text-left space-y-3.5 max-w-xs">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full bg-[#fff3e0] text-[#f57c00] flex items-center justify-center border border-[#ffe0b2] font-bold shadow-sm shrink-0">
+                  <Users className="w-7 h-7" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-[#ffb800] text-slate-900 font-extrabold text-[10px] flex items-center justify-center shrink-0">2</span>
+                  <h4 className="font-extrabold text-sm text-[#0f223a] uppercase tracking-wider">Connect</h4>
+                </div>
+              </div>
+              <p className="text-[12px] text-slate-500 leading-relaxed font-medium pl-0 lg:pl-4">
+                View profiles, compare and connect with the best match.
+              </p>
+            </div>
+
+            {/* Arrow 2 to 3 */}
+            <div className="hidden lg:flex items-center justify-center text-slate-300 self-center pt-5">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+              </svg>
+            </div>
+
+            {/* Step 3 */}
+            <div className="flex-1 flex flex-col items-center lg:items-start text-center lg:text-left space-y-3.5 max-w-xs">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full bg-[#e8f5e9] text-[#2e7d32] flex items-center justify-center border border-[#c8e6c9] font-bold shadow-sm shrink-0">
+                  <MessageSquare className="w-7 h-7" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-[#ffb800] text-slate-900 font-extrabold text-[10px] flex items-center justify-center shrink-0">3</span>
+                  <h4 className="font-extrabold text-sm text-[#0f223a] uppercase tracking-wider">Communicate</h4>
+                </div>
+              </div>
+              <p className="text-[12px] text-slate-500 leading-relaxed font-medium pl-0 lg:pl-4">
+                Discuss requirements, schedule classes and finalize details.
+              </p>
+            </div>
+
+            {/* Arrow 3 to 4 */}
+            <div className="hidden lg:flex items-center justify-center text-slate-300 self-center pt-5">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+              </svg>
+            </div>
+
+            {/* Step 4 */}
+            <div className="flex-1 flex flex-col items-center lg:items-start text-center lg:text-left space-y-3.5 max-w-xs">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full bg-[#e3f2fd] text-[#1565c0] flex items-center justify-center border border-[#bbdefb] font-bold shadow-sm shrink-0">
+                  <GraduationCap className="w-7 h-7" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-[#ffb800] text-slate-900 font-extrabold text-[10px] flex items-center justify-center shrink-0">4</span>
+                  <h4 className="font-extrabold text-sm text-[#0f223a] uppercase tracking-wider">Start Learning</h4>
+                </div>
+              </div>
+              <p className="text-[12px] text-slate-500 leading-relaxed font-medium pl-0 lg:pl-4">
+                Begin your learning journey with the right teacher or coach.
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* 4. TEACHERS & COACHES SIDE BY SIDE GRID (2-COLUMN GRID) */}
+      <section className="py-16 md:py-20 bg-white border-y border-slate-100">
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+            
+            {/* LEFT COLUMN: Top Academic Teachers */}
+            <div className="lg:col-span-6 flex flex-col space-y-6">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3 shrink-0">
+                <h3 className="text-lg md:text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                  <GraduationCap className="w-5 h-5 text-amber-500" />
+                  <span>Academic Teachers</span>
+                </h3>
+                <a href="/find-tutor-nearby" className="text-xs font-bold text-amber-500 hover:underline flex items-center gap-1">
+                  <span>View All</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </a>
+              </div>
+              
+              {/* Grid of Teachers - 2 per row */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
+                {apiError ? (
+                  <div className="col-span-full py-10 text-center text-red-500 font-bold text-xs uppercase tracking-widest bg-red-50 border border-dashed border-red-200 rounded-[2rem] p-4">
+                    Error: {apiError}
+                  </div>
+                ) : isLoadingTutors ? (
+                  <div className="col-span-full py-10 text-center text-slate-400 font-bold text-xs uppercase tracking-widest bg-slate-50 border border-dashed border-slate-200 rounded-[2rem] animate-pulse">
+                    Loading Teachers...
+                  </div>
+                ) : displayTeachers.length === 0 ? (
+                  <div className="col-span-full py-10 text-center text-slate-400 font-bold text-xs uppercase tracking-widest bg-slate-50 border border-dashed border-slate-200 rounded-[2rem] min-h-[300px] flex flex-col items-center justify-center p-6">
+                    <Users className="w-8 h-8 text-slate-300 mb-2" />
+                    <span>No teachers registered</span>
+                  </div>
+                ) : (
+                  displayTeachers.slice(0, 4).map((teacher, idx) => (
+                    <ShowcaseCard 
+                       key={idx} 
+                       item={teacher} 
+                       isCoach={false} 
+                       handleOpenDemo={handleOpenDemo} 
+                    />
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* RIGHT COLUMN: Top Activity Coaches */}
+            <div className="lg:col-span-6 flex flex-col space-y-6">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3 shrink-0">
+                <h3 className="text-lg md:text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                  <Activity className="w-5 h-5 text-amber-500" />
+                  <span>Activity Coaches</span>
+                </h3>
+                <a href="/find-tutor-nearby?type=coach" className="text-xs font-bold text-amber-500 hover:underline flex items-center gap-1">
+                  <span>View All</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </a>
+              </div>
+
+              {/* Grid of Coaches - 2 per row */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
+                {apiError ? (
+                  <div className="col-span-full py-10 text-center text-red-500 font-bold text-xs uppercase tracking-widest bg-red-50 border border-dashed border-red-200 rounded-[2rem] p-4">
+                    Error: {apiError}
+                  </div>
+                ) : isLoadingTutors ? (
+                  <div className="col-span-full py-10 text-center text-slate-400 font-bold text-xs uppercase tracking-widest bg-slate-50 border border-dashed border-slate-200 rounded-[2rem] animate-pulse">
+                    Loading Coaches...
+                  </div>
+                ) : displayCoaches.length === 0 ? (
+                  <div className="col-span-full py-10 text-center text-slate-400 font-bold text-xs uppercase tracking-widest bg-slate-50 border border-dashed border-slate-200 rounded-[2rem] min-h-[300px] flex flex-col items-center justify-center p-6">
+                    <Users className="w-8 h-8 text-slate-300 mb-2" />
+                    <span className="text-slate-500 font-extrabold text-sm">No Coaches Registered</span>
+                    <p className="text-[10px] text-slate-400 max-w-[200px] mt-1 font-medium leading-relaxed">
+                      Activity tutors and coaches from your database will appear here.
+                    </p>
+                  </div>
+                ) : (
+                  displayCoaches.slice(0, 4).map((coach, idx) => (
+                    <ShowcaseCard 
+                      key={idx} 
+                      item={coach} 
+                      isCoach={true} 
+                      handleOpenDemo={handleOpenDemo} 
+                    />
+                  ))
+                )}
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* 5. WHY CHOOSE AACHARYA? */}
+      <section className="py-16 md:py-20 bg-slate-50">
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8 text-center space-y-12">
+          
+          <div className="space-y-2">
+            <h2 className="text-2xl md:text-3.5xl font-black text-slate-900 tracking-tight">Why Choose AACHARYA?</h2>
+            <div className="w-12 h-1 bg-amber-500 mx-auto rounded-full" />
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center max-w-[1200px] mx-auto">
+            
+            {/* Left Column: 3 Reasons */}
+            <div className="space-y-6 flex flex-col justify-center">
+              {/* Reason 1 */}
+              <div className="bg-white rounded-2xl p-5 border border-slate-100 flex flex-col lg:flex-row-reverse lg:text-right items-center lg:items-start gap-4 shadow-sm hover:shadow-md transition-all duration-300">
+                <div className="w-12 h-12 bg-green-50 text-green-600 rounded-full flex items-center justify-center border border-green-100 shrink-0">
+                  <ShieldCheck className="w-6 h-6" />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="font-extrabold text-sm text-slate-900 leading-tight">Trusted & Verified</h4>
+                  <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
+                    All teachers & coaches are verified for quality and trust.
+                  </p>
+                </div>
+              </div>
+
+              {/* Reason 2 */}
+              <div className="bg-white rounded-2xl p-5 border border-slate-100 flex flex-col lg:flex-row-reverse lg:text-right items-center lg:items-start gap-4 shadow-sm hover:shadow-md transition-all duration-300">
+                <div className="w-12 h-12 bg-pink-50 text-pink-600 rounded-full flex items-center justify-center border border-pink-100 shrink-0">
+                  <Users className="w-6 h-6" />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="font-extrabold text-sm text-slate-900 leading-tight">Trusted by Parents</h4>
+                  <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
+                    Loved by thousands of parents across your city.
+                  </p>
+                </div>
+              </div>
+
+              {/* Reason 3 */}
+              <div className="bg-white rounded-2xl p-5 border border-slate-100 flex flex-col lg:flex-row-reverse lg:text-right items-center lg:items-start gap-4 shadow-sm hover:shadow-md transition-all duration-300">
+                <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center border border-blue-100 shrink-0">
+                  <ShieldCheck className="w-6 h-6" />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="font-extrabold text-sm text-slate-900 leading-tight">Safe & Secure</h4>
+                  <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
+                    Your information is protected and completely private.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Center Column: Image */}
+            <div className="flex justify-center items-center py-4 lg:py-0">
+              <div className="relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full blur-xl opacity-20 group-hover:opacity-35 transition duration-1000 group-hover:duration-200" />
+                <img 
+                  src="/tutor-new-removebg-preview.png"
+                  alt="Why Choose Aacharya"
+                  className="relative w-full max-w-[280px] sm:max-w-[320px] lg:max-w-[360px] object-contain transition-transform duration-500 group-hover:scale-105"
+                />
+              </div>
+            </div>
+
+            {/* Right Column: 3 Reasons */}
+            <div className="space-y-6 flex flex-col justify-center">
+              {/* Reason 4 */}
+              <div className="bg-white rounded-2xl p-5 border border-slate-100 flex flex-col lg:flex-row lg:text-left items-center lg:items-start gap-4 shadow-sm hover:shadow-md transition-all duration-300">
+                <div className="w-12 h-12 bg-orange-50 text-orange-600 rounded-full flex items-center justify-center border border-orange-100 shrink-0">
+                  <MapPin className="w-6 h-6" />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="font-extrabold text-sm text-slate-900 leading-tight">Nearby Teachers</h4>
+                  <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
+                    Find the best teachers and coaches in your area.
+                  </p>
+                </div>
+              </div>
+
+              {/* Reason 5 */}
+              <div className="bg-white rounded-2xl p-5 border border-slate-100 flex flex-col lg:flex-row lg:text-left items-center lg:items-start gap-4 shadow-sm hover:shadow-md transition-all duration-300">
+                <div className="w-12 h-12 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center border border-purple-100 shrink-0">
+                  <Laptop className="w-6 h-6" />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="font-extrabold text-sm text-slate-900 leading-tight">Flexible Learning</h4>
+                  <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
+                    Choose Home Tutor, Online or At Tutor's Place.
+                  </p>
+                </div>
+              </div>
+
+              {/* Reason 6 */}
+              <div className="bg-white rounded-2xl p-5 border border-slate-100 flex flex-col lg:flex-row lg:text-left items-center lg:items-start gap-4 shadow-sm hover:shadow-md transition-all duration-300">
+                <div className="w-12 h-12 bg-yellow-50 text-yellow-600 rounded-full flex items-center justify-center border border-yellow-100 shrink-0">
+                  <Star className="w-6 h-6" />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="font-extrabold text-sm text-slate-900 leading-tight">Better Results</h4>
+                  <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
+                    Personalized guidance that helps students excel.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* 6. POPULAR ACTIVITIES & SUBJECTS */}
+      <section className="py-16 md:py-20 bg-white border-b border-slate-100">
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8 text-center space-y-12">
+          
+          <div className="space-y-2">
+            <h2 className="text-2xl md:text-3.5xl font-black text-slate-900 tracking-tight">Popular Activities & Subjects</h2>
+            <div className="w-12 h-1 bg-amber-500 mx-auto rounded-full" />
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-[1200px] mx-auto">
+            {POPULAR_ACTIVITIES.map((activity, idx) => {
+              const IconComp = activity.icon;
+              return (
+                <button
+                  key={idx}
+                  onClick={() => selectPopularSearch(activity.name, ACTIVITY_SUBJECTS.includes(activity.name))}
+                  className="relative h-36 rounded-2xl overflow-hidden group shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer w-full text-left"
+                >
+                  {/* Background Image */}
+                  <img 
+                    src={activity.image} 
+                    alt={activity.name}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 pointer-events-none"
+                  />
+                  {/* Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/40 to-transparent z-10" />
+                  
+                  {/* Content Container */}
+                  <div className="absolute bottom-4 left-4 right-4 z-20 flex flex-col space-y-1.5 text-white">
+                    <div className="w-8 h-8 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shrink-0">
+                      <IconComp className="w-4 h-4 text-white" />
+                    </div>
+                    <span className="font-extrabold text-[13px] tracking-tight leading-tight drop-shadow-md">
+                      {activity.name}
+                    </span>
+                  </div>
                 </button>
               );
             })}
-          </div>
-
-          {/* Active Category Display Box */}
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={selectedCategoryObj.id}
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.3 }}
-              className="bg-slate-50/80 rounded-3xl p-8 border border-slate-100 space-y-8"
+            
+            {/* "More" Card */}
+            <button
+              onClick={() => router.push("/find-tutor-nearby")}
+              className="relative h-36 rounded-2xl overflow-hidden bg-slate-900 shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer w-full text-left group border border-slate-800"
             >
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                  <span className="text-[10px] font-black uppercase tracking-wider text-primary bg-primary/10 px-2.5 py-1 rounded-md">
-                    {selectedCategoryObj.badge}
-                  </span>
-                  <h3 className="text-2xl md:text-3xl font-black text-slate-950 mt-2">
-                    {selectedCategoryObj.title}
-                  </h3>
-                  <p className="text-xs font-semibold text-slate-400 mt-1">
-                    {selectedCategoryObj.subtitle}
-                  </p>
-                </div>
-
-                <button
-                  onClick={() => router.push(`/find-tutor-nearby?category=${encodeURIComponent(selectedCategoryObj.title)}`)}
-                  className="px-6 py-3 bg-slate-950 hover:bg-primary text-white font-bold text-xs rounded-xl flex items-center gap-2 transition-all shrink-0 self-start md:self-auto"
-                >
-                  <span>Find {selectedCategoryObj.title.split("(")[0]} Tutors</span>
+              {/* Gradient Backdrop */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/30 to-orange-600/30 opacity-40 group-hover:opacity-60 transition-opacity" />
+              
+              {/* Content Container */}
+              <div className="absolute bottom-4 left-4 right-4 z-20 flex flex-col space-y-1.5 text-white">
+                <div className="w-8 h-8 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center shadow-lg group-hover:translate-x-1 transition-transform">
                   <ArrowRight className="w-4 h-4" />
-                </button>
+                </div>
+                <div className="flex flex-col">
+                  <span className="font-extrabold text-[13px] tracking-tight leading-tight">
+                    Explore More
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-bold mt-0.5">
+                    View all categories
+                  </span>
+                </div>
               </div>
-
-              {/* Subjects Cards Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {selectedCategoryObj.subjects.map((sub, sIdx) => {
-                  const SubIcon = sub.icon;
-                  return (
-                    <div
-                      key={sIdx}
-                      className="bg-white rounded-2xl p-5 border border-slate-200/70 hover:border-primary/50 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group"
-                    >
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <div className="p-2.5 rounded-xl bg-slate-50 text-slate-800 border border-slate-100 group-hover:bg-primary group-hover:text-white transition-colors">
-                            <SubIcon className="w-5 h-5" />
-                          </div>
-                          <span className="text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded">
-                            {sub.tag}
-                          </span>
-                        </div>
-
-                        <div>
-                          <h4 className="font-extrabold text-slate-950 text-base group-hover:text-primary transition-colors">
-                            {sub.name}
-                          </h4>
-                          <p className="text-[11px] text-slate-400 font-medium mt-0.5">
-                            Verified Instructors in Bhavanipuram & Online
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between">
-                        <button
-                          onClick={() => handleOpenDemo("", sub.name)}
-                          className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
-                        >
-                          Book Free Demo &rarr;
-                        </button>
-                        <button
-                          onClick={() => router.push(`/find-tutor-nearby?subject=${encodeURIComponent(sub.name)}`)}
-                          className="text-[11px] font-bold text-slate-400 hover:text-slate-900"
-                        >
-                          View Tutors
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </motion.div>
-          </AnimatePresence>
+            </button>
+          </div>
 
         </div>
       </section>
 
-      {/* 5. VERIFIED TUTOR SPOTLIGHT */}
-      <section className="py-20 max-w-[1400px] mx-auto px-4 md:px-8">
-        <TutorSpotlight onBookDemo={handleOpenDemo} />
-      </section>
-
-      {/* 6. COMPARISON MATRIX SECTION */}
-      <section className="py-20 max-w-[1400px] mx-auto px-4 md:px-8">
-        <ComparisonSection />
-      </section>
-
-      {/* 7. STUDENT & PARENT SUCCESS TESTIMONIALS */}
-      <section className="py-20 bg-slate-900 text-white relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[140px] pointer-events-none" />
-
-        <div className="max-w-[1400px] mx-auto px-4 md:px-8 relative z-10 space-y-12">
+      {/* 7. WHAT PARENTS & STUDENTS SAY */}
+      <section className="py-16 md:py-20 bg-slate-50 border-b border-slate-100 font-sans">
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8 space-y-12">
           
-          <div className="text-center space-y-3 max-w-2xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold uppercase tracking-wider">
-              <Star className="w-4 h-4 fill-current text-amber-400" />
-              <span>Real Student Results</span>
+          <div className="flex items-end justify-between border-b border-slate-200 pb-3">
+            <div className="text-left space-y-1">
+              <h2 className="text-2xl md:text-3.5xl font-black text-slate-900 tracking-tight leading-none">What Parents & Students Say</h2>
+              <div className="w-12 h-1 bg-amber-500 rounded-full" />
             </div>
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight leading-tight">
-              Success Stories from <span className="text-gradient-gold">Bhavanipuram Parents</span>
-            </h2>
-            <p className="text-slate-400 text-sm font-medium">
-              Over thousands of verified learning connections facilitating grade improvement and skill building.
-            </p>
+            <a href="/reviews" className="text-xs font-bold text-amber-500 hover:underline flex items-center gap-1 shrink-0">
+              <span>View All Reviews</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </a>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {SUCCESS_STORIES.map((story, idx) => (
-              <motion.div
-                key={idx}
-                whileHover={{ y: -6 }}
-                className="bg-white/5 border border-white/10 backdrop-blur-xl rounded-3xl p-8 flex flex-col justify-between space-y-6 hover:border-amber-500/50 transition-all"
-              >
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1 text-amber-400">
-                      {[...Array(story.rating)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 fill-current" />
-                      ))}
-                    </div>
-                    <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2.5 py-1 rounded-md">
-                      {story.improvement}
-                    </span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {TESTIMONIALS.map((test, idx) => (
+              <div key={idx} className="bg-white border border-slate-100 rounded-3xl p-6 md:p-8 flex flex-col justify-between space-y-6 shadow-sm hover:shadow-md transition-shadow relative">
+                
+                {/* Custom Big Quote Icon */}
+                <div className="absolute top-6 right-6 text-slate-100 pointer-events-none select-none font-serif text-8xl leading-none">
+                  ”
+                </div>
+
+                <div className="space-y-4 font-sans">
+                  
+                  {/* Rating Stars */}
+                  <div className="flex gap-0.5 text-amber-400">
+                    {[...Array(test.rating)].map((_, i) => (
+                      <Star key={i} className="w-4 h-4 fill-current" />
+                    ))}
                   </div>
 
-                  <p className="text-slate-300 text-xs font-medium leading-relaxed italic">
-                    "{story.text}"
+                  <p className="text-slate-600 text-xs md:text-sm font-medium leading-relaxed italic relative z-10">
+                    "{test.text}"
                   </p>
                 </div>
 
-                <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs">
-                  <div>
-                    <h4 className="font-extrabold text-white text-sm">{story.studentName}</h4>
-                    <p className="text-[10px] text-slate-400 font-medium">{story.location}</p>
+                {/* Avatar and name */}
+                <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
+                  <div className="relative w-10 h-10">
+                    <div className="profile-fallback w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 font-extrabold text-sm border border-slate-100">
+                      {test.name.charAt(0)}
+                    </div>
+                    <img
+                      src={test.avatar}
+                      alt={test.name}
+                      className="w-10 h-10 rounded-full object-cover border border-slate-100 absolute inset-0 z-10"
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                      }}
+                    />
                   </div>
-
-                  <div className="text-right">
-                    <span className="text-amber-400 font-bold text-[11px] block">{story.subject}</span>
-                    <span className="text-[10px] text-slate-400">Tutor: {story.tutorName}</span>
+                  <div className="text-left font-sans">
+                    <h5 className="font-extrabold text-sm text-slate-900 leading-tight">{test.name}</h5>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{test.role}</span>
                   </div>
                 </div>
-              </motion.div>
+
+              </div>
             ))}
           </div>
 
         </div>
       </section>
 
-      {/* 8. SEARCHABLE FAQS ACCORDION */}
-      <section className="py-20 max-w-[1400px] mx-auto px-4 md:px-8 space-y-12">
-        <div className="text-center space-y-3 max-w-2xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 text-slate-700 text-xs font-bold uppercase tracking-wider">
-            <HelpCircle className="w-4 h-4" />
-            <span>Got Questions?</span>
-          </div>
-          <h2 className="text-3xl md:text-5xl font-black text-slate-950 tracking-tight">
-            Frequently Asked <span className="text-gradient-gold">Questions</span>
-          </h2>
-          <p className="text-slate-500 text-sm font-medium">
-            Everything you need to know about booking demo classes, fee structures, and tutor verification.
-          </p>
-
-          {/* FAQ Search Filter */}
-          <div className="relative max-w-md mx-auto pt-2">
-            <Search className="w-4 h-4 text-slate-400 absolute left-4 top-5" />
-            <input
-              type="text"
-              placeholder="Search FAQs (e.g. demo, fees, verification)..."
-              value={faqQuery}
-              onChange={(e) => setFaqQuery(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 rounded-2xl bg-white border border-slate-200 text-xs font-semibold focus:outline-none focus:border-primary shadow-sm"
-            />
-          </div>
-        </div>
-
-        <div className="max-w-3xl mx-auto space-y-4">
-          {filteredFaqs.map((faq, idx) => {
-            const isExpanded = expandedFaq === idx;
-            return (
-              <div
-                key={idx}
-                className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden transition-all"
-              >
-                <button
-                  onClick={() => setExpandedFaq(isExpanded ? null : idx)}
-                  className="w-full px-6 py-4 text-left flex items-center justify-between gap-4 font-extrabold text-slate-950 text-sm hover:text-primary transition-colors"
-                >
-                  <span>{faq.q}</span>
-                  <ChevronDown className={`w-4 h-4 transition-transform ${isExpanded ? "rotate-180 text-primary" : ""}`} />
-                </button>
-
-                <AnimatePresence>
-                  {isExpanded && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="px-6 pb-5 text-xs text-slate-500 font-medium leading-relaxed border-t border-slate-100 pt-3"
-                    >
-                      {faq.a}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* 9. DUAL CALL TO ACTION BANNER */}
-      <section className="py-16 bg-slate-900 text-white">
+      {/* 8. ARE YOU A TEACHER OR COACH? CTA BANNER */}
+      <section className="py-12 bg-white font-sans">
         <div className="max-w-[1400px] mx-auto px-4 md:px-8">
-          <div className="bg-white/5 backdrop-blur-md rounded-[2.5rem] p-8 md:p-12 border border-white/10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="bg-[#091a30] text-white rounded-[2.5rem] p-8 md:p-12 flex flex-col lg:flex-row items-center justify-between gap-8 md:gap-12 relative overflow-hidden shadow-2xl">
             
-            {/* Student CTA */}
-            <div className="space-y-4 border-b lg:border-b-0 lg:border-r border-white/10 pb-8 lg:pb-0 lg:pr-8">
-              <span className="text-amber-400 text-xs font-black uppercase tracking-widest">For Students & Parents</span>
-              <h3 className="text-2xl md:text-4xl font-black tracking-tight leading-tight">
-                Ready to Boost Your Academic Score?
+            {/* Background pattern */}
+            <div className="absolute right-0 bottom-0 w-[40%] h-[150%] bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.03] rotate-12 pointer-events-none" />
+
+            <div className="space-y-4 max-w-xl text-left font-sans">
+              <h3 className="text-2xl md:text-3.5xl font-black tracking-tight leading-tight">
+                Are you a Teacher or Coach?
               </h3>
-              <p className="text-xs md:text-sm font-medium text-slate-300">
-                Book a 100% free 30-minute trial demo session with verified home or online tutors in Bhavanipuram & Vijayawada today.
+              <p className="text-xs md:text-sm text-slate-300 font-medium leading-relaxed">
+                Join AACHARYA and connect with thousands of students and parents looking for quality education and skill development.
               </p>
-              <button
-                onClick={() => handleOpenDemo()}
-                className="px-8 py-4 bg-primary hover:bg-primary/90 text-white font-bold text-xs rounded-xl shadow-lg shadow-primary/20 transition-all hover:scale-102 uppercase tracking-wider inline-flex items-center gap-2"
-              >
-                <span>Book Free Demo Session</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
             </div>
 
-            {/* Tutor CTA */}
-            <div className="space-y-4">
-              <span className="text-emerald-400 text-xs font-black uppercase tracking-widest">For Expert Educators</span>
-              <h3 className="text-2xl md:text-4xl font-black tracking-tight leading-tight">
-                Are You an Expert Tutor or Institute?
-              </h3>
-              <p className="text-xs md:text-sm font-medium text-slate-300">
-                Join our premium network of verified educators. Receive local home tuition lead requests and online student opportunities daily.
-              </p>
-              <button
-                onClick={() => router.push("/signup")}
-                className="px-8 py-4 bg-white text-slate-950 hover:bg-slate-100 font-bold text-xs rounded-xl shadow-lg transition-all hover:scale-102 uppercase tracking-wider inline-flex items-center gap-2"
-              >
-                <span>Sign Up as a Tutor</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
+            {/* Mid Feature Columns */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-6 text-left border-y border-white/10 lg:border-y-0 py-6 lg:py-0">
+              
+              <div className="space-y-1">
+                <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center mb-2">
+                  <Star className="w-4 h-4 text-amber-500 fill-current" />
+                </div>
+                <h5 className="font-extrabold text-[11px] uppercase tracking-wider">Grow Your</h5>
+                <p className="text-[10px] text-slate-400 font-bold">Teaching Career</p>
+              </div>
+
+              <div className="space-y-1">
+                <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center mb-2">
+                  <MapPin className="w-4 h-4 text-amber-500" />
+                </div>
+                <h5 className="font-extrabold text-[11px] uppercase tracking-wider">Get More</h5>
+                <p className="text-[10px] text-slate-400 font-bold">Students Nearby</p>
+              </div>
+
+              <div className="space-y-1">
+                <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center mb-2">
+                  <Laptop className="w-4 h-4 text-amber-500" />
+                </div>
+                <h5 className="font-extrabold text-[11px] uppercase tracking-wider">Flexible</h5>
+                <p className="text-[10px] text-slate-400 font-bold">Teaching Options</p>
+              </div>
+
+              <div className="space-y-1">
+                <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center mb-2">
+                  <ShieldCheck className="w-4 h-4 text-amber-500" />
+                </div>
+                <h5 className="font-extrabold text-[11px] uppercase tracking-wider">Trusted</h5>
+                <p className="text-[10px] text-slate-400 font-bold">Platform Support</p>
+              </div>
+
             </div>
+
+            <button
+              onClick={() => router.push("/signup")}
+              className="px-8 py-3.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs uppercase tracking-widest rounded-xl transition-all hover:scale-102 flex items-center gap-2 shrink-0 shadow-lg shadow-amber-500/10 cursor-pointer"
+            >
+              <span>Join as a Teacher / Coach</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
 
           </div>
         </div>
       </section>
 
- 
-
+      {/* Quick Demo Modal */}
       <QuickDemoModal
         isOpen={isDemoModalOpen}
         onClose={() => setIsDemoModalOpen(false)}

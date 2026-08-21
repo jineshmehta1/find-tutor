@@ -66,7 +66,7 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-3">
-        <Loader2 className="w-8 h-8 text-[#1f5961] animate-spin" />
+        <Loader2 className="w-8 h-8 text-[#ffb800] animate-spin" />
         <p className="text-slate-500 font-bold uppercase tracking-wider text-xs">Loading Control Panel...</p>
       </div>
     );
@@ -95,7 +95,7 @@ export default function AdminDashboard() {
     <div className="space-y-8 font-sans pb-12">
 
       {/* ── Header ── */}
-      <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+      <div className="bg-[#ffb800] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
@@ -104,7 +104,7 @@ export default function AdminDashboard() {
               <span>Platform Overview</span>
             </div>
             <h1 className="text-2xl sm:text-4xl font-black tracking-tight">System Control & Analytics</h1>
-            <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+            <p className="text-xs sm:text-sm text-amber-100 font-medium max-w-xl">
               Live database metrics — tutor approvals, student leads, subscriptions, and signups.
             </p>
           </div>
@@ -133,7 +133,7 @@ export default function AdminDashboard() {
             sub: "Enrolled accounts",
             subColor: "text-slate-400",
             icon: GraduationCap,
-            iconBg: "bg-teal-50 text-[#1f5961]",
+            iconBg: "bg-amber-50 text-[#ffb800]",
           },
           {
             value: stats?.totalLeads ?? 0,
@@ -147,16 +147,16 @@ export default function AdminDashboard() {
             value: stats?.activeSubscriptions ?? 0,
             label: "Active Memberships",
             sub: `${conversionRate}% lead conversion`,
-            subColor: "text-teal-200",
+            subColor: "text-amber-200",
             icon: Crown,
             iconBg: "bg-white/10 text-white",
             dark: true,
           },
         ].map(({ value, label, sub, subColor, icon: Icon, iconBg, dark }) => (
-          <div key={label} className={`p-5 rounded-3xl border shadow-sm flex items-center justify-between ${dark ? "bg-[#19484e] border-transparent text-white" : "bg-white border-slate-200/80"}`}>
+          <div key={label} className={`p-5 rounded-3xl border shadow-sm flex items-center justify-between ${dark ? "bg-[#0a1829] border-transparent text-white" : "bg-white border-slate-200/80"}`}>
             <div>
               <div className={`text-2xl font-black ${dark ? "text-amber-400" : "text-slate-900"}`}>{value}</div>
-              <div className={`text-xs font-bold uppercase tracking-wider ${dark ? "text-teal-200" : "text-slate-500"}`}>{label}</div>
+              <div className={`text-xs font-bold uppercase tracking-wider ${dark ? "text-amber-200" : "text-slate-500"}`}>{label}</div>
               <div className={`text-[11px] font-bold mt-1 ${subColor}`}>{sub}</div>
             </div>
             <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 ${iconBg}`}>
@@ -177,7 +177,7 @@ export default function AdminDashboard() {
           <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl self-start">
             {(["bar", "line", "pie"] as const).map(t => (
               <button key={t} onClick={() => setViewType(t)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all capitalize ${viewType === t ? "bg-[#1f5961] text-white shadow-sm" : "text-slate-600 hover:text-slate-900"}`}>
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all capitalize ${viewType === t ? "bg-[#ffb800] text-white shadow-sm" : "text-slate-600 hover:text-slate-900"}`}>
                 {t === "pie" ? "Donut" : t.charAt(0).toUpperCase() + t.slice(1)}
               </button>
             ))}
@@ -200,7 +200,7 @@ export default function AdminDashboard() {
                   <YAxis stroke="#94a3b8" fontSize={10} tickLine={false} allowDecimals={false} />
                   <Tooltip />
                   <Legend />
-                  <Bar dataKey="students" fill="#1f5961" radius={[8,8,0,0]} name="Student Leads" />
+                  <Bar dataKey="students" fill="#ffb800" radius={[8,8,0,0]} name="Student Leads" />
                   <Bar dataKey="tutors"   fill="#f59e0b" radius={[8,8,0,0]} name="Tutors Available" />
                 </RechartBar>
               ) : viewType === "line" ? (
@@ -210,7 +210,7 @@ export default function AdminDashboard() {
                   <YAxis stroke="#94a3b8" fontSize={10} tickLine={false} allowDecimals={false} />
                   <Tooltip />
                   <Legend />
-                  <Line type="monotone" dataKey="tutors"   stroke="#1f5961" strokeWidth={3} dot={{ fill: "#1f5961" }}   name="Tutors Joined" />
+                  <Line type="monotone" dataKey="tutors"   stroke="#ffb800" strokeWidth={3} dot={{ fill: "#ffb800" }}   name="Tutors Joined" />
                   <Line type="monotone" dataKey="students" stroke="#f59e0b" strokeWidth={3} dot={{ fill: "#f59e0b" }} name="Students Joined" />
                 </LineChart>
               ) : (
@@ -238,7 +238,7 @@ export default function AdminDashboard() {
               <h2 className="text-base font-black text-slate-900">Recent Student Requirements</h2>
               <p className="text-xs text-slate-500 font-medium">Latest inquiries posted</p>
             </div>
-            <Link href="/admin/leads" className="text-xs font-black text-[#1f5961] hover:underline flex items-center gap-1">
+            <Link href="/admin/leads" className="text-xs font-black text-[#ffb800] hover:underline flex items-center gap-1">
               <span>View All</span><ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -249,7 +249,7 @@ export default function AdminDashboard() {
               {recentLeads.slice(0, 5).map(lead => (
                 <div key={lead.id} className="flex items-center justify-between p-3.5 bg-slate-50 rounded-2xl border border-slate-100">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-teal-50 text-[#1f5961] flex items-center justify-center shrink-0">
+                    <div className="w-9 h-9 rounded-xl bg-amber-50 text-[#ffb800] flex items-center justify-center shrink-0">
                       <BookOpen className="w-4 h-4" />
                     </div>
                     <div>
@@ -276,7 +276,7 @@ export default function AdminDashboard() {
               <h2 className="text-base font-black text-slate-900">Recent Registrations</h2>
               <p className="text-xs text-slate-500 font-medium">Newest accounts on the platform</p>
             </div>
-            <Link href="/admin/users" className="text-xs font-black text-[#1f5961] hover:underline flex items-center gap-1">
+            <Link href="/admin/users" className="text-xs font-black text-[#ffb800] hover:underline flex items-center gap-1">
               <span>Manage</span><ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -296,7 +296,7 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                   <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase border ${
-                    u.role === "TEACHER" ? "bg-teal-50 text-[#1f5961] border-teal-200/60" :
+                    u.role === "TEACHER" ? "bg-amber-50 text-[#ffb800] border-amber-200/60" :
                     u.role === "ADMIN"   ? "bg-amber-50 text-amber-700 border-amber-200/60" :
                     "bg-slate-100 text-slate-700 border-slate-200"
                   }`}>{u.role}</span>
@@ -313,7 +313,7 @@ export default function AdminDashboard() {
           { label: "Verify Queue",    href: "/admin/verification",  icon: ShieldCheck, color: "bg-amber-50 text-amber-700 border-amber-200/60" },
           { label: "Leads Board",     href: "/admin/leads",          icon: FileText,    color: "bg-blue-50 text-blue-700 border-blue-200/60" },
           { label: "Leaderboard",     href: "/admin/leaderboard",    icon: TrendingUp,  color: "bg-emerald-50 text-emerald-700 border-emerald-200/60" },
-          { label: "Notifications",   href: "/admin/notifications",  icon: Sparkles,    color: "bg-teal-50 text-[#1f5961] border-teal-200/60" },
+          { label: "Notifications",   href: "/admin/notifications",  icon: Sparkles,    color: "bg-amber-50 text-[#ffb800] border-amber-200/60" },
         ].map(({ label, href, icon: Icon, color }) => (
           <Link key={href} href={href}
             className={`flex items-center gap-3 p-4 rounded-2xl border font-bold text-xs transition-all hover:shadow-md ${color}`}>

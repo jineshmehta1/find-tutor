@@ -56,17 +56,17 @@ export default function TeacherStudentsPage() {
     });
 
     return (
-        <div className="space-y-8 font-sans pb-12">
+        <div className="space-y-8 font-sans pb-12 p-6 sm:p-8 bg-slate-50 min-h-[calc(100vh-70px)]">
             {/* Header Banner */}
-            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+            <div className="bg-[#ffb800] p-6 sm:p-8 rounded-3xl text-slate-950 shadow-md relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
                 <div className="relative z-10 space-y-2">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
-                        <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-950/10 text-slate-900 text-xs font-black rounded-full border border-slate-950/10">
+                        <Sparkles className="w-3.5 h-3.5 text-slate-950" />
                         <span>Enrolled & Contacted Students</span>
                     </div>
                     <h1 className="text-2xl sm:text-4xl font-black tracking-tight">My Active Students</h1>
-                    <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                    <p className="text-xs sm:text-sm text-slate-800 font-medium max-w-xl">
                         View contact details, enrolled subjects, and location info for students you are tutoring in Vijayawada.
                     </p>
                 </div>
@@ -80,7 +80,7 @@ export default function TeacherStudentsPage() {
                         type="text"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#1f5961] outline-none bg-slate-50/50"
+                        className="w-full pl-10 pr-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#ffb800] outline-none bg-slate-50/50"
                         placeholder="Search active students by name or email address..."
                     />
                 </div>
@@ -118,7 +118,7 @@ export default function TeacherStudentsPage() {
                                 className="bg-white rounded-3xl shadow-sm border border-slate-200/80 overflow-hidden hover:shadow-md transition-all flex flex-col justify-between"
                             >
                                 {/* Card Header */}
-                                <div className="bg-[#1f5961] p-5 text-white relative">
+                                <div className="bg-[#ffb800] p-5 text-white relative">
                                     <div className="flex items-center gap-3">
                                         <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center overflow-hidden shrink-0">
                                             {lead.student.user.profilePhoto ? (
@@ -129,8 +129,8 @@ export default function TeacherStudentsPage() {
                                         </div>
                                         <div className="min-w-0">
                                             <h3 className="text-sm font-black text-white truncate">{lead.student.user.name}</h3>
-                                            <p className="text-[11px] text-teal-100 flex items-center gap-1 font-medium truncate mt-0.5">
-                                                <MapPin className="w-3 h-3 shrink-0 text-amber-300" />
+                                            <p className="text-[11px] text-slate-800 flex items-center gap-1 font-medium truncate mt-0.5">
+                                                <MapPin className="w-3 h-3 shrink-0 text-slate-950" />
                                                 <span className="truncate">{lead.student.user.address.split(",")[0] || "Vijayawada"}</span>
                                             </p>
                                         </div>
@@ -161,12 +161,12 @@ export default function TeacherStudentsPage() {
                                         <p className="text-[11px] font-black uppercase tracking-wider text-slate-400 mb-2">Requested Subjects</p>
                                         <div className="flex flex-wrap gap-1.5">
                                             {lead.subject ? (
-                                                <span className="px-2.5 py-1 bg-teal-50 text-[#1f5961] border border-teal-200/60 rounded-lg text-xs font-extrabold">
+                                                <span className="px-2.5 py-1 bg-amber-50 text-[#ffb800] border border-amber-200/60 rounded-lg text-xs font-extrabold">
                                                     {lead.subject}
                                                 </span>
                                             ) : subjects.length > 0 ? (
                                                 subjects.slice(0, 3).map((sub) => (
-                                                    <span key={sub} className="px-2.5 py-1 bg-teal-50 text-[#1f5961] border border-teal-200/60 rounded-lg text-xs font-extrabold">
+                                                    <span key={sub} className="px-2.5 py-1 bg-amber-50 text-[#ffb800] border border-amber-200/60 rounded-lg text-xs font-extrabold">
                                                         {sub}
                                                     </span>
                                                 ))
@@ -191,7 +191,7 @@ export default function TeacherStudentsPage() {
                                         )}
                                         <a
                                             href={`mailto:${lead.student.user.email}?subject=Aacharya Academy - Class Follow-up`}
-                                            className="py-2.5 px-3 bg-[#1f5961] hover:bg-[#1a4a51] text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-sm"
+                                            className="py-2.5 px-3 bg-[#ffb800] hover:bg-[#ffa000] text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-sm"
                                         >
                                             <Mail className="w-3.5 h-3.5" />
                                             <span>Email</span>

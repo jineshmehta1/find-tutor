@@ -101,18 +101,18 @@ export default function TeacherProgressReportsPage() {
     };
 
     return (
-        <div className="space-y-8 pb-12 font-sans">
+        <div className="space-y-8 pb-12 font-sans p-6 sm:p-8 bg-slate-50 min-h-[calc(100vh-70px)]">
             {/* Header */}
-            <div className="bg-[#1f5961] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden">
+            <div className="bg-[#ffb800] p-6 sm:p-8 rounded-3xl text-slate-950 shadow-md relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
                 <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                     <div className="space-y-2">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-amber-300 text-xs font-bold rounded-full border border-white/15">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-950/10 text-slate-900 text-xs font-black rounded-full border border-slate-950/10">
                             <Award className="w-3.5 h-3.5" />
                             <span>Progress Card</span>
                         </div>
                         <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Student Progress Reports</h1>
-                        <p className="text-xs sm:text-sm text-teal-100 font-medium max-w-xl">
+                        <p className="text-xs sm:text-sm text-slate-800 font-medium max-w-xl">
                             Send academic performance cards, graded evaluations, and teacher remarks directly to parents and students.
                         </p>
                     </div>
@@ -132,7 +132,7 @@ export default function TeacherProgressReportsPage() {
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select Student</label>
                             <select value={studentId} onChange={e => setStudentId(e.target.value)}
-                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50 appearance-none cursor-pointer">
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50 appearance-none cursor-pointer">
                                 <option value="">Select a student</option>
                                 {students.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                             </select>
@@ -140,7 +140,7 @@ export default function TeacherProgressReportsPage() {
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Subject</label>
                             <input type="text" value={subject} onChange={e => setSubject(e.target.value)} placeholder="e.g. Mathematics"
-                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50" />
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50" />
                         </div>
                     </div>
 
@@ -148,7 +148,7 @@ export default function TeacherProgressReportsPage() {
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Grade</label>
                             <select value={grade} onChange={e => setGrade(e.target.value)}
-                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50 appearance-none cursor-pointer">
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50 appearance-none cursor-pointer">
                                 <option value="A+">A+</option>
                                 <option value="A">A</option>
                                 <option value="B">B</option>
@@ -159,12 +159,12 @@ export default function TeacherProgressReportsPage() {
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Attendance (%)</label>
                             <input type="number" min="0" max="100" value={attendance} onChange={e => setAttendance(e.target.value)}
-                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50" />
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50" />
                         </div>
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Behavior</label>
                             <select value={behavior} onChange={e => setBehavior(e.target.value)}
-                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50 appearance-none cursor-pointer">
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50 appearance-none cursor-pointer">
                                 <option value="EXCELLENT">Excellent</option>
                                 <option value="GOOD">Good</option>
                                 <option value="AVERAGE">Average</option>
@@ -176,17 +176,17 @@ export default function TeacherProgressReportsPage() {
                     <div className="space-y-1.5">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Test Score / Marks (Optional)</label>
                         <input type="text" value={testScore} onChange={e => setTestScore(e.target.value)} placeholder="e.g. 94/100"
-                            className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50" />
+                            className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50" />
                     </div>
 
                     <div className="space-y-1.5">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Teacher Remarks</label>
                         <textarea value={comments} onChange={e => setComments(e.target.value)} placeholder="Provide feedback on conceptual clarity, homework submissions, and areas to improve..." rows={4}
-                            className="w-full px-4 py-3 text-xs font-medium border border-slate-200 rounded-2xl outline-none focus:border-[#1f5961] bg-slate-50/50 resize-none" />
+                            className="w-full px-4 py-3 text-xs font-medium border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50 resize-none" />
                     </div>
 
                     <button onClick={handleCreateReport} disabled={saving || students.length === 0}
-                        className="w-full py-3.5 bg-[#1f5961] hover:bg-[#163e44] disabled:opacity-50 text-white font-black text-xs rounded-2xl flex items-center justify-center gap-2 transition-all shadow-md">
+                        className="w-full py-3.5 bg-[#ffb800] hover:bg-[#ffa000] disabled:opacity-50 text-white font-black text-xs rounded-2xl flex items-center justify-center gap-2 transition-all shadow-md">
                         {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                         Submit Report Card
                     </button>
@@ -198,7 +198,7 @@ export default function TeacherProgressReportsPage() {
 
                     {loading ? (
                         <div className="flex items-center justify-center py-12">
-                            <Loader2 className="w-6 h-6 text-[#1f5961] animate-spin" />
+                            <Loader2 className="w-6 h-6 text-[#ffb800] animate-spin" />
                         </div>
                     ) : reports.length === 0 ? (
                         <div className="text-center py-12 text-xs text-slate-400 font-bold uppercase tracking-wider">
@@ -210,7 +210,7 @@ export default function TeacherProgressReportsPage() {
                                 <div key={r.id} className="p-5 bg-slate-50 border border-slate-100 rounded-2xl space-y-3 relative overflow-hidden">
                                     <div className="flex items-center justify-between gap-3">
                                         <div>
-                                            <h4 className="text-xs font-black text-[#1f5961]">{r.student.user.name}</h4>
+                                            <h4 className="text-xs font-black text-[#ffb800]">{r.student.user.name}</h4>
                                             <p className="text-[10px] text-slate-400 font-bold uppercase">{r.subject}</p>
                                         </div>
                                         <span className="text-lg font-black text-amber-500 bg-amber-50 px-3 py-1 rounded-xl border border-amber-200/60">

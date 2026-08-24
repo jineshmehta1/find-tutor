@@ -7,7 +7,7 @@ import {
   MapPin, Star, GraduationCap, Users, ShieldCheck, 
   Sparkles, BookOpen, Music, Code, Beaker, Swords, ArrowRight,
   CheckCircle, MessageSquare, Laptop, Home, School, Clock, 
-  UserCheck, Award, Briefcase, ChevronRight, X, AlertCircle, Loader2 
+  UserCheck, Award, Briefcase, ChevronRight, X, AlertCircle, Loader2, Phone 
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -28,6 +28,9 @@ interface Tutor {
   qualificationName: string | null;
   achievements: string | null;
   isApproved: boolean;
+  dob: string;
+  gender: string | null;
+  preferredLanguage: string | null;
 }
 
 interface Review {
@@ -260,6 +263,66 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
             </div>
           </div>
 
+          {/* Detailed Profile Info */}
+          <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm space-y-6">
+            <h3 className="text-xl font-extrabold text-slate-950 flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-primary" /> Profile Details
+            </h3>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-slate-700 text-sm">
+              {tutor.gender && (
+                <div className="space-y-1">
+                  <p className="text-xs font-bold text-slate-400 uppercase">Gender</p>
+                  <p className="font-semibold text-slate-800 capitalize">{tutor.gender}</p>
+                </div>
+              )}
+              {tutor.preferredLanguage && (
+                <div className="space-y-1">
+                  <p className="text-xs font-bold text-slate-400 uppercase">Preferred Language</p>
+                  <p className="font-semibold text-slate-800">{tutor.preferredLanguage}</p>
+                </div>
+              )}
+              {tutor.dob && (
+                <div className="space-y-1">
+                  <p className="text-xs font-bold text-slate-400 uppercase">Age / Date of Birth</p>
+                  <p className="font-semibold text-slate-800">
+                    {(() => {
+                      const birth = new Date(tutor.dob);
+                      const ageDiffMs = Date.now() - birth.getTime();
+                      const ageDate = new Date(ageDiffMs);
+                      const age = Math.abs(ageDate.getUTCFullYear() - 1970);
+                      
+                      const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+                      const formattedDob = birth.toLocaleDateString('en-US', options);
+                      
+                      return `${age} years old (${formattedDob})`;
+                    })()}
+                  </p>
+                </div>
+              )}
+              {tutor.address && (
+                <div className="space-y-1 sm:col-span-2">
+                  <p className="text-xs font-bold text-slate-400 uppercase">Full Address</p>
+                  <p className="font-semibold text-slate-800 leading-relaxed">{tutor.address}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Classes/Ages taught list */}
+            {tutor.classesOrAgeGroup && tutor.classesOrAgeGroup.length > 0 && (
+              <div className="pt-4 border-t border-slate-50 space-y-3">
+                <p className="text-xs font-bold text-slate-400 uppercase">Classes & Grades Taught</p>
+                <div className="flex flex-wrap gap-2">
+                  {tutor.classesOrAgeGroup.map((cls) => (
+                    <span key={cls} className="px-3 py-1.5 bg-indigo-50/50 text-indigo-600 text-[10px] font-bold uppercase rounded-xl border border-indigo-150 shadow-sm">
+                      {cls}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Certifications */}
           {tutor.certifications && tutor.certifications.length > 0 && (
             <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm space-y-6">
@@ -383,7 +446,7 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
             <div className="space-y-4 pt-4 border-t border-slate-50 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
               <div className="flex justify-between">
                 <span>Class Mode:</span>
-                <span className="text-slate-900 font-black">{tutor.teachingMode || "Online"}</span>
+                <span className="text-slate-900 font-black">{tutor.teachingMode === "Home Tutor" ? "At Student Home" : tutor.teachingMode === "Online Tutor" ? "Online mode" : tutor.teachingMode === "At Centre" ? "At Teacher Home" : (tutor.teachingMode || "Online mode")}</span>
               </div>
               <div className="flex justify-between">
                 <span>Rating:</span>
@@ -397,12 +460,34 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
               </div>
             </div>
 
-            <button
-              onClick={() => setShowBookingModal(true)}
-              className="w-full py-4 bg-primary hover:bg-primary/95 text-slate-950 font-black rounded-2xl shadow-lg shadow-primary/10 uppercase tracking-widest text-xs transition-all active:scale-95"
-            >
-              Book Free Trial
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  if (!session) {
+                    toast.error("Please login to message the tutor");
+                    router.push("/signup");
+                    return;
+                  }
+                  window.open(`https://wa.me/91${tutor.phone?.replace(/\D/g, "").slice(-10)}`, "_blank");
+                }}
+                className="flex-1 py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-black rounded-2xl shadow-lg shadow-emerald-500/10 uppercase tracking-widest text-xs transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer border-none"
+              >
+                <MessageSquare className="w-4 h-4 shrink-0" /> Message
+              </button>
+              <button
+                onClick={() => {
+                  if (!session) {
+                    toast.error("Please login to call the tutor");
+                    router.push("/signup");
+                    return;
+                  }
+                  window.open(`tel:${tutor.phone}`, "_self");
+                }}
+                className="flex-1 py-4 bg-primary hover:bg-primary/95 text-slate-950 font-black rounded-2xl shadow-lg shadow-primary/10 uppercase tracking-widest text-xs transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer border-none"
+              >
+                <Phone className="w-4 h-4 shrink-0" /> Call
+              </button>
+            </div>
           </div>
 
           {/* Subjects Tag List */}
@@ -476,9 +561,9 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
                     className="w-full px-3 py-3 bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary rounded-xl text-xs font-semibold"
                   >
                     <option value="">Select Mode</option>
-                    <option value="Online Tutor">Online Class</option>
-                    <option value="Home Tutor">Home Tuition</option>
-                    <option value="At Centre">At Center</option>
+                    <option value="Online Tutor">Online mode</option>
+                    <option value="Home Tutor">At Student Home</option>
+                    <option value="At Centre">At Teacher Home</option>
                   </select>
                 </div>
               </div>

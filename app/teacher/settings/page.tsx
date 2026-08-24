@@ -432,9 +432,9 @@ export default function TeacherSettingsPage() {
                                         className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl focus:border-[#ffb800] outline-none bg-slate-50/50 cursor-pointer"
                                     >
                                         <option value="">Select Mode</option>
-                                        <option value="Home Tutor">Home Tutor</option>
-                                        <option value="Online Tutor">Online Tutor</option>
-                                        <option value="At Centre">At Centre</option>
+                                        <option value="Home Tutor">At Student Home</option>
+                                        <option value="Online Tutor">Online mode</option>
+                                        <option value="At Centre">At Teacher Home</option>
                                     </select>
                                 </div>
                                 <div className="space-y-1.5">

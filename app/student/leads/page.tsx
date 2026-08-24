@@ -225,7 +225,13 @@ export default function StudentLeadsPage() {
                                     <select value={leadMode} onChange={e => setLeadMode(e.target.value)}
                                         className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50 appearance-none cursor-pointer">
                                         <option value="">Select mode</option>
-                                        {MODES.map(m => <option key={m} value={m}>{m}</option>)}
+                                        {MODES.map(m => {
+                                            let label = m;
+                                            if (m === "Home Tutor") label = "At Student Home";
+                                            else if (m === "Online Tutor") label = "Online mode";
+                                            else if (m === "At Centre") label = "At Teacher Home";
+                                            return <option key={m} value={m}>{label}</option>;
+                                        })}
                                     </select>
                                 </div>
                                 <div className="space-y-1.5">

@@ -271,9 +271,9 @@ export default function RequestTutorPage() {
                       required
                       className="w-full px-3 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#ffb800]/20 focus:border-[#ffb800] focus:bg-white text-xs font-bold transition-all cursor-pointer"
                     >
-                      <option value="Home Tuition">Home Tuition (Instructor Visits)</option>
-                      <option value="Online Tutor">Online Class (1-on-1)</option>
-                      <option value="At Centre">At Bhavanipuram Center</option>
+                      <option value="Home Tuition">At Student Home</option>
+                      <option value="Online Tutor">Online mode</option>
+                      <option value="At Centre">At Teacher Home</option>
                     </select>
                   </div>
                 </div>

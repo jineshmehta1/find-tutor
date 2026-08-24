@@ -255,7 +255,13 @@ export default function HomePage() {
             image: item.profilePhoto || null,
             education: item.education || "",
             qualificationName: item.qualificationName || item.qualificationLevel || "Qualified Mentor",
-            teachingMode: item.teachingMode || "Home / Online"
+            teachingMode: item.teachingMode === "Home Tutor"
+              ? "At Student Home"
+              : item.teachingMode === "Online Tutor"
+                ? "Online mode"
+                : item.teachingMode === "At Centre"
+                  ? "At Teacher Home"
+                  : (item.teachingMode || "Any type of mode")
           };
 
           if (isActivity) {
@@ -588,10 +594,10 @@ export default function HomePage() {
                         onChange={(e) => setSearchMode(e.target.value)}
                         className="w-full bg-transparent border-none text-[12px] font-bold outline-none text-slate-800 py-1 cursor-pointer"
                       >
-                        <option value="">All Modes</option>
-                        <option value="Home Tutor">Home Tutor</option>
-                        <option value="Online Tutor">Online Class</option>
-                        <option value="At Centre">At Centre</option>
+                        <option value="">Any type of mode</option>
+                        <option value="Home Tutor">At Student Home</option>
+                        <option value="Online Tutor">Online mode</option>
+                        <option value="At Centre">At Teacher Home</option>
                       </select>
                     </div>
                   </div>

@@ -130,9 +130,9 @@ export function FeeEstimator({ onSelectEstimate }: FeeEstimatorProps) {
                 onChange={(e) => setMode(e.target.value)}
                 className="w-full bg-slate-800/80 border border-slate-700/80 text-white rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-emerald-500 transition-all cursor-pointer"
               >
-                <option value="Home Tuition">Home Tuition (Tutor Visits You)</option>
-                <option value="Online (1-on-1)">Live 1-on-1 Online Class</option>
-                <option value="Center / Batch">Academy Center Class</option>
+                <option value="Home Tuition">At Student Home</option>
+                <option value="Online (1-on-1)">Online mode</option>
+                <option value="Center / Batch">At Teacher Home</option>
               </select>
             </div>
 

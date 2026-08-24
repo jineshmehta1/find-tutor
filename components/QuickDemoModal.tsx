@@ -189,9 +189,9 @@ export function QuickDemoModal({ isOpen, onClose, defaultSubject = "", defaultTu
                     onChange={(e) => setPreferredMode(e.target.value)}
                     className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-primary focus:bg-white transition-all"
                   >
-                    <option value="Home Tuition">Home Tuition</option>
-                    <option value="Online 1-on-1">Live Online Class</option>
-                    <option value="Center">Center / Institute</option>
+                    <option value="Home Tuition">At Student Home</option>
+                    <option value="Online 1-on-1">Online mode</option>
+                    <option value="Center">At Teacher Home</option>
                   </select>
                 </div>
 

@@ -16,7 +16,7 @@ import {
     HelpCircle, PhoneCall, Mail, Facebook, Twitter, 
     Instagram, Linkedin, ArrowUpRight, Filter,
     CheckCircle, UserCheck, Timer, Smile, Laptop, 
-    Home, School, BookMarked, Sparkles, Loader2
+    Home, School, BookMarked, Sparkles, Loader2, Phone
 } from "lucide-react";
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -455,7 +455,7 @@ function FindTutorNearbyPageContent() {
                                 <div className="flex items-center h-14 md:h-16 px-4 md:px-6 bg-white border border-slate-100 rounded-2xl md:rounded-[2rem] focus-within:ring-4 ring-primary/20 transition-all">
                                     <BookOpen className="w-5 h-5 md:w-6 md:h-6 text-primary mr-3 md:mr-4 shrink-0" />
                                     <div className="flex-1 text-left">
-                                        <p className="text-[8px] md:text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-0.5">Subject</p>
+                                        <p className="text-[8px] md:text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-0.5">Subject / Activity</p>
                                         <input 
                                             type="text"
                                             value={subject}
@@ -483,7 +483,27 @@ function FindTutorNearbyPageContent() {
                                 </AnimatePresence>
                             </div>
 
-                            {/* Field 2: Location */}
+                            {/* Field 2: Class / Grade */}
+                            <div className="relative group">
+                                <div className="flex items-center h-14 md:h-16 px-4 md:px-6 bg-white border border-slate-100 rounded-2xl md:rounded-[2rem] focus-within:ring-4 ring-primary/20 transition-all">
+                                    <GraduationCap className="w-5 h-5 md:w-6 md:h-6 text-indigo-500 mr-3 md:mr-4 shrink-0" />
+                                    <div className="flex-1 text-left">
+                                        <p className="text-[8px] md:text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-0.5">Class / Grade</p>
+                                        <select
+                                            value={selectedClass}
+                                            onChange={(e) => setSelectedClass(e.target.value)}
+                                            className="w-full bg-transparent border-none text-sm md:text-base font-semibold outline-none text-slate-850 py-1 cursor-pointer"
+                                        >
+                                            <option value="All">All Grades</option>
+                                            {CLASSES.map((c) => (
+                                                <option key={c} value={c}>{c}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Field 3: Location */}
                             <div className="relative group">
                                 <div className="flex items-center h-14 md:h-16 px-4 md:px-6 bg-white border border-slate-100 rounded-2xl md:rounded-[2rem] focus-within:ring-4 ring-primary/20 transition-all">
                                     <MapPin className="w-5 h-5 md:w-6 md:h-6 text-red-500 mr-3 md:mr-4 shrink-0" />
@@ -517,6 +537,30 @@ function FindTutorNearbyPageContent() {
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
+                            </div>
+
+                            {/* Field 4: Mode of Teaching */}
+                            <div className="relative group">
+                                <div className="flex items-center h-14 md:h-16 px-4 md:px-6 bg-white border border-slate-100 rounded-2xl md:rounded-[2rem] focus-within:ring-4 ring-primary/20 transition-all">
+                                    <Users className="w-5 h-5 md:w-6 md:h-6 text-amber-500 mr-3 md:mr-4 shrink-0" />
+                                    <div className="flex-1 text-left">
+                                        <p className="text-[8px] md:text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-0.5">Mode of Teaching</p>
+                                        <select
+                                            value={selectedMode}
+                                            onChange={(e) => setSelectedMode(e.target.value)}
+                                            className="w-full bg-transparent border-none text-sm md:text-base font-semibold outline-none text-slate-850 py-1 cursor-pointer"
+                                        >
+                                            <option value="All">Any type of mode</option>
+                                            {MODES.map(m => {
+                                                let label = m;
+                                                if (m === "Home Tutor") label = "At Student Home";
+                                                else if (m === "Online Tutor") label = "Online mode";
+                                                else if (m === "At Centre") label = "At Teacher Home";
+                                                return <option key={m} value={m}>{label}</option>;
+                                            })}
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -555,25 +599,357 @@ function FindTutorNearbyPageContent() {
     </div>
 </section>
 
-            {/* ──── 5.2 STATS STRIP ──── */}
-            <section className="bg-slate-50 py-10 md:py-16 border-y border-slate-100">
+            {/* ──── 5.2 TUTOR DIRECTORY LISTING (Search Results) ──── */}
+            <section ref={listingRef} className="container mx-auto px-4 md:px-6 py-16 md:py-28 scroll-mt-24">
+    {/* Header Area */}
+    <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12 md:mb-20">
+        <SectionTitle 
+            title={searched ? "Results Found" : "Featured Mentors"} 
+            subTitle={`Explored ${processedTeachers.length} verified profile(s) matching your orbit.`} 
+        />
+        
+        <div className="flex items-center gap-3">
+            {searched && (
+                <button 
+                    onClick={handleClearFilters}
+                    className="flex items-center gap-2 px-5 py-3 bg-red-50 text-red-500 font-black rounded-2xl border border-red-100 hover:bg-red-500 hover:text-white transition-all text-[10px] uppercase"
+                >
+                    <X className="w-4 h-4" /> Reset
+                </button>
+            )}
+            <button 
+                onClick={() => setShowFilterPanel(!showFilterPanel)}
+                className={`flex items-center gap-2 px-5 py-3 border rounded-2xl transition-all shadow-sm ${showFilterPanel ? 'bg-primary border-primary text-white shadow-primary/20' : 'bg-slate-50 border-slate-100 text-slate-400 hover:text-primary hover:border-primary/20'}`}
+            >
+                <Filter className="w-4 h-4" /> <span className="text-[10px] font-black uppercase">Filter</span>
+            </button>
+        </div>
+    </div>
+
+    {/* Advanced Filters Panel */}
+    <AnimatePresence>
+        {showFilterPanel && (
+            <motion.div 
+                initial={{ opacity: 0, height: 0 }} 
+                animate={{ opacity: 1, height: "auto" }} 
+                exit={{ opacity: 0, height: 0 }}
+                className="mb-8 p-6 bg-slate-50 border border-slate-100 rounded-[2rem] overflow-hidden"
+            >
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Teaching Mode Filter */}
+                    <div className="space-y-2">
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Teaching Mode</label>
+                        <select 
+                            value={selectedMode} 
+                            onChange={(e) => setSelectedMode(e.target.value)}
+                            className="w-full h-12 px-4 bg-white border border-slate-200/80 rounded-xl outline-none font-bold text-xs text-slate-700 shadow-sm"
+                        >
+                            <option value="All">Any type of mode</option>
+                            {MODES.map(m => {
+                                let label = m;
+                                if (m === "Home Tutor") label = "At Student Home";
+                                else if (m === "Online Tutor") label = "Online mode";
+                                else if (m === "At Centre") label = "At Teacher Home";
+                                return <option key={m} value={m}>{label}</option>;
+                            })}
+                        </select>
+                    </div>
+
+                    {/* Class/Grade level Filter */}
+                    <div className="space-y-2">
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Class / Grade Level</label>
+                        <select 
+                            value={selectedClass} 
+                            onChange={(e) => setSelectedClass(e.target.value)}
+                            className="w-full h-12 px-4 bg-white border border-slate-200/80 rounded-xl outline-none font-bold text-xs text-slate-700 shadow-sm"
+                        >
+                            <option value="All">All Classes</option>
+                            {CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
+                        </select>
+                    </div>
+
+                    {/* Sorting Filter */}
+                    <div className="space-y-2">
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Sort By</label>
+                        <select 
+                            value={sortBy} 
+                            onChange={(e) => setSortBy(e.target.value)}
+                            className="w-full h-12 px-4 bg-white border border-slate-200/80 rounded-xl outline-none font-bold text-xs text-slate-700 shadow-sm"
+                        >
+                            <option value="default">Default Sort</option>
+                            <option value="rating">Rating (High to Low)</option>
+                            <option value="experience">Experience (High to Low)</option>
+                        </select>
+                    </div>
+                </div>
+            </motion.div>
+        )}
+    </AnimatePresence>
+
+    {/* Dynamic Grid Results */}
+    {loading ? (
+        <div className="flex flex-col items-center justify-center py-24 gap-4">
+            <Loader2 className="w-10 h-10 text-primary animate-spin" />
+            <p className="text-slate-400 text-xs font-bold uppercase tracking-widest animate-pulse">Syncing profiles...</p>
+        </div>
+    ) : processedTeachers.length === 0 ? (
+        <div className="text-center py-20 bg-slate-50 border border-slate-100 rounded-[2.5rem] p-8 md:p-12 space-y-6">
+            <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-md mx-auto text-slate-300">
+                <Search className="w-8 h-8" />
+            </div>
+            <div>
+                <h4 className="text-lg md:text-xl font-extrabold text-slate-900 uppercase">No Matches Found</h4>
+                <p className="text-xs text-slate-450 font-bold max-w-md mx-auto mt-2 leading-relaxed">
+                    We couldn't find any verified mentors matching your exact filter combination. 
+                    Try broadening your selection or post your custom requirement below.
+                </p>
+            </div>
+        </div>
+    ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16">
+            {processedTeachers.map((t, idx) => (
+                <motion.div 
+                    key={t.id}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: (idx % 3) * 0.1 }}
+                    className="bg-white rounded-[2.5rem] md:rounded-[3.5rem] border border-slate-100 overflow-hidden hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.15)] transition-all duration-700 group flex flex-col h-full"
+                >
+                    {/* Profile Header Image Area */}
+                    <div 
+                        onClick={() => router.push(`/tutor/${t.id}`)}
+                        className="relative h-64 md:h-72 lg:h-80 overflow-hidden cursor-pointer"
+                    >
+                        <div className="absolute top-5 left-5 md:top-6 md:left-6 z-20">
+                            <div className="bg-white/95 backdrop-blur-md px-3 py-1.5 md:px-4 md:py-2 rounded-full flex items-center gap-2 shadow-lg border border-white/30">
+                                <ShieldCheck className="w-3.5 h-3.5 md:w-4 h-4 text-emerald-500" />
+                                <span className="text-[9px] md:text-[10px] font-black text-slate-900 uppercase tracking-widest">Verified Expert</span>
+                            </div>
+                        </div>
+
+                        {/* Top Right Rating Badge */}
+                        <div className="absolute top-5 right-5 z-20">
+                            <div className="bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg border border-white/30 text-[10px] font-black text-amber-500">
+                                <Star className="w-3.5 h-3.5 fill-current" />
+                                <span>{t.rating || 5.0}</span>
+                                <span className="text-slate-400 font-sans">({t.reviewsCount || 0})</span>
+                            </div>
+                        </div>
+                        
+                        {t.profilePhoto ? (
+                            <img src={t.profilePhoto} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt={t.name} />
+                        ) : (
+                            <div className="w-full h-full bg-primary/10 flex items-center justify-center text-6xl md:text-7xl font-[1000] text-primary/40 uppercase">
+                                {t.name?.[0]}
+                            </div>
+                        )}
+
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-transparent opacity-80" />
+                        <div className="absolute bottom-6 left-6 right-6 md:bottom-8 md:left-8 md:right-8">
+                            <h3 
+                                onClick={(e) => { e.stopPropagation(); router.push(`/tutor/${t.id}`); }}
+                                className="text-2xl md:text-3xl font-[1000] text-white tracking-tighter leading-none group-hover:text-primary transition-colors uppercase truncate cursor-pointer"
+                            >
+                                {t.name}
+                            </h3>
+                            <div className="flex items-center gap-4 mt-3 md:mt-4 text-[9px] md:text-[10px] font-black text-white/80 uppercase tracking-widest">
+                                <span className="flex items-center gap-1.5"><MapPin className="w-3 h-3 md:w-3.5 md:h-3.5 text-primary" /> {t.address?.split(',')[0]}</span>
+                                <span className="flex items-center gap-1.5"><Zap className="w-3 h-3 md:w-3.5 md:h-3.5 text-primary" /> {t.teachingMode === "Home Tutor" ? "At Student Home" : t.teachingMode === "Online Tutor" ? "Online mode" : t.teachingMode === "At Centre" ? "At Teacher Home" : (t.teachingMode || "Online mode")}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Profile Content Area */}
+                    <div className="p-6 md:p-10 space-y-6 md:space-y-8 flex-1 flex flex-col justify-between">
+                        <div className="space-y-4 md:space-y-6">
+                            <div className="flex flex-wrap gap-2 md:gap-2.5">
+                                {t.subjects?.slice(0, 3).map((s: string) => (
+                                    <span key={s} className="px-3 py-1.5 md:px-4 md:py-2 bg-primary/5 text-primary text-[8px] md:text-[9px] font-black uppercase rounded-xl border border-primary/10 shadow-sm group-hover:bg-primary group-hover:text-white transition-all">{s}</span>
+                                ))}
+                                {t.subjects && t.subjects.length > 3 && (
+                                    <span className="px-3 py-1.5 md:px-4 md:py-2 bg-slate-50 text-slate-400 text-[8px] md:text-[9px] font-black uppercase rounded-xl">+{t.subjects.length - 3} More</span>
+                                )}
+                            </div>
+                            <p className="text-slate-500 text-xs md:text-base font-bold leading-relaxed line-clamp-2 italic">
+                                "{t.achievements || "Dedicated to building strong foundational concepts and helping students excel in academics."}"
+                            </p>
+                        </div>
+
+                        {/* Price & Action Footer */}
+                        <div className="flex items-center justify-between pt-6 md:pt-10 border-t border-slate-50">
+                            <div>
+                                <p className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Experience</p>
+                                <p className="text-xl md:text-2xl font-[1000] text-slate-900 tracking-tighter">{t.experience || "Verified"}</p>
+                            </div>
+
+                            <div className="flex gap-2 items-center">
+                                <button 
+                                    onClick={() => { if (!session) { router.push("/signup"); return; } window.open(`https://wa.me/91${t.phone?.replace(/\D/g, "").slice(-10)}`) }}
+                                    className="px-3 py-2 bg-[#e8f5e9] text-[#2e7d32] hover:bg-[#2e7d32] hover:text-white font-extrabold text-[9px] md:text-[10px] uppercase tracking-wider rounded-xl transition-all flex items-center gap-1 active:scale-95 border-none cursor-pointer"
+                                >
+                                    <MessageSquare className="w-3.5 h-3.5" /> Message
+                                </button>
+                                <button 
+                                    onClick={() => { if (!session) { router.push("/signup"); return; } window.open(`tel:${t.phone}`, "_self") }}
+                                    className="px-3 py-2 bg-primary/10 text-primary hover:bg-primary hover:text-slate-950 font-extrabold text-[9px] md:text-[10px] uppercase tracking-wider rounded-xl transition-all flex items-center gap-1 active:scale-95 border-none cursor-pointer"
+                                >
+                                    <Phone className="w-3.5 h-3.5" /> Call
+                                </button>
+                                <button 
+                                    onClick={() => router.push(`/tutor/${t.id}`)}
+                                    className="px-3 py-2 bg-slate-950 text-white font-extrabold text-[9px] md:text-[10px] uppercase tracking-wider rounded-xl hover:bg-primary hover:text-slate-950 transition-all duration-300 shadow-md active:scale-95 border-none cursor-pointer"
+                                >
+                                    View Full Profile
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </motion.div>
+            ))}
+        </div>
+    )}
+</section>
+
+            {/* ──── 5.3 SUGGESTIONS WITH NEARBY LOCALITIES ──── */}
+            <section className="py-12 bg-slate-50 border-y border-slate-100">
+                <div className="container mx-auto px-4 md:px-6 text-center">
+                    <h3 className="text-xs md:text-sm font-extrabold text-slate-450 uppercase tracking-widest mb-6">
+                        Suggestions with Nearby Localities
+                    </h3>
+                    <div className="flex flex-wrap items-center justify-center gap-3 max-w-4xl mx-auto">
+                        {[
+                            "Bhavanipuram", "Patamata", "Gollapudi", "Vidyadharapuram", 
+                            "Benz Circle", "Labbipet", "Gurunanak Colony", "Kanuru", 
+                            "Moghalrajpuram", "Lalitha Nagar", "Swathi Road"
+                        ].map((loc) => (
+                            <button
+                                key={loc}
+                                onClick={() => {
+                                    setLocation(loc);
+                                    performSearch(subject, loc);
+                                    if (listingRef.current) {
+                                        listingRef.current.scrollIntoView({ behavior: "smooth" });
+                                    }
+                                }}
+                                className="px-5 py-2.5 bg-white border border-slate-200 hover:border-primary hover:text-primary rounded-xl text-xs font-bold text-slate-600 transition-all duration-300 shadow-sm active:scale-95 cursor-pointer flex items-center gap-1.5"
+                            >
+                                <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                <span>{loc}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* ──── 5.4 POST REQUIREMENT MEGA FORM ──── */}
+           <section className="py-16 md:py-24 lg:py-32 bg-white relative z-10">
     <div className="container mx-auto px-4 md:px-6">
-        {/* 
-            grid-cols-2: 2 columns on mobile
-            lg:grid-cols-4: 4 columns on desktop
-            gap-4: small gap on mobile
-            md:gap-8: larger gap on tablet/desktop
-        */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-            <StatCard icon={Award} value="100%" label="Verified Tutors" />
-            <StatCard icon={Heart} value="25,000+" label="Happy Learners" />
-            <StatCard icon={Timer} value="30 Min" label="Fast Response" />
-            <StatCard icon={School} value="500+" label="Subjects Covered" />
+        <div className="max-w-7xl mx-auto bg-slate-50 rounded-[2.5rem] md:rounded-[4rem] lg:rounded-[5rem] p-6 md:p-12 lg:p-24 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.08)] border border-slate-100 flex flex-col lg:flex-row gap-12 lg:gap-24">
+            
+            {/* LEFT SIDE: INFO & SUPPORT */}
+            <div className="space-y-8 md:space-y-12 lg:w-1/3">
+                <SectionTitle title="Can't Find Your match?" subTitle="LET US HELP" />
+                
+                <ul className="space-y-4 md:space-y-6 lg:space-y-8">
+                    {[
+                        { text: "100% Free Consultation", icon: CheckCircle },
+                        { text: "Lead Matching Within 12hrs", icon: Timer },
+                        { text: "Verified Experts Only", icon: UserCheck },
+                        { text: "Personal Support Desk", icon: PhoneCall },
+                    ].map((li, i) => (
+                        <li key={i} className="flex items-center gap-4 md:gap-6 text-slate-800 font-[900] text-[10px] md:text-[11px] uppercase tracking-widest group cursor-default">
+                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-primary flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform shrink-0">
+                                <li.icon className="w-5 h-5 md:w-6 md:h-6" />
+                            </div>
+                            <span>{li.text}</span>
+                        </li>
+                    ))}
+                </ul>
+
+                {/* CALL SUPPORT CARD */}
+                <div className="p-6 md:p-10 bg-white rounded-[2rem] md:rounded-[3rem] border border-slate-100 shadow-sm space-y-3 md:space-y-4">
+                    <h4 className="text-lg md:text-xl font-[1000] text-slate-900 uppercase">Need a quick call?</h4>
+                    <p className="text-[10px] md:text-xs font-bold text-slate-400 leading-relaxed">
+                        Our relationship managers are available from 10 AM to 7 PM.
+                    </p>
+                    <button className="flex items-center gap-2 text-primary font-[1000] uppercase text-[10px] md:text-xs hover:gap-4 transition-all">
+                        Connect Now <ArrowUpRight className="w-4 h-4" />
+                    </button>
+                </div>
+            </div>
+
+            {/* RIGHT SIDE: THE FORM */}
+            <div className="lg:w-2/3">
+                <div className="bg-white rounded-[2rem] md:rounded-[3rem] lg:rounded-[4rem] p-6 md:p-10 lg:p-16 shadow-2xl border border-slate-50 relative">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10 mb-8 lg:mb-10">
+                        {/* INPUTS COLUMN */}
+                        <div className="space-y-6 lg:space-y-8">
+                            <div className="space-y-2 md:space-y-3">
+                                <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Learning Subject</label>
+                                <select value={reqSubject} onChange={e => setReqSubject(e.target.value)} className="w-full h-14 md:h-16 px-6 md:px-8 bg-slate-50 border-none rounded-2xl md:rounded-[2rem] outline-none focus:ring-4 ring-primary/20 font-black text-slate-700 appearance-none shadow-inner text-sm">
+                                    <option value="">Select Subject</option>
+                                    {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
+                                </select>
+                            </div>
+                            <div className="space-y-2 md:space-y-3">
+                                <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Target Class</label>
+                                <select value={reqClass} onChange={e => setReqClass(e.target.value)} className="w-full h-14 md:h-16 px-6 md:px-8 bg-slate-50 border-none rounded-2xl md:rounded-[2rem] outline-none focus:ring-4 ring-primary/20 font-black text-slate-700 appearance-none shadow-inner text-sm">
+                                    <option value="">Choose Class</option>
+                                    {CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
+                                </select>
+                            </div>
+                            <div className="space-y-2 md:space-y-3">
+                                <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Learning Mode</label>
+                                <select value={reqMode} onChange={e => setReqMode(e.target.value)} className="w-full h-14 md:h-16 px-6 md:px-8 bg-slate-50 border-none rounded-2xl md:rounded-[2rem] outline-none focus:ring-4 ring-primary/20 font-black text-slate-700 appearance-none shadow-inner text-sm">
+                                    <option value="">Home / Online</option>
+                                    {MODES.map(m => {
+                                        let label = m;
+                                        if (m === "Home Tutor") label = "At Student Home";
+                                        else if (m === "Online Tutor") label = "Online mode";
+                                        else if (m === "At Centre") label = "At Teacher Home";
+                                        return <option key={m} value={m}>{label}</option>;
+                                    })}
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* MAP COLUMN */}
+                        <div className="space-y-2 md:space-y-3">
+                            <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Exact Area / Pin</label>
+                            <div className="rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden border-2 md:border-4 border-slate-50 shadow-inner">
+                                <MapLocationPicker
+                                    onLocationSelect={(loc) => { setReqLocation(loc.address); setReqLat(loc.latitude); setReqLng(loc.longitude); }}
+                                    initialAddress={reqLocation} height="220px md:245px" compact={true} accentColor="amber"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* TEXTAREA */}
+                    <div className="space-y-2 md:space-y-3 mb-8 md:mb-12">
+                        <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Additional Instructions (Optional)</label>
+                        <textarea 
+                            value={reqMessage} onChange={e => setReqMessage(e.target.value)} 
+                            placeholder="Specific goals, timing preferences, or teacher gender preference..."
+                            className="w-full p-6 md:p-8 bg-slate-50 border-none rounded-[1.5rem] md:rounded-[2.5rem] min-h-[120px] md:min-h-[160px] outline-none focus:ring-4 ring-primary/20 font-bold text-slate-700 shadow-inner resize-none text-sm"
+                        />
+                    </div>
+
+                    {/* SUBMIT BUTTON */}
+                    <button 
+                        onClick={handlePostRequirement} disabled={submittingReq}
+                        className="w-full h-16 md:h-20 bg-primary hover:bg-primary/95 text-white font-[1000] rounded-[1.5rem] md:rounded-[2.5rem] transition-all duration-300 shadow-2xl shadow-primary/20 active:scale-95 disabled:opacity-50 uppercase text-xs md:text-sm tracking-[0.25em]"
+                    >
+                        {submittingReq ? "Submitting Request..." : "Submit Requirement Now"}
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </section>
 
-            {/* ──── 5.3 WHAT ARE YOU LOOKING FOR? (REPLICATED AS PER REQUEST) ──── */}
+            {/* ──── 5.5 WHAT ARE YOU LOOKING FOR? (Persona Selection) ──── */}
             <section className="py-16 md:py-24 bg-slate-900 text-white relative overflow-hidden">
     {/* Visual texture */}
     <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#fff 2px, transparent 2px)', backgroundSize: '40px 40px' }} />
@@ -637,216 +1013,27 @@ function FindTutorNearbyPageContent() {
     </div>
 </section>
 
-            {/* ──── 5.4 TUTOR DIRECTORY LISTING ──── */}
-            <section ref={listingRef} className="container mx-auto px-4 md:px-6 py-16 md:py-28 scroll-mt-24">
-    {/* Header Area */}
-    <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12 md:mb-20">
-        <SectionTitle 
-            title={searched ? "Results Found" : "Featured Mentors"} 
-            subTitle={`Explored ${processedTeachers.length} verified profile(s) matching your orbit.`} 
-        />
-        
-        <div className="flex items-center gap-3">
-            {searched && (
-                <button 
-                    onClick={handleClearFilters}
-                    className="flex items-center gap-2 px-5 py-3 bg-red-50 text-red-500 font-black rounded-2xl border border-red-100 hover:bg-red-500 hover:text-white transition-all text-[10px] uppercase"
-                >
-                    <X className="w-4 h-4" /> Reset
-                </button>
-            )}
-            <button 
-                onClick={() => setShowFilterPanel(!showFilterPanel)}
-                className={`flex items-center gap-2 px-5 py-3 border rounded-2xl transition-all shadow-sm ${showFilterPanel ? 'bg-primary border-primary text-white shadow-primary/20' : 'bg-slate-50 border-slate-100 text-slate-400 hover:text-primary hover:border-primary/20'}`}
-            >
-                <Filter className="w-4 h-4" /> <span className="text-[10px] font-black uppercase">Filter</span>
-            </button>
+            {/* ──── 5.6 STATS STRIP ──── */}
+            <section className="bg-slate-50 py-10 md:py-16 border-y border-slate-100">
+    <div className="container mx-auto px-4 md:px-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+            <StatCard icon={Award} value="100%" label="Verified Tutors" />
+            <StatCard icon={Heart} value="25,000+" label="Happy Learners" />
+            <StatCard icon={Timer} value="30 Min" label="Fast Response" />
+            <StatCard icon={School} value="500+" label="Subjects Covered" />
         </div>
     </div>
-
-    {/* Advanced Filters Panel */}
-    <AnimatePresence>
-        {showFilterPanel && (
-            <motion.div 
-                initial={{ opacity: 0, height: 0 }} 
-                animate={{ opacity: 1, height: "auto" }} 
-                exit={{ opacity: 0, height: 0 }}
-                className="mb-8 p-6 bg-slate-50 border border-slate-100 rounded-[2rem] overflow-hidden"
-            >
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* Teaching Mode Filter */}
-                    <div className="space-y-2">
-                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Teaching Mode</label>
-                        <select 
-                            value={selectedMode} 
-                            onChange={(e) => setSelectedMode(e.target.value)}
-                            className="w-full h-12 px-4 bg-white border border-slate-200/80 rounded-xl outline-none font-bold text-xs text-slate-700 shadow-sm"
-                        >
-                            <option value="All">All Modes</option>
-                            {MODES.map(m => <option key={m} value={m}>{m}</option>)}
-                        </select>
-                    </div>
-
-                    {/* Class/Grade level Filter */}
-                    <div className="space-y-2">
-                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Class / Grade Level</label>
-                        <select 
-                            value={selectedClass} 
-                            onChange={(e) => setSelectedClass(e.target.value)}
-                            className="w-full h-12 px-4 bg-white border border-slate-200/80 rounded-xl outline-none font-bold text-xs text-slate-700 shadow-sm"
-                        >
-                            <option value="All">All Classes</option>
-                            {CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
-                        </select>
-                    </div>
-
-                    {/* Sorting Filter */}
-                    <div className="space-y-2">
-                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Sort By</label>
-                        <select 
-                            value={sortBy} 
-                            onChange={(e) => setSortBy(e.target.value)}
-                            className="w-full h-12 px-4 bg-white border border-slate-200/80 rounded-xl outline-none font-bold text-xs text-slate-700 shadow-sm"
-                        >
-                            <option value="default">Default Sort</option>
-                            <option value="rating">Rating (High to Low)</option>
-                            <option value="experience">Experience (High to Low)</option>
-                        </select>
-                    </div>
-                </div>
-            </motion.div>
-        )}
-    </AnimatePresence>
-
-    {loading ? (
-        /* Responsive Loading Grid */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
-            {[1, 2, 3, 4, 5, 6].map(i => (
-                <div key={i} className="h-[450px] md:h-[550px] bg-slate-50 rounded-[2.5rem] md:rounded-[3.5rem] animate-pulse border border-slate-100" />
-            ))}
-        </div>
-    ) : processedTeachers.length === 0 ? (
-        /* Responsive Empty State */
-        <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }} 
-            animate={{ opacity: 1, scale: 1 }}
-            className="text-center py-20 md:py-32 bg-slate-50 rounded-[2.5rem] md:rounded-[4rem] border-4 border-dashed border-slate-200 px-6"
-        >
-            <div className="w-24 h-24 md:w-32 md:h-32 bg-white rounded-full flex items-center justify-center text-5xl md:text-7xl mx-auto mb-8 md:mb-10 shadow-xl">🔭</div>
-            <h3 className="text-2xl md:text-3xl font-[1000] text-slate-900 uppercase tracking-tighter">No tutors found in this area</h3>
-            <p className="text-slate-500 mt-4 font-bold max-w-sm mx-auto uppercase text-[10px] tracking-widest leading-loose">Try broadening your search or resetting the filters.</p>
-            <button onClick={handleClearFilters} className="mt-10 px-10 md:px-12 py-4 md:py-5 bg-primary text-white font-[1000] rounded-2xl shadow-xl uppercase text-[10px] md:text-xs tracking-widest hover:bg-slate-900 transition-all">Show All Profiles</button>
-        </motion.div>
-    ) : (
-        /* Responsive Tutor Grid */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
-            {processedTeachers.map((t, idx) => (
-                <motion.div 
-                    layout
-                    key={t.id} 
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: (idx % 3) * 0.1 }}
-                    className="bg-white rounded-[2.5rem] md:rounded-[3.5rem] border border-slate-100 overflow-hidden hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.15)] transition-all duration-700 group flex flex-col h-full"
-                >
-                    {/* Profile Header Image Area */}
-                    <div className="relative h-64 md:h-72 lg:h-80 overflow-hidden">
-                        <div className="absolute top-5 left-5 md:top-6 md:left-6 z-20">
-                            <div className="bg-white/95 backdrop-blur-md px-3 py-1.5 md:px-4 md:py-2 rounded-full flex items-center gap-2 shadow-lg border border-white/30">
-                                <ShieldCheck className="w-3.5 h-3.5 md:w-4 h-4 text-emerald-500" />
-                                <span className="text-[9px] md:text-[10px] font-black text-slate-900 uppercase tracking-widest">Verified Expert</span>
-                            </div>
-                        </div>
-
-                        {/* Top Right Rating Badge */}
-                        <div className="absolute top-5 right-5 z-20">
-                            <div className="bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg border border-white/30 text-[10px] font-black text-amber-500">
-                                <Star className="w-3.5 h-3.5 fill-current" />
-                                <span>{t.rating || 5.0}</span>
-                                <span className="text-slate-400 font-sans">({t.reviewsCount || 0})</span>
-                            </div>
-                        </div>
-                        
-                        {t.profilePhoto ? (
-                            <img src={t.profilePhoto} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt={t.name} />
-                        ) : (
-                            <div className="w-full h-full bg-primary/10 flex items-center justify-center text-6xl md:text-7xl font-[1000] text-primary/40 uppercase">
-                                {t.name?.[0]}
-                            </div>
-                        )}
-
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-transparent opacity-80" />
-                        <div className="absolute bottom-6 left-6 right-6 md:bottom-8 md:left-8 md:right-8">
-                            <h3 className="text-2xl md:text-3xl font-[1000] text-white tracking-tighter leading-none group-hover:text-primary transition-colors uppercase truncate">{t.name}</h3>
-                            <div className="flex items-center gap-4 mt-3 md:mt-4 text-[9px] md:text-[10px] font-black text-white/80 uppercase tracking-widest">
-                                <span className="flex items-center gap-1.5"><MapPin className="w-3 h-3 md:w-3.5 md:h-3.5 text-primary" /> {t.address?.split(',')[0]}</span>
-                                <span className="flex items-center gap-1.5"><Zap className="w-3 h-3 md:w-3.5 md:h-3.5 text-primary" /> {t.teachingMode || "Online"}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Profile Content Area */}
-                    <div className="p-6 md:p-10 space-y-6 md:space-y-8 flex-1 flex flex-col justify-between">
-                        <div className="space-y-4 md:space-y-6">
-                            <div className="flex flex-wrap gap-2 md:gap-2.5">
-                                {t.subjects?.slice(0, 3).map((s: string) => (
-                                    <span key={s} className="px-3 py-1.5 md:px-4 md:py-2 bg-primary/5 text-primary text-[8px] md:text-[9px] font-black uppercase rounded-xl border border-primary/10 shadow-sm group-hover:bg-primary group-hover:text-white transition-all">{s}</span>
-                                ))}
-                                {t.subjects && t.subjects.length > 3 && (
-                                    <span className="px-3 py-1.5 md:px-4 md:py-2 bg-slate-50 text-slate-400 text-[8px] md:text-[9px] font-black uppercase rounded-xl">+{t.subjects.length - 3} More</span>
-                                )}
-                            </div>
-                            <p className="text-slate-500 text-xs md:text-base font-bold leading-relaxed line-clamp-2 italic">
-                                "{t.achievements || "Dedicated to building strong foundational concepts and helping students excel in academics."}"
-                            </p>
-                        </div>
-
-                        {/* Price & Action Footer */}
-                        <div className="flex items-center justify-between pt-6 md:pt-10 border-t border-slate-50">
-                            <div>
-                                <p className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Experience</p>
-                                <p className="text-xl md:text-2xl font-[1000] text-slate-900 tracking-tighter">{t.experience || "Verified"}</p>
-                            </div>
-
-                            <div className="flex gap-2 md:gap-3">
-                                <button 
-                                    onClick={() => { if (!session) { router.push("/signup"); return; } window.open(`https://wa.me/91${t.phone?.replace(/\D/g, "").slice(-10)}`) }}
-                                    className="w-12 h-12 md:w-14 md:h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-all shadow-xl active:scale-90"
-                                >
-                                    <Zap className="w-5 h-5 md:w-6 md:h-6 fill-current" />
-                                </button>
-                                <button 
-                                    onClick={() => router.push(`/tutor/${t.id}`)}
-                                    className="px-5 py-3 md:px-8 md:py-4 bg-slate-950 text-white text-[9px] md:text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-primary hover:text-white transition-all duration-300 shadow-2xl active:scale-95"
-                                >
-                                    Profile
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </motion.div>
-            ))}
-        </div>
-    )}
 </section>
 
-            {/* ──── 5.5 "HOW IT WORKS" BENTO GRID ──── */}
+            {/* ──── 5.7 "HOW IT WORKS" BENTO GRID ──── */}
             <section className="bg-slate-50 py-16 md:py-24 lg:py-32 relative overflow-hidden">
     <div className="container mx-auto px-4 md:px-6">
-        {/* Section Header with responsive spacing */}
         <SectionTitle 
             title="Simple Steps To Connect" 
             subTitle="THE AACHARYA JOURNEY" 
             centered={true} 
         />
 
-        {/* 
-            grid-cols-1: Single column on mobile
-            md:grid-cols-2: Two columns on tablet
-            lg:grid-cols-4: Four columns on desktop
-            gap-6: Tighter gap for mobile
-        */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 mt-12 md:mt-20">
             {[
                 { title: "Search & Filter", desc: "Browse through verified mentors based on subject, location, and rating.", icon: Search, color: "bg-primary text-white" },
@@ -865,12 +1052,10 @@ function FindTutorNearbyPageContent() {
                         relative overflow-hidden
                     `}
                 >
-                    {/* Background Step Number - Scaled for Mobile */}
                     <div className="absolute top-6 right-6 md:top-8 md:right-8 text-5xl md:text-6xl lg:text-7xl font-[1000] opacity-[0.05] pointer-events-none">
                         0{i + 1}
                     </div>
 
-                    {/* Icon Container - Scaled for Mobile */}
                     <div className={`
                         w-14 h-14 md:w-16 md:h-16 
                         rounded-2xl md:rounded-3xl 
@@ -881,7 +1066,6 @@ function FindTutorNearbyPageContent() {
                         <step.icon className={`w-6 h-6 md:w-8 md:h-8 ${step.color.includes('slate') || step.color.includes('primary') ? 'text-white' : 'text-slate-950'}`} />
                     </div>
 
-                    {/* Content Spacing - Adjusted for smaller screens */}
                     <div className="space-y-3 md:space-y-4 mt-12 md:mt-16 lg:mt-20">
                         <h4 className="text-xl md:text-2xl font-[1000] uppercase tracking-tighter leading-none">
                             {step.title}
@@ -896,113 +1080,9 @@ function FindTutorNearbyPageContent() {
     </div>
 </section>
 
-            {/* ──── 5.6 POST REQUIREMENT MEGA FORM ──── */}
-           <section className="py-16 md:py-24 lg:py-32 bg-white relative z-10">
-    <div className="container mx-auto px-4 md:px-6">
-        <div className="max-w-7xl mx-auto bg-slate-50 rounded-[2.5rem] md:rounded-[4rem] lg:rounded-[5rem] p-6 md:p-12 lg:p-24 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.08)] border border-slate-100 flex flex-col lg:flex-row gap-12 lg:gap-24">
-            
-            {/* LEFT SIDE: INFO & SUPPORT */}
-            <div className="space-y-8 md:space-y-12 lg:w-1/3">
-                <SectionTitle title="Can't Find Your match?" subTitle="LET US HELP" />
-                
-                <ul className="space-y-4 md:space-y-6 lg:space-y-8">
-                    {[
-                        { text: "100% Free Consultation", icon: CheckCircle },
-                        { text: "Lead Matching Within 12hrs", icon: Timer },
-                        { text: "Verified Experts Only", icon: UserCheck },
-                        { text: "Personal Support Desk", icon: PhoneCall },
-                    ].map((li, i) => (
-                        <li key={i} className="flex items-center gap-4 md:gap-6 text-slate-800 font-[900] text-[10px] md:text-[11px] uppercase tracking-widest group cursor-default">
-                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-primary flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform shrink-0">
-                                <li.icon className="w-5 h-5 md:w-6 md:h-6" />
-                            </div>
-                            <span>{li.text}</span>
-                        </li>
-                    ))}
-                </ul>
-
-                {/* CALL SUPPORT CARD */}
-                <div className="p-6 md:p-10 bg-white rounded-[2rem] md:rounded-[3rem] border border-slate-100 shadow-sm space-y-3 md:space-y-4">
-                    <h4 className="text-lg md:text-xl font-[1000] text-slate-900 uppercase">Need a quick call?</h4>
-                    <p className="text-[10px] md:text-xs font-bold text-slate-400 leading-relaxed">
-                        Our relationship managers are available from 10 AM to 7 PM.
-                    </p>
-                    <button className="flex items-center gap-2 text-primary font-[1000] uppercase text-[10px] md:text-xs hover:gap-4 transition-all">
-                        Connect Now <ArrowUpRight className="w-4 h-4" />
-                    </button>
-                </div>
-            </div>
-
-            {/* RIGHT SIDE: THE FORM */}
-            <div className="lg:w-2/3">
-                <div className="bg-white rounded-[2rem] md:rounded-[3rem] lg:rounded-[4rem] p-6 md:p-10 lg:p-16 shadow-2xl border border-slate-50 relative">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10 mb-8 lg:mb-10">
-                        {/* INPUTS COLUMN */}
-                        <div className="space-y-6 lg:space-y-8">
-                            <div className="space-y-2 md:space-y-3">
-                                <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Learning Subject</label>
-                                <select value={reqSubject} onChange={e => setReqSubject(e.target.value)} className="w-full h-14 md:h-16 px-6 md:px-8 bg-slate-50 border-none rounded-2xl md:rounded-[2rem] outline-none focus:ring-4 ring-primary/20 font-black text-slate-700 appearance-none shadow-inner text-sm">
-                                    <option value="">Select Subject</option>
-                                    {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
-                                </select>
-                            </div>
-                            <div className="space-y-2 md:space-y-3">
-                                <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Target Class</label>
-                                <select value={reqClass} onChange={e => setReqClass(e.target.value)} className="w-full h-14 md:h-16 px-6 md:px-8 bg-slate-50 border-none rounded-2xl md:rounded-[2rem] outline-none focus:ring-4 ring-primary/20 font-black text-slate-700 appearance-none shadow-inner text-sm">
-                                    <option value="">Choose Class</option>
-                                    {CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
-                                </select>
-                            </div>
-                            <div className="space-y-2 md:space-y-3">
-                                <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Learning Mode</label>
-                                <select value={reqMode} onChange={e => setReqMode(e.target.value)} className="w-full h-14 md:h-16 px-6 md:px-8 bg-slate-50 border-none rounded-2xl md:rounded-[2rem] outline-none focus:ring-4 ring-primary/20 font-black text-slate-700 appearance-none shadow-inner text-sm">
-                                    <option value="">Home / Online</option>
-                                    {MODES.map(m => <option key={m} value={m}>{m}</option>)}
-                                </select>
-                            </div>
-                        </div>
-
-                        {/* MAP COLUMN */}
-                        <div className="space-y-2 md:space-y-3">
-                            <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Exact Area / Pin</label>
-                            <div className="rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden border-2 md:border-4 border-slate-50 shadow-inner">
-                                <MapLocationPicker
-                                    onLocationSelect={(loc) => { setReqLocation(loc.address); setReqLat(loc.latitude); setReqLng(loc.longitude); }}
-                                    initialAddress={reqLocation} height="220px md:245px" compact={true} accentColor="amber"
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* TEXTAREA */}
-                    <div className="space-y-2 md:space-y-3 mb-8 md:mb-12">
-                        <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Additional Instructions (Optional)</label>
-                        <textarea 
-                            value={reqMessage} onChange={e => setReqMessage(e.target.value)} 
-                            placeholder="Specific goals, timing preferences, or teacher gender preference..."
-                            className="w-full p-6 md:p-8 bg-slate-50 border-none rounded-[1.5rem] md:rounded-[2.5rem] min-h-[120px] md:min-h-[160px] outline-none focus:ring-4 ring-primary/20 font-bold text-slate-700 shadow-inner resize-none text-sm"
-                        />
-                    </div>
-
-                    {/* SUBMIT BUTTON */}
-                    <button 
-                        onClick={handlePostRequirement} disabled={submittingReq}
-                        className="w-full h-16 md:h-20 bg-primary hover:bg-primary/95 text-white font-[1000] rounded-[1.5rem] md:rounded-[2.5rem] transition-all duration-300 shadow-2xl shadow-primary/20 active:scale-95 disabled:opacity-50 uppercase text-xs md:text-sm tracking-[0.25em]"
-                    >
-                        {submittingReq ? "Submitting Request..." : "Submit Requirement Now"}
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-          {/* ──── 5.7 TESTIMONIALS STRIP (IMAGE STYLE) ──── */}
-{/* ──── 5.7 TESTIMONIALS STRIP (MATCHING IMAGE STYLE) ──── */}
-{/* ──── 5.7 TESTIMONIALS STRIP (RESPONSIVE BLOB STYLE) ──── */}
+            {/* ──── 5.8 TESTIMONIALS STRIP (RESPONSIVE BLOB STYLE) ──── */}
 <section className="bg-[#fcfdfa] py-16 md:py-24 relative overflow-hidden">
     <div className="container mx-auto px-4 md:px-6">
-        {/* Header Section */}
         <div className="text-center mb-16 md:mb-20 space-y-4">
             <h2 className="text-2xl md:text-5xl font-[1000] text-slate-900 tracking-tighter uppercase leading-none">
                 Client Feedback <span className="text-primary">& Testimonial</span>
@@ -1013,7 +1093,6 @@ function FindTutorNearbyPageContent() {
             </p>
         </div>
 
-        {/* Testimonial Cards Grid - Stacks on mobile (gap-16), 3 cols on desktop */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16 lg:gap-12 max-w-7xl mx-auto">
             {[
                 { name: "Ananya Iyer", role: "Parent of Class 10th Student", color: "bg-[#8cc63f]" },
@@ -1028,7 +1107,6 @@ function FindTutorNearbyPageContent() {
                                 md:rounded-tl-[100px] md:rounded-br-[100px] md:rounded-tr-[40px] md:rounded-bl-[40px] 
                                 flex flex-col h-full"
                 >
-                    {/* Top Floating Quote Icon - Adjusted size for mobile */}
                     <div className={`absolute -top-6 md:-top-8 left-8 md:left-10 w-16 h-16 md:w-20 md:h-20 rounded-full ${client.color} 
                                     flex items-center justify-center text-white shadow-xl border-[4px] md:border-[6px] border-white`}>
                         <svg width="24" height="24" className="md:w-[35px] md:h-[35px]" viewBox="0 0 24 24" fill="currentColor">
@@ -1036,12 +1114,10 @@ function FindTutorNearbyPageContent() {
                         </svg>
                     </div>
 
-                    {/* Client Info */}
                     <div className="mb-4 md:mb-6 ml-2 md:ml-4">
                         <h4 className="text-xl md:text-2xl font-[1000] text-slate-900 leading-tight">{client.name}</h4>
                         <p className="text-slate-400 text-[9px] md:text-[10px] font-black uppercase tracking-widest mt-1">{client.role}</p>
                         
-                        {/* 5 Stars */}
                         <div className="flex text-[#fbb040] gap-1 mt-3 md:mt-4">
                             {[...Array(5)].map((_, idx) => (
                                 <Star key={idx} className="w-3 h-3 md:w-4 md:h-4 fill-current" />
@@ -1049,14 +1125,12 @@ function FindTutorNearbyPageContent() {
                         </div>
                     </div>
 
-                    {/* Demo Testimonial Text */}
                     <p className="text-slate-500 text-[11px] md:text-xs font-bold leading-relaxed mb-6 md:mb-8 ml-2 md:ml-4">
                         "The experience has been absolutely life-changing for my child. 
                         The tutors are not just teachers but mentors who truly care 
                         about the fundamental understanding of the subject."
                     </p>
 
-                    {/* Bottom Subtle "Watermark" Quote */}
                     <div className="mt-auto self-end opacity-[0.05] text-slate-900">
                         <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor" className="md:w-[50px] md:h-[50px] rotate-180">
                             <path d="M11.192 15.757c0 1.964-1.594 3.557-3.558 3.557-1.963 0-3.557-1.593-3.557-3.557 0-1.964 1.594-3.558 3.557-3.558h.721c-.347-1.545-1.127-2.659-2.339-3.344l.804-1.411c2.148 1.055 3.194 3.102 3.412 5.313h1.01zm9.25 0c0 1.964-1.594 3.557-3.558 3.557-1.963 0-3.557-1.593-3.557-3.557 0-1.964 1.594-3.558 3.557-3.558h.721c-.347-1.545-1.127-2.659-2.339-3.344l.804-1.411c2.148 1.055 3.194 3.102 3.412 5.313h1.01z" />
@@ -1066,11 +1140,9 @@ function FindTutorNearbyPageContent() {
             ))}
         </div>
 
-        {/* Pagination Controls */}
         <div className="flex justify-center items-center gap-3 mt-12 md:mt-20">
             <button className="w-3 h-3 rounded-full border-2 border-slate-300 hover:bg-primary hover:border-primary transition-all"></button>
             <button className="w-3 h-3 rounded-full border-2 border-slate-300 hover:bg-primary hover:border-primary transition-all"></button>
-            {/* The Active Pill shape */}
             <div className="w-12 h-3.5 md:w-14 md:h-4 rounded-full bg-slate-200 border-2 border-slate-300 shadow-inner relative overflow-hidden">
                 <div className="absolute inset-y-0 left-0 w-1/2 bg-primary"></div>
             </div>
@@ -1078,7 +1150,7 @@ function FindTutorNearbyPageContent() {
     </div>
 </section>
 
-            {/* ──── 5.8 DETAILED FAQ SECTION ──── */}
+            {/* ──── 5.9 DETAILED FAQ SECTION ──── */}
             <section className="py-16 md:py-24 lg:py-32 bg-white relative overflow-hidden">
     <div className="container mx-auto px-4 md:px-6 max-w-4xl">
         <SectionTitle title="Frequently Asked Questions" subTitle="YOUR QUERIES RESOLVED" centered={true} />
@@ -1132,7 +1204,7 @@ function FindTutorNearbyPageContent() {
     </div>
 </section>
 
-            {/* ──── 5.9 PREMIUM CHESS BANNER (PREVIEW) ──── */}
+            {/* ──── 5.10 PREMIUM CHESS BANNER (PREVIEW) ──── */}
             <section className="container mx-auto px-4 md:px-6 pb-16 md:pb-24">
                 <div className="relative rounded-[2rem] md:rounded-[3.5rem] bg-[#1e1b4b] p-6 md:p-12 lg:p-16 overflow-hidden group shadow-xl">
                     {/* Animated Background Blobs */}

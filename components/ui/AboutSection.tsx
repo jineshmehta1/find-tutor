@@ -33,7 +33,7 @@ const AboutSection: React.FC = () => {
       icon: Cpu, 
       title: "Coding, AI & Robotics", 
       tag: "Future Tech Skills",
-      image: "/robotics-center.jpeg",
+      image: "/computer.jpeg",
       desc: "Live interactive coding classes in Python, Web Development, Scratch, and hands-on Arduino IoT hardware kits.", 
       highlights: ["Hands-on STEM Kits", "Project Based Certificates", "Beginner to Advanced"],
       color: "bg-emerald-600 text-white" 
@@ -43,7 +43,7 @@ const AboutSection: React.FC = () => {
       icon: Calculator, 
       title: "Abacus & Mental Math", 
       tag: "Speed & Concentration",
-      image: "/kidabacus.jpg",
+      image: "/abacus1.jpeg",
       desc: "9-level structured brain development program for lightning-fast calculations & Olympiad speed math.", 
       highlights: ["10x Speed Calculations", "Improved Concentration", "Olympiad Level Prep"],
       color: "bg-amber-600 text-white" 
@@ -53,7 +53,7 @@ const AboutSection: React.FC = () => {
       icon: Trophy, 
       title: "Grandmaster Chess Academy", 
       tag: "FIDE Rated Trainers",
-      image: "/kidchess.jpg",
+      image: "/chess1.jpeg",
       desc: "FIDE rated coaching covering tactical openings, middle game strategy, endgames, and Sunday chess clubs.", 
       highlights: ["FIDE Certified Coaches", "Sunday Club Tournaments", "Strategic Thinking"],
       color: "bg-purple-600 text-white" 
@@ -63,7 +63,7 @@ const AboutSection: React.FC = () => {
       icon: Zap, 
       title: "JEE & NEET Entrance Prep", 
       tag: "Top Rank Coaching",
-      image: "/school-ach.jpeg",
+      image: "/hero-bg.png",
       desc: "Rigorous entrance exam preparation by IITians and experienced medical faculty for high scores.", 
       highlights: ["IIT & Medical Faculty", "Deep Doubt Resolution", "1-on-1 Custom Pace"],
       color: "bg-rose-600 text-white" 

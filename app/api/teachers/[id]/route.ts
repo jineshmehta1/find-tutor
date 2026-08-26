@@ -89,6 +89,8 @@ export async function GET(
             qualificationLevel: teacher.qualificationLevel,
             qualificationName: teacher.qualificationName,
             achievements: teacher.achievements,
+            achievementCertificate: teacher.achievementCertificate,
+            qualificationCertificate: teacher.qualificationCertificate,
             isApproved: teacher.isApproved,
             createdAt: teacher.createdAt,
         };

@@ -31,6 +31,8 @@ interface Tutor {
   dob: string;
   gender: string | null;
   preferredLanguage: string | null;
+  achievementCertificate: string | null;
+  qualificationCertificate: string | null;
 }
 
 interface Review {
@@ -245,12 +247,26 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
             <p className="text-slate-600 font-medium leading-relaxed">
               {tutor.achievements || "Dedicated to building strong foundational concepts and helping students excel in academics."}
             </p>
+            {tutor.achievementCertificate && (
+              <div className="flex gap-2 items-center p-3 bg-amber-500/5 text-slate-700 text-xs font-bold rounded-2xl border border-amber-200/40">
+                <Award className="w-5 h-5 text-amber-500 shrink-0" />
+                <span>Verification Proof:</span>
+                <a href={tutor.achievementCertificate} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                  View Achievement Certificate Document
+                </a>
+              </div>
+            )}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-slate-50">
               <div className="flex gap-3">
                 <GraduationCap className="w-5 h-5 text-slate-400 shrink-0 mt-0.5" />
                 <div>
                   <p className="text-xs font-bold text-slate-400 uppercase">Education</p>
                   <p className="text-sm font-semibold text-slate-800">{tutor.education}</p>
+                  {tutor.qualificationCertificate && (
+                    <a href={tutor.qualificationCertificate} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 font-bold hover:underline block mt-1">
+                      View Verified Degree Document
+                    </a>
+                  )}
                 </div>
               </div>
               <div className="flex gap-3">

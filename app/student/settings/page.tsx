@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 import {
     Settings, Shield, Bell, Eye, EyeOff, Save,
     User, Mail, Phone, Calendar, MapPin, BookOpen,
@@ -27,6 +28,7 @@ interface Profile {
     profilePhoto: string | null;
     student: {
         subjects: string;
+        children?: string | null;
     } | null;
 }
 
@@ -318,6 +320,33 @@ export default function StudentSettingsPage() {
                                     );
                                 })}
                             </div>
+                        </div>
+
+                        {/* Registered Children */}
+                        <div className="space-y-3 pt-4 border-t border-slate-100">
+                            <div className="flex justify-between items-center">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Registered Children ({profile?.student?.children ? (() => { try { return JSON.parse(profile.student.children).length; } catch { return 0; } })() : 0})</label>
+                                <Link href="/student/children" className="text-xs font-black text-[#ffb800] hover:underline uppercase tracking-wider">Manage Children</Link>
+                            </div>
+                            {profile?.student?.children ? (
+                                <div className="flex flex-wrap gap-2">
+                                    {(() => {
+                                        try {
+                                            const childrenList = JSON.parse(profile.student.children);
+                                            if (childrenList.length === 0) return <p className="text-xs text-slate-400 font-semibold">No children registered yet.</p>;
+                                            return childrenList.map((child: any, i: number) => (
+                                                <div key={i} className="px-3 py-2 bg-slate-55 border border-slate-200 rounded-xl text-xs font-bold text-slate-700">
+                                                    {child.name} ({child.classLevel})
+                                                </div>
+                                            ));
+                                        } catch {
+                                            return <p className="text-xs text-slate-400 font-semibold">No children registered yet.</p>;
+                                        }
+                                    })()}
+                                </div>
+                            ) : (
+                                <p className="text-xs text-slate-400 font-semibold">No children registered yet.</p>
+                            )}
                         </div>
 
                         {/* Save Profile Button */}

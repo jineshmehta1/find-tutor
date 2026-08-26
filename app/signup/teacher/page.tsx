@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { signIn, useSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import {
     User, ArrowLeft, ArrowRight, Mail, Phone, Calendar, MapPin,
     BookOpen, GraduationCap, Award, Briefcase, Camera, Plus, X,
@@ -44,8 +44,13 @@ export default function TeacherSignupPage() {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     
+    const [tutorType, setTutorType] = useState<"teacher" | "coach">("teacher");
+    const [subjectLevels, setSubjectLevels] = useState<Record<string, string[]>>({});
+    
     const profileInputRef = useRef<HTMLInputElement>(null);
     const certImageInputRef = useRef<HTMLInputElement>(null);
+    const qualCertInputRef = useRef<HTMLInputElement>(null);
+    const achCertInputRef = useRef<HTMLInputElement>(null);
 
     const [formData, setFormData] = useState({
         name: "",
@@ -60,6 +65,8 @@ export default function TeacherSignupPage() {
         experience: "",
         certifications: [] as Certification[],
         subjects: [] as string[],
+        qualificationCertificate: "",
+        achievementCertificate: "",
     });
 
     // Custom signup UI states matching Flipkart/Aacharya aesthetics
@@ -72,6 +79,8 @@ export default function TeacherSignupPage() {
     const [isGoogleVerified, setIsGoogleVerified] = useState(false);
     const [isUploadingProfile, setIsUploadingProfile] = useState(false);
     const [isUploadingCertImage, setIsUploadingCertImage] = useState(false);
+    const [isUploadingQualCert, setIsUploadingQualCert] = useState(false);
+    const [isUploadingAchCert, setIsUploadingAchCert] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -85,6 +94,8 @@ export default function TeacherSignupPage() {
         const savedData = sessionStorage.getItem("teacher_signup_form_data");
         if (savedData) {
             const parsed = JSON.parse(savedData);
+            if (parsed.tutorType) setTutorType(parsed.tutorType);
+            if (parsed.subjectLevels) setSubjectLevels(parsed.subjectLevels);
             setFormData(prev => ({ ...prev, ...parsed }));
             sessionStorage.removeItem("teacher_signup_form_data");
         }
@@ -161,6 +172,60 @@ export default function TeacherSignupPage() {
         } catch { toast.error("Upload failed."); setCertImagePreview(null); } finally { setIsUploadingCertImage(false); }
     };
 
+    const handleQualCertUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+            toast.error("Please select an image file");
+            return;
+        }
+        if (file.size > 4 * 1024 * 1024) {
+            toast.error("Certificate photo must be less than 4MB");
+            return;
+        }
+
+        setIsUploadingQualCert(true);
+        try {
+            const form = new FormData();
+            form.append("file", file);
+            form.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+            form.append("folder", "certificates");
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: form });
+            if (!res.ok) throw new Error("Upload failed");
+            const data = await res.json();
+            setFormData(prev => ({ ...prev, qualificationCertificate: data.secure_url }));
+            toast.success("Qualification certificate uploaded!");
+        } catch { toast.error("Upload failed."); } finally { setIsUploadingQualCert(false); }
+    };
+
+    const handleAchCertUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+            toast.error("Please select an image file");
+            return;
+        }
+        if (file.size > 4 * 1024 * 1024) {
+            toast.error("Certificate photo must be less than 4MB");
+            return;
+        }
+
+        setIsUploadingAchCert(true);
+        try {
+            const form = new FormData();
+            form.append("file", file);
+            form.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+            form.append("folder", "certificates");
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: form });
+            if (!res.ok) throw new Error("Upload failed");
+            const data = await res.json();
+            setFormData(prev => ({ ...prev, achievementCertificate: data.secure_url }));
+            toast.success("Achievement certificate uploaded!");
+        } catch { toast.error("Upload failed."); } finally { setIsUploadingAchCert(false); }
+    };
+
     const addCertification = () => {
         if (certInput.trim()) {
             const newCert: Certification = { text: certInput.trim(), image: pendingCertImage || undefined };
@@ -173,7 +238,21 @@ export default function TeacherSignupPage() {
     };
 
     const removeCertification = (text: string) => setFormData(prev => ({ ...prev, certifications: prev.certifications.filter(c => c.text !== text) }));
-    const toggleSubject = (subject: string) => setFormData(prev => ({ ...prev, subjects: prev.subjects.includes(subject) ? prev.subjects.filter(s => s !== subject) : [...prev.subjects, subject] }));
+    
+    const toggleSubject = (subject: string) => {
+        setFormData(prev => {
+            const exists = prev.subjects.includes(subject);
+            return {
+                ...prev,
+                subjects: exists ? prev.subjects.filter(s => s !== subject) : [...prev.subjects, subject]
+            };
+        });
+        setSubjectLevels(prev => {
+            const copy = { ...prev };
+            delete copy[subject];
+            return copy;
+        });
+    };
 
     // Live password validations
     const passMinLength = formData.password.length >= 6;
@@ -213,7 +292,17 @@ export default function TeacherSignupPage() {
             if (!formData.experience.trim()) newErrors.experience = "Teaching experience details is required";
         }
         if (stepNum === 4) {
-            if (formData.subjects.length === 0) newErrors.subjects = "Select at least one subject you offer";
+            if (formData.subjects.length === 0) {
+                newErrors.subjects = "Select at least one subject you offer";
+            } else if (tutorType === "teacher") {
+                for (const subject of formData.subjects) {
+                    const levels = subjectLevels[subject] || [];
+                    if (levels.length === 0) {
+                        newErrors.subjects = `Please select at least one teaching level for ${subject}`;
+                        break;
+                    }
+                }
+            }
         }
         
         setErrors(newErrors);
@@ -224,23 +313,116 @@ export default function TeacherSignupPage() {
         return true;
     };
 
+    const validateAllSteps = (): boolean => {
+        const newErrors: Record<string, string> = {};
+        
+        // Step 1 validation
+        if (!formData.name.trim()) newErrors.name = "Name is required";
+        if (!formData.email.trim()) newErrors.email = "Email is required";
+        else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Invalid email";
+        if (!formData.phone.trim()) newErrors.phone = "Phone number is required";
+        if (!formData.password || formData.password.length < 6) newErrors.password = "Password must be at least 6 characters";
+        if (formData.password !== formData.confirmPassword) {
+            newErrors.confirmPassword = "Passwords do not match";
+        }
+        if (!gender) {
+            setStep(1);
+            toast.error("Please select your gender");
+            return false;
+        }
+        if (!securityQuestion || !securityAnswer.trim()) {
+            setStep(1);
+            toast.error("Please provide a security question and answer");
+            return false;
+        }
+        if (!termsAgreed) {
+            setStep(1);
+            toast.error("You must agree to the Terms & Conditions and Privacy Policy");
+            return false;
+        }
+
+        if (Object.keys(newErrors).length > 0) {
+            setStep(1);
+            setErrors(newErrors);
+            toast.error(Object.values(newErrors)[0]);
+            return false;
+        }
+
+        // Step 2 validation
+        if (!formData.dob) newErrors.dob = "Date of birth is required";
+        if (!formData.address.trim()) newErrors.address = "Address is required";
+
+        if (Object.keys(newErrors).length > 0) {
+            setStep(2);
+            setErrors(newErrors);
+            toast.error(Object.values(newErrors)[0]);
+            return false;
+        }
+
+        // Step 3 validation
+        if (!formData.education.trim()) newErrors.education = "Education qualification is required";
+        if (!formData.experience.trim()) newErrors.experience = "Teaching experience details is required";
+
+        if (Object.keys(newErrors).length > 0) {
+            setStep(3);
+            setErrors(newErrors);
+            toast.error(Object.values(newErrors)[0]);
+            return false;
+        }
+
+        // Step 4 validation
+        if (formData.subjects.length === 0) newErrors.subjects = "Select at least one subject you offer";
+        if (Object.keys(newErrors).length > 0) {
+            setStep(4);
+            setErrors(newErrors);
+            toast.error(Object.values(newErrors)[0]);
+            return false;
+        }
+
+        if (tutorType === "teacher") {
+            for (const subject of formData.subjects) {
+                const levels = subjectLevels[subject] || [];
+                if (levels.length === 0) {
+                    setStep(4);
+                    toast.error(`Please select at least one teaching level for ${subject}`);
+                    return false;
+                }
+            }
+        }
+
+        setErrors({});
+        return true;
+    };
+
     const nextStep = () => { if (validateStep(step)) setStep(prev => Math.min(prev + 1, 4)); };
     const prevStep = () => { setStep(prev => Math.max(prev - 1, 1)); };
 
     const verifyWithGoogle = async () => {
-        sessionStorage.setItem("teacher_signup_form_data", JSON.stringify(formData));
+        sessionStorage.setItem("teacher_signup_form_data", JSON.stringify({
+            ...formData,
+            tutorType,
+            subjectLevels
+        }));
         signIn("google", { callbackUrl: window.location.href });
     };
 
     const handleSubmit = async () => {
-        if (!validateStep(4)) return;
+        if (!validateAllSteps()) return;
         setLoading(true);
         try {
+            const payloadSubjects = tutorType === "teacher"
+                ? formData.subjects.map(subj => {
+                    const levels = subjectLevels[subj] || [];
+                    return `${subj} (${levels.join(", ")})`;
+                  })
+                : formData.subjects;
+
             const res = await fetch("/api/auth/signup", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     ...formData,
+                    subjects: payloadSubjects,
                     accountCreator: "teacher",
                     gender,
                     preferredLanguage,
@@ -253,6 +435,13 @@ export default function TeacherSignupPage() {
             const data = await res.json();
             if (!res.ok) {
                 toast.error(data.error || "Registration failed");
+                if (data.error?.toLowerCase().includes("email")) {
+                    setStep(1);
+                    setErrors(prev => ({ ...prev, email: data.error }));
+                } else if (data.error?.toLowerCase().includes("phone")) {
+                    setStep(1);
+                    setErrors(prev => ({ ...prev, phone: data.error }));
+                }
                 return;
             }
             setSuccess(true);
@@ -341,7 +530,12 @@ export default function TeacherSignupPage() {
                                     const isActive = step === s.id;
                                     const isDone = step > s.id;
                                     return (
-                                        <div key={s.id} className="flex items-start gap-4 relative z-10">
+                                        <button
+                                            key={s.id}
+                                            type="button"
+                                            onClick={() => setStep(s.id)}
+                                            className="flex items-start gap-4 relative z-10 text-left bg-transparent border-none cursor-pointer w-full group focus:outline-none"
+                                        >
                                             <div 
                                                 className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs shrink-0 transition-all duration-300 ${
                                                     isActive 
@@ -349,19 +543,19 @@ export default function TeacherSignupPage() {
                                                         : isDone 
                                                             ? "bg-emerald-500 text-white" 
                                                             : "bg-[#122238] text-slate-500 border border-slate-700/30"
-                                                }`}
+                                                } group-hover:border-amber-400/50`}
                                             >
                                                 {isDone ? <CheckCircle2 className="w-5 h-5" /> : s.id}
                                             </div>
                                             <div className="pt-1">
-                                                <h3 className={`text-xs font-black leading-none ${isActive ? "text-white font-black" : "text-slate-400"}`}>
+                                                <h3 className={`text-xs font-black leading-none ${isActive ? "text-white font-black" : "text-slate-400 group-hover:text-white transition-colors"}`}>
                                                     {s.title}
                                                 </h3>
                                                 <p className="text-[10px] text-slate-505 mt-1 font-bold">
                                                     {s.desc}
                                                 </p>
                                             </div>
-                                        </div>
+                                        </button>
                                     );
                                 })}
                             </div>
@@ -396,7 +590,7 @@ export default function TeacherSignupPage() {
                     <div className="lg:col-span-8 p-6 sm:p-8 flex flex-col justify-between">
                         
                         {/* Header Details with cartoon uploader mockup */}
-                        <div className="flex flex-col sm:flex-row justify-between gap-4 border-b border-slate-100 pb-4 mb-6">
+                        <div className="flex flex-col sm:flex-row justify-between gap-4 border-b border-slate-100 pb-4 mb-6 items-start">
                             <div className="space-y-1">
                                 <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Create Instructor Profile</h1>
                                 <p className="text-[10px] text-slate-500 font-bold leading-normal max-w-md">
@@ -404,11 +598,50 @@ export default function TeacherSignupPage() {
                                 </p>
                             </div>
                             
-                            <div className="hidden sm:flex items-center gap-2 relative">
-                                <div className="w-20 h-14 bg-slate-100 rounded-xl flex items-center justify-center shrink-0 border overflow-hidden">
-                                    <img src="https://cdn-icons-png.flaticon.com/512/2941/2941658.png" alt="illustration" className="w-10 h-10 object-contain" />
+                            <div className="flex items-center gap-3 self-end sm:self-center">
+                                <button
+                                    type="button"
+                                    onClick={async () => {
+                                        if (session) {
+                                            await signOut({ redirect: false });
+                                        }
+                                        setFormData({
+                                            name: "",
+                                            email: "",
+                                            phone: "",
+                                            password: "",
+                                            confirmPassword: "",
+                                            dob: "",
+                                            address: "",
+                                            profilePhoto: "",
+                                            education: "",
+                                            experience: "",
+                                            certifications: [],
+                                            subjects: [],
+                                            qualificationCertificate: "",
+                                            achievementCertificate: "",
+                                        });
+                                        setTutorType("teacher");
+                                        setSubjectLevels({});
+                                        setIsGoogleVerified(false);
+                                        setGender("");
+                                        setSecurityQuestion("");
+                                        setSecurityAnswer("");
+                                        setTermsAgreed(false);
+                                        setStep(1);
+                                        setErrors({});
+                                        toast.success("Form cleared successfully!");
+                                    }}
+                                    className="px-3.5 py-1.5 border border-slate-200 text-slate-500 rounded-xl hover:bg-slate-50 transition-colors font-bold text-[10px] uppercase tracking-wider cursor-pointer shadow-sm bg-white"
+                                >
+                                    Reset Form
+                                </button>
+                                <div className="hidden sm:flex items-center gap-2 relative">
+                                    <div className="w-20 h-14 bg-slate-100 rounded-xl flex items-center justify-center shrink-0 border overflow-hidden">
+                                        <img src="https://cdn-icons-png.flaticon.com/512/2941/2941658.png" alt="illustration" className="w-10 h-10 object-contain" />
+                                    </div>
+                                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center text-white text-[8px] font-black">✓</div>
                                 </div>
-                                <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center text-white text-[8px] font-black">✓</div>
                             </div>
                         </div>
 
@@ -421,17 +654,47 @@ export default function TeacherSignupPage() {
                                     <span className="text-[10px] text-slate-400 font-bold ml-1">• Basic login credentials</span>
                                 </div>
 
-                                <div className="bg-[#fffbeb] border border-amber-200/40 rounded-2xl p-4 flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
-                                            <Award className="w-4.5 h-4.5" />
-                                        </div>
-                                        <div className="text-left">
-                                            <h4 className="text-xs font-black text-slate-900">Tutor / Coach Account</h4>
-                                            <p className="text-[9px] text-slate-450 mt-0.5 leading-tight">You are registering as an instructor or academic tutor</p>
-                                        </div>
+                                <div className="space-y-2 text-left">
+                                    <label className="block text-[11px] font-black text-slate-450 uppercase tracking-wider">Account Type *</label>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <button
+                                            type="button"
+                                            onClick={() => setTutorType("teacher")}
+                                            className={cn(
+                                                "p-4 border rounded-2xl font-bold text-xs transition-all flex flex-col items-start gap-2 cursor-pointer text-left shadow-sm bg-white w-full",
+                                                tutorType === "teacher" 
+                                                    ? "border-amber-400 bg-amber-50/10 text-slate-900 ring-2 ring-amber-400/20" 
+                                                    : "border-slate-200 text-slate-650 hover:bg-slate-50"
+                                            )}
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <div className={cn("w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0", tutorType === "teacher" ? "border-amber-500 bg-amber-500" : "border-slate-250")}>
+                                                    {tutorType === "teacher" && <Check className="w-3 h-3 text-slate-950 stroke-[3]" />}
+                                                </div>
+                                                <span className="font-extrabold uppercase tracking-wider text-[10px]">Academic Teacher</span>
+                                            </div>
+                                            <p className="text-[9px] text-slate-450 leading-snug">Teaches school subjects (Maths, Science, etc.) with level selection.</p>
+                                        </button>
+                                        
+                                        <button
+                                            type="button"
+                                            onClick={() => setTutorType("coach")}
+                                            className={cn(
+                                                "p-4 border rounded-2xl font-bold text-xs transition-all flex flex-col items-start gap-2 cursor-pointer text-left shadow-sm bg-white w-full",
+                                                tutorType === "coach" 
+                                                    ? "border-amber-400 bg-amber-50/10 text-slate-900 ring-2 ring-amber-400/20" 
+                                                    : "border-slate-200 text-slate-650 hover:bg-slate-50"
+                                            )}
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <div className={cn("w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0", tutorType === "coach" ? "border-amber-500 bg-amber-500" : "border-slate-250")}>
+                                                    {tutorType === "coach" && <Check className="w-3 h-3 text-slate-950 stroke-[3]" />}
+                                                </div>
+                                                <span className="font-extrabold uppercase tracking-wider text-[10px]">Activity Coach</span>
+                                            </div>
+                                            <p className="text-[9px] text-slate-450 leading-snug">Trains in co-curricular areas (Chess, Music, Yoga, etc.). No level required.</p>
+                                        </button>
                                     </div>
-                                    <span className="text-[9px] font-black px-2.5 py-1 bg-amber-400 text-slate-900 rounded-full uppercase tracking-wider leading-none">TUTOR</span>
                                 </div>
 
                                 <div className="grid sm:grid-cols-2 gap-4">
@@ -510,9 +773,9 @@ export default function TeacherSignupPage() {
                                     </div>
 
                                     {/* Email */}
-                                    <div className="space-y-1.5 text-left">
+                                    <div className="space-y-1.5 text-left flex flex-col">
                                         <label className="block text-[11px] font-black text-slate-450 uppercase tracking-wider">Email Address *</label>
-                                        <div className="flex gap-2">
+                                        <div className="flex gap-2 w-full">
                                             <div className="relative flex-1">
                                                 <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
                                                 <input
@@ -540,7 +803,20 @@ export default function TeacherSignupPage() {
                                                 </button>
                                             )}
                                         </div>
-                                        {errors.email && <p className="text-red-500 text-[10px] font-bold">{errors.email}</p>}
+                                        {isGoogleVerified && (
+                                            <button
+                                                type="button"
+                                                onClick={async () => {
+                                                    await signOut({ redirect: false });
+                                                    setIsGoogleVerified(false);
+                                                    setFormData(prev => ({ ...prev, email: "" }));
+                                                }}
+                                                className="text-[10px] text-red-500 font-bold hover:underline bg-transparent border-none cursor-pointer mt-1 self-start"
+                                            >
+                                                Not you? Register with another email address (Sign out)
+                                            </button>
+                                        )}
+                                        {errors.email && <p className="text-red-500 text-[10px] font-bold mt-1">{errors.email}</p>}
                                     </div>
                                 </div>
 
@@ -799,6 +1075,86 @@ export default function TeacherSignupPage() {
                                     </div>
                                 </div>
 
+                                {/* Qualification Certificate Upload */}
+                                <div className="space-y-1.5 text-left">
+                                    <label className="block text-[11px] font-black text-slate-455 uppercase tracking-wider">Highest Qualification Certificate Document</label>
+                                    <div className="flex items-center gap-4 p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                                        <div
+                                            className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center border-2 border-dashed border-slate-250 cursor-pointer hover:border-amber-500 hover:bg-slate-55/40 transition-all overflow-hidden shrink-0 shadow-sm"
+                                            onClick={() => qualCertInputRef.current?.click()}
+                                        >
+                                            {isUploadingQualCert ? (
+                                                <Loader2 className="w-5 h-5 text-amber-500 animate-spin" />
+                                            ) : formData.qualificationCertificate ? (
+                                                <img src={formData.qualificationCertificate} alt="Qualification Certificate" className="w-full h-full object-cover" />
+                                            ) : (
+                                                <Upload className="w-5 h-5 text-slate-400" />
+                                            )}
+                                        </div>
+                                        <div className="flex-1">
+                                            <button
+                                                type="button"
+                                                onClick={() => qualCertInputRef.current?.click()}
+                                                disabled={isUploadingQualCert}
+                                                className="px-4 py-2 bg-white text-slate-700 text-[10px] font-black rounded-xl hover:bg-slate-50 transition-colors border border-slate-200 disabled:opacity-50 flex items-center gap-1.5 shadow-sm cursor-pointer"
+                                            >
+                                                {isUploadingQualCert ? "Uploading..." : formData.qualificationCertificate ? "Change Certificate" : "Upload Certificate"}
+                                            </button>
+                                            <p className="text-[9px] text-slate-400 mt-1 font-bold">JPG, PNG or WebP. Max 4MB.</p>
+                                        </div>
+                                        {formData.qualificationCertificate && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setFormData(prev => ({ ...prev, qualificationCertificate: "" }))}
+                                                className="p-1 hover:text-red-500 transition-colors border-none bg-transparent cursor-pointer"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        )}
+                                    </div>
+                                    <input ref={qualCertInputRef} type="file" accept="image/*" onChange={handleQualCertUpload} className="hidden" />
+                                </div>
+
+                                {/* Achievement Certificate Upload */}
+                                <div className="space-y-1.5 text-left">
+                                    <label className="block text-[11px] font-black text-slate-455 uppercase tracking-wider">Achievements Certificate Document (Optional)</label>
+                                    <div className="flex items-center gap-4 p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                                        <div
+                                            className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center border-2 border-dashed border-slate-250 cursor-pointer hover:border-amber-500 hover:bg-slate-55/40 transition-all overflow-hidden shrink-0 shadow-sm"
+                                            onClick={() => achCertInputRef.current?.click()}
+                                        >
+                                            {isUploadingAchCert ? (
+                                                <Loader2 className="w-5 h-5 text-amber-500 animate-spin" />
+                                            ) : formData.achievementCertificate ? (
+                                                <img src={formData.achievementCertificate} alt="Achievement Certificate" className="w-full h-full object-cover" />
+                                            ) : (
+                                                <Upload className="w-5 h-5 text-slate-400" />
+                                            )}
+                                        </div>
+                                        <div className="flex-1">
+                                            <button
+                                                type="button"
+                                                onClick={() => achCertInputRef.current?.click()}
+                                                disabled={isUploadingAchCert}
+                                                className="px-4 py-2 bg-white text-slate-700 text-[10px] font-black rounded-xl hover:bg-slate-50 transition-colors border border-slate-200 disabled:opacity-50 flex items-center gap-1.5 shadow-sm cursor-pointer"
+                                            >
+                                                {isUploadingAchCert ? "Uploading..." : formData.achievementCertificate ? "Change Certificate" : "Upload Certificate"}
+                                            </button>
+                                            <p className="text-[9px] text-slate-400 mt-1 font-bold">JPG, PNG or WebP. Max 4MB.</p>
+                                        </div>
+                                        {formData.achievementCertificate && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setFormData(prev => ({ ...prev, achievementCertificate: "" }))}
+                                                className="p-1 hover:text-red-500 transition-colors border-none bg-transparent cursor-pointer"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        )}
+                                    </div>
+                                    <input ref={achCertInputRef} type="file" accept="image/*" onChange={handleAchCertUpload} className="hidden" />
+                                </div>
+
                                 {/* Certification Uploader Card Widget */}
                                 <div className="space-y-2.5 text-left">
                                     <label className="block text-[11px] font-black text-slate-450 uppercase tracking-wider">Certifications & Achievements (Optional)</label>
@@ -905,6 +1261,59 @@ export default function TeacherSignupPage() {
                                             );
                                         })}
                                     </div>
+
+                                    {/* Subjects Level Section (Only for academic teacher) */}
+                                    {formData.subjects.length > 0 && tutorType === "teacher" && (
+                                        <div className="mt-6 border border-slate-100 rounded-2xl p-4 bg-slate-50/50 space-y-3 text-left">
+                                            <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">Specify levels for selected subjects:</h4>
+                                            <div className="overflow-x-auto max-h-[250px] pr-1">
+                                                <table className="w-full text-left text-xs border-collapse">
+                                                    <thead>
+                                                        <tr className="border-b border-slate-200 text-slate-400 font-black uppercase tracking-wider text-[10px]">
+                                                            <th className="py-2 pr-4">Subject</th>
+                                                            <th className="py-2 px-2 text-center w-20">Pre-Primary</th>
+                                                            <th className="py-2 px-2 text-center w-20">Primary</th>
+                                                            <th className="py-2 px-2 text-center w-20">High School</th>
+                                                            <th className="py-2 px-2 text-center w-20">Secondary</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-slate-100 font-bold">
+                                                        {formData.subjects.map((subj) => {
+                                                            const baseSubj = subj.split(" (")[0];
+                                                            const levels = subjectLevels[baseSubj] || [];
+                                                            return (
+                                                                <tr key={baseSubj} className="hover:bg-slate-100/50 transition-colors">
+                                                                    <td className="py-3 pr-4 font-extrabold text-slate-900">{baseSubj}</td>
+                                                                    {["Pre-Primary", "Primary", "High School", "Secondary School"].map((level) => {
+                                                                        const checked = levels.includes(level);
+                                                                        return (
+                                                                            <td key={level} className="py-3 px-2 text-center">
+                                                                                <input
+                                                                                    type="checkbox"
+                                                                                    checked={checked}
+                                                                                    onChange={() => {
+                                                                                        const currentLevels = subjectLevels[baseSubj] || [];
+                                                                                        const nextLevels = currentLevels.includes(level)
+                                                                                            ? currentLevels.filter((l) => l !== level)
+                                                                                            : [...currentLevels, level];
+                                                                                        setSubjectLevels((prev) => ({
+                                                                                            ...prev,
+                                                                                            [baseSubj]: nextLevels,
+                                                                                        }));
+                                                                                    }}
+                                                                                    className="w-4.5 h-4.5 text-amber-500 rounded border-slate-300 focus:ring-amber-500 cursor-pointer"
+                                                                                />
+                                                                            </td>
+                                                                        );
+                                                                    })}
+                                                                </tr>
+                                                            );
+                                                        })}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         )}

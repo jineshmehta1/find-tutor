@@ -44,6 +44,8 @@ interface Profile {
         qualificationName: string | null;
         achievements: string | null;
         isApproved: boolean;
+        achievementCertificate: string | null;
+        qualificationCertificate: string | null;
     } | null;
 }
 
@@ -56,9 +58,13 @@ export default function TeacherSettingsPage() {
     const [saving, setSaving] = useState(false);
     const [isUploadingProfile, setIsUploadingProfile] = useState(false);
     const [isUploadingCertImage, setIsUploadingCertImage] = useState(false);
+    const [isUploadingQualCert, setIsUploadingQualCert] = useState(false);
+    const [isUploadingAchCert, setIsUploadingAchCert] = useState(false);
     
     const profileInputRef = useRef<HTMLInputElement>(null);
     const certImageInputRef = useRef<HTMLInputElement>(null);
+    const qualCertInputRef = useRef<HTMLInputElement>(null);
+    const achCertInputRef = useRef<HTMLInputElement>(null);
 
     const [formData, setFormData] = useState({
         name: "",
@@ -74,6 +80,8 @@ export default function TeacherSettingsPage() {
         qualificationLevel: "",
         qualificationName: "",
         achievements: "",
+        achievementCertificate: "",
+        qualificationCertificate: "",
     });
 
     const [certInput, setCertInput] = useState("");
@@ -146,6 +154,8 @@ export default function TeacherSettingsPage() {
                     qualificationLevel: data.teacher?.qualificationLevel || "",
                     qualificationName: data.teacher?.qualificationName || "",
                     achievements: data.teacher?.achievements || "",
+                    achievementCertificate: data.teacher?.achievementCertificate || "",
+                    qualificationCertificate: data.teacher?.qualificationCertificate || "",
                 });
             }
         } catch {
@@ -206,6 +216,40 @@ export default function TeacherSettingsPage() {
             setPendingCertImage(data.secure_url);
             toast.success("Certificate image uploaded!");
         } catch { toast.error("Upload failed."); setCertImagePreview(null); } finally { setIsUploadingCertImage(false); }
+    };
+
+    const handleQualCertUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setIsUploadingQualCert(true);
+        try {
+            const form = new FormData();
+            form.append("file", file);
+            form.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+            form.append("folder", "certificates");
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: form });
+            if (!res.ok) throw new Error();
+            const data = await res.json();
+            setFormData(prev => ({ ...prev, qualificationCertificate: data.secure_url }));
+            toast.success("Qualification certificate uploaded!");
+        } catch { toast.error("Upload failed."); } finally { setIsUploadingQualCert(false); }
+    };
+
+    const handleAchCertUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setIsUploadingAchCert(true);
+        try {
+            const form = new FormData();
+            form.append("file", file);
+            form.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+            form.append("folder", "certificates");
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: form });
+            if (!res.ok) throw new Error();
+            const data = await res.json();
+            setFormData(prev => ({ ...prev, achievementCertificate: data.secure_url }));
+            toast.success("Achievement certificate uploaded!");
+        } catch { toast.error("Upload failed."); } finally { setIsUploadingAchCert(false); }
     };
 
     const addCertification = () => {
@@ -417,6 +461,48 @@ export default function TeacherSettingsPage() {
                                         className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50" 
                                     />
                                 </div>
+
+                                <div className="space-y-1.5 sm:col-span-2">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Qualification Certificate Document</label>
+                                    <div className="flex items-center gap-4 p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                                        <div
+                                            className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center border-2 border-dashed border-slate-250 cursor-pointer hover:border-amber-500 hover:bg-slate-50/40 transition-all overflow-hidden shrink-0 shadow-sm"
+                                            onClick={() => qualCertInputRef.current?.click()}
+                                        >
+                                            {isUploadingQualCert ? (
+                                                <Loader2 className="w-5 h-5 text-amber-500 animate-spin" />
+                                            ) : formData.qualificationCertificate ? (
+                                                <img src={formData.qualificationCertificate} alt="Qualification Certificate" className="w-full h-full object-cover" />
+                                            ) : (
+                                                <Upload className="w-5 h-5 text-slate-400" />
+                                            )}
+                                        </div>
+                                        <div className="flex-1">
+                                            <button
+                                                type="button"
+                                                onClick={() => qualCertInputRef.current?.click()}
+                                                disabled={isUploadingQualCert}
+                                                className="px-4 py-2 bg-white text-slate-700 text-[10px] font-black rounded-xl hover:bg-slate-50 transition-colors border border-slate-200 disabled:opacity-50 flex items-center gap-1.5 shadow-sm cursor-pointer"
+                                            >
+                                                {isUploadingQualCert ? "Uploading..." : formData.qualificationCertificate ? "Change Certificate" : "Upload Certificate"}
+                                            </button>
+                                            <p className="text-[9px] text-slate-400 mt-1 font-bold">JPG, PNG or WebP. Max 4MB.</p>
+                                        </div>
+                                        {formData.qualificationCertificate && (
+                                            <div className="flex items-center gap-2">
+                                                <a href={formData.qualificationCertificate} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 font-bold hover:underline">View</a>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setFormData(prev => ({ ...prev, qualificationCertificate: "" }))}
+                                                    className="p-1 hover:text-red-500 transition-colors border-none bg-transparent cursor-pointer"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <input ref={qualCertInputRef} type="file" accept="image/*" className="hidden" onChange={handleQualCertUpload} />
+                                </div>
                             </div>
                         </div>
 
@@ -446,6 +532,48 @@ export default function TeacherSettingsPage() {
                                         onChange={e => updateField("achievements", e.target.value)}
                                         className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50" 
                                     />
+                                </div>
+
+                                <div className="space-y-1.5 sm:col-span-2">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Achievements / Awards Certificate Document</label>
+                                    <div className="flex items-center gap-4 p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                                        <div
+                                            className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center border-2 border-dashed border-slate-250 cursor-pointer hover:border-amber-500 hover:bg-slate-50/40 transition-all overflow-hidden shrink-0 shadow-sm"
+                                            onClick={() => achCertInputRef.current?.click()}
+                                        >
+                                            {isUploadingAchCert ? (
+                                                <Loader2 className="w-5 h-5 text-amber-500 animate-spin" />
+                                            ) : formData.achievementCertificate ? (
+                                                <img src={formData.achievementCertificate} alt="Achievement Certificate" className="w-full h-full object-cover" />
+                                            ) : (
+                                                <Upload className="w-5 h-5 text-slate-400" />
+                                            )}
+                                        </div>
+                                        <div className="flex-1">
+                                            <button
+                                                type="button"
+                                                onClick={() => achCertInputRef.current?.click()}
+                                                disabled={isUploadingAchCert}
+                                                className="px-4 py-2 bg-white text-slate-700 text-[10px] font-black rounded-xl hover:bg-slate-50 transition-colors border border-slate-200 disabled:opacity-50 flex items-center gap-1.5 shadow-sm cursor-pointer"
+                                            >
+                                                {isUploadingAchCert ? "Uploading..." : formData.achievementCertificate ? "Change Certificate" : "Upload Certificate"}
+                                            </button>
+                                            <p className="text-[9px] text-slate-400 mt-1 font-bold">JPG, PNG or WebP. Max 4MB.</p>
+                                        </div>
+                                        {formData.achievementCertificate && (
+                                            <div className="flex items-center gap-2">
+                                                <a href={formData.achievementCertificate} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 font-bold hover:underline">View</a>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setFormData(prev => ({ ...prev, achievementCertificate: "" }))}
+                                                    className="p-1 hover:text-red-500 transition-colors border-none bg-transparent cursor-pointer"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <input ref={achCertInputRef} type="file" accept="image/*" className="hidden" onChange={handleAchCertUpload} />
                                 </div>
                             </div>
 

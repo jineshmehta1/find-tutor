@@ -177,10 +177,10 @@ export default function Footer() {
             </h3>
             <ul className="space-y-2.5 text-[12px]">
               {[
-                { name: "Join as a Teacher / Coach", href: "/signup" },
+                { name: "Join as a Teacher / Coach", href: "/signup/teacher" },
                 { name: "Teacher / Coach Login", href: "/login" },
-                { name: "Create Your Profile", href: "/signup" },
-                { name: "Benefits", href: "/signup" },
+                { name: "Create Your Profile", href: "/signup/teacher" },
+                { name: "Benefits", href: "/signup/teacher" },
                 { name: "Success Stories", href: "/#success-stories" },
                 { name: "Blog", href: "/" },
               ].map((link) => (

@@ -1182,7 +1182,7 @@ export default function HomePage() {
             </div>
 
             <button
-              onClick={() => router.push("/signup")}
+              onClick={() => router.push("/signup/teacher")}
               className="px-8 py-3.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs uppercase tracking-widest rounded-xl transition-all hover:scale-102 flex items-center gap-2 shrink-0 shadow-lg shadow-amber-500/10 cursor-pointer"
             >
               <span>Join as a Teacher / Coach</span>

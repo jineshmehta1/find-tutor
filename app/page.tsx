@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 
 import { QuickDemoModal } from "@/components/QuickDemoModal";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import MapLocationPicker from "@/components/ui/DynamicMapPicker";
 
 const ACADEMIC_SUBJECTS = [
   "Mathematics", "Science", "Physics", "Chemistry", "Biology", "English", "Social Studies", "Computer Science"
@@ -197,6 +199,7 @@ export default function HomePage() {
   const [searchClass, setSearchClass] = useState("");
   const [searchLocation, setSearchLocation] = useState("Bhavanipuram, Vijayawada");
   const [searchMode, setSearchMode] = useState("");
+  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
 
   // Real Database Tutors State
   const [realTeachers, setRealTeachers] = useState<any[]>([]);
@@ -317,7 +320,7 @@ export default function HomePage() {
       query.set("type", "coach");
     }
     
-    router.push(`/find-tutor-nearby?${query.toString()}`);
+    router.push(`/find-tutor-nearby?${query.toString()}#results`);
   };
 
   const selectPopularSearch = (subjectName: string, isCoach = false) => {
@@ -328,7 +331,7 @@ export default function HomePage() {
     const query = new URLSearchParams();
     query.set("subject", subjectName);
     query.set("location", searchLocation);
-    router.push(`/find-tutor-nearby?${query.toString()}`);
+    router.push(`/find-tutor-nearby?${query.toString()}#results`);
   };
 
   const handleDetectLocation = () => {
@@ -564,20 +567,26 @@ export default function HomePage() {
                   {/* Location Input */}
                   <div className="space-y-1 text-left lg:col-span-3">
                     <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Location</label>
-                    <div className="relative flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2 transition-colors focus-within:border-amber-500">
+                    <div 
+                      className="relative flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2 transition-colors hover:border-amber-500 cursor-pointer"
+                      onClick={() => setIsLocationModalOpen(true)}
+                    >
                       <MapPin className="w-4 h-4 text-slate-400 mr-2 shrink-0" />
                       <input
                         type="text"
-                        placeholder="Enter Your Location"
+                        placeholder="Search Area"
                         value={searchLocation}
-                        onChange={(e) => setSearchLocation(e.target.value)}
-                        className="w-full bg-transparent border-none text-[12px] font-bold outline-none text-slate-800 py-1"
+                        readOnly
+                        className="w-full bg-transparent border-none text-[12px] font-bold outline-none text-slate-800 py-1 cursor-pointer pointer-events-none truncate pr-8"
                       />
                       <button
                         type="button"
-                        onClick={handleDetectLocation}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDetectLocation();
+                        }}
                         title="Detect Current Location"
-                        className="p-1 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-amber-500 transition-colors shrink-0 cursor-pointer flex items-center justify-center border-none bg-transparent"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-amber-500 transition-colors cursor-pointer flex items-center justify-center border-none bg-transparent"
                       >
                         <Locate className="w-4 h-4" />
                       </button>
@@ -1200,6 +1209,28 @@ export default function HomePage() {
         defaultSubject={modalDefaultSubject}
         defaultTutor={modalDefaultTutor}
       />
+
+      {/* Location Selection Modal */}
+      <Dialog open={isLocationModalOpen} onOpenChange={setIsLocationModalOpen}>
+        <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden border-0 bg-white rounded-2xl shadow-2xl">
+          <DialogHeader className="p-5 pb-0">
+            <DialogTitle className="text-sm font-extrabold uppercase tracking-widest text-slate-900 flex items-center gap-2">
+              Select Location
+            </DialogTitle>
+          </DialogHeader>
+          <div className="p-5 pt-4">
+            <MapLocationPicker
+              initialAddress={searchLocation}
+              onLocationSelect={(loc) => {
+                setSearchLocation(loc.address);
+                setIsLocationModalOpen(false);
+              }}
+              height="280px"
+              compact={false}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
 
     </div>
   );

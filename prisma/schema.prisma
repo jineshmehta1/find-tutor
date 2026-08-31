@@ -67,6 +67,7 @@ model Teacher {
   achievements          String?   // Free-text achievements/awards
   achievementCertificate String?  // URL to achievement certificate image
   qualificationCertificate String? // URL to qualification certificate image
+  identityProof          String?  // URL to identity proof document
   isApproved            Boolean   @default(false)
   approvedAt            DateTime?
   subscriptionStatus    String    @default("none") // none, trial, active, expired

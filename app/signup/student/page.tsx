@@ -199,6 +199,7 @@ export default function StudentSignupPage() {
     const nextStep = () => {
         if (validateStep(step)) {
             setStep((prev) => Math.min(prev + 1, 3));
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
             const firstError = Object.values(errors)[0] || "Please fill in all required fields";
             toast.error(firstError);
@@ -207,6 +208,7 @@ export default function StudentSignupPage() {
 
     const prevStep = () => {
         setStep((prev) => Math.max(prev - 1, 1));
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const verifyWithGoogle = async () => {

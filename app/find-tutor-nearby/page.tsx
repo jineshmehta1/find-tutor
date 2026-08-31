@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import MapLocationPicker from "@/components/ui/DynamicMapPicker";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
     Search, MapPin, ChevronRight,
     Beaker, Mic2, Languages, Music, Swords,
@@ -44,7 +45,7 @@ const CLASSES = [
     "JEE/NEET Prep", "UPSC/SSC", "Banking Exams", "CAT/MAT", "CA Foundation"
 ];
 
-const MODES = ["Home Tutor", "Online Tutor", "At Centre", "Group Classes", "Weekend Workshop"];
+const MODES = ["Home Tutor", "Online Tutor", "At Centre"];
 
 const POPULAR_CITIES = [
     "Delhi NCR", "Mumbai", "Bangalore", "Chennai", "Hyderabad", "Pune", 
@@ -148,6 +149,7 @@ function FindTutorNearbyPageContent() {
     const [loading, setLoading] = useState(true);
     const [searched, setSearched] = useState(false);
     const [showHeroMap, setShowHeroMap] = useState(false);
+    const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
     
     // Advanced Filters & Sort States
     const [showFilterPanel, setShowFilterPanel] = useState(false);
@@ -600,7 +602,7 @@ function FindTutorNearbyPageContent() {
 </section>
 
             {/* ──── 5.2 TUTOR DIRECTORY LISTING (Search Results) ──── */}
-            <section ref={listingRef} className="container mx-auto px-4 md:px-6 py-16 md:py-28 scroll-mt-24">
+            <section id="results" ref={listingRef} className="container mx-auto px-4 md:px-6 py-16 md:py-28 scroll-mt-24">
     {/* Header Area */}
     <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12 md:mb-20">
         <SectionTitle 
@@ -635,7 +637,49 @@ function FindTutorNearbyPageContent() {
                 exit={{ opacity: 0, height: 0 }}
                 className="mb-8 p-6 bg-slate-50 border border-slate-100 rounded-[2rem] overflow-hidden"
             >
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                    {/* Subject Filter */}
+                    <div className="space-y-2 relative">
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Subject</label>
+                        <div className="relative">
+                            <input 
+                                type="text"
+                                value={subject}
+                                onChange={(e) => { setSubject(e.target.value); setShowSubjectSuggestions(true); }}
+                                onFocus={() => setShowSubjectSuggestions(true)}
+                                placeholder="Maths, Piano..."
+                                className="w-full h-12 px-4 bg-white border border-slate-200/80 rounded-xl outline-none font-bold text-xs text-slate-700 shadow-sm"
+                            />
+                            <AnimatePresence>
+                                {showSubjectSuggestions && subject.length > 0 && (
+                                    <motion.div 
+                                        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
+                                        className="absolute top-[110%] left-0 w-full bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-[150] max-h-60 overflow-y-auto"
+                                    >
+                                        {SUBJECTS.filter(s => s.toLowerCase().includes(subject.toLowerCase())).map(s => (
+                                            <button key={s} onClick={() => { setSubject(s); setShowSubjectSuggestions(false); }}
+                                                className="w-full px-5 py-3 text-left hover:bg-primary/5 text-xs font-semibold text-slate-700 transition-colors">
+                                                {s}
+                                            </button>
+                                        ))}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+                    </div>
+
+                    {/* Location Filter */}
+                    <div className="space-y-2">
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Location</label>
+                        <div 
+                            className="w-full h-12 px-4 bg-white border border-slate-200/80 rounded-xl outline-none font-bold text-xs text-slate-700 shadow-sm flex items-center cursor-pointer relative"
+                            onClick={() => setIsLocationModalOpen(true)}
+                        >
+                            <span className="truncate pr-8">{location || "Search Area"}</span>
+                            <MapPin className="w-4 h-4 text-slate-400 absolute right-3" />
+                        </div>
+                    </div>
+
                     {/* Teaching Mode Filter */}
                     <div className="space-y-2">
                         <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Teaching Mode</label>
@@ -1273,6 +1317,28 @@ function FindTutorNearbyPageContent() {
                     animation: float 5s ease-in-out infinite;
                 }
             `}</style>
+
+            {/* Location Selection Modal */}
+            <Dialog open={isLocationModalOpen} onOpenChange={setIsLocationModalOpen}>
+                <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden border-0 bg-white rounded-2xl shadow-2xl">
+                    <DialogHeader className="p-5 pb-0">
+                        <DialogTitle className="text-sm font-extrabold uppercase tracking-widest text-slate-900 flex items-center gap-2">
+                            Select Location
+                        </DialogTitle>
+                    </DialogHeader>
+                    <div className="p-5 pt-4">
+                        <MapLocationPicker
+                            initialAddress={location}
+                            onLocationSelect={(loc) => {
+                                setLocation(loc.address); setLocationLat(loc.latitude); setLocationLng(loc.longitude);
+                                setIsLocationModalOpen(false);
+                            }}
+                            height="280px"
+                            compact={false}
+                        />
+                    </div>
+                </DialogContent>
+            </Dialog>
 
         </main>
     );

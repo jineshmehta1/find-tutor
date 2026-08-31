@@ -50,6 +50,7 @@ export default function TeacherSignupPage() {
     const profileInputRef = useRef<HTMLInputElement>(null);
     const certImageInputRef = useRef<HTMLInputElement>(null);
     const qualCertInputRef = useRef<HTMLInputElement>(null);
+    const identityProofInputRef = useRef<HTMLInputElement>(null);
     const achCertInputRef = useRef<HTMLInputElement>(null);
 
     const [formData, setFormData] = useState({
@@ -66,6 +67,7 @@ export default function TeacherSignupPage() {
         certifications: [] as Certification[],
         subjects: [] as string[],
         qualificationCertificate: "",
+        identityProof: "",
         achievementCertificate: "",
     });
 
@@ -80,6 +82,7 @@ export default function TeacherSignupPage() {
     const [isUploadingProfile, setIsUploadingProfile] = useState(false);
     const [isUploadingCertImage, setIsUploadingCertImage] = useState(false);
     const [isUploadingQualCert, setIsUploadingQualCert] = useState(false);
+    const [isUploadingIdentityProof, setIsUploadingIdentityProof] = useState(false);
     const [isUploadingAchCert, setIsUploadingAchCert] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -199,6 +202,33 @@ export default function TeacherSignupPage() {
         } catch { toast.error("Upload failed."); } finally { setIsUploadingQualCert(false); }
     };
 
+    const handleIdentityProofUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+            toast.error("Please select an image file");
+            return;
+        }
+        if (file.size > 4 * 1024 * 1024) {
+            toast.error("File must be less than 4MB");
+            return;
+        }
+
+        setIsUploadingIdentityProof(true);
+        try {
+            const form = new FormData();
+            form.append("file", file);
+            form.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+            form.append("folder", "identity_proofs");
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: form });
+            if (!res.ok) throw new Error("Upload failed");
+            const data = await res.json();
+            setFormData(prev => ({ ...prev, identityProof: data.secure_url }));
+            toast.success("Identity proof uploaded!");
+        } catch { toast.error("Upload failed."); } finally { setIsUploadingIdentityProof(false); }
+    };
+
     const handleAchCertUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -290,6 +320,8 @@ export default function TeacherSignupPage() {
         if (stepNum === 3) {
             if (!formData.education.trim()) newErrors.education = "Education qualification is required";
             if (!formData.experience.trim()) newErrors.experience = "Teaching experience details is required";
+            if (!formData.qualificationCertificate) newErrors.qualificationCertificate = "Highest qualification document is required";
+            if (!formData.identityProof) newErrors.identityProof = "Identity proof is required";
         }
         if (stepNum === 4) {
             if (formData.subjects.length === 0) {
@@ -362,6 +394,8 @@ export default function TeacherSignupPage() {
         // Step 3 validation
         if (!formData.education.trim()) newErrors.education = "Education qualification is required";
         if (!formData.experience.trim()) newErrors.experience = "Teaching experience details is required";
+        if (!formData.qualificationCertificate) newErrors.qualificationCertificate = "Highest qualification document is required";
+        if (!formData.identityProof) newErrors.identityProof = "Identity proof is required";
 
         if (Object.keys(newErrors).length > 0) {
             setStep(3);
@@ -394,8 +428,16 @@ export default function TeacherSignupPage() {
         return true;
     };
 
-    const nextStep = () => { if (validateStep(step)) setStep(prev => Math.min(prev + 1, 4)); };
-    const prevStep = () => { setStep(prev => Math.max(prev - 1, 1)); };
+    const nextStep = () => { 
+        if (validateStep(step)) {
+            setStep(prev => Math.min(prev + 1, 4)); 
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
+    const prevStep = () => { 
+        setStep(prev => Math.max(prev - 1, 1)); 
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
     const verifyWithGoogle = async () => {
         sessionStorage.setItem("teacher_signup_form_data", JSON.stringify({
@@ -1077,7 +1119,7 @@ export default function TeacherSignupPage() {
 
                                 {/* Qualification Certificate Upload */}
                                 <div className="space-y-1.5 text-left">
-                                    <label className="block text-[11px] font-black text-slate-455 uppercase tracking-wider">Highest Qualification Certificate Document</label>
+                                    <label className="block text-[11px] font-black text-slate-455 uppercase tracking-wider">Highest Qualification Certificate Document *</label>
                                     <div className="flex items-center gap-4 p-4 bg-slate-50 border border-slate-100 rounded-2xl">
                                         <div
                                             className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center border-2 border-dashed border-slate-250 cursor-pointer hover:border-amber-500 hover:bg-slate-55/40 transition-all overflow-hidden shrink-0 shadow-sm"
@@ -1115,18 +1157,18 @@ export default function TeacherSignupPage() {
                                     <input ref={qualCertInputRef} type="file" accept="image/*" onChange={handleQualCertUpload} className="hidden" />
                                 </div>
 
-                                {/* Achievement Certificate Upload */}
+                                {/* Identity Proof Upload */}
                                 <div className="space-y-1.5 text-left">
-                                    <label className="block text-[11px] font-black text-slate-455 uppercase tracking-wider">Achievements Certificate Document (Optional)</label>
+                                    <label className="block text-[11px] font-black text-slate-455 uppercase tracking-wider">Identity Proof (For Address) *</label>
                                     <div className="flex items-center gap-4 p-4 bg-slate-50 border border-slate-100 rounded-2xl">
                                         <div
                                             className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center border-2 border-dashed border-slate-250 cursor-pointer hover:border-amber-500 hover:bg-slate-55/40 transition-all overflow-hidden shrink-0 shadow-sm"
-                                            onClick={() => achCertInputRef.current?.click()}
+                                            onClick={() => identityProofInputRef.current?.click()}
                                         >
-                                            {isUploadingAchCert ? (
+                                            {isUploadingIdentityProof ? (
                                                 <Loader2 className="w-5 h-5 text-amber-500 animate-spin" />
-                                            ) : formData.achievementCertificate ? (
-                                                <img src={formData.achievementCertificate} alt="Achievement Certificate" className="w-full h-full object-cover" />
+                                            ) : formData.identityProof ? (
+                                                <img src={formData.identityProof} alt="Identity Proof" className="w-full h-full object-cover" />
                                             ) : (
                                                 <Upload className="w-5 h-5 text-slate-400" />
                                             )}
@@ -1134,30 +1176,30 @@ export default function TeacherSignupPage() {
                                         <div className="flex-1">
                                             <button
                                                 type="button"
-                                                onClick={() => achCertInputRef.current?.click()}
-                                                disabled={isUploadingAchCert}
+                                                onClick={() => identityProofInputRef.current?.click()}
+                                                disabled={isUploadingIdentityProof}
                                                 className="px-4 py-2 bg-white text-slate-700 text-[10px] font-black rounded-xl hover:bg-slate-50 transition-colors border border-slate-200 disabled:opacity-50 flex items-center gap-1.5 shadow-sm cursor-pointer"
                                             >
-                                                {isUploadingAchCert ? "Uploading..." : formData.achievementCertificate ? "Change Certificate" : "Upload Certificate"}
+                                                {isUploadingIdentityProof ? "Uploading..." : formData.identityProof ? "Change Proof" : "Upload Proof"}
                                             </button>
                                             <p className="text-[9px] text-slate-400 mt-1 font-bold">JPG, PNG or WebP. Max 4MB.</p>
                                         </div>
-                                        {formData.achievementCertificate && (
+                                        {formData.identityProof && (
                                             <button
                                                 type="button"
-                                                onClick={() => setFormData(prev => ({ ...prev, achievementCertificate: "" }))}
+                                                onClick={() => setFormData(prev => ({ ...prev, identityProof: "" }))}
                                                 className="p-1 hover:text-red-500 transition-colors border-none bg-transparent cursor-pointer"
                                             >
                                                 <X className="w-4 h-4" />
                                             </button>
                                         )}
                                     </div>
-                                    <input ref={achCertInputRef} type="file" accept="image/*" onChange={handleAchCertUpload} className="hidden" />
+                                    <input ref={identityProofInputRef} type="file" accept="image/*" onChange={handleIdentityProofUpload} className="hidden" />
                                 </div>
 
                                 {/* Certification Uploader Card Widget */}
                                 <div className="space-y-2.5 text-left">
-                                    <label className="block text-[11px] font-black text-slate-450 uppercase tracking-wider">Certifications & Achievements (Optional)</label>
+                                    <label className="block text-[11px] font-black text-slate-450 uppercase tracking-wider">Certifications & Achievements <span className="text-slate-400 normal-case">(Optional - visible to parents and students)</span></label>
                                     <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl space-y-4">
                                         
                                         {/* Certification Name Input */}
@@ -1171,20 +1213,22 @@ export default function TeacherSignupPage() {
                                             />
                                             
                                             {/* Cert image upload trigger button */}
-                                            <button
-                                                type="button"
-                                                onClick={() => certImageInputRef.current?.click()}
-                                                className="px-3 py-2 bg-white border border-slate-200 text-slate-500 rounded-xl hover:bg-slate-50 cursor-pointer flex items-center justify-center shrink-0"
-                                                title="Upload Certificate Image"
-                                            >
-                                                {isUploadingCertImage ? (
-                                                    <Loader2 className="w-4 h-4 animate-spin text-amber-500" />
-                                                ) : pendingCertImage ? (
-                                                    <Check className="w-4 h-4 text-emerald-500" />
-                                                ) : (
-                                                    <ImageIcon className="w-4 h-4" />
-                                                )}
-                                            </button>
+                                            {certInput.trim().length > 0 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => certImageInputRef.current?.click()}
+                                                    className="px-3 py-2 bg-white border border-slate-200 text-slate-500 rounded-xl hover:bg-slate-50 cursor-pointer flex items-center justify-center shrink-0"
+                                                    title="Upload Certificate Image"
+                                                >
+                                                    {isUploadingCertImage ? (
+                                                        <Loader2 className="w-4 h-4 animate-spin text-amber-500" />
+                                                    ) : pendingCertImage ? (
+                                                        <Check className="w-4 h-4 text-emerald-500" />
+                                                    ) : (
+                                                        <ImageIcon className="w-4 h-4" />
+                                                    )}
+                                                </button>
+                                            )}
 
                                             <button
                                                 type="button"

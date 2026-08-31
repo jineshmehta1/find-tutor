@@ -23,7 +23,7 @@ const courses: Course[] = [
     image: "https://images.unsplash.com/photo-1529699211952-734e80c4d42b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
     goals: "Understanding the game, basic strategies and concepts in a fun way. Develop confidence to play matches.",
     schedule: "Weekly: 2 sessions, each lasting 45 minutes.",
-    groupSize: "Determined based on the coach's recommendation.",
+    groupSize: "1:1 Sessions",
     price: "45 USD",
     privatePrice: "20 USD (1:1) | 18 USD (2:1)",
     benefits: "Complimentary guided practice sessions on zoom call.",
@@ -35,7 +35,7 @@ const courses: Course[] = [
     image: "https://aacharyaacademy.com/images/md2.png",
     goals: "Gain the confidence to participate in competitive chess tournaments. Progress towards earning a FIDE rating.",
     schedule: "Weekly: 2 sessions, each lasting 45 minutes.",
-    groupSize: "Determined based on the coach's recommendation.",
+    groupSize: "1:1 Sessions",
     price: "52 USD",
     privatePrice: "20 USD (1:1) | 18 USD (2:1)",
     benefits: "Complimentary guided practice sessions on zoom call.",
@@ -47,7 +47,7 @@ const courses: Course[] = [
     image: "https://images.unsplash.com/photo-1610116306796-6fea9f4fae38?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
     goals: "Enhance performance in FIDE-rated tournaments. Master the finer points and nuances of chess.",
     schedule: "Weekly: 2 sessions, each 45 minutes long.",
-    groupSize: "Determined based on the coach's recommendation.",
+    groupSize: "1:1 Sessions",
     price: "62 USD",
     privatePrice: "20 USD (1:1) | 18 USD (2:1)",
     benefits: "Free guided practice sessions.",
@@ -122,8 +122,8 @@ const CoursesSection: React.FC = () => {
                   <li className="flex items-start gap-3">
                     <UsersIcon className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
                     <div>
-                      <span className="block text-xs font-bold text-gray-400 uppercase">Group Size</span>
-                      <span className="text-sm text-gray-700 font-medium">Small groups or 1:1</span>
+                      <span className="block text-xs font-bold text-gray-400 uppercase">Session Type</span>
+                      <span className="text-sm text-gray-700 font-medium">1:1 Personalized Sessions</span>
                     </div>
                   </li>
                   <li className="flex items-start gap-3">
@@ -138,7 +138,7 @@ const CoursesSection: React.FC = () => {
                 {/* Pricing Box */}
                 <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 mt-auto">
                   <div className="flex items-center justify-between mb-2">
-                     <span className="text-sm text-gray-500 font-medium">Group Class</span>
+                     <span className="text-sm text-gray-500 font-medium">Monthly Fee</span>
                      <span className="text-xl font-bold text-[#1a1a4b]">{course.price} <span className="text-xs font-normal text-gray-400">/mo</span></span>
                   </div>
                   <div className="flex flex-col pt-2 border-t border-gray-200">

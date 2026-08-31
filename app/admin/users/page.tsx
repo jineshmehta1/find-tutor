@@ -605,12 +605,69 @@ export default function AdminUsersPage() {
                                         <h4 className="text-xs font-black uppercase tracking-wider text-slate-400">Uploaded Proof Documents & Certificates</h4>
                                         {(() => {
                                             const certs = parseJson(selectedUser.teacher.certifications);
-                                            if (!Array.isArray(certs) || certs.length === 0) {
-                                                return <p className="text-xs text-slate-400 font-medium italic">No certificates uploaded by this instructor.</p>;
+                                            const qualCert = selectedUser.teacher.qualificationCertificate;
+                                            const identityProof = selectedUser.teacher.identityProof;
+                                            const achCert = selectedUser.teacher.achievementCertificate;
+                                            
+                                            const hasPrimaryDocs = qualCert || identityProof || achCert;
+                                            if ((!Array.isArray(certs) || certs.length === 0) && !hasPrimaryDocs) {
+                                                return <p className="text-xs text-slate-400 font-medium italic">No documents uploaded by this instructor.</p>;
                                             }
+                                            
                                             return (
                                                 <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                                                    {certs.map((c: any, index: number) => {
+                                                    {qualCert && (
+                                                        <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                                            <div className="flex items-center gap-3 min-w-0">
+                                                                <img src={qualCert} alt="Qualification Certificate" className="w-12 h-12 rounded-xl object-cover border border-slate-200 shrink-0" />
+                                                                <div className="min-w-0">
+                                                                    <div className="flex items-center gap-1.5">
+                                                                        <p className="text-xs font-black text-slate-900 truncate">Highest Qualification</p>
+                                                                    </div>
+                                                                    <p className="text-[10px] text-slate-400 font-medium">Primary Document Attached ✓</p>
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex items-center gap-1.5 self-end sm:self-auto shrink-0">
+                                                                <a href={qualCert} target="_blank" rel="noopener noreferrer" className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-bold rounded-lg border border-slate-200">View</a>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                    
+                                                    {identityProof && (
+                                                        <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                                            <div className="flex items-center gap-3 min-w-0">
+                                                                <img src={identityProof} alt="Identity Proof" className="w-12 h-12 rounded-xl object-cover border border-slate-200 shrink-0" />
+                                                                <div className="min-w-0">
+                                                                    <div className="flex items-center gap-1.5">
+                                                                        <p className="text-xs font-black text-slate-900 truncate">Identity Proof (Address)</p>
+                                                                    </div>
+                                                                    <p className="text-[10px] text-slate-400 font-medium">Primary Document Attached ✓</p>
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex items-center gap-1.5 self-end sm:self-auto shrink-0">
+                                                                <a href={identityProof} target="_blank" rel="noopener noreferrer" className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-bold rounded-lg border border-slate-200">View</a>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                    
+                                                    {achCert && (
+                                                        <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                                            <div className="flex items-center gap-3 min-w-0">
+                                                                <img src={achCert} alt="Achievement Certificate" className="w-12 h-12 rounded-xl object-cover border border-slate-200 shrink-0" />
+                                                                <div className="min-w-0">
+                                                                    <div className="flex items-center gap-1.5">
+                                                                        <p className="text-xs font-black text-slate-900 truncate">Achievement Certificate</p>
+                                                                    </div>
+                                                                    <p className="text-[10px] text-slate-400 font-medium">Additional Document Attached ✓</p>
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex items-center gap-1.5 self-end sm:self-auto shrink-0">
+                                                                <a href={achCert} target="_blank" rel="noopener noreferrer" className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-bold rounded-lg border border-slate-200">View</a>
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {Array.isArray(certs) && certs.map((c: any, index: number) => {
                                                         const title = typeof c === "string" ? c : c.text;
                                                         const img = typeof c === "object" ? c.image : null;
                                                         const isApproved = typeof c === "object" ? !!c.isApproved : false;

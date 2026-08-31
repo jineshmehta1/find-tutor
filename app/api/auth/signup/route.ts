@@ -37,6 +37,7 @@ const teacherSchema = baseUserSchema.extend({
     achievements: z.string().optional(),
     achievementCertificate: z.string().optional(),
     qualificationCertificate: z.string().optional(),
+    identityProof: z.string().optional(),
 });
 
 const studentSchema = baseUserSchema.extend({
@@ -141,6 +142,7 @@ export async function POST(request: NextRequest) {
                             achievements: teacherData.achievements,
                             achievementCertificate: teacherData.achievementCertificate,
                             qualificationCertificate: teacherData.qualificationCertificate,
+                            identityProof: teacherData.identityProof,
                             isApproved: false,
                         },
                     },

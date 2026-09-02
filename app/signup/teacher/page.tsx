@@ -66,6 +66,9 @@ export default function TeacherSignupPage() {
         experience: "",
         certifications: [] as Certification[],
         subjects: [] as string[],
+        teachingMode: [] as string[],
+        expectedFee: 0,
+        feeType: "/hr",
         qualificationCertificate: "",
         identityProof: "",
         achievementCertificate: "",
@@ -1315,10 +1318,11 @@ export default function TeacherSignupPage() {
                                                     <thead>
                                                         <tr className="border-b border-slate-200 text-slate-400 font-black uppercase tracking-wider text-[10px]">
                                                             <th className="py-2 pr-4">Subject</th>
-                                                            <th className="py-2 px-2 text-center w-20">Pre-Primary</th>
-                                                            <th className="py-2 px-2 text-center w-20">Primary</th>
-                                                            <th className="py-2 px-2 text-center w-20">High School</th>
-                                                            <th className="py-2 px-2 text-center w-20">Secondary</th>
+                                                            <th className="py-2 px-2 text-center w-20">Pre-School</th>
+                                                            <th className="py-2 px-2 text-center w-20">Class 1-5</th>
+                                                            <th className="py-2 px-2 text-center w-20">Class 6-8</th>
+                                                            <th className="py-2 px-2 text-center w-20">Class 9-10</th>
+                                                            <th className="py-2 px-2 text-center w-20">Class 11-12</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody className="divide-y divide-slate-100 font-bold">
@@ -1328,7 +1332,7 @@ export default function TeacherSignupPage() {
                                                             return (
                                                                 <tr key={baseSubj} className="hover:bg-slate-100/50 transition-colors">
                                                                     <td className="py-3 pr-4 font-extrabold text-slate-900">{baseSubj}</td>
-                                                                    {["Pre-Primary", "Primary", "High School", "Secondary School"].map((level) => {
+                                                                    {["Pre-School", "Class 1-5", "Class 6-8", "Class 9-10", "Class 11-12"].map((level) => {
                                                                         const checked = levels.includes(level);
                                                                         return (
                                                                             <td key={level} className="py-3 px-2 text-center">
@@ -1358,6 +1362,66 @@ export default function TeacherSignupPage() {
                                             </div>
                                         </div>
                                     )}
+
+                                    {/* Teaching Mode & Expected Fee section */}
+                                    <div className="mt-8 pt-6 border-t border-slate-100">
+                                        <h4 className="text-[11px] font-black text-slate-800 uppercase tracking-wider mb-4">Teaching Preferences & Fees</h4>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            
+                                            {/* Teaching Mode */}
+                                            <div className="space-y-3 text-left">
+                                                <label className="block text-[11px] font-black text-slate-450 uppercase tracking-wider">
+                                                    Preferred location of tuition
+                                                </label>
+                                                <div className="flex flex-col gap-2">
+                                                    {["At Student Home", "At Teacher Home", "Online mode"].map(mode => {
+                                                        const checked = formData.teachingMode.includes(mode);
+                                                        return (
+                                                            <label key={mode} className="flex items-center gap-2 cursor-pointer">
+                                                                <input 
+                                                                    type="checkbox" 
+                                                                    checked={checked}
+                                                                    onChange={(e) => {
+                                                                        const next = e.target.checked 
+                                                                            ? [...formData.teachingMode, mode]
+                                                                            : formData.teachingMode.filter(m => m !== mode);
+                                                                        setFormData(prev => ({ ...prev, teachingMode: next }));
+                                                                    }}
+                                                                    className="w-4 h-4 text-amber-500 rounded border-slate-300 focus:ring-amber-500 cursor-pointer"
+                                                                />
+                                                                <span className="text-xs font-bold text-slate-700">{mode}</span>
+                                                            </label>
+                                                        )
+                                                    })}
+                                                </div>
+                                            </div>
+
+                                            {/* Expected Fee */}
+                                            <div className="space-y-3 text-left">
+                                                <label className="block text-[11px] font-black text-slate-450 uppercase tracking-wider">
+                                                    Fee Expected (₹)
+                                                </label>
+                                                <div className="flex items-center gap-3">
+                                                    <input 
+                                                        type="number"
+                                                        placeholder="e.g. 1000"
+                                                        value={formData.expectedFee || ""}
+                                                        onChange={(e) => setFormData(prev => ({ ...prev, expectedFee: parseInt(e.target.value) || 0 }))}
+                                                        className="w-full sm:w-1/2 px-4 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
+                                                    />
+                                                    <select 
+                                                        value={formData.feeType}
+                                                        onChange={(e) => setFormData(prev => ({ ...prev, feeType: e.target.value }))}
+                                                        className="w-full sm:w-1/2 px-4 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 cursor-pointer"
+                                                    >
+                                                        <option value="/hr">per Hour</option>
+                                                        <option value="/month">per Month</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         )}

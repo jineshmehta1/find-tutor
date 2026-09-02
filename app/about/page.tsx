@@ -4,7 +4,7 @@ import FounderSection from "@/components/ui/founder";
 import { ComparisonSection } from "@/components/ComparisonSection";
 import { TutorSpotlight } from "@/components/TutorSpotlight";
 import TestimonialsSection from "@/components/testimonials-section";
-import DemoBookingCTA from "@/components/demo-booking-cta";
+import ValuePill from "@/components/value-pill";
 
 export default function AboutPage() {
   return (
@@ -23,7 +23,6 @@ export default function AboutPage() {
       </section>
 
       <TestimonialsSection />
-      <DemoBookingCTA />
     </div>
   );
 }

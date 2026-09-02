@@ -7,14 +7,14 @@ import { motion, AnimatePresence } from "framer-motion";
 const faqData = [
   {
     question: "How do I connect with a tutor in Bhavanipuram & Vijayawada?",
-    answer: "When you post a requirement or search for a subject on our homepage, our system matches you with verified tutors. Tutors reach out directly with customized fee quotes and offer a free 30-minute demo session.",
+    answer: "When you post a requirement or search for a subject on our homepage, our system matches you with verified tutors. Tutors can be reached directly via message or phone call to discuss your exact needs and customized fee quotes.",
     theme: "indigo",
     light: "bg-indigo-50 border-indigo-100 text-indigo-900",
     dark: "bg-indigo-600 text-white shadow-indigo-200"
   },
   {
-    question: "Are the trial demo classes really 100% free?",
-    answer: "Yes! Every tutor in our network offers a complimentary 30-minute trial demo session. This allows parents and students to evaluate communication, methodology, and compatibility before committing to any package.",
+    question: "Can I evaluate the tutor before committing?",
+    answer: "Yes! You can contact the tutor directly via message or call before committing to any package to discuss communication, methodology, and compatibility.",
     theme: "emerald",
     light: "bg-emerald-50 border-emerald-100 text-emerald-900",
     dark: "bg-emerald-600 text-white shadow-emerald-200"

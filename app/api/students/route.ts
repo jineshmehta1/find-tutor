@@ -58,6 +58,12 @@ export async function PATCH(request: NextRequest) {
             teachingMode, classesOrAgeGroup, qualificationLevel, qualificationName, achievements,
             achievementCertificate, qualificationCertificate } = body;
 
+        // Fetch existing user to check for document changes
+        const existingUser = await prisma.user.findUnique({
+            where: { email: session.user.email! },
+            include: { teacher: true }
+        });
+
         // Update user basic info
         const updateData: any = {};
         if (name) updateData.name = name;
@@ -101,6 +107,17 @@ export async function PATCH(request: NextRequest) {
             if (achievements !== undefined) teacherUpdateData.achievements = achievements;
             if (achievementCertificate !== undefined) teacherUpdateData.achievementCertificate = achievementCertificate;
             if (qualificationCertificate !== undefined) teacherUpdateData.qualificationCertificate = qualificationCertificate;
+
+            // Trigger re-approval if critical verification documents change
+            if (existingUser?.teacher) {
+                const certsChanged = certifications && JSON.stringify(certifications) !== existingUser.teacher.certifications;
+                const qualCertChanged = qualificationCertificate !== undefined && qualificationCertificate !== existingUser.teacher.qualificationCertificate;
+                const achCertChanged = achievementCertificate !== undefined && achievementCertificate !== existingUser.teacher.achievementCertificate;
+                
+                if (certsChanged || qualCertChanged || achCertChanged) {
+                    teacherUpdateData.isApproved = false;
+                }
+            }
 
             if (Object.keys(teacherUpdateData).length > 0) {
                 await prisma.teacher.update({

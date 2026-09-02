@@ -20,7 +20,7 @@ export function ComparisonSection() {
       detail: "No hidden 30%-50% agency cut; you agree on fees directly with your tutor."
     },
     {
-      name: "Complimentary 30-Minute Trial Demo Session",
+      name: "Direct Contact with Tutors",
       aacharya: true,
       brokers: "Varies / Paid",
       genericApps: false,

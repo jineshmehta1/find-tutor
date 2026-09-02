@@ -137,7 +137,7 @@ export default function LeadsBoard() {
                     </div>
                     <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Leads Kanban & Assignments</h1>
                     <p className="text-xs sm:text-sm text-amber-100 font-medium max-w-xl">
-                        Track student requirements, match verified teachers, schedule demo sessions, and manage the student conversions.
+                        Track student requirements, match verified teachers, and manage the student conversions.
                     </p>
                 </div>
             </div>

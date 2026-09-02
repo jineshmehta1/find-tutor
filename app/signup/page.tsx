@@ -15,7 +15,7 @@ export default function SignupPage() {
             bgColor: "bg-amber-500/10",
             borderColor: "border-amber-500/25",
             description: "Find qualified tutors near you",
-            features: ["Browse tutors by subject", "Filter by location & distance", "Free 30-min demo session"],
+            features: ["Browse tutors by subject", "Filter by location & distance", "Direct contact with tutors"],
         },
         {
             id: "teacher",

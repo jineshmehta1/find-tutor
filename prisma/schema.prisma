@@ -61,6 +61,8 @@ model Teacher {
   experience            String
   subjects              String    // JSON string of subjects
   teachingMode          String?   // "Home Tutor", "Online Tutor", "At Centre" or JSON array
+  expectedFee           Int?      // e.g., 1200
+  feeType               String?   // "/hr" or "/month"
   classesOrAgeGroup     String?   // JSON string of classes/age groups
   qualificationLevel    String?   // Degree/PG/M.Phil/PhD/PostDoc
   qualificationName     String?   // BSc/BA/B.Com/B.Tech etc.

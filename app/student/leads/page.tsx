@@ -13,8 +13,8 @@ const SUBJECTS = [
     "History", "Geography", "Computer Science", "Economics", "Abacus", "Chess", "Coding"
 ];
 const CLASSES = [
-    "Class 1", "Class 2", "Class 3", "Class 4", "Class 5",
-    "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12"
+    "Pre-School", "Class 1-5", "Class 6-8", "Class 9-10", "Class 11-12",
+    "Undergraduate", "Postgraduate", "PhD Prep", "Competitive Exams", "Hobbyist"
 ];
 const MODES = ["Home Tutor", "Online Tutor", "At Centre"];
 

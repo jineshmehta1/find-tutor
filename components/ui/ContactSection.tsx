@@ -82,7 +82,7 @@ const ContactSection: React.FC = () => {
                   <span className="text-gradient-gold">With Aacharya Platform</span>
                </h2>
                <p className="text-slate-500 text-xs md:text-sm font-semibold max-w-xl mx-auto">
-                  Have questions about tutor rates, demo sessions, background checks, or want to register as an expert trainer? Send us a message!
+                  Have questions about tutor rates, background checks, or want to register as an expert trainer? Send us a message!
                </p>
             </div>
 

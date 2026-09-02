@@ -23,6 +23,8 @@ interface Tutor {
   certifications: { text: string; image?: string }[];
   subjects: string[];
   teachingMode: string | null;
+  expectedFee?: number;
+  feeType?: string;
   classesOrAgeGroup: string[] | null;
   qualificationLevel: string | null;
   qualificationName: string | null;
@@ -53,15 +55,6 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Booking Modal State
-  const [showBookingModal, setShowBookingModal] = useState(false);
-  const [bookingSubject, setBookingSubject] = useState("");
-  const [bookingClass, setBookingClass] = useState("");
-  const [bookingMode, setBookingMode] = useState("");
-  const [bookingMessage, setBookingMessage] = useState("");
-  const [bookingLocation, setBookingLocation] = useState("");
-  const [bookingSubmitting, setBookingSubmitting] = useState(false);
-
   // Review Form State
   const [reviewName, setReviewName] = useState("");
   const [reviewRating, setReviewRating] = useState(5);
@@ -80,9 +73,7 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
       const data = await res.json();
       setTutor(data);
       if (data.subjects && data.subjects.length > 0) {
-        setBookingSubject(data.subjects[0]);
       }
-      setBookingLocation(data.address || "");
     } catch (err) {
       toast.error("Could not load tutor details");
     } finally {
@@ -98,40 +89,6 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
       setReviews(data);
     } catch (err) {
       console.error(err);
-    }
-  };
-
-  const handleBookDemo = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!session) {
-      toast.error("Please login to book a demo session");
-      router.push("/signup");
-      return;
-    }
-
-    setBookingSubmitting(true);
-    try {
-      const res = await fetch("/api/leads", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          teacherId: tutorId,
-          subject: bookingSubject,
-          classLevel: bookingClass,
-          mode: bookingMode,
-          location: bookingLocation,
-          message: bookingMessage || `Booking request for ${bookingSubject} with ${tutor?.name}`,
-        }),
-      });
-
-      if (!res.ok) throw new Error("Booking failed");
-      toast.success(`Demo session request sent to ${tutor?.name}!`);
-      setShowBookingModal(false);
-      setBookingMessage("");
-    } catch (err) {
-      toast.error("Booking request failed. Please try again.");
-    } finally {
-      setBookingSubmitting(false);
     }
   };
 
@@ -298,9 +255,17 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
                   <p className="font-semibold text-slate-800">{tutor.preferredLanguage}</p>
                 </div>
               )}
+              {tutor.teachingMode && (
+                <div className="space-y-1">
+                  <p className="text-xs font-bold text-slate-400 uppercase">Availability Slot</p>
+                  <p className="font-semibold text-slate-800">
+                    {tutor.teachingMode === "Home Tutor" ? "At Student Home" : tutor.teachingMode === "Online Tutor" ? "Online mode" : tutor.teachingMode === "At Centre" ? "At Teacher Home" : tutor.teachingMode}
+                  </p>
+                </div>
+              )}
               {tutor.dob && (
                 <div className="space-y-1">
-                  <p className="text-xs font-bold text-slate-400 uppercase">Age / Date of Birth</p>
+                  <p className="text-xs font-bold text-slate-400 uppercase">Age</p>
                   <p className="font-semibold text-slate-800">
                     {(() => {
                       const birth = new Date(tutor.dob);
@@ -308,10 +273,7 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
                       const ageDate = new Date(ageDiffMs);
                       const age = Math.abs(ageDate.getUTCFullYear() - 1970);
                       
-                      const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
-                      const formattedDob = birth.toLocaleDateString('en-US', options);
-                      
-                      return `${age} years old (${formattedDob})`;
+                      return `${age} years old`;
                     })()}
                   </p>
                 </div>
@@ -352,9 +314,16 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
                     <div>
                       <h4 className="font-bold text-slate-900 text-sm">{cert.text}</h4>
                       {cert.image && (
-                        <a href={cert.image} target="_blank" rel="noopener noreferrer" className="text-xs text-primary font-bold hover:underline block mt-1">
-                          View Certificate
-                        </a>
+                        <div className="mt-3 relative rounded-xl overflow-hidden border border-slate-200 bg-slate-100 group">
+                          <img 
+                            src={cert.image} 
+                            alt={cert.text} 
+                            className="w-full h-auto object-contain max-h-40 pointer-events-none select-none"
+                            onContextMenu={(e) => e.preventDefault()}
+                            draggable="false"
+                          />
+                          <div className="absolute inset-0 z-10 bg-transparent" onContextMenu={(e) => e.preventDefault()}></div>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -455,14 +424,30 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
           {/* Rate / Booking Card */}
           <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-xl space-y-6 text-center">
             <div>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Hourly Fee Rate</p>
-              <p className="text-4xl font-[1000] text-slate-950 tracking-tighter">₹1,200<span className="text-xs font-bold text-slate-400 tracking-normal ml-1">/hr</span></p>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                {tutor.feeType === "/month" ? "Monthly Fee Rate" : "Hourly Fee Rate"}
+              </p>
+              <p className="text-4xl font-[1000] text-slate-950 tracking-tighter">
+                {tutor.expectedFee ? `₹${tutor.expectedFee.toLocaleString()}` : "Contact for Fee"}
+                {tutor.expectedFee && <span className="text-xs font-bold text-slate-400 tracking-normal ml-1">{tutor.feeType || "/hr"}</span>}
+              </p>
             </div>
 
             <div className="space-y-4 pt-4 border-t border-slate-50 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
-              <div className="flex justify-between">
-                <span>Class Mode:</span>
-                <span className="text-slate-900 font-black">{tutor.teachingMode === "Home Tutor" ? "At Student Home" : tutor.teachingMode === "Online Tutor" ? "Online mode" : tutor.teachingMode === "At Centre" ? "At Teacher Home" : (tutor.teachingMode || "Online mode")}</span>
+              <div className="flex justify-between text-right">
+                <span className="text-left">Availability:</span>
+                <span className="text-slate-900 font-black max-w-[140px] truncate">
+                  {(() => {
+                    if (!tutor.teachingMode) return "Online mode";
+                    try {
+                      const parsed = JSON.parse(tutor.teachingMode);
+                      if (Array.isArray(parsed)) return parsed.join(", ");
+                      return parsed;
+                    } catch {
+                      return tutor.teachingMode === "Home Tutor" ? "At Student Home" : tutor.teachingMode === "Online Tutor" ? "Online mode" : tutor.teachingMode === "At Centre" ? "At Teacher Home" : tutor.teachingMode;
+                    }
+                  })()}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span>Rating:</span>
@@ -519,104 +504,6 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
           </div>
 
         </div>
-
-      </div>
-
-      {/* BOOKING MODAL */}
-      {showBookingModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" onClick={() => setShowBookingModal(false)} />
-          
-          <div className="relative bg-white w-full max-w-lg rounded-3xl p-6 md:p-8 shadow-2xl border border-slate-100 text-slate-900 space-y-6">
-            
-            <button onClick={() => setShowBookingModal(false)} className="absolute top-4 right-4 p-2 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors text-slate-500">
-              <X className="w-5 h-5" />
-            </button>
-
-            <div className="space-y-1 text-center">
-              <h3 className="text-2xl font-black text-slate-950 tracking-tight leading-none">Book Trial Lesson</h3>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Connect directly with {tutor.name}</p>
-            </div>
-
-            <form onSubmit={handleBookDemo} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Learning Subject</label>
-                <select 
-                  value={bookingSubject} 
-                  onChange={(e) => setBookingSubject(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary rounded-xl text-sm font-semibold"
-                >
-                  {tutor.subjects.map(s => <option key={s} value={s}>{s}</option>)}
-                </select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Class / Level</label>
-                  <select 
-                    value={bookingClass} 
-                    onChange={(e) => setBookingClass(e.target.value)}
-                    required
-                    className="w-full px-3 py-3 bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary rounded-xl text-xs font-semibold"
-                  >
-                    <option value="">Select Level</option>
-                    <option value="Class 1-5">Class 1-5</option>
-                    <option value="Class 6-8">Class 6-8</option>
-                    <option value="Class 9-10">Class 9-10</option>
-                    <option value="Class 11-12">Class 11-12</option>
-                    <option value="Undergraduate">Undergraduate</option>
-                    <option value="Hobbyist">Hobbyist</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Mode</label>
-                  <select 
-                    value={bookingMode} 
-                    onChange={(e) => setBookingMode(e.target.value)}
-                    required
-                    className="w-full px-3 py-3 bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary rounded-xl text-xs font-semibold"
-                  >
-                    <option value="">Select Mode</option>
-                    <option value="Online Tutor">Online mode</option>
-                    <option value="Home Tutor">At Student Home</option>
-                    <option value="At Centre">At Teacher Home</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Your Location / City</label>
-                <input
-                  type="text"
-                  required
-                  value={bookingLocation}
-                  onChange={(e) => setBookingLocation(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary rounded-xl text-sm font-semibold"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Extra Info / Schedule Preferences</label>
-                <textarea
-                  rows={2}
-                  placeholder="e.g. Free after 5 PM on weekdays..."
-                  value={bookingMessage}
-                  onChange={(e) => setBookingMessage(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary rounded-xl text-xs font-medium resize-none"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={bookingSubmitting}
-                className="w-full py-4 bg-primary hover:bg-primary/95 disabled:bg-slate-200 disabled:text-slate-400 text-slate-950 font-black rounded-xl shadow-lg shadow-primary/20 uppercase tracking-wider text-xs transition-all"
-              >
-                {bookingSubmitting ? "Sending Request..." : "Confirm & Send"}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
 
     </div>
   );

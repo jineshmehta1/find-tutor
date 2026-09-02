@@ -7,8 +7,7 @@ import {
     Sparkles, ShieldCheck, CheckCircle2, ArrowRight
 } from "lucide-react";
 import { toast } from "sonner";
-import { QuickDemoModal } from "@/components/QuickDemoModal";
-
+import { toast } from "sonner";
 interface Teacher {
     id: string;
     userId: string;
@@ -34,9 +33,6 @@ export default function TeachersPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedSubject, setSelectedSubject] = useState("All Subjects");
     const [areaFilter, setAreaFilter] = useState("");
-    const [isDemoOpen, setIsDemoOpen] = useState(false);
-    const [demoTutorName, setDemoTutorName] = useState("");
-    const [demoSubject, setDemoSubject] = useState("");
 
     useEffect(() => {
         fetchTeachers();
@@ -56,12 +52,6 @@ export default function TeachersPage() {
         } finally {
             setLoading(false);
         }
-    };
-
-    const handleOpenDemo = (tutorName: string, subject: string) => {
-        setDemoTutorName(tutorName);
-        setDemoSubject(subject);
-        setIsDemoOpen(true);
     };
 
     const filteredTeachers = teachers.filter(t => {
@@ -85,7 +75,7 @@ export default function TeachersPage() {
                     </div>
                     <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Verified Mentors & Tutors</h1>
                     <p className="text-xs sm:text-sm text-slate-900/85 font-medium max-w-xl">
-                        Directly connect with top-rated tutors near Vijayawada. Book a free 30-minute demo session.
+                        Directly connect with top-rated tutors near Vijayawada via message or call.
                     </p>
                 </div>
             </div>
@@ -193,10 +183,10 @@ export default function TeachersPage() {
                             </div>
 
                             <div className="pt-4 mt-4 border-t border-slate-100 grid grid-cols-2 gap-2">
-                                <button onClick={() => handleOpenDemo(tutor.name, tutor.subjects[0])}
+                                <a href={`https://wa.me/91${tutor.phone?.replace(/\D/g, "").slice(-10)}`} target="_blank" rel="noopener noreferrer"
                                     className="w-full py-2.5 bg-[#ffb800] hover:bg-[#ffa000] text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors">
-                                    <Sparkles className="w-3.5 h-3.5 text-amber-300" /> Free Demo
-                                </button>
+                                    <Sparkles className="w-3.5 h-3.5 text-amber-300" /> Message
+                                </a>
                                 <a href={`tel:${tutor.phone}`}
                                     className="w-full py-2.5 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 border border-slate-200 transition-colors">
                                     <Phone className="w-3.5 h-3.5 text-amber-600" /> Call Tutor
@@ -207,7 +197,6 @@ export default function TeachersPage() {
                 </div>
             )}
 
-            <QuickDemoModal isOpen={isDemoOpen} onClose={() => setIsDemoOpen(false)} defaultSubject={demoSubject} defaultTutor={demoTutorName} />
         </div>
     );
 }

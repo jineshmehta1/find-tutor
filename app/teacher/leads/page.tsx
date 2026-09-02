@@ -111,12 +111,7 @@ export default function TeacherLeadsPage() {
                 );
             case "PENDING":
             default:
-                return (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-amber-50 text-amber-700 border border-amber-200/60">
-                        <Clock className="w-3.5 h-3.5" />
-                        Action Needed
-                    </span>
-                );
+                return null; // Will render buttons in the UI instead
         }
     };
 
@@ -214,7 +209,34 @@ export default function TeacherLeadsPage() {
                                         </p>
                                     </div>
                                 </div>
-                                <div className="self-start sm:self-auto">{getStatusBadge(lead.status)}</div>
+                                <div className="self-start sm:self-auto flex items-center gap-2">
+                                    {lead.status === "PENDING" ? (
+                                        <>
+                                            <a
+                                                href={`https://wa.me/91${lead.student.user.phone?.replace(/\D/g, "").slice(-10)}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                onClick={(e) => { e.stopPropagation(); updateLeadStatus(lead.id, "CONTACTED"); }}
+                                                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-extrabold bg-[#0a1829] text-white hover:bg-slate-800 transition-colors shadow-sm"
+                                            >
+                                                <MessageCircle className="w-3.5 h-3.5 text-amber-400" />
+                                                Message
+                                            </a>
+                                            {lead.student.user.phone && (
+                                                <a
+                                                    href={`tel:${lead.student.user.phone}`}
+                                                    onClick={(e) => { e.stopPropagation(); updateLeadStatus(lead.id, "CONTACTED"); }}
+                                                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-extrabold bg-amber-400 text-slate-900 hover:bg-amber-500 transition-colors shadow-sm"
+                                                >
+                                                    <Phone className="w-3.5 h-3.5" />
+                                                    Call
+                                                </a>
+                                            )}
+                                        </>
+                                    ) : (
+                                        getStatusBadge(lead.status)
+                                    )}
+                                </div>
                             </div>
 
                             {/* Tags */}
@@ -250,15 +272,8 @@ export default function TeacherLeadsPage() {
                             <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
                                 <div className="flex items-center gap-4 text-slate-500 font-bold">
                                     <span className="flex items-center gap-1">
-                                        <Mail className="w-3.5 h-3.5 text-amber-500" />
-                                        {lead.student.user.email}
+                                        Status: <span className="text-slate-700 uppercase">{lead.status}</span>
                                     </span>
-                                    {lead.student.user.phone && (
-                                        <span className="flex items-center gap-1 text-slate-700">
-                                            <Phone className="w-3.5 h-3.5 text-emerald-600" />
-                                            {lead.student.user.phone}
-                                        </span>
-                                    )}
                                 </div>
                                 <span className="text-[11px] font-bold text-slate-400">
                                     Posted {new Date(lead.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
@@ -297,6 +312,7 @@ export default function TeacherLeadsPage() {
                             {selectedLead.student.user.phone ? (
                                 <a
                                     href={`tel:${selectedLead.student.user.phone}`}
+                                    onClick={() => updateLeadStatus(selectedLead.id, "CONTACTED")}
                                     className="py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-md transition-colors"
                                 >
                                     <Phone className="w-4 h-4" />
@@ -307,11 +323,14 @@ export default function TeacherLeadsPage() {
                             )}
 
                             <a
-                                href={`mailto:${selectedLead.student.user.email}?subject=Aacharya Academy - Home Tuition Inquiry`}
-                                className="py-3 px-4 bg-[#ffb800] hover:bg-[#ffa000] text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-md transition-colors"
+                                href={`https://wa.me/91${selectedLead.student.user.phone?.replace(/\D/g, "").slice(-10)}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={() => updateLeadStatus(selectedLead.id, "CONTACTED")}
+                                className="py-3 px-4 bg-[#ffb800] hover:bg-[#ffa000] text-slate-900 font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-md transition-colors"
                             >
-                                <Mail className="w-4 h-4" />
-                                <span>Email Student</span>
+                                <MessageCircle className="w-4 h-4" />
+                                <span>Message on WA</span>
                             </a>
                         </div>
 

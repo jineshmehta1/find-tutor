@@ -1032,7 +1032,7 @@ export default function StudentSignupPage() {
                                 <Calendar className="w-4 h-4" />
                             </div>
                             <h4 className="font-extrabold text-slate-900">3. Book / Enquire</h4>
-                            <p className="text-[9px] text-slate-450 mt-1 leading-relaxed max-w-[150px]">Schedule demo classes or send direct inquiries.</p>
+                            <p className="text-[9px] text-slate-450 mt-1 leading-relaxed max-w-[150px]">Connect with tutors or send direct inquiries.</p>
                         </div>
                         {/* Step 4 */}
                         <div className="flex flex-col items-center">

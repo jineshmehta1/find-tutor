@@ -181,7 +181,7 @@ export default function RequestTutorPage() {
                     <Clock className="w-5 h-5" />
                   </div>
                   <div>
-                    <h4 className="font-extrabold text-xs sm:text-sm text-slate-900">Complimentary 30-Min Trial Demo</h4>
+                    <h4 className="font-extrabold text-xs sm:text-sm text-slate-900">Direct Contact with Tutors</h4>
                     <p className="text-[11px] text-slate-500 font-medium leading-relaxed mt-0.5">
                       Assess the tutor&apos;s teaching style and student compatibility before scheduling monthly slots.
                     </p>

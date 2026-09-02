@@ -38,11 +38,9 @@ const SUBJECTS = [
 ];
 
 const CLASSES = [
-    "Nursery", "LKG", "UKG", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5",
-    "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12",
-    "Age 3-5", "Age 5-8", "Age 8-12", "Age 12-16", "Age 16+", "Undergraduate", 
-    "Postgraduate", "PhD Prep", "Competitive Exams", "IELTS/TOEFL", "GRE/GMAT",
-    "JEE/NEET Prep", "UPSC/SSC", "Banking Exams", "CAT/MAT", "CA Foundation"
+    "Pre-School", "Class 1-5", "Class 6-8", "Class 9-10", "Class 11-12",
+    "Undergraduate", "Postgraduate", "PhD Prep", "Competitive Exams", 
+    "IELTS/TOEFL", "GRE/GMAT", "JEE/NEET Prep", "UPSC/SSC", "Banking Exams", "CAT/MAT", "CA Foundation"
 ];
 
 const MODES = ["Home Tutor", "Online Tutor", "At Centre"];
@@ -62,7 +60,7 @@ const TESTIMONIALS = [
 ];
 
 const FAQS = [
-    { q: "Is the demo class free?", a: "Most of our tutors provide a complimentary 30-minute demo session. However, some senior experts may charge a nominal fee which is adjusted in the first month." },
+    { q: "Can I contact the tutor directly?", a: "Yes! You can message or call the tutors directly from their profile to discuss your requirements and evaluate communication and compatibility before committing to any package." },
     { q: "How do I know the tutor is verified?", a: "Every tutor with a 'Verified' badge has undergone physical ID verification and academic certificate audits by our internal team." },
     { q: "What if the tutor doesn't show up?", a: "We have a strict attendance policy. If a tutor fails to attend, we provide an immediate replacement and refund any advance paid through the platform." },
     { q: "Can I choose between online and home tuition?", a: "Yes, you can toggle between 'Home Tutor' and 'Online' during your search or in the 'Post Requirement' form." },
@@ -316,12 +314,27 @@ function FindTutorNearbyPageContent() {
         }
 
         if (selectedClass !== "All") {
+            const mapClassToGroup = (cls: string) => {
+                const c = cls.toLowerCase();
+                if (c.includes("nursery") || c.includes("lkg") || c.includes("ukg") || c.includes("pre-school") || c.includes("pre-primary")) return "pre-school";
+                if (["class 1", "class 2", "class 3", "class 4", "class 5"].includes(c)) return "class 1-5";
+                if (["class 6", "class 7", "class 8"].includes(c)) return "class 6-8";
+                if (["class 9", "class 10"].includes(c)) return "class 9-10";
+                if (["class 11", "class 12"].includes(c)) return "class 11-12";
+                return c;
+            };
+            const searchGroup = mapClassToGroup(selectedClass);
+
             result = result.filter(t => {
                 if (!t.classesOrAgeGroup) return false;
                 if (Array.isArray(t.classesOrAgeGroup)) {
-                    return t.classesOrAgeGroup.some((c: string) => c.toLowerCase().includes(selectedClass.toLowerCase()));
+                    return t.classesOrAgeGroup.some((c: string) => {
+                        const tGroup = c.toLowerCase();
+                        return tGroup === searchGroup || tGroup.includes(selectedClass.toLowerCase()) || mapClassToGroup(c) === searchGroup;
+                    });
                 }
-                return String(t.classesOrAgeGroup).toLowerCase().includes(selectedClass.toLowerCase());
+                const tGroupStr = String(t.classesOrAgeGroup).toLowerCase();
+                return tGroupStr === searchGroup || tGroupStr.includes(selectedClass.toLowerCase()) || mapClassToGroup(String(t.classesOrAgeGroup)) === searchGroup;
             });
         }
 
@@ -1082,7 +1095,7 @@ function FindTutorNearbyPageContent() {
             {[
                 { title: "Search & Filter", desc: "Browse through verified mentors based on subject, location, and rating.", icon: Search, color: "bg-primary text-white" },
                 { title: "Check Profile", desc: "Read achievements, teaching methodology, and parent testimonials.", icon: BookMarked, color: "bg-slate-950 text-white" },
-                { title: "Demo Session", desc: "Book a free demonstration class to ensure the perfect student-teacher fit.", icon: UserCheck, color: "bg-white border-2 border-primary" },
+                { title: "Connect Instantly", desc: "Call or message the tutor directly to discuss your requirements and ensure a perfect fit.", icon: UserCheck, color: "bg-white border-2 border-primary" },
                 { title: "Start Learning", desc: "Begin your customized learning path and track academic progress.", icon: Rocket, color: "bg-primary text-white" }
             ].map((step, i) => (
                 <motion.div 

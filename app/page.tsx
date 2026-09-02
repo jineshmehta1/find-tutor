@@ -11,7 +11,6 @@ import {
   BrainCircuit, Clock, Locate
 } from "lucide-react";
 
-import { QuickDemoModal } from "@/components/QuickDemoModal";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import MapLocationPicker from "@/components/ui/DynamicMapPicker";
 
@@ -75,7 +74,7 @@ const getSubjectCover = (subject: string): string => {
 };
 
 // Reusable card component to handle local image loading state cleanly
-function ShowcaseCard({ item, isCoach, handleOpenDemo }: { item: any; isCoach: boolean; handleOpenDemo: any }) {
+function ShowcaseCard({ item, isCoach }: { item: any; isCoach: boolean }) {
   const [imgError, setImgError] = useState(false);
   const coverUrl = getSubjectCover(item.subject);
 
@@ -175,10 +174,10 @@ function ShowcaseCard({ item, isCoach, handleOpenDemo }: { item: any; isCoach: b
 
         {/* CTA Button */}
         <button
-          onClick={() => handleOpenDemo(item.name, item.subject)}
+          onClick={() => window.location.href='/find-tutor-nearby'}
           className="w-full py-2.5 bg-slate-50 group-hover:bg-amber-500 group-hover:text-slate-950 text-[#0f223a] font-black text-xs rounded-xl transition-all duration-300 border border-slate-100 cursor-pointer flex items-center justify-center gap-1.5"
         >
-          <span>Connect & Book Demo</span>
+          <span>View Profiles</span>
           <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
         </button>
 
@@ -295,17 +294,6 @@ export default function HomePage() {
       active = false;
     };
   }, []);
-
-  // Demo Modal State
-  const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
-  const [modalDefaultSubject, setModalDefaultSubject] = useState("");
-  const [modalDefaultTutor, setModalDefaultTutor] = useState("");
-
-  const handleOpenDemo = (tutorName = "", subjectName = "") => {
-    setModalDefaultTutor(tutorName);
-    setModalDefaultSubject(subjectName);
-    setIsDemoModalOpen(true);
-  };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -546,20 +534,15 @@ export default function HomePage() {
                         onChange={(e) => setSearchClass(e.target.value)}
                         className="w-full bg-transparent border-none text-[12px] font-bold outline-none text-slate-800 py-1 cursor-pointer"
                       >
-                        <option value="">Select Class (1 - 12)</option>
+                        <option value="">Select Level</option>
                         <option value="All">All Grades</option>
-                        <option value="Class 1">Class 1</option>
-                        <option value="Class 2">Class 2</option>
-                        <option value="Class 3">Class 3</option>
-                        <option value="Class 4">Class 4</option>
-                        <option value="Class 5">Class 5</option>
-                        <option value="Class 6">Class 6</option>
-                        <option value="Class 7">Class 7</option>
-                        <option value="Class 8">Class 8</option>
-                        <option value="Class 9">Class 9</option>
-                        <option value="Class 10">Class 10</option>
-                        <option value="Class 11">Class 11</option>
-                        <option value="Class 12">Class 12</option>
+                        <option value="Pre-School">Pre-School</option>
+                        <option value="Class 1-5">Class 1-5</option>
+                        <option value="Class 6-8">Class 6-8</option>
+                        <option value="Class 9-10">Class 9-10</option>
+                        <option value="Class 11-12">Class 11-12</option>
+                        <option value="Undergraduate">Undergraduate</option>
+                        <option value="Hobbyist">Hobbyist</option>
                       </select>
                     </div>
                   </div>
@@ -833,10 +816,9 @@ export default function HomePage() {
                 ) : (
                   displayTeachers.slice(0, 4).map((teacher, idx) => (
                     <ShowcaseCard 
-                       key={idx} 
-                       item={teacher} 
-                       isCoach={false} 
-                       handleOpenDemo={handleOpenDemo} 
+                      key={idx} 
+                      item={teacher} 
+                      isCoach={false} 
                     />
                   ))
                 )}
@@ -880,7 +862,6 @@ export default function HomePage() {
                       key={idx} 
                       item={coach} 
                       isCoach={true} 
-                      handleOpenDemo={handleOpenDemo} 
                     />
                   ))
                 )}
@@ -1201,14 +1182,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* Quick Demo Modal */}
-      <QuickDemoModal
-        isOpen={isDemoModalOpen}
-        onClose={() => setIsDemoModalOpen(false)}
-        defaultSubject={modalDefaultSubject}
-        defaultTutor={modalDefaultTutor}
-      />
 
       {/* Location Selection Modal */}
       <Dialog open={isLocationModalOpen} onOpenChange={setIsLocationModalOpen}>

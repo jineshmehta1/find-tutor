@@ -7,7 +7,6 @@ import {
     Sparkles, ShieldCheck, CheckCircle2, ArrowRight
 } from "lucide-react";
 import { toast } from "sonner";
-import { toast } from "sonner";
 interface Teacher {
     id: string;
     userId: string;

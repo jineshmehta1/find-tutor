@@ -663,7 +663,11 @@ export default function TeacherSignupPage() {
                                             experience: "",
                                             certifications: [],
                                             subjects: [],
+                                            teachingMode: [],
+                                            expectedFee: 0,
+                                            feeType: "/hr",
                                             qualificationCertificate: "",
+                                            identityProof: "",
                                             achievementCertificate: "",
                                         });
                                         setTutorType("teacher");

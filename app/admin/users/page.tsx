@@ -24,6 +24,9 @@ interface UserData {
         experience: string;
         subjects: string;
         certifications: string;
+        qualificationCertificate?: string;
+        identityProof?: string;
+        achievementCertificate?: string;
     };
     student?: {
         id: string;

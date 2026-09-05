@@ -505,6 +505,8 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
 
         </div>
 
+      </div>
+
     </div>
   );
 }

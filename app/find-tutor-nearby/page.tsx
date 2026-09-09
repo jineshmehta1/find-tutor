@@ -38,8 +38,11 @@ const SUBJECTS = [
 ];
 
 const CLASSES = [
-    "Pre-School", "Class 1-5", "Class 6-8", "Class 9-10", "Class 11-12",
-    "Undergraduate", "Postgraduate", "PhD Prep", "Competitive Exams", 
+    "Nursery", "LKG", "UKG",
+    "Class 1", "Class 2", "Class 3", "Class 4", "Class 5",
+    "Class 6", "Class 7", "Class 8", "Class 9", "Class 10",
+    "Class 11", "Class 12",
+    "Degree / Graduation", "Competitive Exams", 
     "IELTS/TOEFL", "GRE/GMAT", "JEE/NEET Prep", "UPSC/SSC", "Banking Exams", "CAT/MAT", "CA Foundation"
 ];
 
@@ -314,27 +317,36 @@ function FindTutorNearbyPageContent() {
         }
 
         if (selectedClass !== "All") {
-            const mapClassToGroup = (cls: string) => {
-                const c = cls.toLowerCase();
-                if (c.includes("nursery") || c.includes("lkg") || c.includes("ukg") || c.includes("pre-school") || c.includes("pre-primary")) return "pre-school";
-                if (["class 1", "class 2", "class 3", "class 4", "class 5"].includes(c)) return "class 1-5";
-                if (["class 6", "class 7", "class 8"].includes(c)) return "class 6-8";
-                if (["class 9", "class 10"].includes(c)) return "class 9-10";
-                if (["class 11", "class 12"].includes(c)) return "class 11-12";
-                return c;
-            };
-            const searchGroup = mapClassToGroup(selectedClass);
-
+            const searchLower = selectedClass.toLowerCase();
             result = result.filter(t => {
                 if (!t.classesOrAgeGroup) return false;
+                let classesArray: string[] = [];
                 if (Array.isArray(t.classesOrAgeGroup)) {
-                    return t.classesOrAgeGroup.some((c: string) => {
-                        const tGroup = c.toLowerCase();
-                        return tGroup === searchGroup || tGroup.includes(selectedClass.toLowerCase()) || mapClassToGroup(c) === searchGroup;
-                    });
+                    classesArray = t.classesOrAgeGroup;
+                } else {
+                    try {
+                        const parsed = JSON.parse(String(t.classesOrAgeGroup));
+                        classesArray = Array.isArray(parsed) ? parsed : [String(t.classesOrAgeGroup)];
+                    } catch {
+                        classesArray = [String(t.classesOrAgeGroup)];
+                    }
                 }
-                const tGroupStr = String(t.classesOrAgeGroup).toLowerCase();
-                return tGroupStr === searchGroup || tGroupStr.includes(selectedClass.toLowerCase()) || mapClassToGroup(String(t.classesOrAgeGroup)) === searchGroup;
+
+                return classesArray.some((c: string) => {
+                    const cLower = c.toLowerCase();
+                    if (cLower === searchLower || cLower.includes(searchLower) || searchLower.includes(cLower)) return true;
+                    // LKG / UKG / Pre-school mapping
+                    if ((searchLower.includes("lkg") || searchLower.includes("ukg") || searchLower.includes("nursery")) && (cLower.includes("pre-school") || cLower.includes("nursery") || cLower.includes("lkg") || cLower.includes("ukg"))) return true;
+                    // Class 1-5 mapping
+                    if (["class 1", "class 2", "class 3", "class 4", "class 5"].includes(searchLower) && (cLower.includes("class 1-5") || cLower.includes("primary"))) return true;
+                    // Class 6-8 mapping
+                    if (["class 6", "class 7", "class 8"].includes(searchLower) && (cLower.includes("class 6-8") || cLower.includes("middle"))) return true;
+                    // Class 9-10 mapping
+                    if (["class 9", "class 10"].includes(searchLower) && (cLower.includes("class 9-10") || cLower.includes("secondary"))) return true;
+                    // Class 11-12 mapping
+                    if (["class 11", "class 12"].includes(searchLower) && (cLower.includes("class 11-12") || cLower.includes("higher secondary") || cLower.includes("inter"))) return true;
+                    return false;
+                });
             });
         }
 
@@ -779,10 +791,17 @@ function FindTutorNearbyPageContent() {
                         className="relative h-64 md:h-72 lg:h-80 overflow-hidden cursor-pointer"
                     >
                         <div className="absolute top-5 left-5 md:top-6 md:left-6 z-20">
-                            <div className="bg-white/95 backdrop-blur-md px-3 py-1.5 md:px-4 md:py-2 rounded-full flex items-center gap-2 shadow-lg border border-white/30">
-                                <ShieldCheck className="w-3.5 h-3.5 md:w-4 h-4 text-emerald-500" />
-                                <span className="text-[9px] md:text-[10px] font-black text-slate-900 uppercase tracking-widest">Verified Expert</span>
-                            </div>
+                            {t.isApproved ? (
+                                <div className="bg-emerald-500 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-full flex items-center gap-1.5 shadow-lg border border-emerald-400">
+                                    <ShieldCheck className="w-3.5 h-3.5 md:w-4 h-4 text-white" />
+                                    <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest">Verified Expert</span>
+                                </div>
+                            ) : (
+                                <div className="bg-amber-500 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-full flex items-center gap-1.5 shadow-lg border border-amber-400">
+                                    <Clock className="w-3.5 h-3.5 md:w-4 h-4 text-white" />
+                                    <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest">Unverified</span>
+                                </div>
+                            )}
                         </div>
 
                         {/* Top Right Rating Badge */}

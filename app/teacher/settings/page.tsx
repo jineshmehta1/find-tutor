@@ -331,8 +331,19 @@ export default function TeacherSettingsPage() {
             
             <div className="flex items-center gap-3">
                 <div>
-                    <h1 className="text-xl font-black text-slate-900 uppercase tracking-tight">Account Settings</h1>
+                    <h1 className="text-xl sm:text-2xl font-black text-slate-900 uppercase tracking-tight">Edit Profile</h1>
                     <p className="text-xs font-bold text-slate-400">Manage your teacher credentials, teaching modes, map location, alert configurations, and security.</p>
+                </div>
+            </div>
+
+            {/* Verification Notice Banner */}
+            <div className="p-4 bg-amber-50 border border-amber-200/80 rounded-2xl flex items-center gap-3 text-amber-900 shadow-sm">
+                <div className="p-2.5 bg-amber-400/20 rounded-xl text-amber-700 shrink-0">
+                    <Shield className="w-5 h-5" />
+                </div>
+                <div className="text-xs font-medium leading-relaxed">
+                    <span className="font-extrabold uppercase text-[11px] block text-amber-800">Verification Policy</span>
+                    Whenever you update your profile information, subjects, or uploaded certificates, your profile status will automatically be set to <strong className="font-black text-amber-900">Under Review</strong> for Admin re-verification.
                 </div>
             </div>
 
@@ -342,7 +353,7 @@ export default function TeacherSettingsPage() {
                 <div className="lg:col-span-8 bg-white rounded-3xl border border-slate-200/50 shadow-sm p-6 sm:p-8 space-y-6">
                     <div className="flex items-center gap-2 border-b pb-3">
                         <User className="w-5 h-5 text-[#ffb800]" />
-                        <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider">Teacher Profile Details</h3>
+                        <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider">Teacher Profile & KYC Details</h3>
                     </div>
 
                     <form onSubmit={handleSaveProfile} className="space-y-6">
@@ -581,7 +592,7 @@ export default function TeacherSettingsPage() {
                             <div className="space-y-3">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Classes & Age Group Taught</label>
                                 <div className="flex flex-wrap gap-2">
-                                    {["Nursery", "LKG", "UKG", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12"].map((c) => {
+                                    {["Nursery", "LKG", "UKG", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12", "Degree / Graduation", "Competitive Exams"].map((c) => {
                                         const active = formData.classesOrAgeGroup.includes(c);
                                         return (
                                             <button 

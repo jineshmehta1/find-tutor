@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import {
     ShieldCheck, FileCheck, FileX, Eye, Clock,
     GraduationCap, Download, CheckCircle2, XCircle,
-    Loader2, RefreshCw, AlertTriangle, ChevronRight
+    Loader2, RefreshCw, AlertTriangle, ChevronRight, ExternalLink
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -230,13 +231,22 @@ export default function VerificationQueuePage() {
                                         Applied: {new Date(selected.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                                     </div>
                                 </div>
-                                <span className={`px-3 py-1.5 rounded-xl text-xs font-black border ${
-                                    selected.isApproved
-                                        ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                                        : "bg-amber-50 text-amber-700 border-amber-200"
-                                }`}>
-                                    {selected.isApproved ? "Approved" : "Pending"}
-                                </span>
+                                <div className="flex flex-col items-end gap-2">
+                                    <span className={`px-3 py-1.5 rounded-xl text-xs font-black border ${
+                                        selected.isApproved
+                                            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                            : "bg-amber-50 text-amber-700 border-amber-200"
+                                    }`}>
+                                        {selected.isApproved ? "Approved" : "Pending"}
+                                    </span>
+                                    <Link
+                                        href={`/admin/tutors/${selected.id}`}
+                                        className="px-3.5 py-1.5 bg-[#ffb800] hover:bg-[#ffa000] text-slate-950 font-black text-xs rounded-xl flex items-center gap-1.5 shadow-sm transition-all shrink-0"
+                                    >
+                                        <ExternalLink className="w-3.5 h-3.5" />
+                                        <span>Open Dedicated Review Page</span>
+                                    </Link>
+                                </div>
                             </div>
 
                             {/* Profile Info Grid */}

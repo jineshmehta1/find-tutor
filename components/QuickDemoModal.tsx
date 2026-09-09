@@ -170,10 +170,22 @@ export function QuickDemoModal({ isOpen, onClose, defaultSubject = "", defaultTu
                     className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-primary focus:bg-white transition-all"
                   >
                     <option value="">Select Level</option>
-                    <option value="Class 1-5">Class 1-5</option>
-                    <option value="Class 6-8">Class 6-8</option>
-                    <option value="Class 9-10">Class 9-10</option>
-                    <option value="Class 11-12">Class 11-12</option>
+                    <option value="Nursery">Nursery</option>
+                    <option value="LKG">LKG</option>
+                    <option value="UKG">UKG</option>
+                    <option value="Class 1">Class 1</option>
+                    <option value="Class 2">Class 2</option>
+                    <option value="Class 3">Class 3</option>
+                    <option value="Class 4">Class 4</option>
+                    <option value="Class 5">Class 5</option>
+                    <option value="Class 6">Class 6</option>
+                    <option value="Class 7">Class 7</option>
+                    <option value="Class 8">Class 8</option>
+                    <option value="Class 9">Class 9</option>
+                    <option value="Class 10">Class 10</option>
+                    <option value="Class 11">Class 11</option>
+                    <option value="Class 12">Class 12</option>
+                    <option value="Degree / Graduation">Degree / Graduation</option>
                     <option value="Competitive/Tech">Competitive / Tech</option>
                   </select>
                 </div>

@@ -44,7 +44,7 @@ const sidebarGroups = [
     {
         label: "ACCOUNT",
         items: [
-            { label: "Settings",        href: "/teacher/settings",      icon: Settings },
+            { label: "Edit Profile",     href: "/teacher/edit-profile",  icon: Settings },
             { label: "Help & Support",  href: "/teacher/support",       icon: HelpCircle },
         ]
     }
@@ -168,7 +168,7 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
         if (pathname.startsWith("/teacher/subscription")) return "Subscription";
         if (pathname.startsWith("/teacher/payments")) return "Payments & Invoices";
         if (pathname.startsWith("/teacher/earnings")) return "My Earnings";
-        if (pathname.startsWith("/teacher/settings")) return "Settings";
+        if (pathname.startsWith("/teacher/edit-profile") || pathname.startsWith("/teacher/settings")) return "Edit Profile";
         if (pathname.startsWith("/teacher/support")) return "Help & Support";
         return "Teacher Portal";
     };

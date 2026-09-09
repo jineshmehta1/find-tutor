@@ -94,6 +94,8 @@ export async function GET(request: NextRequest) {
             certifications: JSON.parse(teacher.certifications || "[]"),
             subjects: JSON.parse(teacher.subjects || "[]"),
             teachingMode: teacher.teachingMode,
+            expectedFee: teacher.expectedFee,
+            feeType: teacher.feeType,
             classesOrAgeGroup: teacher.classesOrAgeGroup ? (() => { try { return JSON.parse(teacher.classesOrAgeGroup); } catch { return teacher.classesOrAgeGroup; } })() : null,
             qualificationLevel: teacher.qualificationLevel,
             qualificationName: teacher.qualificationName,

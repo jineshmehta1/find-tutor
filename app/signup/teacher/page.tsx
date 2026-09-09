@@ -1322,7 +1322,8 @@ export default function TeacherSignupPage() {
                                                     <thead>
                                                         <tr className="border-b border-slate-200 text-slate-400 font-black uppercase tracking-wider text-[10px]">
                                                             <th className="py-2 pr-4">Subject</th>
-                                                            <th className="py-2 px-2 text-center w-20">Pre-School</th>
+                                                            <th className="py-2 px-2 text-center w-16">LKG</th>
+                                                            <th className="py-2 px-2 text-center w-16">UKG</th>
                                                             <th className="py-2 px-2 text-center w-20">Class 1-5</th>
                                                             <th className="py-2 px-2 text-center w-20">Class 6-8</th>
                                                             <th className="py-2 px-2 text-center w-20">Class 9-10</th>
@@ -1336,7 +1337,7 @@ export default function TeacherSignupPage() {
                                                             return (
                                                                 <tr key={baseSubj} className="hover:bg-slate-100/50 transition-colors">
                                                                     <td className="py-3 pr-4 font-extrabold text-slate-900">{baseSubj}</td>
-                                                                    {["Pre-School", "Class 1-5", "Class 6-8", "Class 9-10", "Class 11-12"].map((level) => {
+                                                                    {["LKG", "UKG", "Class 1-5", "Class 6-8", "Class 9-10", "Class 11-12"].map((level) => {
                                                                         const checked = levels.includes(level);
                                                                         return (
                                                                             <td key={level} className="py-3 px-2 text-center">

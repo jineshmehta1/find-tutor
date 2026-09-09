@@ -7,6 +7,7 @@ import {
   MapPin, Loader2, Phone, Mail, User, GraduationCap, Send
 } from "lucide-react";
 import { toast } from "sonner";
+import { smartReverseGeocode } from "@/lib/geoUtils";
 
 export default function RequestTutorPage() {
   const router = useRouter();
@@ -43,12 +44,7 @@ export default function RequestTutorPage() {
       async (position) => {
         const { latitude, longitude } = position.coords;
         try {
-          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
-          const data = await res.json();
-          const addr = data?.address;
-          const locationName = addr 
-            ? [addr.suburb || addr.neighbourhood || addr.residential, addr.city || addr.town || addr.state_district].filter(Boolean).join(", ") || data.display_name
-            : `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+          const locationName = await smartReverseGeocode(latitude, longitude);
           setFormData(prev => ({ ...prev, location: locationName }));
           toast.success("Location detected successfully!");
         } catch {
@@ -63,7 +59,7 @@ export default function RequestTutorPage() {
         toast.error("Unable to retrieve location. Please type manually.");
         setDetectingLocation(false);
       },
-      { timeout: 10000, enableHighAccuracy: true }
+      { timeout: 15000, enableHighAccuracy: true, maximumAge: 0 }
     );
   };
 
@@ -249,11 +245,23 @@ export default function RequestTutorPage() {
                       className="w-full px-3 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#ffb800]/20 focus:border-[#ffb800] focus:bg-white text-xs font-bold transition-all cursor-pointer"
                     >
                       <option value="">Select Level</option>
-                      <option value="Class 1-5">Class 1-5</option>
-                      <option value="Class 6-8">Class 6-8</option>
-                      <option value="Class 9-10">Class 9-10</option>
-                      <option value="Class 11-12">Class 11-12</option>
-                      <option value="JEE/NEET Prep">JEE / NEET Prep</option>
+                      <option value="Nursery">Nursery</option>
+                      <option value="LKG">LKG</option>
+                      <option value="UKG">UKG</option>
+                      <option value="Class 1">Class 1</option>
+                      <option value="Class 2">Class 2</option>
+                      <option value="Class 3">Class 3</option>
+                      <option value="Class 4">Class 4</option>
+                      <option value="Class 5">Class 5</option>
+                      <option value="Class 6">Class 6</option>
+                      <option value="Class 7">Class 7</option>
+                      <option value="Class 8">Class 8</option>
+                      <option value="Class 9">Class 9</option>
+                      <option value="Class 10">Class 10</option>
+                      <option value="Class 11">Class 11</option>
+                      <option value="Class 12">Class 12</option>
+                      <option value="Degree / Graduation">Degree / Graduation</option>
+                      <option value="JEE / NEET Prep">JEE / NEET Prep</option>
                       <option value="Tech & Coding">Tech & Coding</option>
                       <option value="Chess & Abacus">Chess & Abacus</option>
                     </select>

@@ -176,15 +176,27 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
 
           {/* Info */}
           <div className="text-center md:text-left space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-full border border-primary/20">
-              Verified Private Instructor
-            </div>
+            {tutor.isApproved ? (
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-emerald-500/20 text-emerald-300 text-xs font-black uppercase tracking-wider rounded-full border border-emerald-400/30">
+                <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                <span>Verified Private Instructor</span>
+              </div>
+            ) : (
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-amber-500/20 text-amber-300 text-xs font-black uppercase tracking-wider rounded-full border border-amber-400/30">
+                <Clock className="w-4 h-4 text-amber-400" />
+                <span>Unverified Profile (Pending Verification)</span>
+              </div>
+            )}
+            
             <h1 className="text-3xl md:text-5xl font-black tracking-tight">{tutor.name}</h1>
             
             <div className="flex flex-wrap justify-center md:justify-start gap-6 text-sm text-slate-300 font-semibold">
               <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-primary" /> {tutor.address?.split(",")[0]}</span>
               <span className="flex items-center gap-1.5"><Briefcase className="w-4 h-4 text-primary" /> {tutor.experience} Experience</span>
-              <span className="flex items-center gap-1.5"><GraduationCap className="w-4 h-4 text-primary" /> {tutor.qualificationLevel} ({tutor.qualificationName})</span>
+              <span className="flex items-center gap-1.5"><GraduationCap className="w-4 h-4 text-primary" /> {tutor.qualificationLevel || "Educator"} ({tutor.qualificationName || tutor.education})</span>
+              {tutor.gender && (
+                <span className="flex items-center gap-1.5"><UserCheck className="w-4 h-4 text-primary" /> {tutor.gender}</span>
+              )}
             </div>
           </div>
         </div>
@@ -204,26 +216,12 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
             <p className="text-slate-600 font-medium leading-relaxed">
               {tutor.achievements || "Dedicated to building strong foundational concepts and helping students excel in academics."}
             </p>
-            {tutor.achievementCertificate && (
-              <div className="flex gap-2 items-center p-3 bg-amber-500/5 text-slate-700 text-xs font-bold rounded-2xl border border-amber-200/40">
-                <Award className="w-5 h-5 text-amber-500 shrink-0" />
-                <span>Verification Proof:</span>
-                <a href={tutor.achievementCertificate} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                  View Achievement Certificate Document
-                </a>
-              </div>
-            )}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-slate-50">
               <div className="flex gap-3">
                 <GraduationCap className="w-5 h-5 text-slate-400 shrink-0 mt-0.5" />
                 <div>
                   <p className="text-xs font-bold text-slate-400 uppercase">Education</p>
                   <p className="text-sm font-semibold text-slate-800">{tutor.education}</p>
-                  {tutor.qualificationCertificate && (
-                    <a href={tutor.qualificationCertificate} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 font-bold hover:underline block mt-1">
-                      View Verified Degree Document
-                    </a>
-                  )}
                 </div>
               </div>
               <div className="flex gap-3">
@@ -257,9 +255,25 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
               )}
               {tutor.teachingMode && (
                 <div className="space-y-1">
-                  <p className="text-xs font-bold text-slate-400 uppercase">Availability Slot</p>
+                  <p className="text-xs font-bold text-slate-400 uppercase">Teaching Mode</p>
                   <p className="font-semibold text-slate-800">
-                    {tutor.teachingMode === "Home Tutor" ? "At Student Home" : tutor.teachingMode === "Online Tutor" ? "Online mode" : tutor.teachingMode === "At Centre" ? "At Teacher Home" : tutor.teachingMode}
+                    {(() => {
+                      let modes: string[] = [];
+                      try {
+                        const parsed = JSON.parse(tutor.teachingMode);
+                        if (Array.isArray(parsed)) modes = parsed;
+                        else if (parsed) modes = [String(parsed)];
+                      } catch {
+                        modes = tutor.teachingMode.split(",").map(s => s.trim());
+                      }
+                      return modes.map(m => {
+                        const clean = m.toUpperCase();
+                        if (clean.includes("STUDENT") || clean.includes("HOME TUTOR")) return "At Student Home";
+                        if (clean.includes("TEACHER") || clean.includes("CENTRE")) return "At Teacher Home";
+                        if (clean.includes("ONLINE")) return "Online Mode";
+                        return m.replace(/^"(.*)"$/, '$1');
+                      }).join(", ") || tutor.teachingMode;
+                    })()}
                   </p>
                 </div>
               )}

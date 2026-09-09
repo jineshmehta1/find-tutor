@@ -54,40 +54,7 @@ interface MapLocationPickerProps {
     compact?: boolean;
 }
 
-/* ─── Nominatim reverse geocode ─── */
-async function reverseGeocode(lat: number, lng: number): Promise<string> {
-    try {
-        const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
-            { headers: { "Accept-Language": "en" } }
-        );
-        const data = await res.json();
-        return data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-    } catch {
-        return `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-    }
-}
-
-/* ─── Nominatim search ─── */
-interface NominatimResult {
-    place_id: number;
-    display_name: string;
-    lat: string;
-    lon: string;
-}
-
-async function searchPlaces(query: string): Promise<NominatimResult[]> {
-    if (!query.trim() || query.length < 3) return [];
-    try {
-        const res = await fetch(
-            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycodes=in`,
-            { headers: { "Accept-Language": "en" } }
-        );
-        return await res.json();
-    } catch {
-        return [];
-    }
-}
+import { smartReverseGeocode, searchPlacesAccurate, type NominatimPlace as NominatimResult } from "@/lib/geoUtils";
 
 /* ─── Sub-component: handles map click events ─── */
 function MapClickHandler({ onMapClick }: { onMapClick: (lat: number, lng: number) => void }) {
@@ -178,7 +145,7 @@ export default function MapLocationPicker({
         async (lat: number, lng: number) => {
             setMarkerPos([lat, lng]);
             setFlyTo([lat, lng]);
-            const addr = await reverseGeocode(lat, lng);
+            const addr = await smartReverseGeocode(lat, lng);
             setAddress(addr);
             setSearchQuery("");
             setShowResults(false);
@@ -203,7 +170,7 @@ export default function MapLocationPicker({
                 alert("Unable to retrieve your location. Please allow location access.");
                 setIsLocating(false);
             },
-            { enableHighAccuracy: true, timeout: 10000 }
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
         );
     }, [handlePlaceMarker]);
 
@@ -217,7 +184,7 @@ export default function MapLocationPicker({
         }
         setIsSearching(true);
         searchTimeoutRef.current = setTimeout(async () => {
-            const results = await searchPlaces(searchQuery);
+            const results = await searchPlacesAccurate(searchQuery);
             setSearchResults(results);
             setShowResults(results.length > 0);
             setIsSearching(false);

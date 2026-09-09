@@ -95,7 +95,10 @@ export async function PATCH(request: NextRequest) {
         }
 
         if (user.role === "TEACHER" && user.teacher) {
-            const teacherUpdateData: any = {};
+            const teacherUpdateData: any = {
+                isApproved: false,
+                approvedAt: null,
+            };
             if (subjects) teacherUpdateData.subjects = JSON.stringify(subjects);
             if (education) teacherUpdateData.education = education;
             if (experience) teacherUpdateData.experience = experience;
@@ -107,24 +110,14 @@ export async function PATCH(request: NextRequest) {
             if (achievements !== undefined) teacherUpdateData.achievements = achievements;
             if (achievementCertificate !== undefined) teacherUpdateData.achievementCertificate = achievementCertificate;
             if (qualificationCertificate !== undefined) teacherUpdateData.qualificationCertificate = qualificationCertificate;
+            if (body.identityProof !== undefined) teacherUpdateData.identityProof = body.identityProof;
+            if (body.expectedFee !== undefined) teacherUpdateData.expectedFee = body.expectedFee ? parseInt(String(body.expectedFee)) : null;
+            if (body.feeType !== undefined) teacherUpdateData.feeType = body.feeType;
 
-            // Trigger re-approval if critical verification documents change
-            if (existingUser?.teacher) {
-                const certsChanged = certifications && JSON.stringify(certifications) !== existingUser.teacher.certifications;
-                const qualCertChanged = qualificationCertificate !== undefined && qualificationCertificate !== existingUser.teacher.qualificationCertificate;
-                const achCertChanged = achievementCertificate !== undefined && achievementCertificate !== existingUser.teacher.achievementCertificate;
-                
-                if (certsChanged || qualCertChanged || achCertChanged) {
-                    teacherUpdateData.isApproved = false;
-                }
-            }
-
-            if (Object.keys(teacherUpdateData).length > 0) {
-                await prisma.teacher.update({
-                    where: { id: user.teacher.id },
-                    data: teacherUpdateData,
-                });
-            }
+            await prisma.teacher.update({
+                where: { id: user.teacher.id },
+                data: teacherUpdateData,
+            });
         }
 
         // Fetch updated user

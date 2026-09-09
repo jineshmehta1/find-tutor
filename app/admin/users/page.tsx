@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import {
     Users, Search, Mail, Phone, MapPin, User, Loader2,
-    CheckCircle2, Clock, XCircle, Trash2, GraduationCap, Eye, X, Calendar, Award, Briefcase, BookOpen, Sparkles, ShieldCheck
+    CheckCircle2, Clock, XCircle, Trash2, GraduationCap, Eye, X, Calendar, Award, Briefcase, BookOpen, Sparkles, ShieldCheck, ExternalLink
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -389,13 +390,23 @@ export default function AdminUsersPage() {
                                     </div>
 
                                     {/* Action Buttons */}
-                                    <div className="flex items-center gap-2 self-end sm:self-auto">
+                                    <div className="flex items-center gap-2 self-end sm:self-auto flex-wrap">
+                                        {isTeacher && user.teacher && (
+                                            <Link
+                                                href={`/admin/tutors/${user.teacher.id}`}
+                                                className="px-3.5 py-1.5 bg-[#ffb800] hover:bg-[#ffa000] text-slate-950 font-black text-xs rounded-xl flex items-center gap-1 shadow-sm transition-all"
+                                            >
+                                                <ShieldCheck className="w-3.5 h-3.5" />
+                                                <span>Review & Edit Profile</span>
+                                            </Link>
+                                        )}
+
                                         <button
                                             onClick={() => handleInspect(user)}
                                             className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors flex items-center gap-1"
                                         >
                                             <Eye className="w-3.5 h-3.5" />
-                                            <span>Inspect Profile</span>
+                                            <span>Quick View</span>
                                         </button>
 
                                         {isTeacher && user.teacher && (

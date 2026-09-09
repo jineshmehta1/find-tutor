@@ -9,6 +9,7 @@ import {
     Loader2, Camera, X, CheckCircle2, Lock
 } from "lucide-react";
 import { toast } from "sonner";
+import { smartReverseGeocode } from "@/lib/geoUtils";
 
 const SUBJECTS = [
     "Mathematics", "Physics", "Chemistry", "Biology", "English",
@@ -41,7 +42,37 @@ export default function StudentSettingsPage() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
+    const [detectingLocation, setDetectingLocation] = useState(false);
     const profileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleDetectLocation = () => {
+        if (!navigator.geolocation) {
+            toast.error("Geolocation is not supported by your browser");
+            return;
+        }
+
+        setDetectingLocation(true);
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const { latitude, longitude } = position.coords;
+                try {
+                    const locationName = await smartReverseGeocode(latitude, longitude);
+                    setProfile(prev => prev ? { ...prev, address: locationName } : null);
+                    toast.success("Location detected successfully!");
+                } catch {
+                    toast.error("Failed to detect location address");
+                } finally {
+                    setDetectingLocation(false);
+                }
+            },
+            (error) => {
+                console.error(error);
+                toast.error("Unable to retrieve location. Please check browser permissions.");
+                setDetectingLocation(false);
+            },
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+        );
+    };
 
     // States for Notification Alerts
     const [emailAlerts, setEmailAlerts] = useState(true);
@@ -286,12 +317,33 @@ export default function StudentSettingsPage() {
                         </div>
 
                         <div className="space-y-1.5">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Home Address / Location</label>
+                            <div className="flex justify-between items-center">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Home Address / Location</label>
+                                <button
+                                    type="button"
+                                    onClick={handleDetectLocation}
+                                    disabled={detectingLocation}
+                                    className="text-[11px] font-bold text-amber-600 hover:text-amber-700 flex items-center gap-1 transition-colors"
+                                >
+                                    {detectingLocation ? (
+                                        <>
+                                            <Loader2 className="w-3 h-3 animate-spin" />
+                                            <span>Detecting GPS...</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <MapPin className="w-3 h-3 text-amber-500" />
+                                            <span>Auto-detect My Location</span>
+                                        </>
+                                    )}
+                                </button>
+                            </div>
                             <input 
                                 type="text" 
                                 required
                                 value={profile?.address || ""} 
                                 onChange={e => setProfile(prev => prev ? { ...prev, address: e.target.value } : null)}
+                                placeholder="E.g. Hanumaiah street, Swathi theatre road, Bhavanipuram, Vijayawada"
                                 className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50" 
                             />
                         </div>

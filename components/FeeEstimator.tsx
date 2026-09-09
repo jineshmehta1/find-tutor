@@ -96,10 +96,22 @@ export function FeeEstimator({ onSelectEstimate }: FeeEstimatorProps) {
                 onChange={(e) => setLevel(e.target.value)}
                 className="w-full bg-slate-800/80 border border-slate-700/80 text-white rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-emerald-500 transition-all cursor-pointer"
               >
-                <option value="Class 1-5">Class 1 to 5 (Primary)</option>
-                <option value="Class 6-8">Class 6 to 8 (Middle)</option>
-                <option value="Class 9-10">Class 9 & 10 (Secondary)</option>
-                <option value="Class 11-12">Class 11 & 12 (Higher Secondary)</option>
+                <option value="Nursery">Nursery</option>
+                <option value="LKG">LKG</option>
+                <option value="UKG">UKG</option>
+                <option value="Class 1">Class 1</option>
+                <option value="Class 2">Class 2</option>
+                <option value="Class 3">Class 3</option>
+                <option value="Class 4">Class 4</option>
+                <option value="Class 5">Class 5</option>
+                <option value="Class 6">Class 6</option>
+                <option value="Class 7">Class 7</option>
+                <option value="Class 8">Class 8</option>
+                <option value="Class 9">Class 9</option>
+                <option value="Class 10">Class 10</option>
+                <option value="Class 11">Class 11</option>
+                <option value="Class 12">Class 12</option>
+                <option value="Degree / Graduation">Degree / Graduation</option>
                 <option value="Competitive JEE/NEET">JEE Prep / NEET Exam</option>
                 <option value="Tech & Programming">Coding, AI & Robotics</option>
               </select>

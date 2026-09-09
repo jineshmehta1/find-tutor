@@ -85,6 +85,8 @@ export async function GET(
             certifications: (() => { try { return JSON.parse(teacher.certifications || "[]"); } catch { return []; } })(),
             subjects: (() => { try { return JSON.parse(teacher.subjects || "[]"); } catch { return []; } })(),
             teachingMode: teacher.teachingMode,
+            expectedFee: teacher.expectedFee,
+            feeType: teacher.feeType,
             classesOrAgeGroup: teacher.classesOrAgeGroup ? (() => { try { return JSON.parse(teacher.classesOrAgeGroup); } catch { return teacher.classesOrAgeGroup; } })() : null,
             qualificationLevel: teacher.qualificationLevel,
             qualificationName: teacher.qualificationName,

@@ -114,8 +114,8 @@ function ShowcaseCard({ item, isCoach }: { item: any; isCoach: boolean }) {
       <div className="p-5 pt-0 flex-1 flex flex-col justify-between space-y-4">
         
         {/* Profile Avatar overlapping cover */}
-        <div className="flex items-end gap-3 -mt-8 relative z-20">
-          <div className="relative w-16 h-16 shrink-0">
+        <div className="flex items-start gap-3 relative z-20 pt-2">
+          <div className="relative w-16 h-16 shrink-0 -mt-8">
             <div className={`profile-fallback w-16 h-16 rounded-full flex items-center justify-center font-black text-xl border-4 border-white shadow-md ${
               isCoach 
                 ? "bg-gradient-to-tr from-indigo-500 to-purple-600 text-white" 
@@ -133,12 +133,12 @@ function ShowcaseCard({ item, isCoach }: { item: any; isCoach: boolean }) {
             )}
           </div>
           
-          <div className="pb-1 min-w-0 flex-1">
-            <h4 className="font-extrabold text-sm text-[#0f223a] group-hover:text-amber-500 transition-colors truncate">
+          <div className="min-w-0 flex-1 pt-0.5">
+            <h4 className="font-extrabold text-base text-[#0f223a] group-hover:text-amber-500 transition-colors truncate leading-tight">
               {item.name}
             </h4>
             {item.qualificationName && (
-              <p className="text-[10px] text-slate-400 font-bold truncate">
+              <p className="text-[11px] text-slate-400 font-bold truncate mt-0.5">
                 {item.qualificationName}
               </p>
             )}

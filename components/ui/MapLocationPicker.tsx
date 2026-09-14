@@ -54,7 +54,7 @@ interface MapLocationPickerProps {
     compact?: boolean;
 }
 
-import { smartReverseGeocode, searchPlacesAccurate, type NominatimPlace as NominatimResult } from "@/lib/geoUtils";
+import { smartReverseGeocode, searchPlacesAccurate, getBrowserCoordinates, type NominatimPlace as NominatimResult } from "@/lib/geoUtils";
 
 /* ─── Sub-component: handles map click events ─── */
 function MapClickHandler({ onMapClick }: { onMapClick: (lat: number, lng: number) => void }) {
@@ -155,23 +155,16 @@ export default function MapLocationPicker({
     );
 
     /* ─── GPS: Use My Location ─── */
-    const handleUseMyLocation = useCallback(() => {
-        if (!navigator.geolocation) {
-            alert("Geolocation is not supported by your browser");
-            return;
-        }
+    const handleUseMyLocation = useCallback(async () => {
         setIsLocating(true);
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                handlePlaceMarker(pos.coords.latitude, pos.coords.longitude);
-                setIsLocating(false);
-            },
-            () => {
-                alert("Unable to retrieve your location. Please allow location access.");
-                setIsLocating(false);
-            },
-            { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-        );
+        try {
+            const coords = await getBrowserCoordinates(8000);
+            await handlePlaceMarker(coords.latitude, coords.longitude);
+        } catch (err: any) {
+            alert(err?.message || "Unable to retrieve your location. Please check browser location permissions.");
+        } finally {
+            setIsLocating(false);
+        }
     }, [handlePlaceMarker]);
 
     /* ─── Search debounce ─── */

@@ -119,38 +119,69 @@ export async function POST(req: Request) {
 
     // Create Lead in the database so it hooks up to the admin page
     try {
+      const targetEmail = (email || "").toLowerCase().trim();
+      const targetPhone = (phone || "").trim();
+
       let student = await prisma.student.findFirst({
         where: {
           user: {
-            email: email || "anonymous@aacharya.net"
-          }
-        }
+            OR: [
+              ...(targetEmail ? [{ email: { equals: targetEmail, mode: "insensitive" as const } }] : []),
+              ...(targetPhone ? [{ phone: targetPhone }] : []),
+            ],
+          },
+        },
       });
 
       if (!student) {
-        const dummyPassword = Math.random().toString(36).slice(-8);
-        const passwordHash = await bcrypt.hash(dummyPassword, 10);
-        
-        const newUser = await prisma.user.create({
-          data: {
-            name: studentName || parentName || "Anonymous User",
-            email: email || `user_${Date.now()}@aacharya.net`,
-            phone: phone || "0000000000",
-            password: passwordHash,
-            role: "STUDENT",
-            dob: new Date(),
-            address: "Vijayawada",
-            student: {
-              create: {
-                subjects: JSON.stringify([course || "General"])
-              }
-            }
+        const existingUser = await prisma.user.findFirst({
+          where: {
+            OR: [
+              ...(targetEmail ? [{ email: { equals: targetEmail, mode: "insensitive" as const } }] : []),
+              ...(targetPhone ? [{ phone: targetPhone }] : []),
+            ],
           },
-          include: {
-            student: true
-          }
+          include: { student: true },
         });
-        student = newUser.student as any;
+
+        if (existingUser) {
+          if (existingUser.student) {
+            student = existingUser.student;
+          } else {
+            student = await prisma.student.create({
+              data: {
+                userId: existingUser.id,
+                subjects: JSON.stringify([course || "General"]),
+              },
+            });
+          }
+        } else {
+          const fallbackEmail = targetEmail || `user_${Date.now()}@aacharya.net`;
+          const fallbackPhone = targetPhone || "0000000000";
+          const dummyPassword = Math.random().toString(36).slice(-8);
+          const passwordHash = await bcrypt.hash(dummyPassword, 10);
+
+          const newUser = await prisma.user.create({
+            data: {
+              name: studentName || parentName || "Anonymous User",
+              email: fallbackEmail,
+              phone: fallbackPhone,
+              password: passwordHash,
+              role: "STUDENT",
+              dob: new Date(),
+              address: "Vijayawada",
+              student: {
+                create: {
+                  subjects: JSON.stringify([course || "General"]),
+                },
+              },
+            },
+            include: {
+              student: true,
+            },
+          });
+          student = newUser.student as any;
+        }
       }
 
       if (student) {

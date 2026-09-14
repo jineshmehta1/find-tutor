@@ -52,7 +52,7 @@ export default function StudentSignupPage() {
     });
 
     // Custom signup UI states matching Flipkart/Aacharya aesthetics
-    const [accountCreator, setAccountCreator] = useState<"parent" | "student">("parent");
+    const [accountCreator, setAccountCreator] = useState<"parent" | "student" | "">("");
     const [gender, setGender] = useState<"male" | "female" | "other" | "">("");
     const [preferredLanguage, setPreferredLanguage] = useState("English");
     const [securityQuestion, setSecurityQuestion] = useState("");
@@ -169,6 +169,10 @@ export default function StudentSignupPage() {
             if (formData.password !== formData.confirmPassword) {
                 newErrors.confirmPassword = "Passwords do not match";
             }
+            if (!accountCreator) {
+                toast.error("Please select whether you are creating this account as a Parent or Student");
+                return false;
+            }
             if (!gender) {
                 toast.error("Please select your gender");
                 return false;
@@ -247,7 +251,15 @@ export default function StudentSignupPage() {
             const data = await res.json();
 
             if (!res.ok) {
-                toast.error(data.error || "Registration failed");
+                const errorMsg = data.error || "Registration failed";
+                toast.error(errorMsg);
+                if (errorMsg.toLowerCase().includes("email")) {
+                    setStep(1);
+                    setErrors(prev => ({ ...prev, email: errorMsg }));
+                } else if (errorMsg.toLowerCase().includes("phone")) {
+                    setStep(1);
+                    setErrors(prev => ({ ...prev, phone: errorMsg }));
+                }
                 return;
             }
 

@@ -7,7 +7,7 @@ import {
   MapPin, Loader2, Phone, Mail, User, GraduationCap, Send
 } from "lucide-react";
 import { toast } from "sonner";
-import { smartReverseGeocode } from "@/lib/geoUtils";
+import { smartReverseGeocode, getBrowserCoordinates } from "@/lib/geoUtils";
 
 export default function RequestTutorPage() {
   const router = useRouter();
@@ -20,8 +20,8 @@ export default function RequestTutorPage() {
     location: "",
     parentName: "",
     studentName: "",
-    email: "",
     phone: "",
+    email: "",
     goals: ""
   });
 
@@ -33,34 +33,19 @@ export default function RequestTutorPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleDetectLocation = () => {
-    if (!navigator.geolocation) {
-      toast.error("Geolocation is not supported by your browser");
-      return;
-    }
-
+  const handleDetectLocation = async () => {
     setDetectingLocation(true);
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        try {
-          const locationName = await smartReverseGeocode(latitude, longitude);
-          setFormData(prev => ({ ...prev, location: locationName }));
-          toast.success("Location detected successfully!");
-        } catch {
-          setFormData(prev => ({ ...prev, location: `${latitude.toFixed(4)}, ${longitude.toFixed(4)}` }));
-          toast.success("GPS Location detected!");
-        } finally {
-          setDetectingLocation(false);
-        }
-      },
-      (error) => {
-        console.error(error);
-        toast.error("Unable to retrieve location. Please type manually.");
-        setDetectingLocation(false);
-      },
-      { timeout: 15000, enableHighAccuracy: true, maximumAge: 0 }
-    );
+    try {
+      const { latitude, longitude } = await getBrowserCoordinates(8000);
+      const locationName = await smartReverseGeocode(latitude, longitude);
+      setFormData(prev => ({ ...prev, location: locationName }));
+      toast.success(`Location detected: ${locationName}`);
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error?.message || "Unable to retrieve location. Please type manually.");
+    } finally {
+      setDetectingLocation(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

@@ -9,7 +9,7 @@ import {
     Loader2, Camera, X, CheckCircle2, Lock
 } from "lucide-react";
 import { toast } from "sonner";
-import { smartReverseGeocode } from "@/lib/geoUtils";
+import { smartReverseGeocode, getBrowserCoordinates } from "@/lib/geoUtils";
 
 const SUBJECTS = [
     "Mathematics", "Physics", "Chemistry", "Biology", "English",
@@ -45,33 +45,19 @@ export default function StudentSettingsPage() {
     const [detectingLocation, setDetectingLocation] = useState(false);
     const profileInputRef = useRef<HTMLInputElement>(null);
 
-    const handleDetectLocation = () => {
-        if (!navigator.geolocation) {
-            toast.error("Geolocation is not supported by your browser");
-            return;
-        }
-
+    const handleDetectLocation = async () => {
         setDetectingLocation(true);
-        navigator.geolocation.getCurrentPosition(
-            async (position) => {
-                const { latitude, longitude } = position.coords;
-                try {
-                    const locationName = await smartReverseGeocode(latitude, longitude);
-                    setProfile(prev => prev ? { ...prev, address: locationName } : null);
-                    toast.success("Location detected successfully!");
-                } catch {
-                    toast.error("Failed to detect location address");
-                } finally {
-                    setDetectingLocation(false);
-                }
-            },
-            (error) => {
-                console.error(error);
-                toast.error("Unable to retrieve location. Please check browser permissions.");
-                setDetectingLocation(false);
-            },
-            { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-        );
+        try {
+            const { latitude, longitude } = await getBrowserCoordinates(8000);
+            const locationName = await smartReverseGeocode(latitude, longitude);
+            setProfile(prev => prev ? { ...prev, address: locationName } : null);
+            toast.success(`Location detected: ${locationName}`);
+        } catch (error: any) {
+            console.error(error);
+            toast.error(error?.message || "Unable to retrieve location.");
+        } finally {
+            setDetectingLocation(false);
+        }
     };
 
     // States for Notification Alerts

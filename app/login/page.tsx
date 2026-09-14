@@ -16,7 +16,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<UserRole>("STUDENT");
+  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -32,8 +32,14 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
+
+    if (!selectedRole) {
+      setError("Please select whether you are logging in as Student / Parent, Teacher, or Admin.");
+      return;
+    }
+
+    setLoading(true);
 
     try {
       const res = await signIn("credentials", {

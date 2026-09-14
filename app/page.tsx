@@ -13,7 +13,7 @@ import {
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import MapLocationPicker from "@/components/ui/DynamicMapPicker";
-import { smartReverseGeocode } from "@/lib/geoUtils";
+import { smartReverseGeocode, getBrowserCoordinates } from "@/lib/geoUtils";
 
 const ACADEMIC_SUBJECTS = [
   "Mathematics", "Science", "Physics", "Chemistry", "Biology", "English", "Social Studies", "Computer Science"
@@ -354,32 +354,17 @@ export default function HomePage() {
     router.push(`/find-tutor-nearby?${query.toString()}#results`);
   };
 
-  const handleDetectLocation = () => {
-    if (!navigator.geolocation) {
-      toast.error("Geolocation is not supported by your browser");
-      return;
-    }
-    
+  const handleDetectLocation = async () => {
     const loadingToast = toast.loading("Detecting your high-precision location...");
-    
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        try {
-          const cleanAddress = await smartReverseGeocode(latitude, longitude);
-          setSearchLocation(cleanAddress);
-          toast.success(`Location detected: ${cleanAddress}`, { id: loadingToast });
-        } catch {
-          setSearchLocation(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
-          toast.success("Location coordinates detected!", { id: loadingToast });
-        }
-      },
-      (error) => {
-        console.error(error);
-        toast.error("Unable to retrieve location. Please check your browser permissions.", { id: loadingToast });
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-    );
+    try {
+      const { latitude, longitude } = await getBrowserCoordinates(8000);
+      const cleanAddress = await smartReverseGeocode(latitude, longitude);
+      setSearchLocation(cleanAddress);
+      toast.success(`Location detected: ${cleanAddress}`, { id: loadingToast });
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error?.message || "Unable to retrieve location. Please check browser permissions.", { id: loadingToast });
+    }
   };
 
   // Fallbacks if database is empty

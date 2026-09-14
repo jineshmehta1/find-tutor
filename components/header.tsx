@@ -170,12 +170,12 @@ const Header: React.FC = () => {
                 <>
                   <a
                     href="/login"
-                    className="px-4 py-2 text-sm font-bold text-slate-700 border border-slate-200 rounded-xl hover:bg-slate-50 hover:text-amber-500 transition-all shadow-sm flex items-center gap-1.5"
+                    className="px-4 py-2 text-sm font-bold text-slate-800 border border-slate-200 rounded-xl hover:bg-slate-50 hover:text-amber-600 transition-all shadow-sm flex items-center gap-1.5"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4 text-slate-500">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4 text-amber-500">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H8.25" />
                     </svg>
-                    <span>Login</span>
+                    <span>Sign In</span>
                   </a>
                   <a
                     href="/signup"
@@ -242,13 +242,46 @@ const Header: React.FC = () => {
             ))}
           </div>
 
-          <div className="p-5 border-t border-slate-100 bg-slate-50 gap-3 flex flex-col">
-            <a href="/signup" className="w-full py-3 text-center text-slate-700 font-bold border border-slate-200 rounded-xl bg-white shadow-sm">
-              Sign Up
-            </a>
-            <a href="/request-tutor" className="w-full py-3 text-center text-white bg-primary font-bold rounded-xl shadow-md">
-              Request a Tutor
-            </a>
+          <div className="p-5 border-t border-slate-100 bg-slate-50 gap-2.5 flex flex-col">
+            {session ? (
+              <>
+                <a
+                  href={
+                    session.user.role === "ADMIN"
+                      ? "/admin"
+                      : session.user.role === "TEACHER"
+                      ? "/teacher"
+                      : "/student"
+                  }
+                  className="w-full py-3 text-center text-slate-800 font-bold border border-slate-200 rounded-xl bg-white shadow-sm"
+                >
+                  Dashboard
+                </a>
+                <button
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                  className="w-full py-3 text-center text-red-600 font-bold border border-red-200 rounded-xl bg-red-50"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 gap-2">
+                  <a href="/login" className="w-full py-2.5 text-center text-slate-800 font-extrabold border border-slate-200 rounded-xl bg-white shadow-sm hover:bg-slate-50 flex items-center justify-center gap-1 text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4 text-amber-500">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H8.25" />
+                    </svg>
+                    Sign In
+                  </a>
+                  <a href="/signup" className="w-full py-2.5 text-center text-slate-950 font-extrabold rounded-xl bg-amber-500 hover:bg-amber-600 shadow-sm flex items-center justify-center gap-1 text-sm">
+                    Sign Up
+                  </a>
+                </div>
+                <a href="/request-tutor" className="w-full py-3 text-center text-white bg-slate-900 hover:bg-slate-800 font-bold rounded-xl shadow-md text-sm">
+                  Request a Tutor
+                </a>
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -25,38 +25,72 @@ export async function POST(request: NextRequest) {
         }
 
         if (!studentId) {
-            const targetEmail = email || session?.user?.email || `anonymous_${Date.now()}@aacharya.net`;
+            const targetEmail = (email || session?.user?.email || "").toLowerCase().trim();
+            const targetPhone = (phone || "").trim();
+
             let student = await prisma.student.findFirst({
                 where: {
                     user: {
-                        email: targetEmail
-                    }
-                }
+                        OR: [
+                            ...(targetEmail ? [{ email: { equals: targetEmail, mode: "insensitive" as const } }] : []),
+                            ...(targetPhone ? [{ phone: targetPhone }] : []),
+                        ],
+                    },
+                },
             });
 
             if (!student) {
-                const randomPassword = Math.random().toString(36).slice(-8);
-                const passwordHash = await require("bcryptjs").hash(randomPassword, 10);
-                const newUser = await prisma.user.create({
-                    data: {
-                        name: name || "Anonymous Student",
-                        email: targetEmail,
-                        phone: phone || "0000000000",
-                        password: passwordHash,
-                        role: "STUDENT",
-                        dob: new Date(),
-                        address: location || "Vijayawada",
-                        student: {
-                            create: {
-                                subjects: JSON.stringify([subject || "General"])
-                            }
-                        }
+                // Check if user exists by email or phone before attempting user creation
+                const existingUser = await prisma.user.findFirst({
+                    where: {
+                        OR: [
+                            ...(targetEmail ? [{ email: { equals: targetEmail, mode: "insensitive" as const } }] : []),
+                            ...(targetPhone ? [{ phone: targetPhone }] : []),
+                        ],
                     },
-                    include: {
-                        student: true
-                    }
+                    include: { student: true },
                 });
-                student = newUser.student as any;
+
+                if (existingUser) {
+                    if (existingUser.student) {
+                        student = existingUser.student;
+                    } else {
+                        // Create student relation for existing user
+                        const newStudentRel = await prisma.student.create({
+                            data: {
+                                userId: existingUser.id,
+                                subjects: JSON.stringify([subject || "General"]),
+                            },
+                        });
+                        student = newStudentRel;
+                    }
+                } else {
+                    const fallbackEmail = targetEmail || `anonymous_${Date.now()}@aacharya.net`;
+                    const fallbackPhone = targetPhone || "0000000000";
+                    const randomPassword = Math.random().toString(36).slice(-8);
+                    const passwordHash = await require("bcryptjs").hash(randomPassword, 10);
+
+                    const newUser = await prisma.user.create({
+                        data: {
+                            name: name || "Anonymous Student",
+                            email: fallbackEmail,
+                            phone: fallbackPhone,
+                            password: passwordHash,
+                            role: "STUDENT",
+                            dob: new Date(),
+                            address: location || "Vijayawada",
+                            student: {
+                                create: {
+                                    subjects: JSON.stringify([subject || "General"]),
+                                },
+                            },
+                        },
+                        include: {
+                            student: true,
+                        },
+                    });
+                    student = newUser.student as any;
+                }
             }
             if (student) {
                 studentId = student.id;

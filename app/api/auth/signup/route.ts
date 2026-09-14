@@ -96,16 +96,46 @@ export async function POST(request: NextRequest) {
             });
         }
 
-        // Check if email already exists
-        const existingUser = await prisma.user.findUnique({
-            where: { email: validatedData.email },
+        // Normalize input values
+        const normalizedEmail = validatedData.email.toLowerCase().trim();
+        const normalizedPhone = validatedData.phone.trim();
+        const cleanPhoneDigits = normalizedPhone.replace(/\D/g, "");
+        const last10PhoneDigits = cleanPhoneDigits.length >= 10 ? cleanPhoneDigits.slice(-10) : cleanPhoneDigits;
+
+        // 1. Check if email is already registered under ANY role
+        const existingEmailUser = await prisma.user.findFirst({
+            where: {
+                email: {
+                    equals: normalizedEmail,
+                    mode: "insensitive",
+                },
+            },
         });
 
-        if (existingUser) {
+        if (existingEmailUser) {
             return NextResponse.json(
-                { error: "Email already registered" },
+                { error: "An account with this email address already exists. Please sign in instead." },
                 { status: 400 }
             );
+        }
+
+        // 2. Check if phone number is already registered under ANY role
+        if (normalizedPhone) {
+            const existingPhoneUser = await prisma.user.findFirst({
+                where: {
+                    OR: [
+                        { phone: normalizedPhone },
+                        ...(last10PhoneDigits.length >= 7 ? [{ phone: { contains: last10PhoneDigits } }] : []),
+                    ],
+                },
+            });
+
+            if (existingPhoneUser) {
+                return NextResponse.json(
+                    { error: "An account with this phone number already exists. Please use a different phone number or sign in." },
+                    { status: 400 }
+                );
+            }
         }
 
         // Hash password
@@ -116,9 +146,9 @@ export async function POST(request: NextRequest) {
             const teacherData = validatedData as z.infer<typeof teacherSchema>;
             const user = await prisma.user.create({
                 data: {
-                    name: teacherData.name,
-                    email: teacherData.email,
-                    phone: teacherData.phone,
+                    name: teacherData.name.trim(),
+                    email: normalizedEmail,
+                    phone: normalizedPhone,
                     password: hashedPassword,
                     dob: teacherData.dob,
                     address: teacherData.address,
@@ -170,9 +200,9 @@ export async function POST(request: NextRequest) {
             const studentData = validatedData as z.infer<typeof studentSchema>;
             const user = await prisma.user.create({
                 data: {
-                    name: studentData.name,
-                    email: studentData.email,
-                    phone: studentData.phone,
+                    name: studentData.name.trim(),
+                    email: normalizedEmail,
+                    phone: normalizedPhone,
                     password: hashedPassword,
                     dob: studentData.dob,
                     address: studentData.address,

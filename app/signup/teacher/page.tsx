@@ -44,7 +44,7 @@ export default function TeacherSignupPage() {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     
-    const [tutorType, setTutorType] = useState<"teacher" | "coach">("teacher");
+    const [tutorType, setTutorType] = useState<"teacher" | "coach" | "">("");
     const [subjectLevels, setSubjectLevels] = useState<Record<string, string[]>>({});
     
     const profileInputRef = useRef<HTMLInputElement>(null);
@@ -302,6 +302,10 @@ export default function TeacherSignupPage() {
             if (!formData.password || formData.password.length < 6) newErrors.password = "Password must be at least 6 characters";
             if (formData.password !== formData.confirmPassword) {
                 newErrors.confirmPassword = "Passwords do not match";
+            }
+            if (!tutorType) {
+                toast.error("Please select whether you offer Academic Subjects or Co-curricular Skills");
+                return false;
             }
             if (!gender) {
                 toast.error("Please select your gender");

@@ -122,15 +122,13 @@ export async function GET(request: NextRequest) {
             };
         });
 
-        // Filter by radius if coordinates and radius provided (Online tutors included anywhere)
+        // Filter by radius if coordinates and radius provided
         if (reqLat !== null && reqLng !== null && reqRadius !== null && reqRadius > 0) {
             mappedTeachers = mappedTeachers.filter((t) => {
-                const isOnline = t.teachingMode && t.teachingMode.toLowerCase().includes("online");
-                if (isOnline) return true; // Online tutors are available anywhere!
-                if (t.distanceKm !== null) {
+                if (t.distanceKm !== null && t.distanceKm !== undefined) {
                     return t.distanceKm <= reqRadius;
                 }
-                return true;
+                return false;
             });
         }
 

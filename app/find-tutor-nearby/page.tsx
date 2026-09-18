@@ -345,30 +345,45 @@ function FindTutorNearbyPageContent() {
 
             if (radNum !== null) {
                 let withinRadius = result.filter(t => {
-                    // Online tutors are available anywhere!
-                    const isOnline = t.teachingMode && (
-                        t.teachingMode.toLowerCase().includes("online") ||
-                        t.teachingMode.toLowerCase().includes("remote")
-                    );
-                    if (isOnline) return true;
+                    // Strict radius check: tutor must be within radNum kilometers
                     if (t.distanceKm !== null && t.distanceKm !== undefined) {
                         return t.distanceKm <= radNum;
                     }
-                    return true;
+                    // Fallback for missing coordinates: check if address matches location text
+                    if (l.trim() && t.address) {
+                        const terms = l.toLowerCase().split(/[\s,]+/).filter(Boolean);
+                        return terms.some(term => t.address.toLowerCase().includes(term));
+                    }
+                    return false;
                 });
 
-                // Auto-Expansion logic: If 0 results within selected radius, but tutors exist within wider radius
-                if (withinRadius.length === 0 && result.length > 0) {
-                    const closest = result.find(t => t.distanceKm !== null);
-                    const closestDist = closest?.distanceKm ? Math.ceil(closest.distanceKm) : 5;
-                    const expandedRadius = Math.max(closestDist, radNum + 1);
-
-                    setAutoExpandedBanner(
-                        `No verified tutors found within ${radNum} km. Automatically broadened search — showing tutors within ${expandedRadius} km of your location:`
-                    );
-                    setFiltered(result);
-                } else {
+                if (withinRadius.length > 0) {
                     setFiltered(withinRadius);
+                } else {
+                    // Check if there are tutors within reasonable nearby distance (up to 50 km)
+                    const nearbyTutors = result.filter(t => t.distanceKm !== null && t.distanceKm <= 50);
+                    if (nearbyTutors.length > 0) {
+                        const closestDist = Math.ceil(nearbyTutors[0].distanceKm!);
+                        setAutoExpandedBanner(
+                            `No verified tutors found within ${radNum} km of ${l || "your location"}. Showing nearest available tutors (within ${closestDist} km):`
+                        );
+                        setFiltered(nearbyTutors);
+                    } else {
+                        // Check if online tutors are available
+                        const onlineTutors = result.filter(t => t.teachingMode && (
+                            t.teachingMode.toLowerCase().includes("online") ||
+                            t.teachingMode.toLowerCase().includes("remote")
+                        ));
+                        if (onlineTutors.length > 0) {
+                            setAutoExpandedBanner(
+                                `No local tutors found within ${radNum} km of ${l || "your location"}. Showing available Online Tutors:`
+                            );
+                            setFiltered(onlineTutors);
+                        } else {
+                            setAutoExpandedBanner(`No tutors found within ${radNum} km of ${l || "your location"}.`);
+                            setFiltered([]);
+                        }
+                    }
                 }
             } else {
                 setFiltered(result);

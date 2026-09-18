@@ -644,7 +644,30 @@ function FindTutorNearbyPageContent() {
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Field 5: Search Distance / Radius */}
+                            <div className="relative group md:col-span-2">
+                                <div className="flex items-center h-14 md:h-16 px-4 md:px-6 bg-white border border-slate-100 rounded-2xl md:rounded-[2rem] focus-within:ring-4 ring-primary/20 transition-all">
+                                    <Compass className="w-5 h-5 md:w-6 md:h-6 text-emerald-500 mr-3 md:mr-4 shrink-0" />
+                                    <div className="flex-1 text-left">
+                                        <p className="text-[8px] md:text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-0.5">Search Distance / Radius</p>
+                                        <select
+                                            value={selectedRadius}
+                                            onChange={(e) => {
+                                                setSelectedRadius(e.target.value);
+                                                performSearch(subject, location, e.target.value);
+                                            }}
+                                            className="w-full bg-transparent border-none text-sm md:text-base font-semibold outline-none text-slate-850 py-1 cursor-pointer"
+                                        >
+                                            {RADIUS_OPTIONS.map((r) => (
+                                                <option key={r.value} value={r.value}>{r.label}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
 
                         {/* Search Buttons Container */}
                         <div className="flex flex-col sm:flex-row items-center gap-3">

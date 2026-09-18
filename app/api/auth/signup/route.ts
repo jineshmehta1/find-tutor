@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
+import { geocodeAddressToCoords } from "@/lib/geoUtils";
+
 
 // Validation schemas
 const baseUserSchema = z.object({
@@ -144,6 +146,18 @@ export async function POST(request: NextRequest) {
         // Create user with role-specific data
         if (role === "TEACHER") {
             const teacherData = validatedData as z.infer<typeof teacherSchema>;
+            
+            let finalLat = teacherData.latitude ?? null;
+            let finalLng = teacherData.longitude ?? null;
+
+            if (finalLat === null || finalLng === null) {
+                const coords = await geocodeAddressToCoords(teacherData.address);
+                if (coords) {
+                    finalLat = coords.latitude;
+                    finalLng = coords.longitude;
+                }
+            }
+
             const user = await prisma.user.create({
                 data: {
                     name: teacherData.name.trim(),
@@ -153,8 +167,8 @@ export async function POST(request: NextRequest) {
                     dob: teacherData.dob,
                     address: teacherData.address,
                     profilePhoto: teacherData.profilePhoto,
-                    latitude: teacherData.latitude,
-                    longitude: teacherData.longitude,
+                    latitude: finalLat,
+                    longitude: finalLng,
                     role: "TEACHER",
                     accountCreator: teacherData.accountCreator || "teacher",
                     gender: teacherData.gender,
@@ -163,6 +177,7 @@ export async function POST(request: NextRequest) {
                     securityAnswer: teacherData.securityAnswer,
                     teacher: {
                         create: {
+
                             certifications: JSON.stringify(teacherData.certifications),
                             education: teacherData.education,
                             experience: teacherData.experience,

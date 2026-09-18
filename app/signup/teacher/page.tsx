@@ -61,7 +61,10 @@ export default function TeacherSignupPage() {
         confirmPassword: "",
         dob: "",
         address: "",
+        latitude: null as number | null,
+        longitude: null as number | null,
         profilePhoto: "",
+
         education: "",
         experience: "",
         certifications: [] as Certification[],
@@ -1022,11 +1025,22 @@ export default function TeacherSignupPage() {
                                 </div>
 
                                 <div className="space-y-1.5 text-left">
-                                    <label className="block text-[11px] font-black text-slate-450 uppercase tracking-wider">📍 Teaching Address / Center Location *</label>
+                                    <label className="block text-[11px] font-black text-slate-450 uppercase tracking-wider">
+                                        📍 Fixed Teaching / Home Address (Map Pin) *
+                                    </label>
+                                    <p className="text-[10px] text-slate-400 font-semibold mb-1">
+                                        Select your fixed residential or tuition center location. Your exact door number remains private—only locality and distance are shown to students.
+                                    </p>
                                     <div className="rounded-2xl overflow-hidden border border-slate-100 shadow-inner">
                                         <MapLocationPicker
                                             onLocationSelect={(loc) => {
-                                                updateField("address", loc.address);
+                                                setFormData(prev => ({
+                                                    ...prev,
+                                                    address: loc.address,
+                                                    latitude: loc.latitude,
+                                                    longitude: loc.longitude
+                                                }));
+                                                if (errors.address) setErrors(prev => ({ ...prev, address: "" }));
                                             }}
                                             initialAddress={formData.address}
                                             accentColor="amber"
@@ -1035,6 +1049,7 @@ export default function TeacherSignupPage() {
                                     </div>
                                     {errors.address && <p className="text-red-500 text-[10px] font-bold mt-1">{errors.address}</p>}
                                 </div>
+
 
                                 <div className="space-y-1.5 text-left">
                                     <label className="block text-[11px] font-black text-slate-450 uppercase tracking-wider">Profile Photo (Optional)</label>

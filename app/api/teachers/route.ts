@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { calculateHaversineDistance } from "@/lib/geoUtils";
+import { matchesClassLevel } from "@/lib/classConstants";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +13,14 @@ export async function GET(request: NextRequest) {
         const mode = searchParams.get("mode");
         const classLevel = searchParams.get("classLevel");
         const approvedOnly = searchParams.get("approved") !== "false";
+        
+        const latParam = searchParams.get("lat");
+        const lngParam = searchParams.get("lng");
+        const radiusParam = searchParams.get("radius");
+
+        const reqLat = latParam ? parseFloat(latParam) : null;
+        const reqLng = lngParam ? parseFloat(lngParam) : null;
+        const reqRadius = radiusParam ? parseFloat(radiusParam) : null;
 
         // Build where clause
         const where: any = {};
@@ -56,55 +66,88 @@ export async function GET(request: NextRequest) {
             });
         }
 
-        // Filter by area if specified
-        if (area) {
-            filteredTeachers = filteredTeachers.filter((teacher) =>
-                teacher.user.address.toLowerCase().includes(area.toLowerCase())
-            );
-        }
-
-        // Filter by class level if specified
-        if (classLevel) {
+        // Filter by area if specified (flexible word matching or distance)
+        if (area && (!reqLat || !reqLng)) {
+            const terms = area.toLowerCase().split(/[\s,]+/).filter(Boolean);
             filteredTeachers = filteredTeachers.filter((teacher) => {
-                if (!teacher.classesOrAgeGroup) return false;
-                try {
-                    const classes = JSON.parse(teacher.classesOrAgeGroup);
-                    return classes.some((c: string) =>
-                        c.toLowerCase().includes(classLevel.toLowerCase())
-                    );
-                } catch {
-                    return teacher.classesOrAgeGroup.toLowerCase().includes(classLevel.toLowerCase());
-                }
+                if (!teacher.user.address) return false;
+                const addrLower = teacher.user.address.toLowerCase();
+                return terms.some((term) => addrLower.includes(term));
             });
         }
 
-        // Transform response
-        const response = filteredTeachers.map((teacher) => ({
-            id: teacher.id,
-            userId: teacher.userId,
-            name: teacher.user.name,
-            email: teacher.user.email,
-            phone: teacher.user.phone,
-            profilePhoto: teacher.user.profilePhoto,
-            address: teacher.user.address,
-            latitude: teacher.user.latitude,
-            longitude: teacher.user.longitude,
-            education: teacher.education,
-            experience: teacher.experience,
-            certifications: JSON.parse(teacher.certifications || "[]"),
-            subjects: JSON.parse(teacher.subjects || "[]"),
-            teachingMode: teacher.teachingMode,
-            expectedFee: teacher.expectedFee,
-            feeType: teacher.feeType,
-            classesOrAgeGroup: teacher.classesOrAgeGroup ? (() => { try { return JSON.parse(teacher.classesOrAgeGroup); } catch { return teacher.classesOrAgeGroup; } })() : null,
-            qualificationLevel: teacher.qualificationLevel,
-            qualificationName: teacher.qualificationName,
-            achievements: teacher.achievements,
-            isApproved: teacher.isApproved,
-            createdAt: teacher.createdAt,
-        }));
+        // Filter by class level if specified (using matchesClassLevel)
+        if (classLevel) {
+            filteredTeachers = filteredTeachers.filter((teacher) =>
+                matchesClassLevel(teacher.classesOrAgeGroup, classLevel)
+            );
+        }
 
-        return NextResponse.json(response);
+        // Map teachers with distance calculation
+        let mappedTeachers = filteredTeachers.map((teacher) => {
+            let distanceKm: number | null = null;
+            if (reqLat !== null && reqLng !== null && teacher.user.latitude && teacher.user.longitude) {
+                distanceKm = calculateHaversineDistance(
+                    reqLat,
+                    reqLng,
+                    teacher.user.latitude,
+                    teacher.user.longitude
+                );
+            }
+
+            return {
+                id: teacher.id,
+                userId: teacher.userId,
+                name: teacher.user.name,
+                email: teacher.user.email,
+                phone: teacher.user.phone,
+                profilePhoto: teacher.user.profilePhoto,
+                address: teacher.user.address,
+                latitude: teacher.user.latitude,
+                longitude: teacher.user.longitude,
+                distanceKm,
+                education: teacher.education,
+                experience: teacher.experience,
+                certifications: JSON.parse(teacher.certifications || "[]"),
+                subjects: JSON.parse(teacher.subjects || "[]"),
+                teachingMode: teacher.teachingMode,
+                expectedFee: teacher.expectedFee,
+                feeType: teacher.feeType,
+                classesOrAgeGroup: teacher.classesOrAgeGroup ? (() => { try { return JSON.parse(teacher.classesOrAgeGroup); } catch { return teacher.classesOrAgeGroup; } })() : null,
+                qualificationLevel: teacher.qualificationLevel,
+                qualificationName: teacher.qualificationName,
+                achievements: teacher.achievements,
+                isApproved: teacher.isApproved,
+                createdAt: teacher.createdAt,
+            };
+        });
+
+        // Filter by radius if coordinates and radius provided (Online tutors included anywhere)
+        if (reqLat !== null && reqLng !== null && reqRadius !== null && reqRadius > 0) {
+            mappedTeachers = mappedTeachers.filter((t) => {
+                const isOnline = t.teachingMode && t.teachingMode.toLowerCase().includes("online");
+                if (isOnline) return true; // Online tutors are available anywhere!
+                if (t.distanceKm !== null) {
+                    return t.distanceKm <= reqRadius;
+                }
+                return true;
+            });
+        }
+
+
+        // Sort by distance if distanceKm is present
+        if (reqLat !== null && reqLng !== null) {
+            mappedTeachers.sort((a, b) => {
+                if (a.distanceKm !== null && b.distanceKm !== null) {
+                    return a.distanceKm - b.distanceKm;
+                }
+                if (a.distanceKm !== null) return -1;
+                if (b.distanceKm !== null) return 1;
+                return 0;
+            });
+        }
+
+        return NextResponse.json(mappedTeachers);
     } catch (error) {
         console.error("Error fetching teachers:", error);
         return NextResponse.json(
@@ -113,4 +156,5 @@ export async function GET(request: NextRequest) {
         );
     }
 }
+
 

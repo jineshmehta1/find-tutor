@@ -7,7 +7,11 @@ import {
     Sparkles, ShieldCheck, CheckCircle2, ArrowRight
 } from "lucide-react";
 import { toast } from "sonner";
-interface Teacher {
+import { getPublicLocality } from "@/lib/geoUtils";
+import { matchesClassLevel } from "@/lib/classConstants";
+
+
+    interface Teacher {
     id: string;
     userId: string;
     name: string;
@@ -19,6 +23,7 @@ interface Teacher {
     experience: string;
     subjects: string[];
     teachingMode?: string;
+    distanceKm?: number | null;
 }
 
 const SUBJECTS = [
@@ -58,9 +63,16 @@ export default function TeachersPage() {
             t.education.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesSubject = selectedSubject === "All Subjects" ||
             t.subjects.some(s => s.toLowerCase().includes(selectedSubject.toLowerCase()));
-        const matchesArea = !areaFilter || t.address.toLowerCase().includes(areaFilter.toLowerCase());
+        
+        let matchesArea = true;
+        if (areaFilter.trim()) {
+            const terms = areaFilter.toLowerCase().split(/[\s,]+/).filter(Boolean);
+            matchesArea = t.address ? terms.some(term => t.address.toLowerCase().includes(term)) : false;
+        }
+
         return matchesSearch && matchesSubject && matchesArea;
     });
+
 
     return (
         <div className="space-y-8 pb-12 p-6 sm:p-8 bg-slate-50 min-h-[calc(100vh-70px)] font-sans">
@@ -165,7 +177,8 @@ export default function TeachersPage() {
                                     </div>
                                     <div className="flex items-center gap-2 truncate">
                                         <MapPin className="w-3.5 h-3.5 text-[#ffb800] shrink-0" />
-                                        <span className="truncate">{tutor.address || "Vijayawada"}</span>
+                                        <span className="truncate">{getPublicLocality(tutor.address)}</span>
+
                                     </div>
                                 </div>
 

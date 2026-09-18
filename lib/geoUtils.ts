@@ -178,3 +178,76 @@ export async function searchPlacesAccurate(query: string): Promise<NominatimPlac
     return [];
   }
 }
+
+/**
+ * Calculates the great-circle distance between two points on Earth using Haversine formula in kilometers (km).
+ */
+export function calculateHaversineDistance(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+): number {
+  if (!lat1 || !lon1 || !lat2 || !lon2) return 9999;
+  const R = 6371; // Earth radius in km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const d = R * c;
+  return Math.round(d * 10) / 10; // Rounded to 1 decimal place (e.g. 0.5 km)
+}
+
+/**
+ * Helper to forward geocode an address string to { latitude, longitude }
+ */
+export async function geocodeAddressToCoords(
+  address: string
+): Promise<LocationCoordinates | null> {
+  if (!address || address.trim().length < 3) return null;
+  try {
+    const places = await searchPlacesAccurate(address);
+    if (places && places.length > 0) {
+      const lat = parseFloat(places[0].lat);
+      const lng = parseFloat(places[0].lon);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        return { latitude: lat, longitude: lng };
+      }
+    }
+  } catch (e) {
+    console.error("Failed to geocode address:", e);
+  }
+  return null;
+}
+
+/**
+ * Format address for public view (Zomato/Swiggy style).
+ * Strips exact door numbers, house numbers, flat numbers, and returns "Locality, City".
+ */
+export function getPublicLocality(fullAddress: string): string {
+  if (!fullAddress || !fullAddress.trim()) return "Vijayawada";
+  const parts = fullAddress.split(",").map((p) => p.trim()).filter(Boolean);
+  
+  // Filter out door numbers, flat numbers, house numbers, pin codes
+  const filtered = parts.filter((p) => {
+    const lower = p.toLowerCase();
+    if (/^(d\.?\s*no|door|h\.?\s*no|house|flat|plot|#|\d{5,6})/i.test(lower)) return false;
+    if (/^\d+[\d\s/\-A-Za-z]*$/.test(p) && p.length < 8) return false;
+    return true;
+  });
+
+  if (filtered.length >= 2) {
+    return `${filtered[filtered.length - 2]}, ${filtered[filtered.length - 1]}`;
+  } else if (filtered.length === 1) {
+    return filtered[0];
+  }
+  
+  return parts.slice(-2).join(", ") || fullAddress;
+}
+
+

@@ -10,6 +10,8 @@ import {
   UserCheck, Award, Briefcase, ChevronRight, X, AlertCircle, Loader2, Phone 
 } from "lucide-react";
 import { toast } from "sonner";
+import { getPublicLocality } from "@/lib/geoUtils";
+
 
 interface Tutor {
   id: string;
@@ -191,7 +193,8 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
             <h1 className="text-3xl md:text-5xl font-black tracking-tight">{tutor.name}</h1>
             
             <div className="flex flex-wrap justify-center md:justify-start gap-6 text-sm text-slate-300 font-semibold">
-              <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-primary" /> {tutor.address?.split(",")[0]}</span>
+              <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-primary" /> {getPublicLocality(tutor.address)}</span>
+
               <span className="flex items-center gap-1.5"><Briefcase className="w-4 h-4 text-primary" /> {tutor.experience} Experience</span>
               <span className="flex items-center gap-1.5"><GraduationCap className="w-4 h-4 text-primary" /> {tutor.qualificationLevel || "Educator"} ({tutor.qualificationName || tutor.education})</span>
               {tutor.gender && (
@@ -294,10 +297,11 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
               )}
               {tutor.address && (
                 <div className="space-y-1 sm:col-span-2">
-                  <p className="text-xs font-bold text-slate-400 uppercase">Full Address</p>
-                  <p className="font-semibold text-slate-800 leading-relaxed">{tutor.address}</p>
+                  <p className="text-xs font-bold text-slate-400 uppercase">Teaching Locality & City</p>
+                  <p className="font-semibold text-slate-800 leading-relaxed">{getPublicLocality(tutor.address)}</p>
                 </div>
               )}
+
             </div>
 
             {/* Classes/Ages taught list */}

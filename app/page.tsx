@@ -226,6 +226,8 @@ export default function HomePage() {
   const [searchSubject, setSearchSubject] = useState("");
   const [searchClass, setSearchClass] = useState("");
   const [searchLocation, setSearchLocation] = useState("Bhavanipuram, Vijayawada");
+  const [searchLat, setSearchLat] = useState<number | null>(null);
+  const [searchLng, setSearchLng] = useState<number | null>(null);
   const [searchMode, setSearchMode] = useState("");
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
 
@@ -332,6 +334,10 @@ export default function HomePage() {
     const query = new URLSearchParams();
     if (searchSubject) query.set("subject", searchSubject);
     if (searchLocation) query.set("location", searchLocation);
+    if (searchLat !== null && searchLng !== null) {
+      query.set("lat", searchLat.toString());
+      query.set("lng", searchLng.toString());
+    }
     if (searchClass) query.set("classLevel", searchClass);
     if (searchMode) query.set("mode", searchMode);
     
@@ -351,6 +357,10 @@ export default function HomePage() {
     const query = new URLSearchParams();
     query.set("subject", subjectName);
     query.set("location", searchLocation);
+    if (searchLat !== null && searchLng !== null) {
+      query.set("lat", searchLat.toString());
+      query.set("lng", searchLng.toString());
+    }
     router.push(`/find-tutor-nearby?${query.toString()}#results`);
   };
 
@@ -358,6 +368,8 @@ export default function HomePage() {
     const loadingToast = toast.loading("Detecting your high-precision location...");
     try {
       const { latitude, longitude } = await getBrowserCoordinates(8000);
+      setSearchLat(latitude);
+      setSearchLng(longitude);
       const cleanAddress = await smartReverseGeocode(latitude, longitude);
       setSearchLocation(cleanAddress);
       toast.success(`Location detected: ${cleanAddress}`, { id: loadingToast });
@@ -366,6 +378,7 @@ export default function HomePage() {
       toast.error(error?.message || "Unable to retrieve location. Please check browser permissions.", { id: loadingToast });
     }
   };
+
 
   // Fallbacks if database is empty
   const displayTeachers = realTeachers;

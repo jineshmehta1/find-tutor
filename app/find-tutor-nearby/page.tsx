@@ -7,6 +7,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import MapLocationPicker from "@/components/ui/DynamicMapPicker";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { calculateHaversineDistance, geocodeAddressToCoords, getPublicLocality } from "@/lib/geoUtils";
+import { matchesClassLevel } from "@/lib/classConstants";
 import {
     Search, MapPin, ChevronRight,
     Beaker, Mic2, Languages, Music, Swords,
@@ -17,12 +19,25 @@ import {
     HelpCircle, PhoneCall, Mail, Facebook, Twitter, 
     Instagram, Linkedin, ArrowUpRight, Filter,
     CheckCircle, UserCheck, Timer, Smile, Laptop, 
-    Home, School, BookMarked, Sparkles, Loader2, Phone
+    Home, School, BookMarked, Sparkles, Loader2, Phone, Compass
 } from "lucide-react";
+
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    SECTION 1: CONSTANTS & MASSIVE DATA ARRAYS (For Depth & Completeness)
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+const RADIUS_OPTIONS = [
+    { label: "Within 1 km", value: "1" },
+    { label: "Within 2 km", value: "2" },
+    { label: "Within 3 km", value: "3" },
+    { label: "Within 5 km", value: "5" },
+    { label: "Within 10 km", value: "10" },
+    { label: "Within 25 km", value: "25" },
+    { label: "Anywhere (Online / Any Distance)", value: "All" }
+];
+
+
 
 const SUBJECTS = [
     "Mathematics", "Physics", "Chemistry", "Biology", "English", "Hindi",
@@ -145,6 +160,10 @@ function FindTutorNearbyPageContent() {
     const [subject, setSubject] = useState("");
     const [showSubjectSuggestions, setShowSubjectSuggestions] = useState(false);
     
+    // Radius & Distance States
+    const [selectedRadius, setSelectedRadius] = useState<string>("5"); // Default 5 km radius
+    const [autoExpandedBanner, setAutoExpandedBanner] = useState<string | null>(null);
+
     const [teachers, setTeachers] = useState<any[]>([]);
     const [filtered, setFiltered] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -235,6 +254,9 @@ function FindTutorNearbyPageContent() {
         const urlClass = searchParams.get("classLevel") || searchParams.get("class") || "";
         const urlMode = searchParams.get("mode") || "";
         const urlType = searchParams.get("type") || "";
+        const urlLat = searchParams.get("lat");
+        const urlLng = searchParams.get("lng");
+        const urlRadius = searchParams.get("radius");
 
         let hasParams = false;
 
@@ -246,6 +268,15 @@ function FindTutorNearbyPageContent() {
             setLocation(urlLocation);
             hasParams = true;
         }
+        if (urlLat && urlLng) {
+            setLocationLat(parseFloat(urlLat));
+            setLocationLng(parseFloat(urlLng));
+            hasParams = true;
+        }
+        if (urlRadius) {
+            setSelectedRadius(urlRadius);
+            hasParams = true;
+        }
         if (urlClass) {
             setSelectedClass(urlClass);
             hasParams = true;
@@ -254,59 +285,112 @@ function FindTutorNearbyPageContent() {
             setSelectedMode(urlMode);
             hasParams = true;
         } else if (urlType === "coach") {
-            // For general coaches redirect, pre-set to general coaches or popular chess
             setSubject("Chess");
             hasParams = true;
         }
 
         if (hasParams) {
-            setLoading(true);
-            let result = [...teachers];
-
-            if (urlLocation.trim()) {
-                const terms = urlLocation.toLowerCase().split(/[\s,]+/).filter(Boolean);
-                result = result.filter(t => t.address && terms.some(term => t.address.toLowerCase().includes(term)));
-            }
-
-            if (urlSubject.trim()) {
-                result = result.filter(t => t.subjects?.some((sub: string) => sub.toLowerCase().includes(urlSubject.toLowerCase())));
-            }
-
-            setTimeout(() => {
-                setFiltered(result);
-                setSearched(true);
-                setLoading(false);
-            }, 100);
+            performSearch(urlSubject || undefined, urlLocation || undefined, urlRadius || undefined);
         }
     }, [teachers, searchParams]);
 
-    /* ── 4.6 Search Logic ── */
-    const performSearch = useCallback((overrideSub?: string, overrideLoc?: string) => {
+    /* ── 4.6 Search Logic with Haversine Radius & Auto-Expansion ── */
+    const performSearch = useCallback(async (overrideSub?: string, overrideLoc?: string, overrideRadius?: string) => {
         const s = overrideSub ?? subject;
         const l = overrideLoc ?? location;
+        const radStr = overrideRadius ?? selectedRadius;
+        const radNum = radStr === "All" ? null : parseFloat(radStr);
         
         setLoading(true);
-        let result = [...teachers];
+        setAutoExpandedBanner(null);
 
-        if (l.trim()) {
+        let curLat = locationLat;
+        let curLng = locationLng;
+
+        // If user entered address text but no lat/lng set, geocode search query asynchronously
+        if (l.trim() && (curLat === undefined || curLng === undefined)) {
+            const coords = await geocodeAddressToCoords(l);
+            if (coords) {
+                curLat = coords.latitude;
+                curLng = coords.longitude;
+                setLocationLat(curLat);
+                setLocationLng(curLng);
+            }
+        }
+
+        // Map all teachers with distance calculation if coordinates available
+        let result = teachers.map(t => {
+            let distanceKm: number | null = null;
+            if (curLat !== undefined && curLng !== undefined && t.latitude && t.longitude) {
+                distanceKm = calculateHaversineDistance(curLat, curLng, t.latitude, t.longitude);
+            }
+            return { ...t, distanceKm };
+        });
+
+        // Filter by Subject
+        if (s.trim()) {
+            const sLower = s.toLowerCase();
+            result = result.filter(t => t.subjects?.some((sub: string) => sub.toLowerCase().includes(sLower)));
+        }
+
+        // Filter by Location / Radius
+        if (curLat !== undefined && curLng !== undefined) {
+            // Sort by distanceKm (closest tutors first!)
+            result.sort((a, b) => {
+                if (a.distanceKm !== null && b.distanceKm !== null) return a.distanceKm - b.distanceKm;
+                if (a.distanceKm !== null) return -1;
+                if (b.distanceKm !== null) return 1;
+                return 0;
+            });
+
+            if (radNum !== null) {
+                let withinRadius = result.filter(t => {
+                    // Online tutors are available anywhere!
+                    const isOnline = t.teachingMode && (
+                        t.teachingMode.toLowerCase().includes("online") ||
+                        t.teachingMode.toLowerCase().includes("remote")
+                    );
+                    if (isOnline) return true;
+                    if (t.distanceKm !== null && t.distanceKm !== undefined) {
+                        return t.distanceKm <= radNum;
+                    }
+                    return true;
+                });
+
+                // Auto-Expansion logic: If 0 results within selected radius, but tutors exist within wider radius
+                if (withinRadius.length === 0 && result.length > 0) {
+                    const closest = result.find(t => t.distanceKm !== null);
+                    const closestDist = closest?.distanceKm ? Math.ceil(closest.distanceKm) : 5;
+                    const expandedRadius = Math.max(closestDist, radNum + 1);
+
+                    setAutoExpandedBanner(
+                        `No verified tutors found within ${radNum} km. Automatically broadened search — showing tutors within ${expandedRadius} km of your location:`
+                    );
+                    setFiltered(result);
+                } else {
+                    setFiltered(withinRadius);
+                }
+            } else {
+                setFiltered(result);
+            }
+        } else if (l.trim()) {
+            // Text fallback matching if coordinates unavailable
             const terms = l.toLowerCase().split(/[\s,]+/).filter(Boolean);
             result = result.filter(t => t.address && terms.some(term => t.address.toLowerCase().includes(term)));
-        }
-
-        if (s.trim()) {
-            result = result.filter(t => t.subjects?.some((sub: string) => sub.toLowerCase().includes(s.toLowerCase())));
-        }
-
-        // Simulate network delay for UX
-        setTimeout(() => {
             setFiltered(result);
+        } else {
+            setFiltered(result);
+        }
+
+        setTimeout(() => {
             setSearched(true);
             setLoading(false);
-            if (overrideSub || overrideLoc) {
+            if (overrideSub || overrideLoc || overrideRadius) {
                 listingRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
             }
-        }, 300);
-    }, [subject, location, teachers]);
+        }, 200);
+    }, [subject, location, selectedRadius, locationLat, locationLng, teachers]);
+
 
     // Memoize the filtered and sorted list of teachers based on sidebar filters
     const processedTeachers = useMemo(() => {
@@ -317,38 +401,9 @@ function FindTutorNearbyPageContent() {
         }
 
         if (selectedClass !== "All") {
-            const searchLower = selectedClass.toLowerCase();
-            result = result.filter(t => {
-                if (!t.classesOrAgeGroup) return false;
-                let classesArray: string[] = [];
-                if (Array.isArray(t.classesOrAgeGroup)) {
-                    classesArray = t.classesOrAgeGroup;
-                } else {
-                    try {
-                        const parsed = JSON.parse(String(t.classesOrAgeGroup));
-                        classesArray = Array.isArray(parsed) ? parsed : [String(t.classesOrAgeGroup)];
-                    } catch {
-                        classesArray = [String(t.classesOrAgeGroup)];
-                    }
-                }
-
-                return classesArray.some((c: string) => {
-                    const cLower = c.toLowerCase();
-                    if (cLower === searchLower || cLower.includes(searchLower) || searchLower.includes(cLower)) return true;
-                    // LKG / UKG / Pre-school mapping
-                    if ((searchLower.includes("lkg") || searchLower.includes("ukg") || searchLower.includes("nursery")) && (cLower.includes("pre-school") || cLower.includes("nursery") || cLower.includes("lkg") || cLower.includes("ukg"))) return true;
-                    // Class 1-5 mapping
-                    if (["class 1", "class 2", "class 3", "class 4", "class 5"].includes(searchLower) && (cLower.includes("class 1-5") || cLower.includes("primary"))) return true;
-                    // Class 6-8 mapping
-                    if (["class 6", "class 7", "class 8"].includes(searchLower) && (cLower.includes("class 6-8") || cLower.includes("middle"))) return true;
-                    // Class 9-10 mapping
-                    if (["class 9", "class 10"].includes(searchLower) && (cLower.includes("class 9-10") || cLower.includes("secondary"))) return true;
-                    // Class 11-12 mapping
-                    if (["class 11", "class 12"].includes(searchLower) && (cLower.includes("class 11-12") || cLower.includes("higher secondary") || cLower.includes("inter"))) return true;
-                    return false;
-                });
-            });
+            result = result.filter(t => matchesClassLevel(t.classesOrAgeGroup, selectedClass));
         }
+
 
         if (sortBy === "experience") {
             result.sort((a, b) => {
@@ -662,7 +717,7 @@ function FindTutorNearbyPageContent() {
                 exit={{ opacity: 0, height: 0 }}
                 className="mb-8 p-6 bg-slate-50 border border-slate-100 rounded-[2rem] overflow-hidden"
             >
-                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6">
                     {/* Subject Filter */}
                     <div className="space-y-2 relative">
                         <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Subject</label>
@@ -705,6 +760,21 @@ function FindTutorNearbyPageContent() {
                         </div>
                     </div>
 
+                    {/* Radius Search Filter */}
+                    <div className="space-y-2">
+                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Search Radius</label>
+                        <select 
+                            value={selectedRadius} 
+                            onChange={(e) => {
+                                setSelectedRadius(e.target.value);
+                                performSearch(subject, location, e.target.value);
+                            }}
+                            className="w-full h-12 px-4 bg-white border border-slate-200/80 rounded-xl outline-none font-bold text-xs text-slate-700 shadow-sm cursor-pointer"
+                        >
+                            {RADIUS_OPTIONS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
+                        </select>
+                    </div>
+
                     {/* Teaching Mode Filter */}
                     <div className="space-y-2">
                         <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Teaching Mode</label>
@@ -745,7 +815,7 @@ function FindTutorNearbyPageContent() {
                             onChange={(e) => setSortBy(e.target.value)}
                             className="w-full h-12 px-4 bg-white border border-slate-200/80 rounded-xl outline-none font-bold text-xs text-slate-700 shadow-sm"
                         >
-                            <option value="default">Default Sort</option>
+                            <option value="default">Default (Nearest First)</option>
                             <option value="rating">Rating (High to Low)</option>
                             <option value="experience">Experience (High to Low)</option>
                         </select>
@@ -754,6 +824,17 @@ function FindTutorNearbyPageContent() {
             </motion.div>
         )}
     </AnimatePresence>
+
+    {/* Auto-Expansion Notification Banner */}
+    {autoExpandedBanner && (
+        <div className="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3 shadow-sm text-slate-800">
+            <Compass className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+            <div>
+                <p className="text-xs font-black uppercase text-amber-900 tracking-wide">Expanded Proximity Radius</p>
+                <p className="text-xs font-medium text-amber-800 mt-0.5">{autoExpandedBanner}</p>
+            </div>
+        </div>
+    )}
 
     {/* Dynamic Grid Results */}
     {loading ? (
@@ -829,12 +910,19 @@ function FindTutorNearbyPageContent() {
                             >
                                 {t.name}
                             </h3>
-                            <div className="flex items-center gap-4 mt-3 md:mt-4 text-[9px] md:text-[10px] font-black text-white/80 uppercase tracking-widest">
-                                <span className="flex items-center gap-1.5"><MapPin className="w-3 h-3 md:w-3.5 md:h-3.5 text-primary" /> {t.address?.split(',')[0]}</span>
+                            <div className="flex flex-wrap items-center gap-3 mt-3 md:mt-4 text-[9px] md:text-[10px] font-black text-white/80 uppercase tracking-widest">
+                                <span className="flex items-center gap-1.5"><MapPin className="w-3 h-3 md:w-3.5 md:h-3.5 text-primary" /> {getPublicLocality(t.address)}</span>
+
+                                {t.distanceKm !== undefined && t.distanceKm !== null && t.distanceKm < 900 && (
+                                    <span className="bg-primary text-slate-950 px-2.5 py-1 rounded-full font-black text-[9px] md:text-[10px] flex items-center gap-1 shadow-md">
+                                        📍 {t.distanceKm < 1 ? `${Math.round(t.distanceKm * 1000)} m away` : `${t.distanceKm} km away`}
+                                    </span>
+                                )}
                                 <span className="flex items-center gap-1.5"><Zap className="w-3 h-3 md:w-3.5 md:h-3.5 text-primary" /> {t.teachingMode === "Home Tutor" ? "At Student Home" : t.teachingMode === "Online Tutor" ? "Online mode" : t.teachingMode === "At Centre" ? "At Teacher Home" : (t.teachingMode || "Online mode")}</span>
                             </div>
                         </div>
                     </div>
+
 
                     {/* Profile Content Area */}
                     <div className="p-6 md:p-10 space-y-6 md:space-y-8 flex-1 flex flex-col justify-between">

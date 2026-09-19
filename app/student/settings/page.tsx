@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { smartReverseGeocode, getBrowserCoordinates } from "@/lib/geoUtils";
+import StructuredAddressForm from "@/components/ui/DynamicStructuredAddressForm";
 
 const SUBJECTS = [
     "Mathematics", "Physics", "Chemistry", "Biology", "English",
@@ -303,34 +304,12 @@ export default function StudentSettingsPage() {
                         </div>
 
                         <div className="space-y-1.5">
-                            <div className="flex justify-between items-center">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Home Address / Location</label>
-                                <button
-                                    type="button"
-                                    onClick={handleDetectLocation}
-                                    disabled={detectingLocation}
-                                    className="text-[11px] font-bold text-amber-600 hover:text-amber-700 flex items-center gap-1 transition-colors"
-                                >
-                                    {detectingLocation ? (
-                                        <>
-                                            <Loader2 className="w-3 h-3 animate-spin" />
-                                            <span>Detecting GPS...</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <MapPin className="w-3 h-3 text-amber-500" />
-                                            <span>Auto-detect My Location</span>
-                                        </>
-                                    )}
-                                </button>
-                            </div>
-                            <input 
-                                type="text" 
-                                required
-                                value={profile?.address || ""} 
-                                onChange={e => setProfile(prev => prev ? { ...prev, address: e.target.value } : null)}
-                                placeholder="E.g. Hanumaiah street, Swathi theatre road, Bhavanipuram, Vijayawada"
-                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50" 
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">📍 Home Address / Location (Structured Form & Map)</label>
+                            <StructuredAddressForm
+                                onAddressChange={(data) => setProfile(prev => prev ? { ...prev, address: data.fullAddress } : null)}
+                                initialAddress={profile?.address || ""}
+                                accentColor="amber"
+                                height="200px"
                             />
                         </div>
 

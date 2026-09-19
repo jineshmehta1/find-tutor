@@ -16,6 +16,85 @@ export interface NominatimPlace {
   lon: string;
 }
 
+export interface StructuredAddress {
+  doorNumber: string;
+  houseName: string;
+  streetLocation: string;
+}
+
+/**
+ * Combine door number, house/apartment name, and map street location into a clean address string.
+ */
+export function combineStructuredAddress(
+  doorNumber: string,
+  houseName: string,
+  streetLocation: string
+): string {
+  const parts: string[] = [];
+  const cleanDoor = (doorNumber || "").trim().replace(/^[\s,]+|[\s,]+$/g, "");
+  const cleanHouse = (houseName || "").trim().replace(/^[\s,]+|[\s,]+$/g, "");
+  const cleanStreet = (streetLocation || "").trim().replace(/^[\s,]+|[\s,]+$/g, "");
+
+  if (cleanDoor) parts.push(cleanDoor);
+  if (cleanHouse && cleanHouse.toLowerCase() !== cleanDoor.toLowerCase()) parts.push(cleanHouse);
+  if (cleanStreet) {
+    let remainingStreet = cleanStreet;
+    if (cleanHouse && remainingStreet.toLowerCase().startsWith(cleanHouse.toLowerCase())) {
+      remainingStreet = remainingStreet.substring(cleanHouse.length).replace(/^[\s,]+/, "");
+    }
+    if (cleanDoor && remainingStreet.toLowerCase().startsWith(cleanDoor.toLowerCase())) {
+      remainingStreet = remainingStreet.substring(cleanDoor.length).replace(/^[\s,]+/, "");
+    }
+    if (remainingStreet) parts.push(remainingStreet);
+  }
+
+  return parts.join(", ");
+}
+
+/**
+ * Parse an existing full address string back into structured components.
+ */
+export function parseStructuredAddress(fullAddress: string): StructuredAddress {
+  if (!fullAddress || !fullAddress.trim()) {
+    return { doorNumber: "", houseName: "", streetLocation: "" };
+  }
+
+  const rawTokens = fullAddress.split(",").map((t) => t.trim()).filter(Boolean);
+  if (rawTokens.length <= 1) {
+    return { doorNumber: "", houseName: "", streetLocation: fullAddress };
+  }
+
+  let doorNumber = "";
+  let houseName = "";
+  let streetStartIndex = 0;
+
+  const token0 = rawTokens[0];
+  const isDoorNo =
+    /^(d\.?\s*no|door|h\.?\s*no|house\s*no|flat|plot|#|\d+[\d\s/\-A-Za-z]*$)/i.test(token0) &&
+    !/st|street|road|rd|nagar|colony|puram/i.test(token0);
+
+  if (isDoorNo) {
+    doorNumber = token0;
+    streetStartIndex = 1;
+  }
+
+  if (rawTokens.length > streetStartIndex) {
+    const candidateHouse = rawTokens[streetStartIndex];
+    const isHouseName =
+      /(apartment|apt|nilayam|nivas|tower|residency|villa|manor|palace|building|house|complex|plaza)/i.test(
+        candidateHouse
+      ) || (!isDoorNo && streetStartIndex === 0 && rawTokens.length >= 3);
+
+    if (isHouseName && !/st|street|road|rd|nagar|colony|puram/i.test(candidateHouse)) {
+      houseName = candidateHouse;
+      streetStartIndex++;
+    }
+  }
+
+  const streetLocation = rawTokens.slice(streetStartIndex).join(", ");
+  return { doorNumber, houseName, streetLocation: streetLocation || fullAddress };
+}
+
 /**
  * Perform high-precision reverse geocoding to construct clean, micro-locality address strings.
  */
@@ -25,6 +104,9 @@ export async function smartReverseGeocode(lat: number, lng: number): Promise<str
     const res = await fetch(`/api/geocode/reverse?lat=${lat}&lng=${lng}`);
     if (res.ok) {
       const data = await res.json();
+      if (data.streetAddress && data.streetAddress !== `${lat.toFixed(6)}, ${lng.toFixed(6)}`) {
+        return data.streetAddress;
+      }
       if (data.address && data.address !== `${lat.toFixed(6)}, ${lng.toFixed(6)}`) {
         return data.address;
       }
@@ -53,16 +135,9 @@ export async function smartReverseGeocode(lat: number, lng: number): Promise<str
 
     const nomAddr = nomData?.address || {};
 
-    const landmark =
-      nomAddr.building ||
-      nomAddr.house_number ||
-      nomAddr.amenity ||
-      nomAddr.shop ||
-      (photonProps?.osm_key === "amenity" || photonProps?.osm_key === "building" ? photonProps?.name : "");
-
     const road = nomAddr.road || nomAddr.pedestrian || nomAddr.street || photonProps?.street || "";
 
-    const neighbourhood =
+    let neighbourhood =
       nomAddr.neighbourhood ||
       nomAddr.residential ||
       nomAddr.colony ||
@@ -70,14 +145,19 @@ export async function smartReverseGeocode(lat: number, lng: number): Promise<str
       bdcData?.localityInfo?.informative?.find((i: any) => i.order === 15)?.name ||
       "";
 
-    const village = nomAddr.village || nomAddr.hamlet || bdcData?.locality || "";
+    let village = nomAddr.village || nomAddr.hamlet || bdcData?.locality || "";
+    if (/bhavani\s*puram/i.test(neighbourhood) || /bhavani\s*puram/i.test(village) || /bhavani\s*puram/i.test(nomData?.display_name || "")) {
+      neighbourhood = "Bhavani Puram";
+    }
+
     const city = nomAddr.city || nomAddr.town || nomAddr.municipality || photonProps?.city || bdcData?.city || "";
 
     const parts: string[] = [];
-    if (landmark) parts.push(landmark);
-    if (road && road !== landmark) parts.push(road);
-    if (neighbourhood && neighbourhood !== landmark) parts.push(neighbourhood);
-    if (village && village !== neighbourhood) parts.push(village);
+    if (road) parts.push(road);
+    if (neighbourhood) parts.push(neighbourhood);
+    if (village && village !== neighbourhood && !(/v\s*d\s*puram|vidyadharapuram/i.test(village) && neighbourhood === "Bhavani Puram")) {
+      parts.push(village);
+    }
     if (city && city !== village && city !== neighbourhood) parts.push(city);
 
     const uniqueParts: string[] = [];

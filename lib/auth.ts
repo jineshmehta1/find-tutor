@@ -36,18 +36,20 @@ export const authOptions: NextAuthOptions = {
         role: { label: "Role", type: "text" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password || !credentials?.role) {
+        if (!credentials?.email || !credentials?.password) {
           return null;
         }
 
-        const selectedRole = credentials.role as "ADMIN" | "TEACHER" | "STUDENT";
+        const rawEmail = credentials.email.trim().toLowerCase();
+        const selectedRole = credentials.role as "ADMIN" | "TEACHER" | "STUDENT" | undefined;
 
         // Check for legacy admin login (environment variables)
         if (
-          credentials.email === process.env.ADMIN_EMAIL &&
+          process.env.ADMIN_EMAIL &&
+          rawEmail === process.env.ADMIN_EMAIL.trim().toLowerCase() &&
           credentials.password === process.env.ADMIN_PASSWORD
         ) {
-          if (selectedRole !== "ADMIN") {
+          if (selectedRole && selectedRole !== "ADMIN") {
             return null;
           }
           return {
@@ -59,9 +61,14 @@ export const authOptions: NextAuthOptions = {
           };
         }
 
-        // Database user lookup
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
+        // Database user lookup (case-insensitive & trimmed email match)
+        const user = await prisma.user.findFirst({
+          where: {
+            email: {
+              equals: rawEmail,
+              mode: "insensitive",
+            },
+          },
           include: {
             teacher: true,
             student: true,
@@ -82,7 +89,7 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        // If role doesn't match selected tab, allow login using actual user.role
+        // Check approval status for teachers
         const isApproved = user.role === "TEACHER"
           ? user.teacher?.isApproved ?? false
           : true;

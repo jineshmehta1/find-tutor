@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import MapLocationPicker from "@/components/ui/DynamicMapPicker";
+import StructuredAddressForm from "@/components/ui/DynamicStructuredAddressForm";
 
 const SUBJECTS = [
     "Mathematics", "Physics", "Chemistry", "Biology", "English",
@@ -407,13 +408,12 @@ export default function TeacherSettingsPage() {
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">📍 Center / Home Location (Map Pin)</label>
-                                <MapLocationPicker
-                                    onLocationSelect={(loc) => updateField("address", loc.address)}
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">📍 Center / Home Address (Structured Form & Map)</label>
+                                <StructuredAddressForm
+                                    onAddressChange={(data) => updateField("address", data.fullAddress)}
                                     initialAddress={formData.address}
                                     accentColor="blue"
-                                    height="180px"
-                                    compact={true}
+                                    height="200px"
                                 />
                             </div>
                         </div>

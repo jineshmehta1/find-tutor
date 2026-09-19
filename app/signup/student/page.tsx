@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import MapLocationPicker from "@/components/ui/DynamicMapPicker";
+import StructuredAddressForm from "@/components/ui/DynamicStructuredAddressForm";
 import { cn } from "@/lib/utils";
 
 const CLOUDINARY_CLOUD_NAME = "dx2o9yq2t";
@@ -267,12 +268,19 @@ export default function StudentSignupPage() {
             toast.success("Registration successful!");
 
             setTimeout(async () => {
-                await signIn("credentials", {
-                    email: formData.email,
+                const cleanEmail = formData.email.trim().toLowerCase();
+                const res = await signIn("credentials", {
+                    redirect: false,
+                    email: cleanEmail,
                     password: formData.password,
-                    callbackUrl: "/student",
+                    role: "STUDENT",
                 });
-            }, 1500);
+                if (res?.ok) {
+                    window.location.href = "/student";
+                } else {
+                    window.location.href = `/login?email=${encodeURIComponent(cleanEmail)}`;
+                }
+            }, 1200);
         } catch (error) {
             toast.error("Something went wrong. Please try again.");
         } finally {
@@ -807,18 +815,17 @@ export default function StudentSignupPage() {
 
                                 {/* Address Picker */}
                                 <div className="space-y-1.5 text-left">
-                                    <label className="block text-[11px] font-black text-slate-450 uppercase tracking-wider">Select Location / Address *</label>
-                                    <div className="rounded-2xl overflow-hidden border border-slate-100 shadow-inner">
-                                        <MapLocationPicker
-                                            onLocationSelect={(loc) => {
-                                                setFormData(prev => ({ ...prev, address: loc.address }));
-                                                if (errors.address) setErrors(prev => ({ ...prev, address: "" }));
-                                            }}
-                                            initialAddress={formData.address}
-                                            accentColor="amber"
-                                            height="200px"
-                                        />
-                                    </div>
+                                    <label className="block text-[11px] font-black text-slate-450 uppercase tracking-wider">Select Home Address (Structured Form & Map) *</label>
+                                    <StructuredAddressForm
+                                        onAddressChange={(data) => {
+                                            setFormData(prev => ({ ...prev, address: data.fullAddress }));
+                                            if (errors.address) setErrors(prev => ({ ...prev, address: "" }));
+                                        }}
+                                        initialAddress={formData.address}
+                                        accentColor="amber"
+                                        height="200px"
+                                        required={true}
+                                    />
                                     {errors.address && <p className="text-red-500 text-[10px] font-bold mt-1">{errors.address}</p>}
                                 </div>
 

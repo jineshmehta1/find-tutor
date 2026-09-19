@@ -50,7 +50,7 @@ interface MapLocationPickerProps {
     initialLat?: number;
     initialLng?: number;
     height?: string;
-    accentColor?: "amber" | "blue";
+    accentColor?: "amber" | "blue" | "teal";
     compact?: boolean;
 }
 

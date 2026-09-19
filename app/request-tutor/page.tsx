@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { smartReverseGeocode, getBrowserCoordinates } from "@/lib/geoUtils";
+import StructuredAddressForm from "@/components/ui/DynamicStructuredAddressForm";
 
 export default function RequestTutorPage() {
   const router = useRouter();
@@ -272,38 +273,17 @@ export default function RequestTutorPage() {
                 </div>
 
                 {/* Location with Auto Detect GPS */}
+                {/* Location with Map & Structured Inputs */}
                 <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">
-                      4. Location / Pincode *
-                    </label>
-                    <button
-                      type="button"
-                      onClick={handleDetectLocation}
-                      disabled={detectingLocation}
-                      className="text-[11px] font-bold text-[#ffb800] hover:underline flex items-center gap-1"
-                    >
-                      {detectingLocation ? (
-                        <>
-                          <Loader2 className="w-3 h-3 animate-spin" />
-                          <span>Detecting GPS...</span>
-                        </>
-                      ) : (
-                        <>
-                          <MapPin className="w-3 h-3 text-amber-500 fill-amber-500" />
-                          <span>Locate Me</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                  <input
-                    type="text"
-                    name="location"
-                    value={formData.location}
-                    onChange={handleChange}
-                    placeholder="e.g. Bhavanipuram, Vijayawada"
-                    required
-                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#ffb800]/20 focus:border-[#ffb800] focus:bg-white text-xs font-bold transition-all"
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                    4. Location & Address Details *
+                  </label>
+                  <StructuredAddressForm
+                    onAddressChange={(data) => setFormData(prev => ({ ...prev, location: data.fullAddress }))}
+                    initialAddress={formData.location}
+                    accentColor="amber"
+                    height="200px"
+                    required={true}
                   />
                 </div>
 

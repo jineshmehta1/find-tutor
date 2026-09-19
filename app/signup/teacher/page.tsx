@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import MapLocationPicker from "@/components/ui/DynamicMapPicker";
+import StructuredAddressForm from "@/components/ui/DynamicStructuredAddressForm";
 import { cn } from "@/lib/utils";
 
 const CLOUDINARY_CLOUD_NAME = "dx2o9yq2t";
@@ -462,10 +463,18 @@ export default function TeacherSignupPage() {
         if (!validateAllSteps()) return;
         setLoading(true);
         try {
+            const allLevelsSet = new Set<string>();
+            if (tutorType === "teacher") {
+                Object.values(subjectLevels).forEach(levels => {
+                    levels.forEach(lvl => allLevelsSet.add(lvl));
+                });
+            }
+            const extractedClasses = Array.from(allLevelsSet);
+
             const payloadSubjects = tutorType === "teacher"
                 ? formData.subjects.map(subj => {
                     const levels = subjectLevels[subj] || [];
-                    return `${subj} (${levels.join(", ")})`;
+                    return levels.length > 0 ? `${subj} (${levels.join(", ")})` : subj;
                   })
                 : formData.subjects;
 
@@ -475,6 +484,7 @@ export default function TeacherSignupPage() {
                 body: JSON.stringify({
                     ...formData,
                     subjects: payloadSubjects,
+                    classesOrAgeGroup: extractedClasses.length > 0 ? extractedClasses : undefined,
                     accountCreator: "teacher",
                     gender,
                     preferredLanguage,
@@ -498,7 +508,20 @@ export default function TeacherSignupPage() {
             }
             setSuccess(true);
             toast.success("Tutor account registered!");
-            setTimeout(async () => await signIn("credentials", { email: formData.email, password: formData.password, callbackUrl: "/teacher" }), 1500);
+            setTimeout(async () => {
+                const cleanEmail = formData.email.trim().toLowerCase();
+                const res = await signIn("credentials", {
+                    redirect: false,
+                    email: cleanEmail,
+                    password: formData.password,
+                    role: "TEACHER",
+                });
+                if (res?.ok) {
+                    window.location.href = "/teacher";
+                } else {
+                    window.location.href = `/login?email=${encodeURIComponent(cleanEmail)}`;
+                }
+            }, 1200);
         } catch { toast.error("Error occurred. Please try again."); } finally { setLoading(false); }
     };
 
@@ -665,6 +688,8 @@ export default function TeacherSignupPage() {
                                             confirmPassword: "",
                                             dob: "",
                                             address: "",
+                                            latitude: null,
+                                            longitude: null,
                                             profilePhoto: "",
                                             education: "",
                                             experience: "",
@@ -1026,27 +1051,28 @@ export default function TeacherSignupPage() {
 
                                 <div className="space-y-1.5 text-left">
                                     <label className="block text-[11px] font-black text-slate-450 uppercase tracking-wider">
-                                        📍 Fixed Teaching / Home Address (Map Pin) *
+                                        📍 Fixed Teaching / Home Address (Structured Form & Map) *
                                     </label>
-                                    <p className="text-[10px] text-slate-400 font-semibold mb-1">
-                                        Select your fixed residential or tuition center location. Your exact door number remains private—only locality and distance are shown to students.
+                                    <p className="text-[10px] text-slate-400 font-semibold mb-2">
+                                        Enter your door number, house/apartment name, and select your street location on the map. Your exact door number remains private—only locality and distance are shown to students.
                                     </p>
-                                    <div className="rounded-2xl overflow-hidden border border-slate-100 shadow-inner">
-                                        <MapLocationPicker
-                                            onLocationSelect={(loc) => {
-                                                setFormData(prev => ({
-                                                    ...prev,
-                                                    address: loc.address,
-                                                    latitude: loc.latitude,
-                                                    longitude: loc.longitude
-                                                }));
-                                                if (errors.address) setErrors(prev => ({ ...prev, address: "" }));
-                                            }}
-                                            initialAddress={formData.address}
-                                            accentColor="amber"
-                                            height="200px"
-                                        />
-                                    </div>
+                                    <StructuredAddressForm
+                                        onAddressChange={(data) => {
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                address: data.fullAddress,
+                                                latitude: data.latitude ?? null,
+                                                longitude: data.longitude ?? null
+                                            }));
+                                            if (errors.address) setErrors(prev => ({ ...prev, address: "" }));
+                                        }}
+                                        initialAddress={formData.address}
+                                        initialLat={formData.latitude ?? undefined}
+                                        initialLng={formData.longitude ?? undefined}
+                                        accentColor="amber"
+                                        height="200px"
+                                        required={true}
+                                    />
                                     {errors.address && <p className="text-red-500 text-[10px] font-bold mt-1">{errors.address}</p>}
                                 </div>
 

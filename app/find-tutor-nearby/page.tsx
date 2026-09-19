@@ -416,7 +416,7 @@ function FindTutorNearbyPageContent() {
         }
 
         if (selectedClass !== "All") {
-            result = result.filter(t => matchesClassLevel(t.classesOrAgeGroup, selectedClass));
+            result = result.filter(t => matchesClassLevel(t.classesOrAgeGroup, selectedClass, t.subjects));
         }
 
 

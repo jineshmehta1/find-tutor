@@ -73,7 +73,7 @@ export async function GET(request: Request) {
       "";
 
     // 3. Colony / Neighbourhood / Residential Area
-    const neighbourhood =
+    let neighbourhood =
       nomAddr.neighbourhood ||
       nomAddr.residential ||
       nomAddr.colony ||
@@ -84,13 +84,18 @@ export async function GET(request: Request) {
       "";
 
     // 4. Locality / Village / Sub-district
-    const locality =
+    let locality =
       nomAddr.village ||
       nomAddr.hamlet ||
       nomAddr.subdistrict ||
       nomAddr.city_district ||
       bdcData?.locality ||
       "";
+
+    // Standardize Bhavani Puram / Bhavanipuram in Vijayawada
+    if (/bhavani\s*puram/i.test(neighbourhood) || /bhavani\s*puram/i.test(locality) || /bhavani\s*puram/i.test(nomData?.display_name || "")) {
+      neighbourhood = "Bhavani Puram";
+    }
 
     // 5. City / Town
     const city =
@@ -105,46 +110,63 @@ export async function GET(request: Request) {
     const state = nomAddr.state || bdcData?.principalSubdivision || "";
     const postcode = nomAddr.postcode || bdcData?.postcode || "";
 
-    // Assemble address tokens hierarchically
-    const parts: string[] = [];
-
-    if (building) parts.push(building);
-    if (road && road !== building) parts.push(road);
-    if (neighbourhood && neighbourhood !== building) parts.push(neighbourhood);
-    if (locality && locality !== neighbourhood) parts.push(locality);
-    if (city && city !== locality && city !== neighbourhood) parts.push(city);
-    if (state && state !== city) parts.push(state);
-
-    // Sanitize and deduplicate
-    const uniqueParts: string[] = [];
-    const seen = new Set<string>();
-
-    for (const rawPart of parts) {
-      if (!rawPart) continue;
-      const clean = rawPart.replace(/^[\s,.\-+]+|[\s,.\-+]+$/g, "").trim();
-      if (!clean) continue;
-      const lower = clean.toLowerCase();
-      if (!seen.has(lower)) {
-        seen.add(lower);
-        uniqueParts.push(clean);
-      }
+    // Assemble full address tokens
+    const fullParts: string[] = [];
+    if (building) fullParts.push(building);
+    if (road && road !== building) fullParts.push(road);
+    if (neighbourhood && neighbourhood !== building) fullParts.push(neighbourhood);
+    if (locality && locality !== neighbourhood && !(/v\s*d\s*puram|vidyadharapuram/i.test(locality) && neighbourhood === "Bhavani Puram")) {
+      fullParts.push(locality);
     }
+    if (city && city !== locality && city !== neighbourhood) fullParts.push(city);
+    if (state && state !== city) fullParts.push(state);
 
-    let fullAddress = uniqueParts.join(", ");
+    // Assemble street-level address tokens (excluding exact building/house number)
+    const streetParts: string[] = [];
+    if (road) streetParts.push(road);
+    if (neighbourhood) streetParts.push(neighbourhood);
+    if (locality && locality !== neighbourhood && !(/v\s*d\s*puram|vidyadharapuram/i.test(locality) && neighbourhood === "Bhavani Puram")) {
+      streetParts.push(locality);
+    }
+    if (city && city !== locality && city !== neighbourhood) streetParts.push(city);
+
+    // Sanitize and deduplicate helper
+    const sanitize = (tokens: string[]) => {
+      const res: string[] = [];
+      const seen = new Set<string>();
+      for (const t of tokens) {
+        if (!t) continue;
+        const clean = t.replace(/^[\s,.\-+]+|[\s,.\-+]+$/g, "").trim();
+        if (!clean) continue;
+        const lower = clean.toLowerCase();
+        if (!seen.has(lower)) {
+          seen.add(lower);
+          res.push(clean);
+        }
+      }
+      return res.join(", ");
+    };
+
+    let fullAddress = sanitize(fullParts);
+    let streetAddress = sanitize(streetParts);
+
     if (postcode && fullAddress && !fullAddress.includes(postcode)) {
       fullAddress += ` - ${postcode}`;
+    }
+    if (postcode && streetAddress && !streetAddress.includes(postcode)) {
+      streetAddress += ` - ${postcode}`;
     }
 
     if (!fullAddress && nomData?.display_name) {
       fullAddress = nomData.display_name;
     }
-
-    if (!fullAddress) {
-      fullAddress = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+    if (!streetAddress) {
+      streetAddress = fullAddress || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
     }
 
     return NextResponse.json({
       address: fullAddress,
+      streetAddress: streetAddress,
       latitude: lat,
       longitude: lng,
       details: {

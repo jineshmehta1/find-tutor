@@ -13,7 +13,9 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl");
 
-  const [email, setEmail] = useState("");
+  const emailParam = searchParams.get("email");
+
+  const [email, setEmail] = useState(emailParam || "");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
@@ -42,9 +44,10 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
+      const cleanEmail = email.trim().toLowerCase();
       const res = await signIn("credentials", {
         redirect: false,
-        email,
+        email: cleanEmail,
         password,
         role: selectedRole,
       });

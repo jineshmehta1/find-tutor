@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
         // Filter by class level if specified (using matchesClassLevel)
         if (classLevel) {
             filteredTeachers = filteredTeachers.filter((teacher) =>
-                matchesClassLevel(teacher.classesOrAgeGroup, classLevel)
+                matchesClassLevel(teacher.classesOrAgeGroup, classLevel, teacher.subjects)
             );
         }
 

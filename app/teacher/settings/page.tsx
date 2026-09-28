@@ -590,9 +590,93 @@ export default function TeacherSettingsPage() {
 
                             {/* Classes taught Toggles */}
                             <div className="space-y-3">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Classes & Age Group Taught</label>
+                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">
+                                        Classes & Age Group Taught ({formData.classesOrAgeGroup.length})
+                                    </label>
+                                    <div className="flex flex-wrap items-center gap-1.5 text-[10px]">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const all = ["LKG", "UKG", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12"];
+                                                const isAll = all.every(c => formData.classesOrAgeGroup.includes(c));
+                                                setFormData(prev => ({
+                                                    ...prev,
+                                                    classesOrAgeGroup: isAll ? [] : all
+                                                }));
+                                            }}
+                                            className="px-2 py-0.5 rounded-lg font-bold bg-white text-slate-700 border border-slate-200 hover:border-amber-400 transition-all cursor-pointer"
+                                        >
+                                            {["LKG", "UKG", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12"].every(c => formData.classesOrAgeGroup.includes(c)) ? "Clear All" : "Select All (LKG–12)"}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const batch = ["Class 1", "Class 2", "Class 3", "Class 4", "Class 5"];
+                                                const hasAll = batch.every(c => formData.classesOrAgeGroup.includes(c));
+                                                setFormData(prev => ({
+                                                    ...prev,
+                                                    classesOrAgeGroup: hasAll
+                                                        ? prev.classesOrAgeGroup.filter(c => !batch.includes(c))
+                                                        : Array.from(new Set([...prev.classesOrAgeGroup, ...batch]))
+                                                }));
+                                            }}
+                                            className="px-2 py-0.5 rounded-lg font-bold bg-white text-slate-700 border border-slate-200 hover:border-amber-400 transition-all cursor-pointer"
+                                        >
+                                            1–5
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const batch = ["Class 6", "Class 7", "Class 8"];
+                                                const hasAll = batch.every(c => formData.classesOrAgeGroup.includes(c));
+                                                setFormData(prev => ({
+                                                    ...prev,
+                                                    classesOrAgeGroup: hasAll
+                                                        ? prev.classesOrAgeGroup.filter(c => !batch.includes(c))
+                                                        : Array.from(new Set([...prev.classesOrAgeGroup, ...batch]))
+                                                }));
+                                            }}
+                                            className="px-2 py-0.5 rounded-lg font-bold bg-white text-slate-700 border border-slate-200 hover:border-amber-400 transition-all cursor-pointer"
+                                        >
+                                            6–8
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const batch = ["Class 9", "Class 10"];
+                                                const hasAll = batch.every(c => formData.classesOrAgeGroup.includes(c));
+                                                setFormData(prev => ({
+                                                    ...prev,
+                                                    classesOrAgeGroup: hasAll
+                                                        ? prev.classesOrAgeGroup.filter(c => !batch.includes(c))
+                                                        : Array.from(new Set([...prev.classesOrAgeGroup, ...batch]))
+                                                }));
+                                            }}
+                                            className="px-2 py-0.5 rounded-lg font-bold bg-white text-slate-700 border border-slate-200 hover:border-amber-400 transition-all cursor-pointer"
+                                        >
+                                            9–10
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const batch = ["Class 11", "Class 12"];
+                                                const hasAll = batch.every(c => formData.classesOrAgeGroup.includes(c));
+                                                setFormData(prev => ({
+                                                    ...prev,
+                                                    classesOrAgeGroup: hasAll
+                                                        ? prev.classesOrAgeGroup.filter(c => !batch.includes(c))
+                                                        : Array.from(new Set([...prev.classesOrAgeGroup, ...batch]))
+                                                }));
+                                            }}
+                                            className="px-2 py-0.5 rounded-lg font-bold bg-white text-slate-700 border border-slate-200 hover:border-amber-400 transition-all cursor-pointer"
+                                        >
+                                            11–12
+                                        </button>
+                                    </div>
+                                </div>
                                 <div className="flex flex-wrap gap-2">
-                                    {["Nursery", "LKG", "UKG", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12", "Degree / Graduation", "Competitive Exams"].map((c) => {
+                                    {["LKG", "UKG", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12", "Nursery", "Degree / Graduation", "Competitive Exams"].map((c) => {
                                         const active = formData.classesOrAgeGroup.includes(c);
                                         return (
                                             <button 
@@ -604,9 +688,9 @@ export default function TeacherSettingsPage() {
                                                         ? prev.classesOrAgeGroup.filter(x => x !== c)
                                                         : [...prev.classesOrAgeGroup, c]
                                                 }))}
-                                                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+                                                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
                                                     active
-                                                        ? "bg-[#ffb800] text-slate-950 border-transparent shadow-sm"
+                                                        ? "bg-[#ffb800] text-slate-950 border-transparent shadow-sm font-black"
                                                         : "bg-slate-50 text-slate-500 border-slate-200 hover:border-slate-350"
                                                 }`}
                                             >

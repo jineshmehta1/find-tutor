@@ -168,6 +168,27 @@ export default function StructuredAddressForm({
         </div>
       </div>
 
+      {/* Editable Street / Area / Landmark input */}
+      <div className="space-y-1">
+        <div className="flex items-center justify-between">
+          <label className="block text-[11px] font-black text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+            <MapPin className="w-3.5 h-3.5 text-slate-400" />
+            <span>Street / Area / Landmark & PIN</span>
+          </label>
+          <span className="text-[10px] text-amber-600 font-medium">You can fine-tune or edit this</span>
+        </div>
+        <input
+          type="text"
+          value={streetLocation}
+          onChange={(e) => {
+            setStreetLocation(e.target.value);
+            updateAddress(doorNumber, houseName, e.target.value);
+          }}
+          placeholder="e.g. Hanumaiah street, Swathi Road, Bhavanipuram, Vijayawada - 520012"
+          className={`w-full px-3.5 py-2.5 text-xs font-bold border border-slate-200 rounded-xl outline-none bg-white transition-all ${theme.ring}`}
+        />
+      </div>
+
       {/* Live Formatted Address Preview */}
       {showPreview && fullCombined && (
         <div className={`p-3.5 rounded-2xl ${theme.bg} border ${theme.border} flex items-start gap-2.5 transition-all`}>

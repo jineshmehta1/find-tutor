@@ -1,9 +1,96 @@
 import { NextResponse } from "next/server";
 
 /**
- * Server-side high precision reverse geocoding API route.
- * Queries OpenStreetMap Nominatim with proper User-Agent header (bypasses browser CORS / header restrictions),
- * along with Photon and BigDataCloud as complementary providers for granular micro-locality accuracy.
+ * Known postal code & locality dictionary for accurate micro-locality resolution
+ * across Andhra Pradesh & Vijayawada regions.
+ */
+function resolveKnownPostalCode(lat: number, lng: number, addressTokens: string[], currentPostcode: string): string {
+  const combinedText = addressTokens.join(" ").toLowerCase();
+
+  // 1. Bhavanipuram / Vidyadharapuram / Swathi Road / RTC Workshop / HB Colony -> 520012
+  if (
+    /bhavani\s*puram|vidyadhara\s*puram|v\s*d\s*puram|swathi\s*road|hanumaiah|hb\s*colony|rtc\s*workshop/i.test(combinedText) ||
+    (lat >= 16.515 && lat <= 16.545 && lng >= 80.575 && lng <= 80.612)
+  ) {
+    return "520012";
+  }
+
+  // 2. Benz Circle / Patamata / Gayatri Nagar / Gurunanak Colony / Labbipet -> 520010
+  if (/benz\s*circle|patamata|gayatri\s*nagar|gurunanak|labbipet|moghalrajpuram|tikle\s*road/i.test(combinedText)) {
+    return "520010";
+  }
+
+  // 3. Governorpet / Suryaraopet / Besant Road / Gandhinagar -> 520002
+  if (/governor\s*pet|suryarao\s*pet|besant\s*road|gandhinagar|prakasam\s*road/i.test(combinedText)) {
+    return "520002";
+  }
+
+  // 4. Gunadala / Machavaram / Ramavarappadu -> 520004
+  if (/gunadala|machavaram|ramavarappadu/i.test(combinedText)) {
+    return "520004";
+  }
+
+  // 5. Kanuru / Poranki / Penamaluru / Auto Nagar -> 520007
+  if (/kanuru|poranki|penamaluru|auto\s*nagar|tadigadapa/i.test(combinedText)) {
+    return "520007";
+  }
+
+  // 6. Gollapudi -> 521225
+  if (/gollapudi|one\s*center/i.test(combinedText)) {
+    return "521225";
+  }
+
+  // 7. One Town / Kothapeta / Brahmin Street -> 520001
+  if (/one\s*town|kothapeta|brahmin\s*street|islampet|tarapet|chittinagar/i.test(combinedText)) {
+    return "520001";
+  }
+
+  return currentPostcode || "";
+}
+
+/**
+ * Fuzzy token deduplication helper
+ * Prevents "Bhavani Puram, Bhavanipuram" or "Vijayawada, Vijayawada Urban" duplications.
+ */
+function cleanAndDeduplicate(tokens: string[]): string[] {
+  const result: string[] = [];
+  const seenNorm = new Set<string>();
+
+  for (const raw of tokens) {
+    if (!raw) continue;
+    const clean = raw.replace(/^[\s,.\-+]+|[\s,.\-+]+$/g, "").trim();
+    if (!clean) continue;
+
+    // Normalize: remove spaces, lowercase, remove common suffix variations
+    const norm = clean
+      .toLowerCase()
+      .replace(/[\s\-_]+/g, "")
+      .replace(/(urban|rural|mandal|district|city|so|po)$/g, "");
+
+    if (!norm) continue;
+
+    // Check if we already have this or a very similar token
+    let isDuplicate = false;
+    for (const s of seenNorm) {
+      if (s === norm || (s.length > 5 && (s.includes(norm) || norm.includes(s)))) {
+        isDuplicate = true;
+        break;
+      }
+    }
+
+    if (!isDuplicate) {
+      seenNorm.add(norm);
+      result.push(clean);
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Server-side reverse geocoding API route.
+ * Supports Google Maps API when GOOGLE_MAPS_API_KEY is configured,
+ * with high-precision OSM Nominatim, Photon, and BigDataCloud fallback + Vijayawada micro-resolver.
  */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -21,6 +108,34 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Invalid numeric coordinates." }, { status: 400 });
   }
 
+  const googleApiKey = process.env.GOOGLE_MAPS_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+  // 1. If Google Maps API key is configured, use Google Maps Geocoding API for highest fidelity (Blinkit/Flipkart level)
+  if (googleApiKey) {
+    try {
+      const gRes = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${googleApiKey}`
+      );
+      if (gRes.ok) {
+        const gData = await gRes.json();
+        if (gData.status === "OK" && gData.results?.length > 0) {
+          const firstResult = gData.results[0];
+          const formatted = firstResult.formatted_address;
+          return NextResponse.json({
+            address: formatted,
+            streetAddress: formatted,
+            latitude: lat,
+            longitude: lng,
+            provider: "google",
+          });
+        }
+      }
+    } catch (gErr) {
+      console.warn("Google Maps reverse geocode failed, falling back to multi-provider engine:", gErr);
+    }
+  }
+
+  // 2. Multi-provider OpenStreetMap Nominatim + Photon + BigDataCloud resolution
   try {
     const [nomRes, photonRes, bdcRes] = await Promise.allSettled([
       fetch(
@@ -83,6 +198,15 @@ export async function GET(request: Request) {
       bdcData?.localityInfo?.informative?.find((i: any) => i.order === 15)?.name ||
       "";
 
+    // Standardize Bhavanipuram
+    if (
+      /bhavani\s*puram/i.test(neighbourhood) ||
+      /bhavani\s*puram/i.test(nomAddr.village || "") ||
+      /bhavani\s*puram/i.test(nomData?.display_name || "")
+    ) {
+      neighbourhood = "Bhavanipuram";
+    }
+
     // 4. Locality / Village / Sub-district
     let locality =
       nomAddr.village ||
@@ -92,9 +216,8 @@ export async function GET(request: Request) {
       bdcData?.locality ||
       "";
 
-    // Standardize Bhavani Puram / Bhavanipuram in Vijayawada
-    if (/bhavani\s*puram/i.test(neighbourhood) || /bhavani\s*puram/i.test(locality) || /bhavani\s*puram/i.test(nomData?.display_name || "")) {
-      neighbourhood = "Bhavani Puram";
+    if (/bhavani\s*puram/i.test(locality)) {
+      locality = "Bhavanipuram";
     }
 
     // 5. City / Town
@@ -104,57 +227,40 @@ export async function GET(request: Request) {
       nomAddr.municipality ||
       photonProps?.city ||
       bdcData?.city ||
-      "";
+      "Vijayawada";
 
     // 6. District / State
-    const state = nomAddr.state || bdcData?.principalSubdivision || "";
-    const postcode = nomAddr.postcode || bdcData?.postcode || "";
+    const state = nomAddr.state || bdcData?.principalSubdivision || "Andhra Pradesh";
+    let rawPostcode = nomAddr.postcode || bdcData?.postcode || "";
 
-    // Assemble full address tokens
-    const fullParts: string[] = [];
-    if (building) fullParts.push(building);
-    if (road && road !== building) fullParts.push(road);
-    if (neighbourhood && neighbourhood !== building) fullParts.push(neighbourhood);
-    if (locality && locality !== neighbourhood && !(/v\s*d\s*puram|vidyadharapuram/i.test(locality) && neighbourhood === "Bhavani Puram")) {
-      fullParts.push(locality);
+    // Assemble candidate address tokens
+    const rawTokens: string[] = [];
+    if (building) rawTokens.push(building);
+    if (road && road !== building) rawTokens.push(road);
+    if (neighbourhood && neighbourhood !== building) rawTokens.push(neighbourhood);
+    if (locality && locality !== neighbourhood) rawTokens.push(locality);
+    if (city && city !== locality && city !== neighbourhood) rawTokens.push(city);
+
+    // Run smart Vijayawada pincode resolver (resolves Bhavanipuram to 520012)
+    const resolvedPostcode = resolveKnownPostalCode(lat, lng, rawTokens, rawPostcode);
+
+    // Deduplicate tokens
+    const cleanTokens = cleanAndDeduplicate(rawTokens);
+
+    // Assemble street-level address (road, neighbourhood, locality, city)
+    let streetAddress = cleanTokens.join(", ");
+    if (resolvedPostcode && !streetAddress.includes(resolvedPostcode)) {
+      streetAddress += ` - ${resolvedPostcode}`;
     }
-    if (city && city !== locality && city !== neighbourhood) fullParts.push(city);
-    if (state && state !== city) fullParts.push(state);
 
-    // Assemble street-level address tokens (excluding exact building/house number)
-    const streetParts: string[] = [];
-    if (road) streetParts.push(road);
-    if (neighbourhood) streetParts.push(neighbourhood);
-    if (locality && locality !== neighbourhood && !(/v\s*d\s*puram|vidyadharapuram/i.test(locality) && neighbourhood === "Bhavani Puram")) {
-      streetParts.push(locality);
+    // Assemble full address including state
+    const fullTokens = [...cleanTokens];
+    if (state && !fullTokens.includes(state)) {
+      fullTokens.push(state);
     }
-    if (city && city !== locality && city !== neighbourhood) streetParts.push(city);
-
-    // Sanitize and deduplicate helper
-    const sanitize = (tokens: string[]) => {
-      const res: string[] = [];
-      const seen = new Set<string>();
-      for (const t of tokens) {
-        if (!t) continue;
-        const clean = t.replace(/^[\s,.\-+]+|[\s,.\-+]+$/g, "").trim();
-        if (!clean) continue;
-        const lower = clean.toLowerCase();
-        if (!seen.has(lower)) {
-          seen.add(lower);
-          res.push(clean);
-        }
-      }
-      return res.join(", ");
-    };
-
-    let fullAddress = sanitize(fullParts);
-    let streetAddress = sanitize(streetParts);
-
-    if (postcode && fullAddress && !fullAddress.includes(postcode)) {
-      fullAddress += ` - ${postcode}`;
-    }
-    if (postcode && streetAddress && !streetAddress.includes(postcode)) {
-      streetAddress += ` - ${postcode}`;
+    let fullAddress = fullTokens.join(", ");
+    if (resolvedPostcode && !fullAddress.includes(resolvedPostcode)) {
+      fullAddress += ` - ${resolvedPostcode}`;
     }
 
     if (!fullAddress && nomData?.display_name) {
@@ -176,7 +282,7 @@ export async function GET(request: Request) {
         locality,
         city,
         state,
-        postcode,
+        postcode: resolvedPostcode,
       },
     });
   } catch (error: any) {
@@ -184,6 +290,7 @@ export async function GET(request: Request) {
     return NextResponse.json(
       {
         address: `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+        streetAddress: `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
         latitude: lat,
         longitude: lng,
       },

@@ -100,7 +100,7 @@ export function parseStructuredAddress(fullAddress: string): StructuredAddress {
  */
 export async function smartReverseGeocode(lat: number, lng: number): Promise<string> {
   try {
-    // 1. Try our server-side proxy endpoint first (bypasses browser CORS & User-Agent restrictions)
+    // 1. Try our server-side proxy endpoint first (handles Google Maps API, CORS & Vijayawada micro-resolver)
     const res = await fetch(`/api/geocode/reverse?lat=${lat}&lng=${lng}`);
     if (res.ok) {
       const data = await res.json();
@@ -147,34 +147,47 @@ export async function smartReverseGeocode(lat: number, lng: number): Promise<str
 
     let village = nomAddr.village || nomAddr.hamlet || bdcData?.locality || "";
     if (/bhavani\s*puram/i.test(neighbourhood) || /bhavani\s*puram/i.test(village) || /bhavani\s*puram/i.test(nomData?.display_name || "")) {
-      neighbourhood = "Bhavani Puram";
+      neighbourhood = "Bhavanipuram";
     }
 
-    const city = nomAddr.city || nomAddr.town || nomAddr.municipality || photonProps?.city || bdcData?.city || "";
+    const city = nomAddr.city || nomAddr.town || nomAddr.municipality || photonProps?.city || bdcData?.city || "Vijayawada";
 
     const parts: string[] = [];
     if (road) parts.push(road);
     if (neighbourhood) parts.push(neighbourhood);
-    if (village && village !== neighbourhood && !(/v\s*d\s*puram|vidyadharapuram/i.test(village) && neighbourhood === "Bhavani Puram")) {
-      parts.push(village);
-    }
+    if (village && !/bhavani\s*puram/i.test(village)) parts.push(village);
     if (city && city !== village && city !== neighbourhood) parts.push(city);
 
+    // Deduplicate
     const uniqueParts: string[] = [];
-    const seen = new Set<string>();
+    const seenNorm = new Set<string>();
 
     for (const rawPart of parts) {
       if (!rawPart) continue;
       const clean = rawPart.replace(/^[\s,.\-+]+|[\s,.\-+]+$/g, "").trim();
       if (!clean) continue;
-      const lower = clean.toLowerCase();
-      if (!seen.has(lower)) {
-        seen.add(lower);
+      const norm = clean.toLowerCase().replace(/[\s\-_]+/g, "");
+      if (!seenNorm.has(norm)) {
+        seenNorm.add(norm);
         uniqueParts.push(clean);
       }
     }
 
     let result = uniqueParts.join(", ");
+    
+    // Check known pincode (520012 for Bhavanipuram)
+    let postcode = nomAddr.postcode || bdcData?.postcode || "";
+    if (
+      /bhavani\s*puram|v\s*d\s*puram|swathi\s*road|hanumaiah/i.test(result) ||
+      (lat >= 16.515 && lat <= 16.545 && lng >= 80.575 && lng <= 80.612)
+    ) {
+      postcode = "520012";
+    }
+
+    if (postcode && result && !result.includes(postcode)) {
+      result += ` - ${postcode}`;
+    }
+
     if (!result && nomData?.display_name) {
       result = nomData.display_name;
     }

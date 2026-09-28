@@ -2,6 +2,23 @@
  * Standardized Class / Grade Level Constants across Aacharya Academy
  */
 
+export const INDIVIDUAL_CLASSES = [
+    "LKG",
+    "UKG",
+    "Class 1",
+    "Class 2",
+    "Class 3",
+    "Class 4",
+    "Class 5",
+    "Class 6",
+    "Class 7",
+    "Class 8",
+    "Class 9",
+    "Class 10",
+    "Class 11",
+    "Class 12",
+];
+
 export const STANDARD_CLASSES = [
     "Nursery",
     "LKG",
@@ -23,7 +40,6 @@ export const STANDARD_CLASSES = [
 ];
 
 export const TEACHER_CLASS_LEVELS = [
-    "Nursery",
     "LKG",
     "UKG",
     "Class 1",
@@ -38,14 +54,11 @@ export const TEACHER_CLASS_LEVELS = [
     "Class 10",
     "Class 11",
     "Class 12",
+    "Nursery",
     "Degree / Graduation",
     "Competitive Exams",
 ];
 
-/**
- * Universal & Robust Class Level Matcher.
- * Accurately maps selected class (e.g. "Class 5") against teacher class data.
- */
 /**
  * Universal & Robust Class Level Matcher.
  * Accurately maps selected individual class (e.g. "Class 3", "Class 10", "LKG") against teacher class data.
@@ -87,7 +100,7 @@ export function matchesClassLevel(
     const selClean = selectedClass.trim();
     const selLower = selClean.toLowerCase();
     
-    // Extract number from selected class if present (e.g., "Class 3" -> 3)
+    // Extract number from selected class if present (e.g., "Class 3" -> 3, "Class 11" -> 11)
     const selNumMatch = selLower.match(/\b\d+\b/);
     const selNum = selNumMatch ? parseInt(selNumMatch[0], 10) : null;
 
@@ -107,8 +120,8 @@ export function matchesClassLevel(
             return true;
         }
 
-        // 2. Direct word / substring match
-        if (cLower === selLower || cLower.includes(selLower)) {
+        // 2. Exact word / phrase match
+        if (cLower === selLower) {
             return true;
         }
 
@@ -123,21 +136,28 @@ export function matchesClassLevel(
             return /\bnursery\b/i.test(cLower);
         }
 
-        // 4. Group Level mapping when selectedClass is a numbered class (e.g. "Class 3")
+        // 4. Numbered class matching (e.g. "Class 3", "Class 10", "Class 11")
         if (selNum !== null) {
-            // Group check 1-5 (Primary / Class 1-5)
+            // Check word boundary regex for "Class X" (e.g. "\bclass\s*3\b")
+            const classWordRegex = new RegExp(`\\b(class\\s*|grade\\s*|std\\s*|standard\\s*)?${selNum}\\b`, "i");
+            if (classWordRegex.test(cLower)) {
+                // Ensure it's not a range where this number is excluded
+                return true;
+            }
+
+            // Legacy Group check 1-5 (Primary / Class 1-5)
             if (selNum >= 1 && selNum <= 5 && (/\b(class\s*)?1\s*(?:-|to)\s*5\b/i.test(cLower) || cLower.includes("primary"))) {
                 return true;
             }
-            // Group check 6-8 (Middle / Class 6-8)
+            // Legacy Group check 6-8 (Middle / Class 6-8)
             if (selNum >= 6 && selNum <= 8 && (/\b(class\s*)?6\s*(?:-|to)\s*8\b/i.test(cLower) || cLower.includes("middle"))) {
                 return true;
             }
-            // Group check 9-10 (Secondary / Class 9-10)
+            // Legacy Group check 9-10 (Secondary / Class 9-10)
             if (selNum >= 9 && selNum <= 10 && (/\b(class\s*)?9\s*(?:-|to)\s*10\b/i.test(cLower) || cLower.includes("secondary") || cLower.includes("high school"))) {
                 return true;
             }
-            // Group check 11-12 (Higher Secondary / Class 11-12)
+            // Legacy Group check 11-12 (Higher Secondary / Class 11-12)
             if (selNum >= 11 && selNum <= 12 && (/\b(class\s*)?11\s*(?:-|to)\s*12\b/i.test(cLower) || cLower.includes("higher secondary") || cLower.includes("inter") || cLower.includes("+2"))) {
                 return true;
             }
@@ -148,14 +168,6 @@ export function matchesClassLevel(
                 const start = parseInt(rangeMatches[1], 10);
                 const end = parseInt(rangeMatches[2], 10);
                 if (selNum >= start && selNum <= end) return true;
-            }
-
-            // Single number match (e.g., "Class 3")
-            const numberMatches = cLower.match(/\b\d+\b/g);
-            if (numberMatches) {
-                if (numberMatches.map((n) => parseInt(n, 10)).includes(selNum)) {
-                    return true;
-                }
             }
         }
 

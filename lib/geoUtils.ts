@@ -427,4 +427,69 @@ export function getPublicLocality(fullAddress: string): string {
   return fallback || fullAddress;
 }
 
+/**
+ * Universal teaching mode matcher.
+ * Matches user-selected filter modes (e.g. "Home Tutor", "At Student Home", "Online Tutor", "Online mode", "At Centre", "At Teacher Home")
+ * against database values which can be JSON arrays ('["Online mode","At Student Home"]'), single strings, or comma-separated values.
+ */
+export function matchesTeachingMode(
+  storedMode: string | null | undefined,
+  filterMode: string | null | undefined
+): boolean {
+  if (!filterMode || filterMode === "All" || filterMode.trim() === "" || filterMode === "Any type of mode") {
+    return true;
+  }
+  if (!storedMode) return false;
+
+  const f = filterMode.toLowerCase().trim();
+  
+  // Extract individual modes from storedMode (JSON array, comma-separated, or single string)
+  let storedList: string[] = [];
+  try {
+    const parsed = JSON.parse(storedMode);
+    if (Array.isArray(parsed)) {
+      storedList = parsed.map(String);
+    } else if (typeof parsed === "string") {
+      storedList = [parsed];
+    }
+  } catch {
+    storedList = storedMode.split(",").map(s => s.trim());
+  }
+  if (storedList.length === 0) {
+    storedList = [storedMode];
+  }
+
+  const sLowerList = storedList.map(item => item.toLowerCase().trim());
+  const rawLower = storedMode.toLowerCase().trim();
+
+  // 1. Online filter ("Online Tutor", "Online mode", "online", "remote", "virtual")
+  if (f.includes("online") || f.includes("remote") || f.includes("virtual")) {
+    return sLowerList.some(m => m.includes("online") || m.includes("remote") || m.includes("virtual")) || rawLower.includes("online") || rawLower.includes("remote");
+  }
+
+  // 2. Student Home / Home Tutor ("Home Tutor", "At Student Home", "Student Home", "Home Tuition")
+  if (f.includes("student") || f.includes("home tutor") || f === "home" || f.includes("home tuition") || f === "at student home") {
+    return sLowerList.some(m => 
+      m.includes("student") || 
+      m.includes("home tutor") || 
+      m.includes("student home") || 
+      m.includes("home tuition") ||
+      (m.includes("home") && !m.includes("teacher home"))
+    ) || rawLower.includes("student") || rawLower.includes("home tutor");
+  }
+
+  // 3. Teacher Home / At Centre ("At Centre", "At Center", "At Teacher Home", "Teacher Home", "Tuition Centre", "Centre", "Center")
+  if (f.includes("teacher") || f.includes("centre") || f.includes("center") || f === "at centre" || f === "at teacher home") {
+    return sLowerList.some(m => 
+      m.includes("teacher") || 
+      m.includes("centre") || 
+      m.includes("center") || 
+      m.includes("teacher home")
+    ) || rawLower.includes("teacher") || rawLower.includes("centre") || rawLower.includes("center");
+  }
+
+  return rawLower.includes(f) || sLowerList.some(m => m.includes(f));
+}
+
+
 

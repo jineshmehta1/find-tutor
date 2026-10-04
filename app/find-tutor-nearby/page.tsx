@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import MapLocationPicker from "@/components/ui/DynamicMapPicker";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { calculateHaversineDistance, geocodeAddressToCoords, getPublicLocality } from "@/lib/geoUtils";
+import { calculateHaversineDistance, geocodeAddressToCoords, getPublicLocality, matchesTeachingMode } from "@/lib/geoUtils";
 import { matchesClassLevel } from "@/lib/classConstants";
 import {
     Search, MapPin, ChevronRight,
@@ -367,9 +367,9 @@ function FindTutorNearbyPageContent() {
             result = result.filter(t => t.subjects?.some((sub: string) => sub.toLowerCase().includes(sLower)));
         }
 
-        // 2. Filter by Mode of Teaching
+        // 2. Filter by Mode of Teaching (robust matching across JSON arrays, comma strings & aliases)
         if (mode && mode !== "All") {
-            result = result.filter(t => t.teachingMode && t.teachingMode.toLowerCase().includes(mode.toLowerCase()));
+            result = result.filter(t => matchesTeachingMode(t.teachingMode, mode));
         }
 
         // 3. Filter by Class / Grade level
@@ -377,7 +377,9 @@ function FindTutorNearbyPageContent() {
             result = result.filter(t => matchesClassLevel(t.classesOrAgeGroup, cls, t.subjects));
         }
 
-        // 4. Filter by Location & Radius
+        const isExplicitOnlineSearch = mode && (mode.toLowerCase().includes("online") || mode.toLowerCase().includes("remote"));
+
+        // 4. Filter by Location & Radius (Physical radius only enforced when not explicitly searching for online tutoring)
         if (curLat !== undefined && curLng !== undefined) {
             // Sort by distance (closest first by default)
             result.sort((a, b) => {
@@ -387,7 +389,7 @@ function FindTutorNearbyPageContent() {
                 return 0;
             });
 
-            if (radNum !== null) {
+            if (radNum !== null && !isExplicitOnlineSearch) {
                 const withinRadius = result.filter(t => {
                     if (t.distanceKm !== null && t.distanceKm !== undefined) {
                         return t.distanceKm <= radNum;
@@ -411,10 +413,7 @@ function FindTutorNearbyPageContent() {
                         );
                         result = nearbyTutors;
                     } else {
-                        const onlineTutors = result.filter(t => t.teachingMode && (
-                            t.teachingMode.toLowerCase().includes("online") ||
-                            t.teachingMode.toLowerCase().includes("remote")
-                        ));
+                        const onlineTutors = result.filter(t => matchesTeachingMode(t.teachingMode, "Online Tutor"));
                         if (onlineTutors.length > 0) {
                             setAutoExpandedBanner(
                                 `No local tutors found within ${radNum} km of ${l || "your search location"}. Showing available Online Tutors:`
@@ -427,7 +426,7 @@ function FindTutorNearbyPageContent() {
                     }
                 }
             }
-        } else if (l && l.trim()) {
+        } else if (l && l.trim() && !isExplicitOnlineSearch) {
             const terms = l.toLowerCase().split(/[\s,]+/).filter(Boolean);
             result = result.filter(t => t.address && terms.some(term => t.address.toLowerCase().includes(term)));
         }
@@ -673,7 +672,11 @@ function FindTutorNearbyPageContent() {
                                         <p className="text-[8px] md:text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-0.5">Mode of Teaching</p>
                                         <select
                                             value={selectedMode}
-                                            onChange={(e) => setSelectedMode(e.target.value)}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                setSelectedMode(val);
+                                                performSearch(undefined, undefined, undefined, undefined, val, undefined, false);
+                                            }}
                                             className="w-full bg-transparent border-none text-sm md:text-base font-semibold outline-none text-slate-850 py-1 cursor-pointer"
                                         >
                                             <option value="All">Any type of mode</option>
@@ -697,7 +700,11 @@ function FindTutorNearbyPageContent() {
                                         <p className="text-[8px] md:text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-0.5">Search Distance / Radius</p>
                                         <select
                                             value={selectedRadius}
-                                            onChange={(e) => setSelectedRadius(e.target.value)}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                setSelectedRadius(val);
+                                                performSearch(undefined, undefined, val, undefined, undefined, undefined, false);
+                                            }}
                                             className="w-full bg-transparent border-none text-sm md:text-base font-semibold outline-none text-slate-850 py-1 cursor-pointer"
                                         >
                                             {RADIUS_OPTIONS.map((r) => (
@@ -829,7 +836,11 @@ function FindTutorNearbyPageContent() {
                         <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Search Radius</label>
                         <select 
                             value={selectedRadius} 
-                            onChange={(e) => setSelectedRadius(e.target.value)}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                setSelectedRadius(val);
+                                performSearch(undefined, undefined, val, undefined, undefined, undefined, false);
+                            }}
                             className="w-full h-12 px-4 bg-white border border-slate-200/80 rounded-xl outline-none font-bold text-xs text-slate-700 shadow-sm cursor-pointer"
                         >
                             {RADIUS_OPTIONS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
@@ -841,7 +852,11 @@ function FindTutorNearbyPageContent() {
                         <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Teaching Mode</label>
                         <select 
                             value={selectedMode} 
-                            onChange={(e) => setSelectedMode(e.target.value)}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                setSelectedMode(val);
+                                performSearch(undefined, undefined, undefined, undefined, val, undefined, false);
+                            }}
                             className="w-full h-12 px-4 bg-white border border-slate-200/80 rounded-xl outline-none font-bold text-xs text-slate-700 shadow-sm cursor-pointer"
                         >
                             <option value="All">Any type of mode</option>
@@ -860,7 +875,11 @@ function FindTutorNearbyPageContent() {
                         <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Class / Grade Level</label>
                         <select 
                             value={selectedClass} 
-                            onChange={(e) => setSelectedClass(e.target.value)}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                setSelectedClass(val);
+                                performSearch(undefined, undefined, undefined, val, undefined, undefined, false);
+                            }}
                             className="w-full h-12 px-4 bg-white border border-slate-200/80 rounded-xl outline-none font-bold text-xs text-slate-700 shadow-sm cursor-pointer"
                         >
                             <option value="All">All Classes</option>
@@ -873,7 +892,11 @@ function FindTutorNearbyPageContent() {
                         <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Sort By</label>
                         <select 
                             value={sortBy} 
-                            onChange={(e) => setSortBy(e.target.value)}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                setSortBy(val);
+                                performSearch(undefined, undefined, undefined, undefined, undefined, val, false);
+                            }}
                             className="w-full h-12 px-4 bg-white border border-slate-200/80 rounded-xl outline-none font-bold text-xs text-slate-700 shadow-sm cursor-pointer"
                         >
                             <option value="default">Default (Nearest First)</option>

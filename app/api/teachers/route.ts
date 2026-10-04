@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { calculateHaversineDistance } from "@/lib/geoUtils";
+import { calculateHaversineDistance, matchesTeachingMode } from "@/lib/geoUtils";
 import { matchesClassLevel } from "@/lib/classConstants";
 
 export const dynamic = "force-dynamic";
@@ -27,10 +27,6 @@ export async function GET(request: NextRequest) {
 
         if (approvedOnly) {
             where.isApproved = true;
-        }
-
-        if (mode) {
-            where.teachingMode = { contains: mode, mode: "insensitive" };
         }
 
         // Get teachers with user data
@@ -80,6 +76,13 @@ export async function GET(request: NextRequest) {
         if (classLevel) {
             filteredTeachers = filteredTeachers.filter((teacher) =>
                 matchesClassLevel(teacher.classesOrAgeGroup, classLevel, teacher.subjects)
+            );
+        }
+
+        // Filter by mode if specified (using matchesTeachingMode)
+        if (mode && mode !== "All") {
+            filteredTeachers = filteredTeachers.filter((teacher) =>
+                matchesTeachingMode(teacher.teachingMode, mode)
             );
         }
 

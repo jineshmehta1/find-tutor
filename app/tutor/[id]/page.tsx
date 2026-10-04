@@ -158,21 +158,21 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
     <div className="min-h-screen bg-slate-50 pb-20">
       
       {/* HEADER SECTION */}
-      <section className="bg-slate-900 text-white py-16 relative overflow-hidden">
+      <section className="bg-slate-900 text-white py-14 md:py-16 relative overflow-hidden">
         <div className="absolute inset-0 opacity-5 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px]"></div>
-        <div className="max-w-[1400px] mx-auto px-4 md:px-8 relative z-10 flex flex-col md:flex-row gap-8 items-center">
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8 relative z-10 flex flex-col md:flex-row gap-6 md:gap-8 items-center">
           
           {/* Avatar */}
           <div className="relative shrink-0">
             {tutor.profilePhoto ? (
-              <img src={tutor.profilePhoto} alt={tutor.name} className="w-32 h-32 md:w-40 md:h-40 rounded-3xl object-cover border-4 border-slate-800 shadow-2xl" />
+              <img src={tutor.profilePhoto} alt={tutor.name} className="w-28 h-28 md:w-36 md:h-36 rounded-3xl object-cover border-4 border-slate-800 shadow-2xl" />
             ) : (
-              <div className="w-32 h-32 md:w-40 md:h-40 bg-primary text-slate-950 rounded-3xl flex items-center justify-center font-black text-5xl">
+              <div className="w-28 h-28 md:w-36 md:h-36 bg-amber-400 text-slate-950 rounded-3xl flex items-center justify-center font-black text-4xl md:text-5xl">
                 {tutor.name[0]}
               </div>
             )}
-            <div className="absolute -bottom-2 -right-2 bg-emerald-500 text-white p-2 rounded-2xl shadow-xl">
-              <ShieldCheck className="w-6 h-6" />
+            <div className={`absolute -bottom-2 -right-2 p-2 rounded-2xl shadow-xl ${tutor.isApproved ? "bg-emerald-500 text-white" : "bg-amber-500 text-slate-950"}`}>
+              {tutor.isApproved ? <ShieldCheck className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
             </div>
           </div>
 
@@ -190,15 +190,14 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
               </div>
             )}
             
-            <h1 className="text-3xl md:text-5xl font-black tracking-tight">{tutor.name}</h1>
+            <h1 className="text-2xl md:text-4xl font-black tracking-tight">{tutor.name}</h1>
             
-            <div className="flex flex-wrap justify-center md:justify-start gap-6 text-sm text-slate-300 font-semibold">
-              <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-primary" /> {getPublicLocality(tutor.address)}</span>
-
-              <span className="flex items-center gap-1.5"><Briefcase className="w-4 h-4 text-primary" /> {tutor.experience} Experience</span>
-              <span className="flex items-center gap-1.5"><GraduationCap className="w-4 h-4 text-primary" /> {tutor.qualificationLevel || "Educator"} ({tutor.qualificationName || tutor.education})</span>
+            <div className="flex flex-wrap justify-center md:justify-start gap-4 md:gap-6 text-xs md:text-sm text-slate-300 font-semibold">
+              <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-amber-400" /> {getPublicLocality(tutor.address)}</span>
+              <span className="flex items-center gap-1.5"><Briefcase className="w-4 h-4 text-amber-400" /> {tutor.experience} Experience</span>
+              <span className="flex items-center gap-1.5"><GraduationCap className="w-4 h-4 text-amber-400" /> {tutor.qualificationName || tutor.qualificationLevel || tutor.education}</span>
               {tutor.gender && (
-                <span className="flex items-center gap-1.5"><UserCheck className="w-4 h-4 text-primary" /> {tutor.gender}</span>
+                <span className="flex items-center gap-1.5 capitalize"><UserCheck className="w-4 h-4 text-amber-400" /> {tutor.gender}</span>
               )}
             </div>
           </div>
@@ -206,32 +205,34 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
       </section>
 
       {/* BODY COLUMNS */}
-      <div className="max-w-[1400px] mx-auto px-4 md:px-8 mt-12 grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="max-w-[1400px] mx-auto px-4 md:px-8 mt-8 md:mt-10 grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        {/* LEFT COLUMN: ABOUT & CERTIFICATIONS */}
-        <div className="lg:col-span-8 space-y-8">
+        {/* LEFT COLUMN: ABOUT, SUBJECTS, CERTIFICATIONS */}
+        <div className="lg:col-span-8 space-y-6 md:space-y-8">
           
-          {/* About / Achievements */}
-          <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm space-y-6">
-            <h3 className="text-xl font-extrabold text-slate-950 flex items-center gap-2">
-              <UserCheck className="w-5 h-5 text-primary" /> Overview & Philosophy
+          {/* Overview & Philosophy */}
+          <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm space-y-5">
+            <h3 className="text-lg md:text-xl font-extrabold text-slate-950 flex items-center gap-2">
+              <UserCheck className="w-5 h-5 text-amber-500" /> Overview & Philosophy
             </h3>
-            <p className="text-slate-600 font-medium leading-relaxed">
-              {tutor.achievements || "Dedicated to building strong foundational concepts and helping students excel in academics."}
+            <p className="text-slate-600 font-medium leading-relaxed italic text-sm md:text-base">
+              "{tutor.achievements || "Dedicated to building strong foundational concepts and helping students excel in academics."}"
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-slate-50">
-              <div className="flex gap-3">
-                <GraduationCap className="w-5 h-5 text-slate-400 shrink-0 mt-0.5" />
+              <div className="flex gap-3 items-start bg-slate-50 p-4 rounded-2xl border border-slate-100/60">
+                <GraduationCap className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-xs font-bold text-slate-400 uppercase">Education</p>
-                  <p className="text-sm font-semibold text-slate-800">{tutor.education}</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Highest Qualification</p>
+                  <p className="text-sm font-extrabold text-slate-800">{tutor.qualificationName || tutor.education}</p>
+                  {tutor.qualificationLevel && <p className="text-xs text-slate-500 font-medium">{tutor.qualificationLevel}</p>}
                 </div>
               </div>
-              <div className="flex gap-3">
-                <Briefcase className="w-5 h-5 text-slate-400 shrink-0 mt-0.5" />
+              <div className="flex gap-3 items-start bg-slate-50 p-4 rounded-2xl border border-slate-100/60">
+                <Briefcase className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-xs font-bold text-slate-400 uppercase">Experience</p>
-                  <p className="text-sm font-semibold text-slate-800">{tutor.experience}</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Teaching Experience</p>
+                  <p className="text-sm font-extrabold text-slate-800">{tutor.experience}</p>
+                  <p className="text-xs text-slate-500 font-medium">Classroom & Private Mentoring</p>
                 </div>
               </div>
             </div>
@@ -239,78 +240,81 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
 
           {/* Detailed Profile Info */}
           <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm space-y-6">
-            <h3 className="text-xl font-extrabold text-slate-950 flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-primary" /> Profile Details
+            <h3 className="text-lg md:text-xl font-extrabold text-slate-950 flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-amber-500" /> Teaching Preferences & Details
             </h3>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-slate-700 text-sm">
-              {tutor.gender && (
-                <div className="space-y-1">
-                  <p className="text-xs font-bold text-slate-400 uppercase">Gender</p>
-                  <p className="font-semibold text-slate-800 capitalize">{tutor.gender}</p>
-                </div>
-              )}
-              {tutor.preferredLanguage && (
-                <div className="space-y-1">
-                  <p className="text-xs font-bold text-slate-400 uppercase">Preferred Language</p>
-                  <p className="font-semibold text-slate-800">{tutor.preferredLanguage}</p>
-                </div>
-              )}
-              {tutor.teachingMode && (
-                <div className="space-y-1">
-                  <p className="text-xs font-bold text-slate-400 uppercase">Teaching Mode</p>
-                  <p className="font-semibold text-slate-800">
-                    {(() => {
-                      let modes: string[] = [];
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 text-slate-700 text-sm">
+              {/* Teaching Modes */}
+              <div className="space-y-1.5 sm:col-span-2">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Available Teaching Modes</p>
+                <div className="flex flex-wrap gap-2">
+                  {(() => {
+                    let modes: string[] = [];
+                    if (tutor.teachingMode) {
                       try {
                         const parsed = JSON.parse(tutor.teachingMode);
                         if (Array.isArray(parsed)) modes = parsed;
-                        else if (parsed) modes = [String(parsed)];
+                        else if (typeof parsed === "string") modes = [parsed];
                       } catch {
                         modes = tutor.teachingMode.split(",").map(s => s.trim());
                       }
-                      return modes.map(m => {
-                        const clean = m.toUpperCase();
-                        if (clean.includes("STUDENT") || clean.includes("HOME TUTOR")) return "At Student Home";
-                        if (clean.includes("TEACHER") || clean.includes("CENTRE")) return "At Teacher Home";
-                        if (clean.includes("ONLINE")) return "Online Mode";
-                        return m.replace(/^"(.*)"$/, '$1');
-                      }).join(", ") || tutor.teachingMode;
-                    })()}
-                  </p>
+                    }
+                    if (modes.length === 0) modes = ["Online mode"];
+                    return modes.map((m, i) => {
+                      const clean = String(m).replace(/^["'\[\]]+|["'\[\]]+$/g, '').trim();
+                      const upper = clean.toUpperCase();
+                      let label = clean;
+                      let icon = "✨";
+                      if (upper.includes("STUDENT") || upper.includes("HOME TUTOR")) { label = "At Student Home"; icon = "🏠"; }
+                      else if (upper.includes("TEACHER") || upper.includes("CENTRE")) { label = "At Teacher Home / Center"; icon = "🏢"; }
+                      else if (upper.includes("ONLINE")) { label = "Online Mode"; icon = "💻"; }
+                      return (
+                        <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-900 font-extrabold text-xs rounded-xl border border-blue-100 shadow-xs">
+                          <span>{icon}</span> {label}
+                        </span>
+                      );
+                    });
+                  })()}
+                </div>
+              </div>
+
+              {tutor.preferredLanguage && (
+                <div className="space-y-1 bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Preferred Language</p>
+                  <p className="font-extrabold text-slate-800 text-sm">{tutor.preferredLanguage}</p>
                 </div>
               )}
+
               {tutor.dob && (
-                <div className="space-y-1">
-                  <p className="text-xs font-bold text-slate-400 uppercase">Age</p>
-                  <p className="font-semibold text-slate-800">
+                <div className="space-y-1 bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Age</p>
+                  <p className="font-extrabold text-slate-800 text-sm">
                     {(() => {
                       const birth = new Date(tutor.dob);
                       const ageDiffMs = Date.now() - birth.getTime();
                       const ageDate = new Date(ageDiffMs);
-                      const age = Math.abs(ageDate.getUTCFullYear() - 1970);
-                      
-                      return `${age} years old`;
+                      return `${Math.abs(ageDate.getUTCFullYear() - 1970)} years old`;
                     })()}
                   </p>
                 </div>
               )}
+
               {tutor.address && (
-                <div className="space-y-1 sm:col-span-2">
-                  <p className="text-xs font-bold text-slate-400 uppercase">Teaching Locality & City</p>
-                  <p className="font-semibold text-slate-800 leading-relaxed">{getPublicLocality(tutor.address)}</p>
+                <div className="space-y-1 sm:col-span-2 bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Teaching Locality & City</p>
+                  <p className="font-extrabold text-slate-800 text-sm">{getPublicLocality(tutor.address)}</p>
                 </div>
               )}
-
             </div>
 
             {/* Classes/Ages taught list */}
             {tutor.classesOrAgeGroup && tutor.classesOrAgeGroup.length > 0 && (
-              <div className="pt-4 border-t border-slate-50 space-y-3">
-                <p className="text-xs font-bold text-slate-400 uppercase">Classes & Grades Taught</p>
+              <div className="pt-4 border-t border-slate-50 space-y-2">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Classes & Grades Taught</p>
                 <div className="flex flex-wrap gap-2">
                   {tutor.classesOrAgeGroup.map((cls) => (
-                    <span key={cls} className="px-3 py-1.5 bg-indigo-50/50 text-indigo-600 text-[10px] font-bold uppercase rounded-xl border border-indigo-150 shadow-sm">
+                    <span key={cls} className="px-3 py-1.5 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-100 shadow-xs">
                       {cls}
                     </span>
                   ))}
@@ -319,45 +323,128 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
             )}
           </div>
 
-          {/* Certifications */}
-          {tutor.certifications && tutor.certifications.length > 0 && (
-            <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm space-y-6">
-              <h3 className="text-xl font-extrabold text-slate-950 flex items-center gap-2">
-                <Award className="w-5 h-5 text-primary" /> Certifications & Audits
+          {/* Subjects Offered with Class Breakdown */}
+          {tutor.subjects && tutor.subjects.length > 0 && (
+            <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm space-y-4">
+              <h3 className="text-lg md:text-xl font-extrabold text-slate-950 flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-amber-500" /> Subjects Offered
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {tutor.certifications.map((cert, index) => (
-                  <div key={index} className="flex gap-4 items-center p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                    <Award className="w-8 h-8 text-primary shrink-0" />
-                    <div>
-                      <h4 className="font-bold text-slate-900 text-sm">{cert.text}</h4>
-                      {cert.image && (
-                        <div className="mt-3 relative rounded-xl overflow-hidden border border-slate-200 bg-slate-100 group">
-                          <img 
-                            src={cert.image} 
-                            alt={cert.text} 
-                            className="w-full h-auto object-contain max-h-40 pointer-events-none select-none"
-                            onContextMenu={(e) => e.preventDefault()}
-                            draggable="false"
-                          />
-                          <div className="absolute inset-0 z-10 bg-transparent" onContextMenu={(e) => e.preventDefault()}></div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {tutor.subjects.map((sub, idx) => {
+                  const match = sub.match(/^(.*?)\s*\((.*?)\)$/);
+                  const title = match ? match[1] : sub;
+                  const levels = match ? match[2].split(",").map(x => x.trim()) : [];
+                  return (
+                    <div key={idx} className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
+                      <h4 className="font-extrabold text-slate-900 text-sm flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                        {title}
+                      </h4>
+                      {levels.length > 0 ? (
+                        <div className="flex flex-wrap gap-1 pt-1">
+                          {levels.map(l => (
+                            <span key={l} className="px-2 py-0.5 bg-white text-slate-600 text-[10px] font-bold rounded-md border border-slate-200 shadow-2xs">
+                              {l}
+                            </span>
+                          ))}
                         </div>
+                      ) : (
+                        <p className="text-[11px] text-slate-400 font-semibold">All offered grade levels</p>
                       )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
 
-          {/* Reviews List & Write Review */}
+          {/* Certifications & Verified Proof Documents */}
+          {((tutor.certifications && tutor.certifications.length > 0) || tutor.qualificationCertificate || tutor.achievementCertificate) && (
+            <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm space-y-6">
+              <h3 className="text-lg md:text-xl font-extrabold text-slate-950 flex items-center gap-2">
+                <Award className="w-5 h-5 text-amber-500" /> Achievements & Verified Audit Proofs
+              </h3>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Specific Certifications with proof */}
+                {tutor.certifications?.map((cert, index) => (
+                  <div key={index} className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-3">
+                    <div className="flex items-center gap-3">
+                      <Award className="w-6 h-6 text-amber-500 shrink-0" />
+                      <div>
+                        <h4 className="font-extrabold text-slate-900 text-sm">{cert.text}</h4>
+                        <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wide">✓ Verified Proof</span>
+                      </div>
+                    </div>
+                    {cert.image && (
+                      <div className="relative rounded-xl overflow-hidden border border-slate-200 bg-white p-2">
+                        <img 
+                          src={cert.image} 
+                          alt={cert.text} 
+                          className="w-full h-auto max-h-48 object-contain rounded-lg pointer-events-none select-none"
+                          onContextMenu={(e) => e.preventDefault()}
+                          draggable="false"
+                        />
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+                {/* Main Qualification Certificate Proof */}
+                {tutor.qualificationCertificate && (
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-3">
+                    <div className="flex items-center gap-3">
+                      <GraduationCap className="w-6 h-6 text-indigo-500 shrink-0" />
+                      <div>
+                        <h4 className="font-extrabold text-slate-900 text-sm">Academic Degree Certificate</h4>
+                        <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wide">✓ Audited Document</span>
+                      </div>
+                    </div>
+                    <div className="relative rounded-xl overflow-hidden border border-slate-200 bg-white p-2">
+                      <img 
+                        src={tutor.qualificationCertificate} 
+                        alt="Academic Degree Certificate" 
+                        className="w-full h-auto max-h-48 object-contain rounded-lg pointer-events-none select-none"
+                        onContextMenu={(e) => e.preventDefault()}
+                        draggable="false"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Achievement Award Certificate Proof */}
+                {tutor.achievementCertificate && (
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-3">
+                    <div className="flex items-center gap-3">
+                      <Award className="w-6 h-6 text-amber-500 shrink-0" />
+                      <div>
+                        <h4 className="font-extrabold text-slate-900 text-sm">Award & Recognition Certificate</h4>
+                        <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wide">✓ Verified Document</span>
+                      </div>
+                    </div>
+                    <div className="relative rounded-xl overflow-hidden border border-slate-200 bg-white p-2">
+                      <img 
+                        src={tutor.achievementCertificate} 
+                        alt="Award Certificate" 
+                        className="w-full h-auto max-h-48 object-contain rounded-lg pointer-events-none select-none"
+                        onContextMenu={(e) => e.preventDefault()}
+                        draggable="false"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Student Reviews & Write Review */}
           <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm space-y-8">
             <div className="flex items-center justify-between border-b border-slate-50 pb-6">
-              <h3 className="text-xl font-extrabold text-slate-950 flex items-center gap-2">
-                <Star className="w-5 h-5 text-primary" /> Student Reviews ({reviews.length})
+              <h3 className="text-lg md:text-xl font-extrabold text-slate-950 flex items-center gap-2">
+                <Star className="w-5 h-5 text-amber-500" /> Student Reviews ({reviews.length})
               </h3>
               <div className="flex items-center gap-1.5 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-100">
-                <Star className="w-4 h-4 text-primary fill-current" />
+                <Star className="w-4 h-4 text-amber-500 fill-current" />
                 <span className="font-black text-sm text-slate-900">{averageRating}</span>
               </div>
             </div>
@@ -370,17 +457,17 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
                 <p className="text-xs font-semibold">Be the first student to review this tutor!</p>
               </div>
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {reviews.map((rev) => (
-                  <div key={rev.id} className="p-4 bg-slate-50 rounded-2xl border border-slate-100/50 space-y-3">
+                  <div key={rev.id} className="p-4 bg-slate-50 rounded-2xl border border-slate-100/60 space-y-2.5">
                     <div className="flex justify-between items-center">
                       <div>
-                        <h4 className="font-bold text-slate-900 text-sm">{rev.name}</h4>
+                        <h4 className="font-extrabold text-slate-900 text-sm">{rev.name}</h4>
                         <p className="text-[10px] font-bold text-slate-400 uppercase">{rev.date}</p>
                       </div>
-                      <div className="flex items-center gap-0.5 text-primary">
+                      <div className="flex items-center gap-0.5 text-amber-500">
                         {[...Array(rev.rating)].map((_, i) => (
-                          <Star key={i} className="w-4 h-4 fill-current" />
+                          <Star key={i} className="w-3.5 h-3.5 fill-current" />
                         ))}
                       </div>
                     </div>
@@ -394,7 +481,7 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
 
             {/* Write Review Form */}
             <form onSubmit={handleWriteReview} className="border-t border-slate-50 pt-8 space-y-4">
-              <h4 className="font-extrabold text-slate-950">Add a Review</h4>
+              <h4 className="font-extrabold text-slate-950 text-sm">Add a Student Review</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <input
                   type="text"
@@ -402,12 +489,12 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
                   required
                   value={reviewName}
                   onChange={(e) => setReviewName(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary rounded-xl text-sm font-semibold transition-all"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-400/20 focus:border-amber-400 rounded-xl text-sm font-semibold transition-all"
                 />
                 <select
                   value={reviewRating}
                   onChange={(e) => setReviewRating(Number(e.target.value))}
-                  className="w-full px-3 py-3 bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary rounded-xl text-sm font-semibold transition-all"
+                  className="w-full px-3 py-3 bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-400/20 focus:border-amber-400 rounded-xl text-sm font-semibold transition-all"
                 >
                   <option value={5}>5 Stars (Excellent)</option>
                   <option value={4}>4 Stars (Good)</option>
@@ -422,12 +509,12 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
                 required
                 value={reviewContent}
                 onChange={(e) => setReviewContent(e.target.value)}
-                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary rounded-xl text-xs font-semibold resize-none transition-all"
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-400/20 focus:border-amber-400 rounded-xl text-xs font-semibold resize-none transition-all"
               />
               <button
                 type="submit"
                 disabled={reviewSubmitting}
-                className="px-6 py-3 bg-slate-900 hover:bg-primary hover:text-white text-white font-bold text-xs rounded-xl shadow-lg transition-all"
+                className="px-6 py-3 bg-slate-900 hover:bg-amber-400 hover:text-slate-950 text-white font-extrabold text-xs rounded-xl shadow-md transition-all"
               >
                 {reviewSubmitting ? "Submitting..." : "Submit Review"}
               </button>
@@ -436,50 +523,41 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
 
         </div>
 
-        {/* RIGHT COLUMN: BOOKING & SIDE-INFO */}
-        <div className="lg:col-span-4 space-y-8">
+        {/* RIGHT COLUMN: FEE & DIRECT CONTACT */}
+        <div className="lg:col-span-4 space-y-6 md:space-y-8">
           
           {/* Rate / Booking Card */}
-          <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-xl space-y-6 text-center">
+          <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-xl space-y-6 text-center sticky top-6">
             <div>
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
                 {tutor.feeType === "/month" ? "Monthly Fee Rate" : "Hourly Fee Rate"}
               </p>
-              <p className="text-4xl font-[1000] text-slate-950 tracking-tighter">
+              <p className="text-3xl md:text-4xl font-black text-slate-950 tracking-tight">
                 {tutor.expectedFee ? `₹${tutor.expectedFee.toLocaleString()}` : "Contact for Fee"}
                 {tutor.expectedFee && <span className="text-xs font-bold text-slate-400 tracking-normal ml-1">{tutor.feeType || "/hr"}</span>}
               </p>
             </div>
 
-            <div className="space-y-4 pt-4 border-t border-slate-50 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
-              <div className="flex justify-between text-right">
-                <span className="text-left">Availability:</span>
-                <span className="text-slate-900 font-black max-w-[140px] truncate">
-                  {(() => {
-                    if (!tutor.teachingMode) return "Online mode";
-                    try {
-                      const parsed = JSON.parse(tutor.teachingMode);
-                      if (Array.isArray(parsed)) return parsed.join(", ");
-                      return parsed;
-                    } catch {
-                      return tutor.teachingMode === "Home Tutor" ? "At Student Home" : tutor.teachingMode === "Online Tutor" ? "Online mode" : tutor.teachingMode === "At Centre" ? "At Teacher Home" : tutor.teachingMode;
-                    }
-                  })()}
-                </span>
-              </div>
-              <div className="flex justify-between">
+            <div className="space-y-3 pt-4 border-t border-slate-50 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
+              <div className="flex justify-between items-center">
                 <span>Rating:</span>
                 <span className="text-slate-900 font-black flex items-center gap-1">
-                  <Star className="w-3.5 h-3.5 fill-primary text-primary" /> {averageRating}
+                  <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" /> {averageRating}
                 </span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span>Experience:</span>
                 <span className="text-slate-900 font-black">{tutor.experience}</span>
               </div>
+              <div className="flex justify-between items-center">
+                <span>Verification:</span>
+                <span className={`font-black ${tutor.isApproved ? "text-emerald-600" : "text-amber-600"}`}>
+                  {tutor.isApproved ? "Verified ID" : "Pending"}
+                </span>
+              </div>
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex gap-3 pt-2">
               <button
                 onClick={() => {
                   if (!session) {
@@ -489,9 +567,9 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
                   }
                   window.open(`https://wa.me/91${tutor.phone?.replace(/\D/g, "").slice(-10)}`, "_blank");
                 }}
-                className="flex-1 py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-black rounded-2xl shadow-lg shadow-emerald-500/10 uppercase tracking-widest text-xs transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer border-none"
+                className="flex-1 py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-black rounded-2xl shadow-md shadow-emerald-500/10 uppercase tracking-wider text-xs transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer border-none"
               >
-                <MessageSquare className="w-4 h-4 shrink-0" /> Message
+                <MessageSquare className="w-4 h-4 shrink-0" /> WhatsApp
               </button>
               <button
                 onClick={() => {
@@ -502,22 +580,10 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
                   }
                   window.open(`tel:${tutor.phone}`, "_self");
                 }}
-                className="flex-1 py-4 bg-primary hover:bg-primary/95 text-slate-950 font-black rounded-2xl shadow-lg shadow-primary/10 uppercase tracking-widest text-xs transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer border-none"
+                className="flex-1 py-3.5 bg-amber-400 hover:bg-amber-500 text-slate-950 font-black rounded-2xl shadow-md shadow-amber-400/10 uppercase tracking-wider text-xs transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer border-none"
               >
                 <Phone className="w-4 h-4 shrink-0" /> Call
               </button>
-            </div>
-          </div>
-
-          {/* Subjects Tag List */}
-          <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-4">
-            <h4 className="font-extrabold text-slate-950 text-sm uppercase tracking-wider">Subjects Taught</h4>
-            <div className="flex flex-wrap gap-2">
-              {tutor.subjects.map((sub) => (
-                <span key={sub} className="px-3 py-1.5 bg-primary/5 text-primary text-[10px] font-bold uppercase rounded-xl border border-primary/10 shadow-sm">
-                  {sub}
-                </span>
-              ))}
             </div>
           </div>
 

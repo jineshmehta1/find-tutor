@@ -13,7 +13,7 @@ import {
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import MapLocationPicker from "@/components/ui/DynamicMapPicker";
-import { smartReverseGeocode, getBrowserCoordinates } from "@/lib/geoUtils";
+import { smartReverseGeocode, getBrowserCoordinates, getPublicLocality } from "@/lib/geoUtils";
 
 const ACADEMIC_SUBJECTS = [
   "Mathematics", "Science", "Physics", "Chemistry", "Biology", "English", "Social Studies", "Computer Science"
@@ -80,7 +80,7 @@ function ShowcaseCard({ item, isCoach }: { item: any; isCoach: boolean }) {
   const coverUrl = getSubjectCover(item.subject);
 
   return (
-    <div className="bg-white border border-slate-100/80 rounded-[2rem] shadow-sm hover:shadow-xl hover:scale-[1.02] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between relative overflow-hidden group h-full text-left">
+    <div className="bg-white border border-slate-100/90 rounded-[2rem] shadow-sm hover:shadow-xl hover:border-amber-200/60 transition-all duration-300 flex flex-col justify-between relative overflow-hidden group h-full text-left">
       
       {/* Cover Image Header */}
       <div className="relative h-28 w-full overflow-hidden shrink-0">
@@ -137,29 +137,45 @@ function ShowcaseCard({ item, isCoach }: { item: any; isCoach: boolean }) {
             <h4 className="font-extrabold text-base text-[#0f223a] group-hover:text-amber-500 transition-colors truncate leading-tight">
               {item.name}
             </h4>
-            {item.qualificationName && (
-              <p className="text-[11px] text-slate-400 font-bold truncate mt-0.5">
-                {item.qualificationName}
-              </p>
-            )}
+            <p className="text-[11px] text-slate-400 font-bold truncate mt-0.5">
+              {item.qualificationName || "Qualified Mentor"}
+            </p>
           </div>
         </div>
 
         {/* Details Area */}
         <div className="space-y-2.5 w-full pt-1">
+          
+          {/* Subjects Offered */}
           <div className="flex flex-wrap gap-1.5 items-center">
-            {/* Subject Pill */}
-            <span className="px-2.5 py-1 rounded-full text-[9px] font-black tracking-wide uppercase bg-amber-50 text-amber-700 border border-amber-200/60">
-              {item.subject}
-            </span>
-            
-            {/* Teaching Mode Badge */}
-            {item.teachingMode && (
-              <span className="px-2.5 py-1 rounded-full text-[9px] font-black tracking-wide uppercase bg-blue-50 text-blue-700 border border-blue-100">
-                {item.teachingMode}
+            {item.subjectsList && item.subjectsList.length > 0 ? (
+              item.subjectsList.slice(0, 2).map((s: string) => (
+                <span key={s} className="px-2.5 py-1 rounded-lg text-[9px] font-black tracking-wide uppercase bg-amber-50 text-amber-800 border border-amber-200/60">
+                  {s}
+                </span>
+              ))
+            ) : (
+              <span className="px-2.5 py-1 rounded-lg text-[9px] font-black tracking-wide uppercase bg-amber-50 text-amber-800 border border-amber-200/60">
+                {item.subject}
+              </span>
+            )}
+            {item.subjectsList && item.subjectsList.length > 2 && (
+              <span className="px-2 py-1 rounded-lg text-[9px] font-bold bg-slate-100 text-slate-500">
+                +{item.subjectsList.length - 2} more
               </span>
             )}
           </div>
+
+          {/* Teaching Modes Badges */}
+          {item.modesList && item.modesList.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 items-center">
+              {item.modesList.map((m: string, i: number) => (
+                <span key={i} className="px-2 py-0.5 rounded-md text-[9px] font-extrabold bg-blue-50 text-blue-800 border border-blue-100/80">
+                  {m}
+                </span>
+              ))}
+            </div>
+          )}
 
           {/* Classes Taught */}
           <div className="text-[11px] text-slate-600 font-medium leading-tight">
@@ -182,7 +198,7 @@ function ShowcaseCard({ item, isCoach }: { item: any; isCoach: boolean }) {
           </span>
           <span className="flex items-center gap-1.5 text-slate-500 font-bold">
             <MapPin className="w-3.5 h-3.5 shrink-0 text-amber-500" />
-            <span className="truncate max-w-[110px]">{item.location}</span>
+            <span className="truncate max-w-[130px]">{item.location}</span>
           </span>
         </div>
 
@@ -196,7 +212,7 @@ function ShowcaseCard({ item, isCoach }: { item: any; isCoach: boolean }) {
                 window.location.href = `/tutor/${item.id}`;
               }
             }}
-            className="py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[11px] rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 shadow-sm active:scale-95"
+            className="py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[11px] rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 shadow-sm active:scale-95 border-none"
           >
             <Phone className="w-3.5 h-3.5" />
             <span>Call / Contact</span>
@@ -204,7 +220,7 @@ function ShowcaseCard({ item, isCoach }: { item: any; isCoach: boolean }) {
           
           <button
             onClick={() => window.location.href = `/tutor/${item.id}`}
-            className="py-2.5 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white font-black text-[11px] rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 shadow-sm active:scale-95"
+            className="py-2.5 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white font-black text-[11px] rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 shadow-sm active:scale-95 border-none"
           >
             <span>Full Profile</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -274,6 +290,48 @@ export default function HomePage() {
             );
           });
 
+          // Clean subjects list (strip class breakdown suffix)
+          const cleanSubjects = subjects.map((s: string) => s.replace(/\s*\(.*?\)$/, "").trim()).filter(Boolean);
+
+          // Parse teaching modes cleanly
+          let modes: string[] = [];
+          if (item.teachingMode) {
+            try {
+              const parsed = JSON.parse(item.teachingMode);
+              if (Array.isArray(parsed)) modes = parsed;
+              else if (typeof parsed === "string") modes = [parsed];
+            } catch {
+              modes = item.teachingMode.split(",").map((s: string) => s.trim());
+            }
+          }
+          const formattedModes = modes.map((m: string) => {
+            const clean = String(m).replace(/^["'\[\]]+|["'\[\]]+$/g, "").trim();
+            const upper = clean.toUpperCase();
+            if (upper.includes("STUDENT") || upper.includes("HOME TUTOR")) return "At Student Home";
+            if (upper.includes("TEACHER") || upper.includes("CENTRE")) return "At Teacher Home";
+            if (upper.includes("ONLINE")) return "Online Mode";
+            return clean;
+          }).filter(Boolean);
+
+          // Parse classes taught summary
+          let classesSummary = "All Grades";
+          let parsedClasses: string[] = [];
+          if (item.classesOrAgeGroup) {
+            try {
+              const p = typeof item.classesOrAgeGroup === "string" ? JSON.parse(item.classesOrAgeGroup) : item.classesOrAgeGroup;
+              if (Array.isArray(p)) parsedClasses = p;
+            } catch {
+              if (Array.isArray(item.classesOrAgeGroup)) parsedClasses = item.classesOrAgeGroup;
+            }
+          }
+          if (parsedClasses.length > 0) {
+            if (parsedClasses.length >= 4) {
+              classesSummary = `${parsedClasses[0]} to ${parsedClasses[parsedClasses.length - 1]}`;
+            } else {
+              classesSummary = parsedClasses.join(", ");
+            }
+          }
+
           // Convert raw user / teacher record to display properties
           const formatted = {
             id: item.id,
@@ -281,23 +339,17 @@ export default function HomePage() {
             phone: item.phone,
             isApproved: item.isApproved,
             expectedFee: item.expectedFee ? `₹${item.expectedFee.toLocaleString()}${item.feeType || '/hr'}` : "Contact for Fee",
-            subject: subjects[0] || (isActivity ? "Co-curricular Coach" : "Academic Teacher"),
-            classes: Array.isArray(item.classesOrAgeGroup) 
-              ? item.classesOrAgeGroup.join(", ") 
-              : item.classesOrAgeGroup || "All Levels",
+            subject: cleanSubjects[0] || (isActivity ? "Co-curricular Coach" : "Academic Teacher"),
+            subjectsList: cleanSubjects,
+            classes: classesSummary,
             experience: item.experience ? `${item.experience} Exp.` : "Experienced",
-            location: item.address ? item.address.split(",")[0] : "Vijayawada",
+            location: getPublicLocality(item.address),
             rating: item.rating || 5.0,
             image: item.profilePhoto || null,
             education: item.education || "",
             qualificationName: item.qualificationName || item.qualificationLevel || "Qualified Mentor",
-            teachingMode: item.teachingMode === "Home Tutor"
-              ? "At Student Home"
-              : item.teachingMode === "Online Tutor"
-                ? "Online mode"
-                : item.teachingMode === "At Centre"
-                  ? "At Teacher Home"
-                  : (item.teachingMode || "Any type of mode")
+            teachingMode: formattedModes[0] || "Online Mode",
+            modesList: formattedModes
           };
 
           if (isActivity) {

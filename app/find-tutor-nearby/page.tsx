@@ -17,7 +17,7 @@ import {
     MessageSquare, Rocket, BrainCircuit, Target,
     ShieldCheck, Users, TrendingUp, Lightbulb,
     HelpCircle, PhoneCall, Mail, Facebook, Twitter, 
-    Instagram, Linkedin, ArrowUpRight, Filter,
+    Instagram, Linkedin, ArrowUpRight, ArrowRight, Filter,
     CheckCircle, UserCheck, Timer, Smile, Laptop, 
     Home, School, BookMarked, Sparkles, Loader2, Phone, Compass
 } from "lucide-react";
@@ -64,9 +64,10 @@ const CLASSES = [
 const MODES = ["Home Tutor", "Online Tutor", "At Centre"];
 
 const POPULAR_CITIES = [
-    "Delhi NCR", "Mumbai", "Bangalore", "Chennai", "Hyderabad", "Pune", 
-    "Jaipur", "Ahmedabad", "Kolkata", "Lucknow", "Chandigarh", "Indore",
-    "Bhopal", "Patna", "Ranchi", "Surat", "Kanpur", "Nagpur", "Dehradun"
+    "Vijayawada", "Hyderabad", "Visakhapatnam", "Guntur", 
+    "Tirupati", "Warangal", "Nellore", "Kakinada", 
+    "Rajahmundry", "Karimnagar", "Kurnool", "Nizamabad",
+    "Khammam", "Anantapur", "Kadapa", "Eluru", "Ongole"
 ];
 
 const TESTIMONIALS = [
@@ -290,25 +291,44 @@ function FindTutorNearbyPageContent() {
         }
 
         if (hasParams) {
-            performSearch(urlSubject || undefined, urlLocation || undefined, urlRadius || undefined);
+            performSearch(
+                urlSubject || undefined, 
+                urlLocation || undefined, 
+                urlRadius || undefined, 
+                urlClass || undefined, 
+                urlMode || undefined, 
+                undefined, 
+                false
+            );
         }
     }, [teachers, searchParams]);
 
     /* ── 4.6 Search Logic with Haversine Radius & Auto-Expansion ── */
-    const performSearch = useCallback(async (overrideSub?: string, overrideLoc?: string, overrideRadius?: string) => {
-        const s = overrideSub ?? subject;
-        const l = overrideLoc ?? location;
-        const radStr = overrideRadius ?? selectedRadius;
+    const performSearch = useCallback(async (
+        overrideSub?: string, 
+        overrideLoc?: string, 
+        overrideRadius?: string,
+        overrideClass?: string,
+        overrideMode?: string,
+        overrideSort?: string,
+        scroll = true
+    ) => {
+        const s = overrideSub !== undefined ? overrideSub : subject;
+        const l = overrideLoc !== undefined ? overrideLoc : location;
+        const radStr = overrideRadius !== undefined ? overrideRadius : selectedRadius;
         const radNum = radStr === "All" ? null : parseFloat(radStr);
+        const cls = overrideClass !== undefined ? overrideClass : selectedClass;
+        const mode = overrideMode !== undefined ? overrideMode : selectedMode;
+        const sort = overrideSort !== undefined ? overrideSort : sortBy;
         
         setLoading(true);
         setAutoExpandedBanner(null);
 
-        let curLat = locationLat;
-        let curLng = locationLng;
+        let curLat: number | undefined = undefined;
+        let curLng: number | undefined = undefined;
 
-        // If user entered address text but no lat/lng set, geocode search query asynchronously
-        if (l.trim() && (curLat === undefined || curLng === undefined)) {
+        // If user entered address or location is specified, geocode it fresh every time
+        if (l && l.trim()) {
             const coords = await geocodeAddressToCoords(l);
             if (coords) {
                 curLat = coords.latitude;
@@ -316,26 +336,50 @@ function FindTutorNearbyPageContent() {
                 setLocationLat(curLat);
                 setLocationLng(curLng);
             }
+        } else if (locationLat !== undefined && locationLng !== undefined) {
+            curLat = locationLat;
+            curLng = locationLng;
         }
 
-        // Map all teachers with distance calculation if coordinates available
-        let result = teachers.map(t => {
+        // Map all teachers with dynamic distance calculation
+        let result = await Promise.all(teachers.map(async (t) => {
             let distanceKm: number | null = null;
-            if (curLat !== undefined && curLng !== undefined && t.latitude && t.longitude) {
-                distanceKm = calculateHaversineDistance(curLat, curLng, t.latitude, t.longitude);
-            }
-            return { ...t, distanceKm };
-        });
+            let tLat = t.latitude;
+            let tLng = t.longitude;
 
-        // Filter by Subject
-        if (s.trim()) {
+            if ((tLat === null || tLat === undefined || tLng === null || tLng === undefined) && t.address) {
+                const derived = await geocodeAddressToCoords(t.address);
+                if (derived) {
+                    tLat = derived.latitude;
+                    tLng = derived.longitude;
+                }
+            }
+
+            if (curLat !== undefined && curLng !== undefined && tLat !== undefined && tLng !== undefined && tLat !== null && tLng !== null) {
+                distanceKm = calculateHaversineDistance(curLat, curLng, tLat, tLng);
+            }
+            return { ...t, latitude: tLat, longitude: tLng, distanceKm };
+        }));
+
+        // 1. Filter by Subject
+        if (s && s.trim()) {
             const sLower = s.toLowerCase();
             result = result.filter(t => t.subjects?.some((sub: string) => sub.toLowerCase().includes(sLower)));
         }
 
-        // Filter by Location / Radius
+        // 2. Filter by Mode of Teaching
+        if (mode && mode !== "All") {
+            result = result.filter(t => t.teachingMode && t.teachingMode.toLowerCase().includes(mode.toLowerCase()));
+        }
+
+        // 3. Filter by Class / Grade level
+        if (cls && cls !== "All") {
+            result = result.filter(t => matchesClassLevel(t.classesOrAgeGroup, cls, t.subjects));
+        }
+
+        // 4. Filter by Location & Radius
         if (curLat !== undefined && curLng !== undefined) {
-            // Sort by distanceKm (closest tutors first!)
+            // Sort by distance (closest first by default)
             result.sort((a, b) => {
                 if (a.distanceKm !== null && b.distanceKm !== null) return a.distanceKm - b.distanceKm;
                 if (a.distanceKm !== null) return -1;
@@ -344,13 +388,11 @@ function FindTutorNearbyPageContent() {
             });
 
             if (radNum !== null) {
-                let withinRadius = result.filter(t => {
-                    // Strict radius check: tutor must be within radNum kilometers
+                const withinRadius = result.filter(t => {
                     if (t.distanceKm !== null && t.distanceKm !== undefined) {
                         return t.distanceKm <= radNum;
                     }
-                    // Fallback for missing coordinates: check if address matches location text
-                    if (l.trim() && t.address) {
+                    if (l && l.trim() && t.address) {
                         const terms = l.toLowerCase().split(/[\s,]+/).filter(Boolean);
                         return terms.some(term => t.address.toLowerCase().includes(term));
                     }
@@ -358,91 +400,76 @@ function FindTutorNearbyPageContent() {
                 });
 
                 if (withinRadius.length > 0) {
-                    setFiltered(withinRadius);
+                    result = withinRadius;
                 } else {
-                    // Check if there are tutors within reasonable nearby distance (up to 50 km)
+                    // Check nearby up to 50 km
                     const nearbyTutors = result.filter(t => t.distanceKm !== null && t.distanceKm <= 50);
                     if (nearbyTutors.length > 0) {
                         const closestDist = Math.ceil(nearbyTutors[0].distanceKm!);
                         setAutoExpandedBanner(
-                            `No verified tutors found within ${radNum} km of ${l || "your location"}. Showing nearest available tutors (within ${closestDist} km):`
+                            `No verified tutors found within ${radNum} km of ${l || "your search location"}. Showing nearest available tutors (within ${closestDist} km):`
                         );
-                        setFiltered(nearbyTutors);
+                        result = nearbyTutors;
                     } else {
-                        // Check if online tutors are available
                         const onlineTutors = result.filter(t => t.teachingMode && (
                             t.teachingMode.toLowerCase().includes("online") ||
                             t.teachingMode.toLowerCase().includes("remote")
                         ));
                         if (onlineTutors.length > 0) {
                             setAutoExpandedBanner(
-                                `No local tutors found within ${radNum} km of ${l || "your location"}. Showing available Online Tutors:`
+                                `No local tutors found within ${radNum} km of ${l || "your search location"}. Showing available Online Tutors:`
                             );
-                            setFiltered(onlineTutors);
+                            result = onlineTutors;
                         } else {
-                            setAutoExpandedBanner(`No tutors found within ${radNum} km of ${l || "your location"}.`);
-                            setFiltered([]);
+                            setAutoExpandedBanner(`No tutors found within ${radNum} km of ${l || "your search location"}.`);
+                            result = [];
                         }
                     }
                 }
-            } else {
-                setFiltered(result);
             }
-        } else if (l.trim()) {
-            // Text fallback matching if coordinates unavailable
+        } else if (l && l.trim()) {
             const terms = l.toLowerCase().split(/[\s,]+/).filter(Boolean);
             result = result.filter(t => t.address && terms.some(term => t.address.toLowerCase().includes(term)));
-            setFiltered(result);
-        } else {
-            setFiltered(result);
         }
 
-        setTimeout(() => {
-            setSearched(true);
-            setLoading(false);
-            if (overrideSub || overrideLoc || overrideRadius) {
-                listingRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-            }
-        }, 200);
-    }, [subject, location, selectedRadius, locationLat, locationLng, teachers]);
-
-
-    // Memoize the filtered and sorted list of teachers based on sidebar filters
-    const processedTeachers = useMemo(() => {
-        let result = [...filtered];
-
-        if (selectedMode !== "All") {
-            result = result.filter(t => t.teachingMode && t.teachingMode.toLowerCase().includes(selectedMode.toLowerCase()));
-        }
-
-        if (selectedClass !== "All") {
-            result = result.filter(t => matchesClassLevel(t.classesOrAgeGroup, selectedClass, t.subjects));
-        }
-
-
-        if (sortBy === "experience") {
+        // 5. Custom Sort (Experience or Rating)
+        if (sort === "experience") {
             result.sort((a, b) => {
                 const expA = parseInt(a.experience) || 0;
                 const expB = parseInt(b.experience) || 0;
                 return expB - expA;
             });
-        } else if (sortBy === "rating") {
+        } else if (sort === "rating") {
             result.sort((a, b) => (b.rating || 5) - (a.rating || 5));
         }
 
-        return result;
-    }, [filtered, selectedMode, selectedClass, sortBy]);
+        setFiltered(result);
+        setSearched(true);
+        setLoading(false);
+
+        if (scroll) {
+            setTimeout(() => {
+                listingRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 100);
+        }
+    }, [subject, location, selectedRadius, selectedClass, selectedMode, sortBy, locationLat, locationLng, teachers]);
+
+    const processedTeachers = filtered;
 
     const handleSearchClick = () => performSearch();
 
     const handleClearFilters = () => {
         setSubject("");
         setLocation("");
+        setLocationLat(undefined);
+        setLocationLng(undefined);
         setSelectedMode("All");
         setSelectedClass("All");
+        setSelectedRadius("5");
         setSortBy("default");
         setFiltered(teachers);
         setSearched(false);
+        setAutoExpandedBanner(null);
         toast.info("All search filters have been reset.");
     };
 
@@ -570,7 +597,7 @@ function FindTutorNearbyPageContent() {
                                             className="absolute top-[110%] left-0 w-full bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-[150] max-h-60 overflow-y-auto"
                                         >
                                             {SUBJECTS.filter(s => s.toLowerCase().includes(subject.toLowerCase())).map(s => (
-                                                <button key={s} onClick={() => { setSubject(s); setShowSubjectSuggestions(false); performSearch(s); }}
+                                                <button key={s} onClick={() => { setSubject(s); setShowSubjectSuggestions(false); }}
                                                     className="w-full px-5 py-3 text-left hover:bg-primary/5 text-xs md:text-sm font-semibold text-slate-700 transition-colors flex items-center justify-between">
                                                     {s} <ChevronRight className="w-4 h-4 text-slate-300" />
                                                 </button>
@@ -625,8 +652,10 @@ function FindTutorNearbyPageContent() {
                                             <div className="rounded-2xl overflow-hidden border border-slate-50 shadow-inner">
                                                 <MapLocationPicker
                                                     onLocationSelect={(loc) => {
-                                                        setLocation(loc.address); setLocationLat(loc.latitude); setLocationLng(loc.longitude);
-                                                        setShowHeroMap(false); performSearch(subject, loc.address);
+                                                        setLocation(loc.address); 
+                                                        setLocationLat(loc.latitude); 
+                                                        setLocationLng(loc.longitude);
+                                                        setShowHeroMap(false);
                                                     }}
                                                     initialAddress={location} height="280px" compact={true} accentColor="amber"
                                                 />
@@ -668,10 +697,7 @@ function FindTutorNearbyPageContent() {
                                         <p className="text-[8px] md:text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-0.5">Search Distance / Radius</p>
                                         <select
                                             value={selectedRadius}
-                                            onChange={(e) => {
-                                                setSelectedRadius(e.target.value);
-                                                performSearch(subject, location, e.target.value);
-                                            }}
+                                            onChange={(e) => setSelectedRadius(e.target.value)}
                                             className="w-full bg-transparent border-none text-sm md:text-base font-semibold outline-none text-slate-850 py-1 cursor-pointer"
                                         >
                                             {RADIUS_OPTIONS.map((r) => (
@@ -688,12 +714,12 @@ function FindTutorNearbyPageContent() {
                         <div className="flex flex-col sm:flex-row items-center gap-3">
                             <button 
                                 onClick={handleSearchClick}
-                                className="w-full sm:flex-[1.5] h-14 md:h-16 bg-primary hover:bg-primary/90 text-slate-950 font-extrabold rounded-2xl md:rounded-[2rem] transition-all duration-500 shadow-xl shadow-primary/10 active:scale-95 flex items-center justify-center gap-3 uppercase text-xs md:text-sm tracking-widest"
+                                className="w-full sm:flex-[1.5] h-14 md:h-16 bg-primary hover:bg-primary/90 text-slate-950 font-extrabold rounded-2xl md:rounded-[2rem] transition-all duration-500 shadow-xl shadow-primary/10 active:scale-95 flex items-center justify-center gap-3 uppercase text-xs md:text-sm tracking-widest cursor-pointer"
                             >
                                 <Search className="w-4 h-4 md:w-5 md:h-5" /> Start Search
                             </button>
                             {searched && (
-                                <button onClick={handleClearFilters} className="w-full sm:w-auto px-8 h-14 md:h-16 bg-white border border-slate-100 text-slate-400 hover:text-red-500 font-bold rounded-2xl md:rounded-[2rem] transition-all uppercase text-[10px] tracking-widest">
+                                <button onClick={handleClearFilters} className="w-full sm:w-auto px-8 h-14 md:h-16 bg-white border border-slate-100 text-slate-400 hover:text-red-500 font-bold rounded-2xl md:rounded-[2rem] transition-all uppercase text-[10px] tracking-widest cursor-pointer">
                                     Reset
                                 </button>
                             )}
@@ -703,11 +729,11 @@ function FindTutorNearbyPageContent() {
                     {/* Popular Cities */}
                     <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 md:gap-4 mt-8 md:mt-10">
                         <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Popular:</span>
-                        {POPULAR_CITIES.slice(0, 4).map(city => (
+                        {POPULAR_CITIES.slice(0, 5).map(city => (
                             <button 
                                 key={city} 
                                 onClick={() => { setLocation(city); performSearch(subject, city); }} 
-                                className="text-[10px] font-bold text-slate-900 hover:text-primary underline underline-offset-4 md:underline-offset-8 decoration-primary/20 uppercase tracking-tighter"
+                                className="text-[10px] font-bold text-slate-900 hover:text-primary underline underline-offset-4 md:underline-offset-8 decoration-primary/20 uppercase tracking-tighter cursor-pointer"
                             >
                                 {city}
                             </button>
@@ -732,14 +758,14 @@ function FindTutorNearbyPageContent() {
             {searched && (
                 <button 
                     onClick={handleClearFilters}
-                    className="flex items-center gap-2 px-5 py-3 bg-red-50 text-red-500 font-black rounded-2xl border border-red-100 hover:bg-red-500 hover:text-white transition-all text-[10px] uppercase"
+                    className="flex items-center gap-2 px-5 py-3 bg-red-50 text-red-500 font-black rounded-2xl border border-red-100 hover:bg-red-500 hover:text-white transition-all text-[10px] uppercase cursor-pointer"
                 >
                     <X className="w-4 h-4" /> Reset
                 </button>
             )}
             <button 
                 onClick={() => setShowFilterPanel(!showFilterPanel)}
-                className={`flex items-center gap-2 px-5 py-3 border rounded-2xl transition-all shadow-sm ${showFilterPanel ? 'bg-primary border-primary text-white shadow-primary/20' : 'bg-slate-50 border-slate-100 text-slate-400 hover:text-primary hover:border-primary/20'}`}
+                className={`flex items-center gap-2 px-5 py-3 border rounded-2xl transition-all shadow-sm cursor-pointer ${showFilterPanel ? 'bg-primary border-primary text-white shadow-primary/20' : 'bg-slate-50 border-slate-100 text-slate-400 hover:text-primary hover:border-primary/20'}`}
             >
                 <Filter className="w-4 h-4" /> <span className="text-[10px] font-black uppercase">Filter</span>
             </button>
@@ -753,7 +779,7 @@ function FindTutorNearbyPageContent() {
                 initial={{ opacity: 0, height: 0 }} 
                 animate={{ opacity: 1, height: "auto" }} 
                 exit={{ opacity: 0, height: 0 }}
-                className="mb-8 p-6 bg-slate-50 border border-slate-100 rounded-[2rem] overflow-hidden"
+                className="mb-8 p-6 bg-slate-50 border border-slate-100 rounded-[2rem] overflow-hidden space-y-6"
             >
                 <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6">
                     {/* Subject Filter */}
@@ -803,10 +829,7 @@ function FindTutorNearbyPageContent() {
                         <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Search Radius</label>
                         <select 
                             value={selectedRadius} 
-                            onChange={(e) => {
-                                setSelectedRadius(e.target.value);
-                                performSearch(subject, location, e.target.value);
-                            }}
+                            onChange={(e) => setSelectedRadius(e.target.value)}
                             className="w-full h-12 px-4 bg-white border border-slate-200/80 rounded-xl outline-none font-bold text-xs text-slate-700 shadow-sm cursor-pointer"
                         >
                             {RADIUS_OPTIONS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
@@ -819,7 +842,7 @@ function FindTutorNearbyPageContent() {
                         <select 
                             value={selectedMode} 
                             onChange={(e) => setSelectedMode(e.target.value)}
-                            className="w-full h-12 px-4 bg-white border border-slate-200/80 rounded-xl outline-none font-bold text-xs text-slate-700 shadow-sm"
+                            className="w-full h-12 px-4 bg-white border border-slate-200/80 rounded-xl outline-none font-bold text-xs text-slate-700 shadow-sm cursor-pointer"
                         >
                             <option value="All">Any type of mode</option>
                             {MODES.map(m => {
@@ -838,7 +861,7 @@ function FindTutorNearbyPageContent() {
                         <select 
                             value={selectedClass} 
                             onChange={(e) => setSelectedClass(e.target.value)}
-                            className="w-full h-12 px-4 bg-white border border-slate-200/80 rounded-xl outline-none font-bold text-xs text-slate-700 shadow-sm"
+                            className="w-full h-12 px-4 bg-white border border-slate-200/80 rounded-xl outline-none font-bold text-xs text-slate-700 shadow-sm cursor-pointer"
                         >
                             <option value="All">All Classes</option>
                             {CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -851,13 +874,23 @@ function FindTutorNearbyPageContent() {
                         <select 
                             value={sortBy} 
                             onChange={(e) => setSortBy(e.target.value)}
-                            className="w-full h-12 px-4 bg-white border border-slate-200/80 rounded-xl outline-none font-bold text-xs text-slate-700 shadow-sm"
+                            className="w-full h-12 px-4 bg-white border border-slate-200/80 rounded-xl outline-none font-bold text-xs text-slate-700 shadow-sm cursor-pointer"
                         >
                             <option value="default">Default (Nearest First)</option>
                             <option value="rating">Rating (High to Low)</option>
                             <option value="experience">Experience (High to Low)</option>
                         </select>
                     </div>
+                </div>
+
+                <div className="flex justify-end pt-2">
+                    <button
+                        onClick={handleSearchClick}
+                        className="px-6 py-3 bg-primary hover:bg-primary/90 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-md transition-all cursor-pointer flex items-center gap-2"
+                    >
+                        <Search className="w-4 h-4" />
+                        <span>Apply Filters & Search</span>
+                    </button>
                 </div>
             </motion.div>
         )}
@@ -894,121 +927,214 @@ function FindTutorNearbyPageContent() {
             </div>
         </div>
     ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16">
-            {processedTeachers.map((t, idx) => (
-                <motion.div 
-                    key={t.id}
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: (idx % 3) * 0.1 }}
-                    className="bg-white rounded-[2.5rem] md:rounded-[3.5rem] border border-slate-100 overflow-hidden hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.15)] transition-all duration-700 group flex flex-col h-full"
-                >
-                    {/* Profile Header Image Area */}
-                    <div 
-                        onClick={() => router.push(`/tutor/${t.id}`)}
-                        className="relative h-64 md:h-72 lg:h-80 overflow-hidden cursor-pointer"
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+            {processedTeachers.map((t, idx) => {
+                // Parse teaching modes cleanly
+                let modes: string[] = [];
+                if (t.teachingMode) {
+                    try {
+                        const parsed = JSON.parse(t.teachingMode);
+                        if (Array.isArray(parsed)) modes = parsed;
+                        else if (typeof parsed === "string") modes = [parsed];
+                    } catch {
+                        modes = t.teachingMode.split(",").map((s: string) => s.trim());
+                    }
+                }
+                const formattedModes = modes.map((m: string) => {
+                    const clean = String(m).replace(/^["'\[\]]+|["'\[\]]+$/g, '').trim();
+                    const upper = clean.toUpperCase();
+                    if (upper.includes("STUDENT") || upper.includes("HOME TUTOR")) return { label: "At Student Home", icon: "🏠" };
+                    if (upper.includes("TEACHER") || upper.includes("CENTRE")) return { label: "At Teacher Home", icon: "🏢" };
+                    if (upper.includes("ONLINE")) return { label: "Online Mode", icon: "💻" };
+                    return { label: clean, icon: "✨" };
+                }).filter(m => m.label.length > 0);
+
+                // Parse classes taught cleanly
+                let classesList: string[] = [];
+                if (t.classesOrAgeGroup) {
+                    try {
+                        const parsed = typeof t.classesOrAgeGroup === "string" ? JSON.parse(t.classesOrAgeGroup) : t.classesOrAgeGroup;
+                        if (Array.isArray(parsed)) classesList = parsed;
+                    } catch {
+                        if (Array.isArray(t.classesOrAgeGroup)) classesList = t.classesOrAgeGroup;
+                    }
+                }
+
+                return (
+                    <motion.div 
+                        key={t.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: (idx % 2) * 0.08 }}
+                        className="bg-white rounded-3xl border border-slate-100/90 shadow-sm hover:shadow-xl hover:border-amber-200/60 transition-all duration-300 flex flex-col justify-between overflow-hidden group text-left"
                     >
-                        <div className="absolute top-5 left-5 md:top-6 md:left-6 z-20">
-                            {t.isApproved ? (
-                                <div className="bg-emerald-500 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-full flex items-center gap-1.5 shadow-lg border border-emerald-400">
-                                    <ShieldCheck className="w-3.5 h-3.5 md:w-4 h-4 text-white" />
-                                    <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest">Verified Expert</span>
+                        {/* CARD TOP INFO & AVATAR SECTION */}
+                        <div className="p-6 md:p-7 space-y-5 flex-1 flex flex-col">
+                            
+                            {/* Top Status & Rating Bar */}
+                            <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-50">
+                                <div className="flex items-center gap-2">
+                                    {t.isApproved ? (
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-wider rounded-full border border-emerald-200/60 shadow-xs">
+                                            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                                            <span>Verified Instructor</span>
+                                        </span>
+                                    ) : (
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-700 text-[10px] font-black uppercase tracking-wider rounded-full border border-amber-200/60 shadow-xs">
+                                            <Clock className="w-3.5 h-3.5 text-amber-600" />
+                                            <span>Pending Verification</span>
+                                        </span>
+                                    )}
                                 </div>
-                            ) : (
-                                <div className="bg-amber-500 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-full flex items-center gap-1.5 shadow-lg border border-amber-400">
-                                    <Clock className="w-3.5 h-3.5 md:w-4 h-4 text-white" />
-                                    <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest">Unverified</span>
+                                <div className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50/80 text-amber-700 rounded-full text-[11px] font-black border border-amber-200/50">
+                                    <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                                    <span>{t.rating || "5.0"}</span>
+                                    <span className="text-slate-400 font-medium text-[10px]">({t.reviewsCount || 0})</span>
+                                </div>
+                            </div>
+
+                            {/* Profile Header Row */}
+                            <div className="flex items-start gap-4">
+                                <div 
+                                    onClick={() => router.push(`/tutor/${t.id}`)}
+                                    className="relative w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden bg-slate-100 border-2 border-slate-100 shadow-sm shrink-0 cursor-pointer group/avatar"
+                                >
+                                    {t.profilePhoto ? (
+                                        <img 
+                                            src={t.profilePhoto} 
+                                            alt={t.name} 
+                                            className="w-full h-full object-cover group-hover/avatar:scale-105 transition-transform duration-300" 
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full bg-gradient-to-tr from-amber-400 to-amber-500 text-slate-950 font-black text-2xl flex items-center justify-center">
+                                            {t.name?.[0] || "T"}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="flex-1 min-w-0 space-y-1.5">
+                                    <h3 
+                                        onClick={() => router.push(`/tutor/${t.id}`)}
+                                        className="text-lg md:text-xl font-black text-slate-900 tracking-tight leading-snug hover:text-amber-500 transition-colors truncate cursor-pointer"
+                                    >
+                                        {t.name}
+                                    </h3>
+                                    
+                                    <p className="text-xs font-bold text-slate-500 truncate flex items-center gap-1.5">
+                                        <GraduationCap className="w-4 h-4 text-amber-500 shrink-0" />
+                                        <span>{t.qualificationName || t.education || "Educator"}</span>
+                                        <span className="text-slate-300">•</span>
+                                        <span className="text-slate-700 font-extrabold">{t.experience || "Verified"} Exp</span>
+                                    </p>
+
+                                    {/* Location & Distance Badges */}
+                                    <div className="flex flex-wrap items-center gap-2 pt-1">
+                                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-600 bg-slate-100/80 px-2.5 py-0.5 rounded-lg">
+                                            <MapPin className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                                            <span className="truncate max-w-[140px]">{getPublicLocality(t.address)}</span>
+                                        </span>
+
+                                        {t.distanceKm !== undefined && t.distanceKm !== null && t.distanceKm < 900 && (
+                                            <span className="inline-flex items-center gap-1 bg-amber-400/20 text-amber-900 border border-amber-400/30 px-2.5 py-0.5 rounded-lg font-black text-[11px] shadow-xs">
+                                                <span>🧭</span> {t.distanceKm < 1 ? `${Math.round(t.distanceKm * 1000)} m away` : `${t.distanceKm} km away`}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Teaching Mode Badges (Properly Parsed) */}
+                            {formattedModes.length > 0 && (
+                                <div className="space-y-1">
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Teaching Mode</p>
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {formattedModes.map((m, i) => (
+                                            <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50/70 text-blue-800 text-[10px] font-extrabold rounded-lg border border-blue-100">
+                                                <span>{m.icon}</span> {m.label}
+                                            </span>
+                                        ))}
+                                    </div>
                                 </div>
                             )}
-                        </div>
 
-                        {/* Top Right Rating Badge */}
-                        <div className="absolute top-5 right-5 z-20">
-                            <div className="bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg border border-white/30 text-[10px] font-black text-amber-500">
-                                <Star className="w-3.5 h-3.5 fill-current" />
-                                <span>{t.rating || 5.0}</span>
-                                <span className="text-slate-400 font-sans">({t.reviewsCount || 0})</span>
+                            {/* Subjects Offered */}
+                            <div className="space-y-1">
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Subjects Offered</p>
+                                <div className="flex flex-wrap gap-1.5">
+                                    {t.subjects?.slice(0, 4).map((s: string) => (
+                                        <span key={s} className="px-2.5 py-1 bg-amber-500/10 text-amber-800 text-[10px] font-extrabold rounded-lg border border-amber-500/20 shadow-xs">
+                                            {s}
+                                        </span>
+                                    ))}
+                                    {t.subjects && t.subjects.length > 4 && (
+                                        <span className="px-2 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold rounded-lg">
+                                            +{t.subjects.length - 4} more
+                                        </span>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                        
-                        {t.profilePhoto ? (
-                            <img src={t.profilePhoto} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt={t.name} />
-                        ) : (
-                            <div className="w-full h-full bg-primary/10 flex items-center justify-center text-6xl md:text-7xl font-[1000] text-primary/40 uppercase">
-                                {t.name?.[0]}
-                            </div>
-                        )}
 
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-transparent opacity-80" />
-                        <div className="absolute bottom-6 left-6 right-6 md:bottom-8 md:left-8 md:right-8">
-                            <h3 
-                                onClick={(e) => { e.stopPropagation(); router.push(`/tutor/${t.id}`); }}
-                                className="text-2xl md:text-3xl font-[1000] text-white tracking-tighter leading-none group-hover:text-primary transition-colors uppercase truncate cursor-pointer"
-                            >
-                                {t.name}
-                            </h3>
-                            <div className="flex flex-wrap items-center gap-3 mt-3 md:mt-4 text-[9px] md:text-[10px] font-black text-white/80 uppercase tracking-widest">
-                                <span className="flex items-center gap-1.5"><MapPin className="w-3 h-3 md:w-3.5 md:h-3.5 text-primary" /> {getPublicLocality(t.address)}</span>
+                            {/* Classes Taught */}
+                            {classesList.length > 0 && (
+                                <div className="space-y-1">
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Classes Taught</p>
+                                    <div className="flex flex-wrap gap-1">
+                                        {classesList.slice(0, 5).map((cls: string) => (
+                                            <span key={cls} className="px-2 py-0.5 bg-indigo-50 text-indigo-700 text-[10px] font-bold rounded-md border border-indigo-100">
+                                                {cls}
+                                            </span>
+                                        ))}
+                                        {classesList.length > 5 && (
+                                            <span className="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] font-bold rounded-md">
+                                                +{classesList.length - 5} more
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
 
-                                {t.distanceKm !== undefined && t.distanceKm !== null && t.distanceKm < 900 && (
-                                    <span className="bg-primary text-slate-950 px-2.5 py-1 rounded-full font-black text-[9px] md:text-[10px] flex items-center gap-1 shadow-md">
-                                        📍 {t.distanceKm < 1 ? `${Math.round(t.distanceKm * 1000)} m away` : `${t.distanceKm} km away`}
-                                    </span>
-                                )}
-                                <span className="flex items-center gap-1.5"><Zap className="w-3 h-3 md:w-3.5 md:h-3.5 text-primary" /> {t.teachingMode === "Home Tutor" ? "At Student Home" : t.teachingMode === "Online Tutor" ? "Online mode" : t.teachingMode === "At Centre" ? "At Teacher Home" : (t.teachingMode || "Online mode")}</span>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    {/* Profile Content Area */}
-                    <div className="p-6 md:p-10 space-y-6 md:space-y-8 flex-1 flex flex-col justify-between">
-                        <div className="space-y-4 md:space-y-6">
-                            <div className="flex flex-wrap gap-2 md:gap-2.5">
-                                {t.subjects?.slice(0, 3).map((s: string) => (
-                                    <span key={s} className="px-3 py-1.5 md:px-4 md:py-2 bg-primary/5 text-primary text-[8px] md:text-[9px] font-black uppercase rounded-xl border border-primary/10 shadow-sm group-hover:bg-primary group-hover:text-white transition-all">{s}</span>
-                                ))}
-                                {t.subjects && t.subjects.length > 3 && (
-                                    <span className="px-3 py-1.5 md:px-4 md:py-2 bg-slate-50 text-slate-400 text-[8px] md:text-[9px] font-black uppercase rounded-xl">+{t.subjects.length - 3} More</span>
-                                )}
-                            </div>
-                            <p className="text-slate-500 text-xs md:text-base font-bold leading-relaxed line-clamp-2 italic">
+                            {/* Overview / Bio Snippet */}
+                            <p className="text-slate-600 text-xs font-medium leading-relaxed italic line-clamp-2 pt-1 border-t border-slate-50">
                                 "{t.achievements || "Dedicated to building strong foundational concepts and helping students excel in academics."}"
                             </p>
                         </div>
 
-                        {/* Price & Action Footer */}
-                        <div className="flex items-center justify-between pt-6 md:pt-10 border-t border-slate-50">
-                            <div>
-                                <p className="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Experience</p>
-                                <p className="text-xl md:text-2xl font-[1000] text-slate-900 tracking-tighter">{t.experience || "Verified"}</p>
+                        {/* CARD BOTTOM ACTION FOOTER */}
+                        <div className="p-4 md:p-5 bg-slate-50/80 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+                            <div className="text-left w-full sm:w-auto">
+                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Expected Fee</p>
+                                <p className="text-base md:text-lg font-black text-slate-900 leading-tight">
+                                    {t.expectedFee ? `₹${t.expectedFee.toLocaleString()}` : "Contact for Fee"}
+                                    {t.expectedFee && <span className="text-[10px] font-bold text-slate-400 ml-1">{t.feeType || "/hr"}</span>}
+                                </p>
                             </div>
 
-                            <div className="flex gap-2 items-center">
+                            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
                                 <button 
                                     onClick={() => { if (!session) { router.push("/signup"); return; } window.open(`https://wa.me/91${t.phone?.replace(/\D/g, "").slice(-10)}`) }}
-                                    className="px-3 py-2 bg-[#e8f5e9] text-[#2e7d32] hover:bg-[#2e7d32] hover:text-white font-extrabold text-[9px] md:text-[10px] uppercase tracking-wider rounded-xl transition-all flex items-center gap-1 active:scale-95 border-none cursor-pointer"
+                                    className="px-3.5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-[11px] rounded-xl transition-all flex items-center gap-1.5 shadow-sm active:scale-95 border-none cursor-pointer"
                                 >
                                     <MessageSquare className="w-3.5 h-3.5" /> Message
                                 </button>
                                 <button 
                                     onClick={() => { if (!session) { router.push("/signup"); return; } window.open(`tel:${t.phone}`, "_self") }}
-                                    className="px-3 py-2 bg-primary/10 text-primary hover:bg-primary hover:text-slate-950 font-extrabold text-[9px] md:text-[10px] uppercase tracking-wider rounded-xl transition-all flex items-center gap-1 active:scale-95 border-none cursor-pointer"
+                                    className="px-3.5 py-2.5 bg-amber-400 hover:bg-amber-500 text-slate-950 font-extrabold text-[11px] rounded-xl transition-all flex items-center gap-1.5 shadow-sm active:scale-95 border-none cursor-pointer"
                                 >
                                     <Phone className="w-3.5 h-3.5" /> Call
                                 </button>
                                 <button 
                                     onClick={() => router.push(`/tutor/${t.id}`)}
-                                    className="px-3 py-2 bg-slate-950 text-white font-extrabold text-[9px] md:text-[10px] uppercase tracking-wider rounded-xl hover:bg-primary hover:text-slate-950 transition-all duration-300 shadow-md active:scale-95 border-none cursor-pointer"
+                                    className="px-4 py-2.5 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white font-extrabold text-[11px] rounded-xl transition-all shadow-sm active:scale-95 border-none cursor-pointer flex items-center gap-1"
                                 >
-                                    View Full Profile
+                                    <span>Profile</span>
+                                    <ArrowRight className="w-3.5 h-3.5" />
                                 </button>
                             </div>
                         </div>
-                    </div>
-                </motion.div>
-            ))}
+                    </motion.div>
+                );
+            })}
         </div>
     )}
 </section>

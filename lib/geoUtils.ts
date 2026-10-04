@@ -273,6 +273,75 @@ export async function searchPlacesAccurate(query: string): Promise<NominatimPlac
 }
 
 /**
+ * Comprehensive dictionary of known localities with high precision coordinates in AP, Telangana, and major Indian hubs.
+ * Provides instant, offline-resilient coordinate resolution.
+ */
+export const KNOWN_LOCALITIES: Record<string, { lat: number; lng: number; pincode?: string }> = {
+  // Vijayawada Localities
+  "bhavanipuram": { lat: 16.5273, lng: 80.5960, pincode: "520012" },
+  "bavanipuram": { lat: 16.5273, lng: 80.5960, pincode: "520012" },
+  "vidyadharapuram": { lat: 16.5310, lng: 80.5900, pincode: "520012" },
+  "v d puram": { lat: 16.5310, lng: 80.5900, pincode: "520012" },
+  "vd puram": { lat: 16.5310, lng: 80.5900, pincode: "520012" },
+  "swathi road": { lat: 16.5260, lng: 80.5980, pincode: "520012" },
+  "lalitha nagar": { lat: 16.5260, lng: 80.5980, pincode: "520012" },
+  "sivalayam center": { lat: 16.5280, lng: 80.5950, pincode: "520012" },
+  "gollapudi": { lat: 16.5450, lng: 80.5750, pincode: "521225" },
+  "one town": { lat: 16.5180, lng: 80.6120, pincode: "520001" },
+  "onetown": { lat: 16.5180, lng: 80.6120, pincode: "520001" },
+  "governorpet": { lat: 16.5100, lng: 80.6280, pincode: "520002" },
+  "gandhi nagar": { lat: 16.5170, lng: 80.6280, pincode: "520003" },
+  "gandhinagar": { lat: 16.5170, lng: 80.6280, pincode: "520003" },
+  "labbipet": { lat: 16.5020, lng: 80.6400, pincode: "520010" },
+  "benz circle": { lat: 16.4985, lng: 80.6520, pincode: "520010" },
+  "moghalrajpuram": { lat: 16.5050, lng: 80.6480, pincode: "520010" },
+  "patamata": { lat: 16.4920, lng: 80.6650, pincode: "520010" },
+  "gurunanak colony": { lat: 16.4950, lng: 80.6600, pincode: "520008" },
+  "auto nagar": { lat: 16.4960, lng: 80.6780, pincode: "520007" },
+  "autonagar": { lat: 16.4960, lng: 80.6780, pincode: "520007" },
+  "kanuru": { lat: 16.4850, lng: 80.6950, pincode: "520007" },
+  "poranki": { lat: 16.4780, lng: 80.7100, pincode: "521137" },
+  "gunadala": { lat: 16.5230, lng: 80.6650, pincode: "520004" },
+  "enikepadu": { lat: 16.5280, lng: 80.7000, pincode: "521108" },
+  "vijayawada": { lat: 16.5062, lng: 80.6480, pincode: "520001" },
+
+  // Andhra Pradesh Major Cities & Hubs
+  "guntur": { lat: 16.3067, lng: 80.4365, pincode: "522002" },
+  "visakhapatnam": { lat: 17.6868, lng: 83.2185, pincode: "530001" },
+  "vizag": { lat: 17.6868, lng: 83.2185, pincode: "530001" },
+  "tirupati": { lat: 13.6288, lng: 79.4192, pincode: "517501" },
+  "nellore": { lat: 14.4426, lng: 79.9865, pincode: "524001" },
+  "kakinada": { lat: 16.9891, lng: 82.2475, pincode: "533001" },
+  "rajahmundry": { lat: 17.0005, lng: 81.8040, pincode: "533101" },
+  "kurnool": { lat: 15.8281, lng: 78.0373, pincode: "518001" },
+  "anantapur": { lat: 14.6819, lng: 77.6006, pincode: "515001" },
+  "kadapa": { lat: 14.4673, lng: 78.8242, pincode: "516001" },
+  "eluru": { lat: 16.7107, lng: 81.0952, pincode: "534001" },
+  "ongole": { lat: 15.5057, lng: 80.0499, pincode: "523001" },
+  "machilipatnam": { lat: 16.1875, lng: 81.1389, pincode: "521001" },
+  "tenali": { lat: 16.2435, lng: 80.6402, pincode: "522201" },
+  "mangalagiri": { lat: 16.4300, lng: 80.5500, pincode: "522503" },
+  "amaravati": { lat: 16.5417, lng: 80.5158, pincode: "522503" },
+  "tadepalle": { lat: 16.4800, lng: 80.6000, pincode: "522501" },
+
+  // Telangana Major Cities & Hubs
+  "hyderabad": { lat: 17.3850, lng: 78.4867, pincode: "500001" },
+  "secunderabad": { lat: 17.4399, lng: 78.4983, pincode: "500003" },
+  "warangal": { lat: 17.9689, lng: 79.5941, pincode: "506001" },
+  "karimnagar": { lat: 18.4386, lng: 79.1288, pincode: "505001" },
+  "nizamabad": { lat: 18.6725, lng: 78.0941, pincode: "503001" },
+  "khammam": { lat: 17.2473, lng: 80.1514, pincode: "507001" },
+  "nalgonda": { lat: 17.0577, lng: 79.2684, pincode: "508001" },
+  "mahbubnagar": { lat: 16.7488, lng: 77.9856, pincode: "509001" },
+  "hitec city": { lat: 17.4435, lng: 78.3772, pincode: "500081" },
+  "gachibowli": { lat: 17.4401, lng: 78.3489, pincode: "500032" },
+  "madhapur": { lat: 17.4483, lng: 78.3915, pincode: "500081" },
+  "kukatpally": { lat: 17.4849, lng: 78.4138, pincode: "500072" },
+  "dilsukhnagar": { lat: 17.3688, lng: 78.5247, pincode: "500060" },
+  "ameerpet": { lat: 17.4375, lng: 78.4482, pincode: "500016" }
+};
+
+/**
  * Calculates the great-circle distance between two points on Earth using Haversine formula in kilometers (km).
  */
 export function calculateHaversineDistance(
@@ -281,7 +350,7 @@ export function calculateHaversineDistance(
   lat2: number,
   lon2: number
 ): number {
-  if (!lat1 || !lon1 || !lat2 || !lon2) return 9999;
+  if (lat1 === undefined || lon1 === undefined || lat2 === undefined || lon2 === undefined || isNaN(lat1) || isNaN(lon1) || isNaN(lat2) || isNaN(lon2)) return 9999;
   const R = 6371; // Earth radius in km
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLon = ((lon2 - lon1) * Math.PI) / 180;
@@ -298,11 +367,23 @@ export function calculateHaversineDistance(
 
 /**
  * Helper to forward geocode an address string to { latitude, longitude }
+ * Checks local high-speed dictionary first, then falls back to server/Nominatim geocoder.
  */
 export async function geocodeAddressToCoords(
   address: string
 ): Promise<LocationCoordinates | null> {
-  if (!address || address.trim().length < 3) return null;
+  if (!address || address.trim().length < 2) return null;
+  
+  const cleanAddr = address.toLowerCase().trim();
+
+  // 1. Fast match against known localities
+  for (const [key, coords] of Object.entries(KNOWN_LOCALITIES)) {
+    if (cleanAddr.includes(key) || key.includes(cleanAddr)) {
+      return { latitude: coords.lat, longitude: coords.lng };
+    }
+  }
+
+  // 2. Query search server / Nominatim
   try {
     const places = await searchPlacesAccurate(address);
     if (places && places.length > 0) {
@@ -329,18 +410,21 @@ export function getPublicLocality(fullAddress: string): string {
   // Filter out door numbers, flat numbers, house numbers, pin codes
   const filtered = parts.filter((p) => {
     const lower = p.toLowerCase();
-    if (/^(d\.?\s*no|door|h\.?\s*no|house|flat|plot|#|\d{5,6})/i.test(lower)) return false;
+    if (/^(d\.?\s*no|door|h\.?\s*no|house|flat|falt|plot|room|apt|#|\d{5,6})/i.test(lower)) return false;
     if (/^\d+[\d\s/\-A-Za-z]*$/.test(p) && p.length < 8) return false;
     return true;
   });
 
+  const cleanPart = (s: string) => s.replace(/\s*-\s*\d{5,6}$/, "").trim();
+
   if (filtered.length >= 2) {
-    return `${filtered[filtered.length - 2]}, ${filtered[filtered.length - 1]}`;
+    return `${cleanPart(filtered[filtered.length - 2])}, ${cleanPart(filtered[filtered.length - 1])}`;
   } else if (filtered.length === 1) {
-    return filtered[0];
+    return cleanPart(filtered[0]);
   }
   
-  return parts.slice(-2).join(", ") || fullAddress;
+  const fallback = parts.slice(-2).map(cleanPart).join(", ");
+  return fallback || fullAddress;
 }
 
 

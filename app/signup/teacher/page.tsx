@@ -265,12 +265,17 @@ export default function TeacherSignupPage() {
 
     const addCertification = () => {
         if (certInput.trim()) {
-            const newCert: Certification = { text: certInput.trim(), image: pendingCertImage || undefined };
+            if (!pendingCertImage) {
+                toast.error("Proof / certificate upload is mandatory for every entered achievement.");
+                return;
+            }
+            const newCert: Certification = { text: certInput.trim(), image: pendingCertImage };
             if (!formData.certifications.some((c) => c.text === newCert.text)) {
                 setFormData(prev => ({ ...prev, certifications: [...prev.certifications, newCert] }));
             }
             setCertInput(""); setPendingCertImage(""); setCertImagePreview(null);
             if (certImageInputRef.current) certImageInputRef.current.value = "";
+            toast.success("Achievement and verified proof attached!");
         }
     };
 
@@ -333,6 +338,12 @@ export default function TeacherSignupPage() {
             if (!formData.experience.trim()) newErrors.experience = "Teaching experience details is required";
             if (!formData.qualificationCertificate) newErrors.qualificationCertificate = "Highest qualification document is required";
             if (!formData.identityProof) newErrors.identityProof = "Identity proof is required";
+            if (certInput.trim().length > 0 && !pendingCertImage) {
+                newErrors.certifications = "Please upload proof for your entered achievement or clear the achievement field.";
+            }
+            if (formData.certifications.some(c => !c.image)) {
+                newErrors.certifications = "Every entered achievement must have an uploaded proof document.";
+            }
         }
         if (stepNum === 4) {
             if (formData.subjects.length === 0) {
@@ -407,6 +418,12 @@ export default function TeacherSignupPage() {
         if (!formData.experience.trim()) newErrors.experience = "Teaching experience details is required";
         if (!formData.qualificationCertificate) newErrors.qualificationCertificate = "Highest qualification document is required";
         if (!formData.identityProof) newErrors.identityProof = "Identity proof is required";
+        if (certInput.trim().length > 0 && !pendingCertImage) {
+            newErrors.certifications = "Please upload proof for your entered achievement or clear the achievement field.";
+        }
+        if (formData.certifications.some(c => !c.image)) {
+            newErrors.certifications = "Every entered achievement must have an uploaded proof document.";
+        }
 
         if (Object.keys(newErrors).length > 0) {
             setStep(3);
@@ -1251,69 +1268,110 @@ export default function TeacherSignupPage() {
 
                                 {/* Certification Uploader Card Widget */}
                                 <div className="space-y-2.5 text-left">
-                                    <label className="block text-[11px] font-black text-slate-450 uppercase tracking-wider">Certifications & Achievements <span className="text-slate-400 normal-case">(Optional - visible to parents and students)</span></label>
+                                    <div className="flex items-center justify-between">
+                                        <label className="block text-[11px] font-black text-slate-450 uppercase tracking-wider">
+                                            Certifications & Achievements <span className="text-slate-400 normal-case font-normal">(Optional — but if entered, proof upload is mandatory)</span>
+                                        </label>
+                                    </div>
                                     <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl space-y-4">
                                         
-                                        {/* Certification Name Input */}
-                                        <div className="flex gap-2">
-                                            <input
-                                                type="text"
-                                                value={certInput}
-                                                onChange={(e) => setCertInput(e.target.value)}
-                                                placeholder="e.g. Google Educator Certified"
-                                                className="w-full px-3 py-2 text-xs font-bold border border-slate-200 rounded-xl outline-none bg-white"
-                                            />
-                                            
-                                            {/* Cert image upload trigger button */}
-                                            {certInput.trim().length > 0 && (
+                                        {/* Certification Name & Proof Input */}
+                                        <div className="space-y-3">
+                                            <div className="flex flex-col sm:flex-row gap-2">
+                                                <input
+                                                    type="text"
+                                                    value={certInput}
+                                                    onChange={(e) => setCertInput(e.target.value)}
+                                                    placeholder="e.g. Best Teacher Award / State Level Champion"
+                                                    className="flex-1 px-3.5 py-2.5 text-xs font-bold border border-slate-200 rounded-xl outline-none bg-white focus:border-amber-400"
+                                                />
+                                                
+                                                {/* Cert image upload trigger button */}
                                                 <button
                                                     type="button"
                                                     onClick={() => certImageInputRef.current?.click()}
-                                                    className="px-3 py-2 bg-white border border-slate-200 text-slate-500 rounded-xl hover:bg-slate-50 cursor-pointer flex items-center justify-center shrink-0"
-                                                    title="Upload Certificate Image"
+                                                    disabled={isUploadingCertImage}
+                                                    className={cn(
+                                                        "px-3.5 py-2.5 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-all shrink-0",
+                                                        pendingCertImage 
+                                                            ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
+                                                            : certInput.trim().length > 0 
+                                                                ? "bg-amber-50 text-amber-800 border-amber-300 ring-2 ring-amber-400/30" 
+                                                                : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
+                                                    )}
+                                                    title="Upload Supporting Proof Document / Certificate"
                                                 >
                                                     {isUploadingCertImage ? (
-                                                        <Loader2 className="w-4 h-4 animate-spin text-amber-500" />
+                                                        <>
+                                                            <Loader2 className="w-4 h-4 animate-spin text-amber-500" />
+                                                            <span className="text-[11px]">Uploading...</span>
+                                                        </>
                                                     ) : pendingCertImage ? (
-                                                        <Check className="w-4 h-4 text-emerald-500" />
+                                                        <>
+                                                            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                                                            <span className="text-[11px]">Proof Attached ✓</span>
+                                                        </>
                                                     ) : (
-                                                        <ImageIcon className="w-4 h-4" />
+                                                        <>
+                                                            <Upload className="w-4 h-4 text-amber-600" />
+                                                            <span className="text-[11px]">Upload Proof *</span>
+                                                        </>
                                                     )}
                                                 </button>
-                                            )}
 
-                                            <button
-                                                type="button"
-                                                onClick={addCertification}
-                                                className="px-4 py-2 bg-[#0a1829] hover:bg-amber-500 hover:text-slate-900 text-white text-[10px] font-black rounded-xl uppercase tracking-wider cursor-pointer border-none shrink-0"
-                                            >
-                                                Add
-                                            </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={addCertification}
+                                                    className="px-4 py-2.5 bg-[#0a1829] hover:bg-amber-500 hover:text-slate-900 text-white text-[11px] font-black rounded-xl uppercase tracking-wider cursor-pointer border-none shrink-0 transition-colors"
+                                                >
+                                                    Add
+                                                </button>
+                                            </div>
+
+                                            {certInput.trim().length > 0 && !pendingCertImage && (
+                                                <p className="text-[10px] text-amber-700 font-bold flex items-center gap-1">
+                                                    ⚠️ Please click &ldquo;Upload Proof *&rdquo; to attach a certificate/proof document for &ldquo;{certInput.trim()}&rdquo; before adding.
+                                                </p>
+                                            )}
                                         </div>
                                         
                                         <input ref={certImageInputRef} type="file" accept="image/*" onChange={handleCertImageUpload} className="hidden" />
 
                                         {/* Certifications Added Grid */}
                                         {formData.certifications.length > 0 ? (
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                                                 {formData.certifications.map((cert, cIdx) => (
-                                                    <div key={cIdx} className="flex items-center justify-between p-2.5 bg-white border border-slate-100 rounded-xl shadow-sm text-xs font-bold text-slate-700">
-                                                        <div className="flex items-center gap-2 truncate">
+                                                    <div key={cIdx} className="flex items-center justify-between p-3 bg-white border border-slate-150 rounded-xl shadow-sm text-xs font-bold text-slate-700">
+                                                        <div className="flex items-center gap-2.5 min-w-0">
                                                             <Award className="w-4 h-4 text-amber-500 shrink-0" />
-                                                            <span className="truncate">{cert.text}</span>
+                                                            <div className="min-w-0 truncate">
+                                                                <span className="truncate block">{cert.text}</span>
+                                                                {cert.image && (
+                                                                    <span className="text-[9px] text-emerald-600 font-extrabold flex items-center gap-1">
+                                                                        ✓ Verified Proof Attached
+                                                                    </span>
+                                                                )}
+                                                            </div>
                                                         </div>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => removeCertification(cert.text)}
-                                                            className="text-slate-350 hover:text-red-500 border-none bg-transparent cursor-pointer"
-                                                        >
-                                                            <X className="w-4 h-4" />
-                                                        </button>
+                                                        <div className="flex items-center gap-2 shrink-0 ml-2">
+                                                            {cert.image && (
+                                                                <a href={cert.image} target="_blank" rel="noopener noreferrer" className="text-[10px] text-blue-600 font-bold hover:underline">
+                                                                    View
+                                                                </a>
+                                                            )}
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => removeCertification(cert.text)}
+                                                                className="text-slate-350 hover:text-red-500 border-none bg-transparent cursor-pointer p-0.5"
+                                                            >
+                                                                <X className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 ))}
                                             </div>
                                         ) : (
-                                            <p className="text-[10px] text-slate-400 font-bold italic text-center">No certifications added yet.</p>
+                                            <p className="text-[10px] text-slate-400 font-bold italic text-center py-1">No achievements added yet. Leave empty if none.</p>
                                         )}
                                     </div>
                                 </div>

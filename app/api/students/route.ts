@@ -70,6 +70,13 @@ export async function PATCH(request: NextRequest) {
         if (phone) updateData.phone = phone;
         if (address) updateData.address = address;
         if (profilePhoto !== undefined) updateData.profilePhoto = profilePhoto;
+        if (body.dob) updateData.dob = new Date(body.dob);
+        if (body.gender !== undefined) updateData.gender = body.gender;
+        if (body.preferredLanguage !== undefined) updateData.preferredLanguage = body.preferredLanguage;
+        if (body.latitude !== undefined) updateData.latitude = body.latitude !== null ? parseFloat(String(body.latitude)) : null;
+        if (body.longitude !== undefined) updateData.longitude = body.longitude !== null ? parseFloat(String(body.longitude)) : null;
+        if (body.securityQuestion !== undefined) updateData.securityQuestion = body.securityQuestion;
+        if (body.securityAnswer !== undefined) updateData.securityAnswer = body.securityAnswer;
 
         const user = await prisma.user.update({
             where: { email: session.user.email! },

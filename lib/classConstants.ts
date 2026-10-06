@@ -39,6 +39,51 @@ export const STANDARD_CLASSES = [
     "Competitive Exams",
 ];
 
+export const ACADEMIC_SUBJECTS = [
+    "Mathematics",
+    "Science",
+    "Physics",
+    "Chemistry",
+    "Biology",
+    "English",
+    "Social Studies",
+    "Computer Science",
+    "Hindi",
+    "History",
+    "Geography",
+    "Economics",
+    "Accountancy",
+    "Business Studies",
+    "Political Science",
+    "Psychology",
+    "Sociology",
+    "Sanskrit",
+    "French",
+    "German",
+];
+
+export const ACTIVITY_SUBJECTS = [
+    "Chess",
+    "Yoga",
+    "Abacus",
+    "Music",
+    "Drawing",
+    "Dance",
+    "Art",
+    "Robotics",
+];
+
+export const ALL_STANDARD_SUBJECTS = [
+    ...ACADEMIC_SUBJECTS,
+    ...ACTIVITY_SUBJECTS,
+];
+
+export const STANDARD_TEACHING_MODES = [
+    { value: "Home Tutor", label: "At Student Home" },
+    { value: "Online Tutor", label: "Online mode" },
+    { value: "At Centre", label: "At Teacher Home" },
+];
+
 export const TEACHER_CLASS_LEVELS = [
     "LKG",
     "UKG",

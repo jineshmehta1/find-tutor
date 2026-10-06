@@ -8,7 +8,14 @@ import { toast } from "sonner";
 import MapLocationPicker from "@/components/ui/DynamicMapPicker";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { calculateHaversineDistance, geocodeAddressToCoords, getPublicLocality, matchesTeachingMode } from "@/lib/geoUtils";
-import { matchesClassLevel } from "@/lib/classConstants";
+import { 
+    matchesClassLevel, 
+    STANDARD_CLASSES, 
+    ACADEMIC_SUBJECTS, 
+    ACTIVITY_SUBJECTS, 
+    ALL_STANDARD_SUBJECTS, 
+    STANDARD_TEACHING_MODES 
+} from "@/lib/classConstants";
 import {
     Search, MapPin, ChevronRight,
     Beaker, Mic2, Languages, Music, Swords,
@@ -39,29 +46,10 @@ const RADIUS_OPTIONS = [
 
 
 
-const SUBJECTS = [
-    "Mathematics", "Physics", "Chemistry", "Biology", "English", "Hindi",
-    "History", "Geography", "Computer Science", "Economics", "Accountancy",
-    "Business Studies", "Political Science", "Psychology", "Sociology",
-    "Sanskrit", "French", "German", "Music", "Art", "Chess", "Abacus", 
-    "Robotics", "Coding", "Spoken English", "Aptitude", "Environmental Science",
-    "Home Science", "Physical Education", "Statistics", "Calculus", "Trigonometry",
-    "Organic Chemistry", "Inorganic Chemistry", "Mechanics", "Thermodynamics",
-    "Civics", "Social Studies", "General Knowledge", "Vedic Maths", "Spanish",
-    "Japanese", "Chinese", "Yoga", "Guitar", "Violin", "Drums", "Keyboard",
-    "Bharatnatyam", "Kathak", "Contemporary Dance", "Zumba", "Calligraphy"
-];
+const SUBJECTS = ALL_STANDARD_SUBJECTS;
+const CLASSES = STANDARD_CLASSES;
+const MODES = STANDARD_TEACHING_MODES;
 
-const CLASSES = [
-    "Nursery", "LKG", "UKG",
-    "Class 1", "Class 2", "Class 3", "Class 4", "Class 5",
-    "Class 6", "Class 7", "Class 8", "Class 9", "Class 10",
-    "Class 11", "Class 12",
-    "Degree / Graduation", "Competitive Exams", 
-    "IELTS/TOEFL", "GRE/GMAT", "JEE/NEET Prep", "UPSC/SSC", "Banking Exams", "CAT/MAT", "CA Foundation"
-];
-
-const MODES = ["Home Tutor", "Online Tutor", "At Centre"];
 
 const POPULAR_CITIES = [
     "Vijayawada", "Hyderabad", "Visakhapatnam", "Guntur", 
@@ -69,6 +57,57 @@ const POPULAR_CITIES = [
     "Rajahmundry", "Karimnagar", "Kurnool", "Nizamabad",
     "Khammam", "Anantapur", "Kadapa", "Eluru", "Ongole"
 ];
+
+const CITY_LOCALITIES: Record<string, string[]> = {
+    "visakhapatnam": [
+        "MVP Colony", "Gajuwaka", "Madhurawada", "Siripuram", 
+        "Dwaraka Nagar", "Seethammadhara", "Rushikonda", "Pendurthi", 
+        "Akkayyapalem", "Kancharapalem", "NAD Junction", "Maharanipeta"
+    ],
+    "vizag": [
+        "MVP Colony", "Gajuwaka", "Madhurawada", "Siripuram", 
+        "Dwaraka Nagar", "Seethammadhara", "Rushikonda", "Pendurthi", 
+        "Akkayyapalem", "Kancharapalem", "NAD Junction", "Maharanipeta"
+    ],
+    "vijayawada": [
+        "Bhavanipuram", "Patamata", "Gollapudi", "Vidyadharapuram", 
+        "Benz Circle", "Labbipet", "Gurunanak Colony", "Kanuru", 
+        "Moghalrajpuram", "Lalitha Nagar", "Satyanarayanapuram", "Gunadala"
+    ],
+    "hyderabad": [
+        "Madhapur", "Gachibowli", "Kukatpally", "Banjara Hills", 
+        "Jubilee Hills", "Ameerpet", "Dilsukhnagar", "Kondapur", 
+        "Hitec City", "Secunderabad", "Miyapur", "Manikonda"
+    ],
+    "guntur": [
+        "Brodipet", "Arundelpet", "Lakshmipuram", "Kothapet", 
+        "Pattabhipuram", "Nallapadu", "Vidya Nagar", "Brindavan Gardens"
+    ],
+    "tirupati": [
+        "Alipiri", "Bhavani Nagar", "Korlagunta", "Chandragiri", 
+        "Renigunta Road", "MR Palli", "AIR Bypass Road", "Balaji Colony"
+    ],
+    "warangal": [
+        "Hanamkonda", "Kazipet", "Subedari", "Nakkalagutta", 
+        "Waddepally", "Kakatiya Colony", "Pochamma Maidan"
+    ],
+    "kakinada": [
+        "Suryaraopeta", "Bhanugudi Junction", "Ramanayyapeta", 
+        "Gandhi Nagar", "Madhavapatnam", "Gaigolupadu"
+    ],
+    "rajahmundry": [
+        "Danavaipeta", "Kotipalli", "Innespeta", "Aryapuram", 
+        "Lalacheruvu", "Morampudi", "Prakash Nagar"
+    ],
+    "nellore": [
+        "Magunta Layout", "Vedayapalem", "Dargamitta", 
+        "Stonehousepet", "Pogathota", "Balaji Nagar"
+    ],
+    "kurnool": [
+        "Nandyal Road", "Gayatri Estate", "Budhawarpet", 
+        "B Camp", "Santosh Nagar", "Roza"
+    ]
+};
 
 const TESTIMONIALS = [
     { name: "Ananya Iyer", role: "Parent", text: "Found a brilliant Physics tutor for my son within 20 minutes. The verification process is top-notch.", rating: 5 },
@@ -87,6 +126,17 @@ const FAQS = [
     { q: "Do you provide tutors for hobby classes?", a: "Absolutely! We have experts for Chess, Music, Dance, Yoga, and even Foreign Languages." },
     { q: "Is there a registration fee for students?", a: "No, the service is 100% free for students and parents to find and contact tutors." }
 ];
+
+// Helper to assign cover banner based on subject
+const getSubjectCover = (subject?: string): string => {
+  const sub = (subject || "").toLowerCase();
+  if (sub.includes("chess")) return "/kidchess.jpg";
+  if (sub.includes("abacus")) return "/kidabacus.jpg";
+  if (sub.includes("robot") || sub.includes("code") || sub.includes("computer")) return "/kidrobot.jpg";
+  if (sub.includes("math")) return "/kidcoaching.jpg";
+  if (sub.includes("science") || sub.includes("physic") || sub.includes("chemist") || sub.includes("biolog")) return "/tutor_teaching_card.png";
+  return "/coaching.jpg";
+};
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    SECTION 2: TYPES & INTERFACES
@@ -472,6 +522,55 @@ function FindTutorNearbyPageContent() {
         toast.info("All search filters have been reset.");
     };
 
+    const dynamicNearbyLocalities = useMemo(() => {
+        const locLower = (location || "").toLowerCase().trim();
+
+        // 1. Check if location matches any known city directly or as substring
+        let matchedCity: string | null = null;
+        for (const city of Object.keys(CITY_LOCALITIES)) {
+            if (locLower.includes(city)) {
+                matchedCity = city;
+                break;
+            }
+        }
+
+        // 2. Also check if searched location matches any specific locality in our city dictionary
+        if (!matchedCity && locLower) {
+            for (const [city, locList] of Object.entries(CITY_LOCALITIES)) {
+                if (locList.some(l => locLower.includes(l.toLowerCase()))) {
+                    matchedCity = city;
+                    break;
+                }
+            }
+        }
+
+        let suggestions: string[] = [];
+
+        if (matchedCity && CITY_LOCALITIES[matchedCity]) {
+            suggestions = [...CITY_LOCALITIES[matchedCity]];
+        }
+
+        // 3. Extract unique localities from actual tutors in results / database matching context
+        if (processedTeachers.length > 0) {
+            const tutorLocs = processedTeachers
+                .map(t => getPublicLocality(t.address))
+                .filter(Boolean);
+            
+            // Add tutor localities to the front if not already present
+            tutorLocs.forEach(tl => {
+                if (!suggestions.some(s => s.toLowerCase() === tl.toLowerCase())) {
+                    suggestions.unshift(tl);
+                }
+            });
+        }
+
+        if (suggestions.length === 0) {
+            suggestions = CITY_LOCALITIES["visakhapatnam"] || CITY_LOCALITIES["vijayawada"];
+        }
+
+        return Array.from(new Set(suggestions)).slice(0, 12);
+    }, [location, processedTeachers]);
+
     const handlePostRequirement = async () => {
         if (!session) {
             toast.error("Please login first to post requirements.");
@@ -680,13 +779,9 @@ function FindTutorNearbyPageContent() {
                                             className="w-full bg-transparent border-none text-sm md:text-base font-semibold outline-none text-slate-850 py-1 cursor-pointer"
                                         >
                                             <option value="All">Any type of mode</option>
-                                            {MODES.map(m => {
-                                                let label = m;
-                                                if (m === "Home Tutor") label = "At Student Home";
-                                                else if (m === "Online Tutor") label = "Online mode";
-                                                else if (m === "At Centre") label = "At Teacher Home";
-                                                return <option key={m} value={m}>{label}</option>;
-                                            })}
+                                            {MODES.map(m => (
+                                                <option key={m.value} value={m.value}>{m.label}</option>
+                                            ))}
                                         </select>
                                     </div>
                                 </div>
@@ -860,13 +955,9 @@ function FindTutorNearbyPageContent() {
                             className="w-full h-12 px-4 bg-white border border-slate-200/80 rounded-xl outline-none font-bold text-xs text-slate-700 shadow-sm cursor-pointer"
                         >
                             <option value="All">Any type of mode</option>
-                            {MODES.map(m => {
-                                let label = m;
-                                if (m === "Home Tutor") label = "At Student Home";
-                                else if (m === "Online Tutor") label = "Online mode";
-                                else if (m === "At Centre") label = "At Teacher Home";
-                                return <option key={m} value={m}>{label}</option>;
-                            })}
+                            {MODES.map(m => (
+                                <option key={m.value} value={m.value}>{m.label}</option>
+                            ))}
                         </select>
                     </div>
 
@@ -950,8 +1041,12 @@ function FindTutorNearbyPageContent() {
             </div>
         </div>
     ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
             {processedTeachers.map((t, idx) => {
+                // Clean subjects list (strip raw class breakdown suffix e.g. "Maths (Class 1, 2...)")
+                const cleanSubjects = (t.subjects || []).map((s: string) => s.replace(/\s*\(.*?\)$/, "").trim()).filter(Boolean);
+                const coverUrl = getSubjectCover(cleanSubjects[0] || t.qualificationName);
+
                 // Parse teaching modes cleanly
                 let modes: string[] = [];
                 if (t.teachingMode) {
@@ -966,13 +1061,13 @@ function FindTutorNearbyPageContent() {
                 const formattedModes = modes.map((m: string) => {
                     const clean = String(m).replace(/^["'\[\]]+|["'\[\]]+$/g, '').trim();
                     const upper = clean.toUpperCase();
-                    if (upper.includes("STUDENT") || upper.includes("HOME TUTOR")) return { label: "At Student Home", icon: "🏠" };
-                    if (upper.includes("TEACHER") || upper.includes("CENTRE")) return { label: "At Teacher Home", icon: "🏢" };
-                    if (upper.includes("ONLINE")) return { label: "Online Mode", icon: "💻" };
-                    return { label: clean, icon: "✨" };
-                }).filter(m => m.label.length > 0);
+                    if (upper.includes("STUDENT") || upper.includes("HOME TUTOR")) return "At Student Home";
+                    if (upper.includes("TEACHER") || upper.includes("CENTRE")) return "At Teacher Home";
+                    if (upper.includes("ONLINE")) return "Online Mode";
+                    return clean;
+                }).filter(Boolean);
 
-                // Parse classes taught cleanly
+                // Parse classes taught cleanly into a compact summary string
                 let classesList: string[] = [];
                 if (t.classesOrAgeGroup) {
                     try {
@@ -982,176 +1077,171 @@ function FindTutorNearbyPageContent() {
                         if (Array.isArray(t.classesOrAgeGroup)) classesList = t.classesOrAgeGroup;
                     }
                 }
+                let classesSummary = "All Grades";
+                if (classesList.length > 0) {
+                    if (classesList.length >= 4) {
+                        classesSummary = `${classesList[0]} to ${classesList[classesList.length - 1]}`;
+                    } else {
+                        classesSummary = classesList.join(", ");
+                    }
+                }
 
                 return (
                     <motion.div 
                         key={t.id}
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 15 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        transition={{ delay: (idx % 2) * 0.08 }}
-                        className="bg-white rounded-3xl border border-slate-100/90 shadow-sm hover:shadow-xl hover:border-amber-200/60 transition-all duration-300 flex flex-col justify-between overflow-hidden group text-left"
+                        transition={{ delay: (idx % 4) * 0.05 }}
+                        className="bg-white rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl hover:border-amber-200/80 transition-all duration-300 flex flex-col justify-between overflow-hidden group text-left h-full"
                     >
-                        {/* CARD TOP INFO & AVATAR SECTION */}
-                        <div className="p-6 md:p-7 space-y-5 flex-1 flex flex-col">
-                            
-                            {/* Top Status & Rating Bar */}
-                            <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-50">
-                                <div className="flex items-center gap-2">
-                                    {t.isApproved ? (
-                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-wider rounded-full border border-emerald-200/60 shadow-xs">
-                                            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                                            <span>Verified Instructor</span>
-                                        </span>
-                                    ) : (
-                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-700 text-[10px] font-black uppercase tracking-wider rounded-full border border-amber-200/60 shadow-xs">
-                                            <Clock className="w-3.5 h-3.5 text-amber-600" />
-                                            <span>Pending Verification</span>
-                                        </span>
-                                    )}
-                                </div>
-                                <div className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50/80 text-amber-700 rounded-full text-[11px] font-black border border-amber-200/50">
-                                    <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                        {/* Cover Image Header with floating badges */}
+                        <div className="relative h-28 w-full overflow-hidden shrink-0 bg-slate-100">
+                            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/30 via-transparent to-transparent z-10" />
+                            <img 
+                                src={coverUrl} 
+                                alt={cleanSubjects[0] || "Tutor"} 
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                            {/* Floating Top Badges */}
+                            <div className="absolute top-2.5 left-2.5 right-2.5 z-20 flex items-center justify-between gap-1.5">
+                                {t.isApproved ? (
+                                    <span className="flex items-center gap-1 px-2 py-0.5 bg-emerald-500 text-white rounded-full text-[9px] font-black shadow-sm">
+                                        <ShieldCheck className="w-3 h-3 text-white" />
+                                        <span>Verified</span>
+                                    </span>
+                                ) : (
+                                    <span className="flex items-center gap-1 px-2 py-0.5 bg-amber-500 text-white rounded-full text-[9px] font-black shadow-sm">
+                                        <Clock className="w-3 h-3 text-white" />
+                                        <span>Pending</span>
+                                    </span>
+                                )}
+                                <span className="flex items-center gap-1 px-2 py-0.5 bg-white/90 backdrop-blur-sm text-amber-700 rounded-full text-[10px] font-black shadow-sm">
+                                    <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
                                     <span>{t.rating || "5.0"}</span>
-                                    <span className="text-slate-400 font-medium text-[10px]">({t.reviewsCount || 0})</span>
-                                </div>
+                                    {t.reviewsCount > 0 && <span className="text-slate-400 font-normal text-[9px]">({t.reviewsCount})</span>}
+                                </span>
                             </div>
+                        </div>
 
-                            {/* Profile Header Row */}
-                            <div className="flex items-start gap-4">
+                        {/* Profile Info & Content */}
+                        <div className="p-4 pt-0 flex-1 flex flex-col justify-between space-y-3">
+                            
+                            {/* Profile Avatar overlapping cover */}
+                            <div className="flex items-start gap-3 relative z-20 pt-1">
                                 <div 
                                     onClick={() => router.push(`/tutor/${t.id}`)}
-                                    className="relative w-20 h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden bg-slate-100 border-2 border-slate-100 shadow-sm shrink-0 cursor-pointer group/avatar"
+                                    className="relative w-14 h-14 shrink-0 -mt-7 rounded-full overflow-hidden border-3 border-white shadow-md bg-white cursor-pointer group-hover:scale-105 transition-transform"
                                 >
                                     {t.profilePhoto ? (
                                         <img 
                                             src={t.profilePhoto} 
                                             alt={t.name} 
-                                            className="w-full h-full object-cover group-hover/avatar:scale-105 transition-transform duration-300" 
+                                            className="w-full h-full object-cover" 
                                         />
                                     ) : (
-                                        <div className="w-full h-full bg-gradient-to-tr from-amber-400 to-amber-500 text-slate-950 font-black text-2xl flex items-center justify-center">
+                                        <div className="w-full h-full bg-gradient-to-tr from-amber-400 to-amber-500 text-slate-950 font-black text-xl flex items-center justify-center">
                                             {t.name?.[0] || "T"}
                                         </div>
                                     )}
                                 </div>
 
-                                <div className="flex-1 min-w-0 space-y-1.5">
-                                    <h3 
+                                <div className="min-w-0 flex-1 pt-1">
+                                    <h4 
                                         onClick={() => router.push(`/tutor/${t.id}`)}
-                                        className="text-lg md:text-xl font-black text-slate-900 tracking-tight leading-snug hover:text-amber-500 transition-colors truncate cursor-pointer"
+                                        className="font-extrabold text-sm sm:text-base text-slate-900 group-hover:text-amber-600 transition-colors truncate leading-tight cursor-pointer"
                                     >
                                         {t.name}
-                                    </h3>
-                                    
-                                    <p className="text-xs font-bold text-slate-500 truncate flex items-center gap-1.5">
-                                        <GraduationCap className="w-4 h-4 text-amber-500 shrink-0" />
-                                        <span>{t.qualificationName || t.education || "Educator"}</span>
-                                        <span className="text-slate-300">•</span>
-                                        <span className="text-slate-700 font-extrabold">{t.experience || "Verified"} Exp</span>
+                                    </h4>
+                                    <p className="text-[10px] text-slate-400 font-bold truncate mt-0.5">
+                                        {t.qualificationName || t.education || "Qualified Mentor"}
                                     </p>
-
-                                    {/* Location & Distance Badges */}
-                                    <div className="flex flex-wrap items-center gap-2 pt-1">
-                                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-600 bg-slate-100/80 px-2.5 py-0.5 rounded-lg">
-                                            <MapPin className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                                            <span className="truncate max-w-[140px]">{getPublicLocality(t.address)}</span>
-                                        </span>
-
-                                        {t.distanceKm !== undefined && t.distanceKm !== null && t.distanceKm < 900 && (
-                                            <span className="inline-flex items-center gap-1 bg-amber-400/20 text-amber-900 border border-amber-400/30 px-2.5 py-0.5 rounded-lg font-black text-[11px] shadow-xs">
-                                                <span>🧭</span> {t.distanceKm < 1 ? `${Math.round(t.distanceKm * 1000)} m away` : `${t.distanceKm} km away`}
-                                            </span>
-                                        )}
-                                    </div>
                                 </div>
                             </div>
 
-                            {/* Teaching Mode Badges (Properly Parsed) */}
-                            {formattedModes.length > 0 && (
-                                <div className="space-y-1">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Teaching Mode</p>
-                                    <div className="flex flex-wrap gap-1.5">
-                                        {formattedModes.map((m, i) => (
-                                            <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50/70 text-blue-800 text-[10px] font-extrabold rounded-lg border border-blue-100">
-                                                <span>{m.icon}</span> {m.label}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Subjects Offered */}
-                            <div className="space-y-1">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Subjects Offered</p>
-                                <div className="flex flex-wrap gap-1.5">
-                                    {t.subjects?.slice(0, 4).map((s: string) => (
-                                        <span key={s} className="px-2.5 py-1 bg-amber-500/10 text-amber-800 text-[10px] font-extrabold rounded-lg border border-amber-500/20 shadow-xs">
+                            {/* Details Area */}
+                            <div className="space-y-2 w-full">
+                                {/* Subjects Offered */}
+                                <div className="flex flex-wrap gap-1 items-center">
+                                    {cleanSubjects.slice(0, 2).map((s: string) => (
+                                        <span key={s} className="px-2 py-0.5 rounded-md text-[9px] font-black tracking-wide uppercase bg-amber-50 text-amber-800 border border-amber-200/60 truncate max-w-[120px]">
                                             {s}
                                         </span>
                                     ))}
-                                    {t.subjects && t.subjects.length > 4 && (
-                                        <span className="px-2 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold rounded-lg">
-                                            +{t.subjects.length - 4} more
+                                    {cleanSubjects.length > 2 && (
+                                        <span className="px-1.5 py-0.5 rounded-md text-[9px] font-bold bg-slate-100 text-slate-500">
+                                            +{cleanSubjects.length - 2}
+                                        </span>
+                                    )}
+                                </div>
+
+                                {/* Teaching Mode Badges */}
+                                {formattedModes.length > 0 && (
+                                    <div className="flex flex-wrap gap-1 items-center">
+                                        {formattedModes.slice(0, 2).map((m, i) => (
+                                            <span key={i} className="px-2 py-0.5 rounded-md text-[9px] font-extrabold bg-blue-50 text-blue-800 border border-blue-100/80">
+                                                {m}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* Classes Taught */}
+                                <div className="text-[10px] text-slate-500 font-semibold truncate">
+                                    <span className="text-slate-400 uppercase font-black text-[9px] tracking-wider mr-1">Grades:</span>
+                                    <span className="text-slate-700 font-bold">{classesSummary}</span>
+                                </div>
+
+                                {/* Location & Distance Row */}
+                                <div className="flex items-center justify-between text-[10px] text-slate-500 font-bold pt-1 border-t border-slate-50">
+                                    <span className="flex items-center gap-1 truncate max-w-[110px]" title={getPublicLocality(t.address)}>
+                                        <MapPin className="w-3 h-3 text-amber-500 shrink-0" />
+                                        <span className="truncate">{getPublicLocality(t.address)}</span>
+                                    </span>
+                                    {t.distanceKm !== undefined && t.distanceKm !== null && t.distanceKm < 900 ? (
+                                        <span className="text-amber-700 font-extrabold text-[9px] bg-amber-50 px-1.5 py-0.5 rounded-md border border-amber-200/60 shrink-0">
+                                            🧭 {t.distanceKm < 1 ? `${Math.round(t.distanceKm * 1000)}m` : `${t.distanceKm.toFixed(1)}km`}
+                                        </span>
+                                    ) : (
+                                        <span className="flex items-center gap-1 text-slate-400 font-bold text-[9px] shrink-0">
+                                            <Clock className="w-3 h-3 text-amber-500" />
+                                            <span>{t.experience || "Exp."}</span>
                                         </span>
                                     )}
                                 </div>
                             </div>
-
-                            {/* Classes Taught */}
-                            {classesList.length > 0 && (
-                                <div className="space-y-1">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Classes Taught</p>
-                                    <div className="flex flex-wrap gap-1">
-                                        {classesList.slice(0, 5).map((cls: string) => (
-                                            <span key={cls} className="px-2 py-0.5 bg-indigo-50 text-indigo-700 text-[10px] font-bold rounded-md border border-indigo-100">
-                                                {cls}
-                                            </span>
-                                        ))}
-                                        {classesList.length > 5 && (
-                                            <span className="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] font-bold rounded-md">
-                                                +{classesList.length - 5} more
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Overview / Bio Snippet */}
-                            <p className="text-slate-600 text-xs font-medium leading-relaxed italic line-clamp-2 pt-1 border-t border-slate-50">
-                                "{t.achievements || "Dedicated to building strong foundational concepts and helping students excel in academics."}"
-                            </p>
                         </div>
 
-                        {/* CARD BOTTOM ACTION FOOTER */}
-                        <div className="p-4 md:p-5 bg-slate-50/80 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
-                            <div className="text-left w-full sm:w-auto">
-                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Expected Fee</p>
-                                <p className="text-base md:text-lg font-black text-slate-900 leading-tight">
-                                    {t.expectedFee ? `₹${t.expectedFee.toLocaleString()}` : "Contact for Fee"}
-                                    {t.expectedFee && <span className="text-[10px] font-bold text-slate-400 ml-1">{t.feeType || "/hr"}</span>}
-                                </p>
+                        {/* Footer / CTA Actions */}
+                        <div className="p-3 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between gap-2">
+                            <div className="min-w-0">
+                                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest block leading-none">Fee</span>
+                                <span className="text-xs font-black text-slate-900 truncate block">
+                                    {t.expectedFee ? `₹${t.expectedFee.toLocaleString()}` : "Contact"}
+                                    {t.expectedFee && <span className="text-[8px] font-normal text-slate-400 ml-0.5">{t.feeType || "/hr"}</span>}
+                                </span>
                             </div>
 
-                            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                            <div className="flex items-center gap-1.5 shrink-0">
                                 <button 
-                                    onClick={() => { if (!session) { router.push("/signup"); return; } window.open(`https://wa.me/91${t.phone?.replace(/\D/g, "").slice(-10)}`) }}
-                                    className="px-3.5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-[11px] rounded-xl transition-all flex items-center gap-1.5 shadow-sm active:scale-95 border-none cursor-pointer"
+                                    onClick={() => {
+                                        if (t.phone) {
+                                            window.open(`tel:${t.phone}`, "_self");
+                                        } else {
+                                            router.push(`/tutor/${t.id}`);
+                                        }
+                                    }}
+                                    title="Call Tutor"
+                                    className="p-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl transition-all shadow-xs active:scale-95 cursor-pointer flex items-center justify-center border-none"
                                 >
-                                    <MessageSquare className="w-3.5 h-3.5" /> Message
-                                </button>
-                                <button 
-                                    onClick={() => { if (!session) { router.push("/signup"); return; } window.open(`tel:${t.phone}`, "_self") }}
-                                    className="px-3.5 py-2.5 bg-amber-400 hover:bg-amber-500 text-slate-950 font-extrabold text-[11px] rounded-xl transition-all flex items-center gap-1.5 shadow-sm active:scale-95 border-none cursor-pointer"
-                                >
-                                    <Phone className="w-3.5 h-3.5" /> Call
+                                    <Phone className="w-3.5 h-3.5" />
                                 </button>
                                 <button 
                                     onClick={() => router.push(`/tutor/${t.id}`)}
-                                    className="px-4 py-2.5 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white font-extrabold text-[11px] rounded-xl transition-all shadow-sm active:scale-95 border-none cursor-pointer flex items-center gap-1"
+                                    className="px-3 py-2 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white font-extrabold text-[10px] rounded-xl transition-all shadow-xs active:scale-95 cursor-pointer flex items-center gap-1 border-none"
                                 >
                                     <span>Profile</span>
-                                    <ArrowRight className="w-3.5 h-3.5" />
+                                    <ArrowRight className="w-3 h-3" />
                                 </button>
                             </div>
                         </div>
@@ -1165,15 +1255,11 @@ function FindTutorNearbyPageContent() {
             {/* ──── 5.3 SUGGESTIONS WITH NEARBY LOCALITIES ──── */}
             <section className="py-12 bg-slate-50 border-y border-slate-100">
                 <div className="container mx-auto px-4 md:px-6 text-center">
-                    <h3 className="text-xs md:text-sm font-extrabold text-slate-450 uppercase tracking-widest mb-6">
-                        Suggestions with Nearby Localities
+                    <h3 className="text-xs md:text-sm font-extrabold text-slate-500 uppercase tracking-widest mb-6">
+                        Suggestions with Nearby Localities {location ? `in & around ${location}` : ""}
                     </h3>
-                    <div className="flex flex-wrap items-center justify-center gap-3 max-w-4xl mx-auto">
-                        {[
-                            "Bhavanipuram", "Patamata", "Gollapudi", "Vidyadharapuram", 
-                            "Benz Circle", "Labbipet", "Gurunanak Colony", "Kanuru", 
-                            "Moghalrajpuram", "Lalitha Nagar", "Swathi Road"
-                        ].map((loc) => (
+                    <div className="flex flex-wrap items-center justify-center gap-3 max-w-5xl mx-auto">
+                        {dynamicNearbyLocalities.map((loc) => (
                             <button
                                 key={loc}
                                 onClick={() => {
@@ -1224,7 +1310,10 @@ function FindTutorNearbyPageContent() {
                     <p className="text-[10px] md:text-xs font-bold text-slate-400 leading-relaxed">
                         Our relationship managers are available from 10 AM to 7 PM.
                     </p>
-                    <button className="flex items-center gap-2 text-primary font-[1000] uppercase text-[10px] md:text-xs hover:gap-4 transition-all">
+                    <button 
+                        onClick={() => window.open("tel:+918074103400", "_self")}
+                        className="flex items-center gap-2 text-primary font-[1000] uppercase text-[10px] md:text-xs hover:gap-4 transition-all cursor-pointer"
+                    >
                         Connect Now <ArrowUpRight className="w-4 h-4" />
                     </button>
                 </div>
@@ -1238,29 +1327,30 @@ function FindTutorNearbyPageContent() {
                         <div className="space-y-6 lg:space-y-8">
                             <div className="space-y-2 md:space-y-3">
                                 <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Learning Subject</label>
-                                <select value={reqSubject} onChange={e => setReqSubject(e.target.value)} className="w-full h-14 md:h-16 px-6 md:px-8 bg-slate-50 border-none rounded-2xl md:rounded-[2rem] outline-none focus:ring-4 ring-primary/20 font-black text-slate-700 appearance-none shadow-inner text-sm">
+                                <select value={reqSubject} onChange={e => setReqSubject(e.target.value)} className="w-full h-14 md:h-16 px-6 md:px-8 bg-slate-50 border-none rounded-2xl md:rounded-[2rem] outline-none focus:ring-4 ring-primary/20 font-black text-slate-700 appearance-none shadow-inner text-sm cursor-pointer">
                                     <option value="">Select Subject</option>
-                                    {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
+                                    <optgroup label="Academic Subjects">
+                                        {ACADEMIC_SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
+                                    </optgroup>
+                                    <optgroup label="Activities & Coaching">
+                                        {ACTIVITY_SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
+                                    </optgroup>
                                 </select>
                             </div>
                             <div className="space-y-2 md:space-y-3">
                                 <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Target Class</label>
-                                <select value={reqClass} onChange={e => setReqClass(e.target.value)} className="w-full h-14 md:h-16 px-6 md:px-8 bg-slate-50 border-none rounded-2xl md:rounded-[2rem] outline-none focus:ring-4 ring-primary/20 font-black text-slate-700 appearance-none shadow-inner text-sm">
-                                    <option value="">Choose Class</option>
+                                <select value={reqClass} onChange={e => setReqClass(e.target.value)} className="w-full h-14 md:h-16 px-6 md:px-8 bg-slate-50 border-none rounded-2xl md:rounded-[2rem] outline-none focus:ring-4 ring-primary/20 font-black text-slate-700 appearance-none shadow-inner text-sm cursor-pointer">
+                                    <option value="">Choose Class / Grade</option>
                                     {CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
                                 </select>
                             </div>
                             <div className="space-y-2 md:space-y-3">
                                 <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Learning Mode</label>
-                                <select value={reqMode} onChange={e => setReqMode(e.target.value)} className="w-full h-14 md:h-16 px-6 md:px-8 bg-slate-50 border-none rounded-2xl md:rounded-[2rem] outline-none focus:ring-4 ring-primary/20 font-black text-slate-700 appearance-none shadow-inner text-sm">
-                                    <option value="">Home / Online</option>
-                                    {MODES.map(m => {
-                                        let label = m;
-                                        if (m === "Home Tutor") label = "At Student Home";
-                                        else if (m === "Online Tutor") label = "Online mode";
-                                        else if (m === "At Centre") label = "At Teacher Home";
-                                        return <option key={m} value={m}>{label}</option>;
-                                    })}
+                                <select value={reqMode} onChange={e => setReqMode(e.target.value)} className="w-full h-14 md:h-16 px-6 md:px-8 bg-slate-50 border-none rounded-2xl md:rounded-[2rem] outline-none focus:ring-4 ring-primary/20 font-black text-slate-700 appearance-none shadow-inner text-sm cursor-pointer">
+                                    <option value="">Select Learning Mode</option>
+                                    {MODES.map(m => (
+                                        <option key={m.value} value={m.value}>{m.label}</option>
+                                    ))}
                                 </select>
                             </div>
                         </div>

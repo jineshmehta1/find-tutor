@@ -286,17 +286,10 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
                 </div>
               )}
 
-              {tutor.dob && (
+              {tutor.gender && (
                 <div className="space-y-1 bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Age</p>
-                  <p className="font-extrabold text-slate-800 text-sm">
-                    {(() => {
-                      const birth = new Date(tutor.dob);
-                      const ageDiffMs = Date.now() - birth.getTime();
-                      const ageDate = new Date(ageDiffMs);
-                      return `${Math.abs(ageDate.getUTCFullYear() - 1970)} years old`;
-                    })()}
-                  </p>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Gender</p>
+                  <p className="font-extrabold text-slate-800 text-sm">{tutor.gender}</p>
                 </div>
               )}
 
@@ -359,7 +352,7 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
           )}
 
           {/* Certifications & Verified Proof Documents */}
-          {((tutor.certifications && tutor.certifications.length > 0) || tutor.qualificationCertificate || tutor.achievementCertificate) && (
+          {((tutor.certifications && tutor.certifications.length > 0) || tutor.achievementCertificate) && (
             <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm space-y-6">
               <h3 className="text-lg md:text-xl font-extrabold text-slate-950 flex items-center gap-2">
                 <Award className="w-5 h-5 text-amber-500" /> Achievements & Verified Audit Proofs
@@ -389,28 +382,6 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
                     )}
                   </div>
                 ))}
-
-                {/* Main Qualification Certificate Proof */}
-                {tutor.qualificationCertificate && (
-                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-3">
-                    <div className="flex items-center gap-3">
-                      <GraduationCap className="w-6 h-6 text-indigo-500 shrink-0" />
-                      <div>
-                        <h4 className="font-extrabold text-slate-900 text-sm">Academic Degree Certificate</h4>
-                        <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wide">✓ Audited Document</span>
-                      </div>
-                    </div>
-                    <div className="relative rounded-xl overflow-hidden border border-slate-200 bg-white p-2">
-                      <img 
-                        src={tutor.qualificationCertificate} 
-                        alt="Academic Degree Certificate" 
-                        className="w-full h-auto max-h-48 object-contain rounded-lg pointer-events-none select-none"
-                        onContextMenu={(e) => e.preventDefault()}
-                        draggable="false"
-                      />
-                    </div>
-                  </div>
-                )}
 
                 {/* Achievement Award Certificate Proof */}
                 {tutor.achievementCertificate && (

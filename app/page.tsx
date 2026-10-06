@@ -14,14 +14,12 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import MapLocationPicker from "@/components/ui/DynamicMapPicker";
 import { smartReverseGeocode, getBrowserCoordinates, getPublicLocality } from "@/lib/geoUtils";
-
-const ACADEMIC_SUBJECTS = [
-  "Mathematics", "Science", "Physics", "Chemistry", "Biology", "English", "Social Studies", "Computer Science"
-];
-
-const ACTIVITY_SUBJECTS = [
-  "Chess", "Yoga", "Abacus", "Music", "Drawing", "Dance"
-];
+import { 
+  STANDARD_CLASSES, 
+  ACADEMIC_SUBJECTS, 
+  ACTIVITY_SUBJECTS, 
+  STANDARD_TEACHING_MODES 
+} from "@/lib/classConstants";
 
 // Static constants TEACHERS and COACHES removed to force real database content only.
 
@@ -611,23 +609,9 @@ export default function HomePage() {
                       >
                         <option value="">Select Level</option>
                         <option value="All">All Grades</option>
-                        <option value="Nursery">Nursery</option>
-                        <option value="LKG">LKG</option>
-                        <option value="UKG">UKG</option>
-                        <option value="Class 1">Class 1</option>
-                        <option value="Class 2">Class 2</option>
-                        <option value="Class 3">Class 3</option>
-                        <option value="Class 4">Class 4</option>
-                        <option value="Class 5">Class 5</option>
-                        <option value="Class 6">Class 6</option>
-                        <option value="Class 7">Class 7</option>
-                        <option value="Class 8">Class 8</option>
-                        <option value="Class 9">Class 9</option>
-                        <option value="Class 10">Class 10</option>
-                        <option value="Class 11">Class 11</option>
-                        <option value="Class 12">Class 12</option>
-                        <option value="Degree / Graduation">Degree / Graduation</option>
-                        <option value="Competitive Exams">Competitive Exams</option>
+                        {STANDARD_CLASSES.map((c) => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
                       </select>
                     </div>
                   </div>
@@ -672,9 +656,9 @@ export default function HomePage() {
                         className="w-full bg-transparent border-none text-[12px] font-bold outline-none text-slate-800 py-1 cursor-pointer"
                       >
                         <option value="">Any type of mode</option>
-                        <option value="Home Tutor">At Student Home</option>
-                        <option value="Online Tutor">Online mode</option>
-                        <option value="At Centre">At Teacher Home</option>
+                        {STANDARD_TEACHING_MODES.map((m) => (
+                          <option key={m.value} value={m.value}>{m.label}</option>
+                        ))}
                       </select>
                     </div>
                   </div>

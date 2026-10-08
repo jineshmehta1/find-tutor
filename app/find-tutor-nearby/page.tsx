@@ -1262,8 +1262,13 @@ function FindTutorNearbyPageContent() {
                         {dynamicNearbyLocalities.map((loc) => (
                             <button
                                 key={loc}
-                                onClick={() => {
+                                onClick={async () => {
                                     setLocation(loc);
+                                    const coords = await geocodeAddressToCoords(loc);
+                                    if (coords) {
+                                        setLocationLat(coords.latitude);
+                                        setLocationLng(coords.longitude);
+                                    }
                                     performSearch(subject, loc);
                                     if (listingRef.current) {
                                         listingRef.current.scrollIntoView({ behavior: "smooth" });

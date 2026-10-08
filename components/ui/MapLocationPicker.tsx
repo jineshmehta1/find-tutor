@@ -145,6 +145,11 @@ export default function MapLocationPicker({
         async (lat: number, lng: number) => {
             setMarkerPos([lat, lng]);
             setFlyTo([lat, lng]);
+            if (typeof window !== "undefined") {
+                try {
+                    localStorage.setItem("aacharya_last_known_coords", JSON.stringify({ lat, lng }));
+                } catch {}
+            }
             const addr = await smartReverseGeocode(lat, lng);
             setAddress(addr);
             setSearchQuery("");
@@ -177,7 +182,9 @@ export default function MapLocationPicker({
         }
         setIsSearching(true);
         searchTimeoutRef.current = setTimeout(async () => {
-            const results = await searchPlacesAccurate(searchQuery);
+            const userLat = markerPos ? markerPos[0] : initialLat;
+            const userLng = markerPos ? markerPos[1] : initialLng;
+            const results = await searchPlacesAccurate(searchQuery, userLat, userLng);
             setSearchResults(results);
             setShowResults(results.length > 0);
             setIsSearching(false);
@@ -185,7 +192,7 @@ export default function MapLocationPicker({
         return () => {
             if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
         };
-    }, [searchQuery]);
+    }, [searchQuery, markerPos, initialLat, initialLng]);
 
     /* ─── Close dropdown on outside click ─── */
     useEffect(() => {

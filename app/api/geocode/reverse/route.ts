@@ -40,7 +40,15 @@ function resolveKnownPostalCode(lat: number, lng: number, addressTokens: string[
     return "521225";
   }
 
-  // 7. One Town / Kothapeta / Brahmin Street -> 520001
+  // 7. Satyanarayanapuram / Madhuranagar / SN Puram / Pezzonipet -> 520011
+  if (
+    /satyanarayana\s*puram|sn\s*puram|madhura\s*nagar|pezzoni\s*pet|satya\s*narayana/i.test(combinedText) ||
+    (lat >= 16.516 && lat <= 16.532 && lng >= 80.628 && lng <= 80.648)
+  ) {
+    return "520011";
+  }
+
+  // 8. One Town / Kothapeta / Brahmin Street -> 520001
   if (/one\s*town|kothapeta|brahmin\s*street|islampet|tarapet|chittinagar/i.test(combinedText)) {
     return "520001";
   }

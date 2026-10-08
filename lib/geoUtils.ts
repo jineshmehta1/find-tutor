@@ -248,12 +248,39 @@ export function getBrowserCoordinates(
 }
 
 /**
- * Search places via server proxy or Nominatim with India country bounds
+ * Search places via server proxy or Nominatim with India country bounds and proximity ranking
  */
-export async function searchPlacesAccurate(query: string): Promise<NominatimPlace[]> {
+export async function searchPlacesAccurate(
+  query: string,
+  userLat?: number,
+  userLng?: number
+): Promise<NominatimPlace[]> {
   if (!query.trim() || query.length < 2) return [];
+
+  let proximityLat = userLat;
+  let proximityLng = userLng;
+
+  if ((proximityLat === undefined || proximityLng === undefined) && typeof window !== "undefined") {
+    try {
+      const cached = localStorage.getItem("aacharya_last_known_coords");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed.lat && parsed.lng) {
+          proximityLat = parsed.lat;
+          proximityLng = parsed.lng;
+        }
+      }
+    } catch {}
+  }
+
+  const queryParams = new URLSearchParams({ q: query });
+  if (proximityLat !== undefined && proximityLng !== undefined && !isNaN(proximityLat) && !isNaN(proximityLng)) {
+    queryParams.set("userLat", String(proximityLat));
+    queryParams.set("userLng", String(proximityLng));
+  }
+
   try {
-    const res = await fetch(`/api/geocode/search?q=${encodeURIComponent(query)}`);
+    const res = await fetch(`/api/geocode/search?${queryParams.toString()}`);
     if (res.ok) {
       return await res.json();
     }
@@ -272,73 +299,118 @@ export async function searchPlacesAccurate(query: string): Promise<NominatimPlac
   }
 }
 
-/**
- * Comprehensive dictionary of known localities with high precision coordinates in AP, Telangana, and major Indian hubs.
- * Provides instant, offline-resilient coordinate resolution.
- */
-export const KNOWN_LOCALITIES: Record<string, { lat: number; lng: number; pincode?: string }> = {
-  // Vijayawada Localities
-  "bhavanipuram": { lat: 16.5273, lng: 80.5960, pincode: "520012" },
-  "bavanipuram": { lat: 16.5273, lng: 80.5960, pincode: "520012" },
-  "vidyadharapuram": { lat: 16.5310, lng: 80.5900, pincode: "520012" },
-  "v d puram": { lat: 16.5310, lng: 80.5900, pincode: "520012" },
-  "vd puram": { lat: 16.5310, lng: 80.5900, pincode: "520012" },
-  "swathi road": { lat: 16.5260, lng: 80.5980, pincode: "520012" },
-  "lalitha nagar": { lat: 16.5260, lng: 80.5980, pincode: "520012" },
-  "sivalayam center": { lat: 16.5280, lng: 80.5950, pincode: "520012" },
-  "gollapudi": { lat: 16.5450, lng: 80.5750, pincode: "521225" },
-  "one town": { lat: 16.5180, lng: 80.6120, pincode: "520001" },
-  "onetown": { lat: 16.5180, lng: 80.6120, pincode: "520001" },
-  "governorpet": { lat: 16.5100, lng: 80.6280, pincode: "520002" },
-  "gandhi nagar": { lat: 16.5170, lng: 80.6280, pincode: "520003" },
-  "gandhinagar": { lat: 16.5170, lng: 80.6280, pincode: "520003" },
-  "labbipet": { lat: 16.5020, lng: 80.6400, pincode: "520010" },
-  "benz circle": { lat: 16.4985, lng: 80.6520, pincode: "520010" },
-  "moghalrajpuram": { lat: 16.5050, lng: 80.6480, pincode: "520010" },
-  "patamata": { lat: 16.4920, lng: 80.6650, pincode: "520010" },
-  "gurunanak colony": { lat: 16.4950, lng: 80.6600, pincode: "520008" },
-  "auto nagar": { lat: 16.4960, lng: 80.6780, pincode: "520007" },
-  "autonagar": { lat: 16.4960, lng: 80.6780, pincode: "520007" },
-  "kanuru": { lat: 16.4850, lng: 80.6950, pincode: "520007" },
-  "poranki": { lat: 16.4780, lng: 80.7100, pincode: "521137" },
-  "gunadala": { lat: 16.5230, lng: 80.6650, pincode: "520004" },
-  "enikepadu": { lat: 16.5280, lng: 80.7000, pincode: "521108" },
-  "vijayawada": { lat: 16.5062, lng: 80.6480, pincode: "520001" },
+// Enhanced comprehensive dictionary of known localities with high precision coordinates in AP, Telangana, and major Indian hubs.
+export const KNOWN_LOCALITIES: Record<string, { lat: number; lng: number; pincode?: string; displayName?: string }> = {
+  // Vijayawada Localities (NTR District, AP)
+  "satyanarayanapuram": { lat: 16.5218, lng: 80.6348, pincode: "520011", displayName: "Satyanarayanapuram, Vijayawada, NTR District, Andhra Pradesh, 520011, India" },
+  "satyanarayanpuram": { lat: 16.5218, lng: 80.6348, pincode: "520011", displayName: "Satyanarayanapuram, Vijayawada, NTR District, Andhra Pradesh, 520011, India" },
+  "satyanarayana puram": { lat: 16.5218, lng: 80.6348, pincode: "520011", displayName: "Satyanarayanapuram, Vijayawada, NTR District, Andhra Pradesh, 520011, India" },
+  "satyanarayan puram": { lat: 16.5218, lng: 80.6348, pincode: "520011", displayName: "Satyanarayanapuram, Vijayawada, NTR District, Andhra Pradesh, 520011, India" },
+  "satya narayana puram": { lat: 16.5218, lng: 80.6348, pincode: "520011", displayName: "Satyanarayanapuram, Vijayawada, NTR District, Andhra Pradesh, 520011, India" },
+  "satya narayan puram": { lat: 16.5218, lng: 80.6348, pincode: "520011", displayName: "Satyanarayanapuram, Vijayawada, NTR District, Andhra Pradesh, 520011, India" },
+  "sn puram": { lat: 16.5218, lng: 80.6348, pincode: "520011", displayName: "Satyanarayanapuram, Vijayawada, NTR District, Andhra Pradesh, 520011, India" },
+  "snpuram": { lat: 16.5218, lng: 80.6348, pincode: "520011", displayName: "Satyanarayanapuram, Vijayawada, NTR District, Andhra Pradesh, 520011, India" },
+  "s.n. puram": { lat: 16.5218, lng: 80.6348, pincode: "520011", displayName: "Satyanarayanapuram, Vijayawada, NTR District, Andhra Pradesh, 520011, India" },
+  "s n puram": { lat: 16.5218, lng: 80.6348, pincode: "520011", displayName: "Satyanarayanapuram, Vijayawada, NTR District, Andhra Pradesh, 520011, India" },
+  "bhavanipuram": { lat: 16.5273, lng: 80.5960, pincode: "520012", displayName: "Bhavanipuram, Vijayawada, NTR District, Andhra Pradesh, 520012, India" },
+  "bavanipuram": { lat: 16.5273, lng: 80.5960, pincode: "520012", displayName: "Bhavanipuram, Vijayawada, NTR District, Andhra Pradesh, 520012, India" },
+  "vidyadharapuram": { lat: 16.5310, lng: 80.5900, pincode: "520012", displayName: "Vidyadharapuram, Vijayawada, NTR District, Andhra Pradesh, 520012, India" },
+  "v d puram": { lat: 16.5310, lng: 80.5900, pincode: "520012", displayName: "Vidyadharapuram, Vijayawada, NTR District, Andhra Pradesh, 520012, India" },
+  "vd puram": { lat: 16.5310, lng: 80.5900, pincode: "520012", displayName: "Vidyadharapuram, Vijayawada, NTR District, Andhra Pradesh, 520012, India" },
+  "swathi road": { lat: 16.5260, lng: 80.5980, pincode: "520012", displayName: "Swathi Road, Bhavanipuram, Vijayawada, Andhra Pradesh, 520012, India" },
+  "lalitha nagar": { lat: 16.5260, lng: 80.5980, pincode: "520012", displayName: "Lalitha Nagar, Bhavanipuram, Vijayawada, Andhra Pradesh, 520012, India" },
+  "sivalayam center": { lat: 16.5280, lng: 80.5950, pincode: "520012", displayName: "Sivalayam Center, Bhavanipuram, Vijayawada, Andhra Pradesh, 520012, India" },
+  "gollapudi": { lat: 16.5450, lng: 80.5750, pincode: "521225", displayName: "Gollapudi, Vijayawada, NTR District, Andhra Pradesh, 521225, India" },
+  "one town": { lat: 16.5180, lng: 80.6120, pincode: "520001", displayName: "One Town, Vijayawada, NTR District, Andhra Pradesh, 520001, India" },
+  "onetown": { lat: 16.5180, lng: 80.6120, pincode: "520001", displayName: "One Town, Vijayawada, NTR District, Andhra Pradesh, 520001, India" },
+  "kothapeta vijayawada": { lat: 16.5180, lng: 80.6120, pincode: "520001", displayName: "Kothapeta, One Town, Vijayawada, Andhra Pradesh, 520001, India" },
+  "governorpet": { lat: 16.5100, lng: 80.6280, pincode: "520002", displayName: "Governorpet, Vijayawada, NTR District, Andhra Pradesh, 520002, India" },
+  "governor pet": { lat: 16.5100, lng: 80.6280, pincode: "520002", displayName: "Governorpet, Vijayawada, NTR District, Andhra Pradesh, 520002, India" },
+  "gandhi nagar": { lat: 16.5170, lng: 80.6280, pincode: "520003", displayName: "Gandhi Nagar, Vijayawada, NTR District, Andhra Pradesh, 520003, India" },
+  "gandhinagar": { lat: 16.5170, lng: 80.6280, pincode: "520003", displayName: "Gandhi Nagar, Vijayawada, NTR District, Andhra Pradesh, 520003, India" },
+  "suryaraopet": { lat: 16.5080, lng: 80.6350, pincode: "520002", displayName: "Suryaraopet, Vijayawada, NTR District, Andhra Pradesh, 520002, India" },
+  "suryaraopeta": { lat: 16.5080, lng: 80.6350, pincode: "520002", displayName: "Suryaraopet, Vijayawada, NTR District, Andhra Pradesh, 520002, India" },
+  "surya rao pet": { lat: 16.5080, lng: 80.6350, pincode: "520002", displayName: "Suryaraopet, Vijayawada, NTR District, Andhra Pradesh, 520002, India" },
+  "machavaram": { lat: 16.5150, lng: 80.6550, pincode: "520004", displayName: "Machavaram, Vijayawada, NTR District, Andhra Pradesh, 520004, India" },
+  "madhuranagar": { lat: 16.5230, lng: 80.6420, pincode: "520011", displayName: "Madhura Nagar, Vijayawada, NTR District, Andhra Pradesh, 520011, India" },
+  "madhura nagar": { lat: 16.5230, lng: 80.6420, pincode: "520011", displayName: "Madhura Nagar, Vijayawada, NTR District, Andhra Pradesh, 520011, India" },
+  "ajit singh nagar": { lat: 16.5400, lng: 80.6350, pincode: "520015", displayName: "Ajit Singh Nagar, Vijayawada, NTR District, Andhra Pradesh, 520015, India" },
+  "ajitsingh nagar": { lat: 16.5400, lng: 80.6350, pincode: "520015", displayName: "Ajit Singh Nagar, Vijayawada, NTR District, Andhra Pradesh, 520015, India" },
+  "singh nagar": { lat: 16.5400, lng: 80.6350, pincode: "520015", displayName: "Ajit Singh Nagar, Vijayawada, NTR District, Andhra Pradesh, 520015, India" },
+  "payakapuram": { lat: 16.5520, lng: 80.6380, pincode: "520015", displayName: "Payakapuram, Vijayawada, NTR District, Andhra Pradesh, 520015, India" },
+  "labbipet": { lat: 16.5020, lng: 80.6400, pincode: "520010", displayName: "Labbipet, Vijayawada, NTR District, Andhra Pradesh, 520010, India" },
+  "labbipeta": { lat: 16.5020, lng: 80.6400, pincode: "520010", displayName: "Labbipet, Vijayawada, NTR District, Andhra Pradesh, 520010, India" },
+  "benz circle": { lat: 16.4985, lng: 80.6520, pincode: "520010", displayName: "Benz Circle, Vijayawada, NTR District, Andhra Pradesh, 520010, India" },
+  "moghalrajpuram": { lat: 16.5050, lng: 80.6480, pincode: "520010", displayName: "Moghalrajpuram, Vijayawada, NTR District, Andhra Pradesh, 520010, India" },
+  "patamata": { lat: 16.4920, lng: 80.6650, pincode: "520010", displayName: "Patamata, Vijayawada, NTR District, Andhra Pradesh, 520010, India" },
+  "gurunanak colony": { lat: 16.4950, lng: 80.6600, pincode: "520008", displayName: "Guru Nanak Colony, Vijayawada, NTR District, Andhra Pradesh, 520008, India" },
+  "guru nanak colony": { lat: 16.4950, lng: 80.6600, pincode: "520008", displayName: "Guru Nanak Colony, Vijayawada, NTR District, Andhra Pradesh, 520008, India" },
+  "auto nagar": { lat: 16.4960, lng: 80.6780, pincode: "520007", displayName: "Auto Nagar, Vijayawada, NTR District, Andhra Pradesh, 520007, India" },
+  "autonagar": { lat: 16.4960, lng: 80.6780, pincode: "520007", displayName: "Auto Nagar, Vijayawada, NTR District, Andhra Pradesh, 520007, India" },
+  "kanuru": { lat: 16.4850, lng: 80.6950, pincode: "520007", displayName: "Kanuru, Vijayawada, NTR District, Andhra Pradesh, 520007, India" },
+  "poranki": { lat: 16.4780, lng: 80.7100, pincode: "521137", displayName: "Poranki, Vijayawada, NTR District, Andhra Pradesh, 521137, India" },
+  "gunadala": { lat: 16.5230, lng: 80.6650, pincode: "520004", displayName: "Gunadala, Vijayawada, NTR District, Andhra Pradesh, 520004, India" },
+  "enikepadu": { lat: 16.5280, lng: 80.7000, pincode: "521108", displayName: "Enikepadu, Vijayawada, NTR District, Andhra Pradesh, 521108, India" },
+  "ramavarappadu": { lat: 16.5250, lng: 80.6800, pincode: "521108", displayName: "Ramavarappadu, Vijayawada, NTR District, Andhra Pradesh, 521108, India" },
+  "prasadampadu": { lat: 16.5200, lng: 80.6900, pincode: "521108", displayName: "Prasadampadu, Vijayawada, NTR District, Andhra Pradesh, 521108, India" },
+  "tadigadapa": { lat: 16.4750, lng: 80.7000, pincode: "521137", displayName: "Tadigadapa, Vijayawada, Andhra Pradesh, 521137, India" },
+  "penamaluru": { lat: 16.4680, lng: 80.7180, pincode: "521139", displayName: "Penamaluru, Vijayawada, Andhra Pradesh, 521139, India" },
+  "krishna lanka": { lat: 16.5010, lng: 80.6250, pincode: "520013", displayName: "Krishna Lanka, Vijayawada, NTR District, Andhra Pradesh, 520013, India" },
+  "krishnalanka": { lat: 16.5010, lng: 80.6250, pincode: "520013", displayName: "Krishna Lanka, Vijayawada, NTR District, Andhra Pradesh, 520013, India" },
+  "mangalagiri": { lat: 16.4300, lng: 80.5500, pincode: "522503", displayName: "Mangalagiri, Guntur/Vijayawada Region, Andhra Pradesh, 522503, India" },
+  "tadepalle": { lat: 16.4800, lng: 80.6000, pincode: "522501", displayName: "Tadepalle, Vijayawada/Guntur Region, Andhra Pradesh, 522501, India" },
+  "tadepalli": { lat: 16.4800, lng: 80.6000, pincode: "522501", displayName: "Tadepalli, Vijayawada/Guntur Region, Andhra Pradesh, 522501, India" },
+  "gannavaram": { lat: 16.5380, lng: 80.8030, pincode: "521101", displayName: "Gannavaram, Vijayawada Region, Andhra Pradesh, 521101, India" },
+  "kondapalli": { lat: 16.6180, lng: 80.5360, pincode: "521228", displayName: "Kondapalli, Vijayawada Region, Andhra Pradesh, 521228, India" },
+  "ibrahimpatnam": { lat: 16.5860, lng: 80.5180, pincode: "521456", displayName: "Ibrahimpatnam, Vijayawada Region, Andhra Pradesh, 521456, India" },
+  "nunna": { lat: 16.5850, lng: 80.6650, pincode: "521212", displayName: "Nunna, Vijayawada, NTR District, Andhra Pradesh, 521212, India" },
+  "vijayawada": { lat: 16.5062, lng: 80.6480, pincode: "520001", displayName: "Vijayawada, NTR District, Andhra Pradesh, India" },
 
-  // Andhra Pradesh Major Cities & Hubs
-  "guntur": { lat: 16.3067, lng: 80.4365, pincode: "522002" },
-  "visakhapatnam": { lat: 17.6868, lng: 83.2185, pincode: "530001" },
-  "vizag": { lat: 17.6868, lng: 83.2185, pincode: "530001" },
-  "tirupati": { lat: 13.6288, lng: 79.4192, pincode: "517501" },
-  "nellore": { lat: 14.4426, lng: 79.9865, pincode: "524001" },
-  "kakinada": { lat: 16.9891, lng: 82.2475, pincode: "533001" },
-  "rajahmundry": { lat: 17.0005, lng: 81.8040, pincode: "533101" },
-  "kurnool": { lat: 15.8281, lng: 78.0373, pincode: "518001" },
-  "anantapur": { lat: 14.6819, lng: 77.6006, pincode: "515001" },
-  "kadapa": { lat: 14.4673, lng: 78.8242, pincode: "516001" },
-  "eluru": { lat: 16.7107, lng: 81.0952, pincode: "534001" },
-  "ongole": { lat: 15.5057, lng: 80.0499, pincode: "523001" },
-  "machilipatnam": { lat: 16.1875, lng: 81.1389, pincode: "521001" },
-  "tenali": { lat: 16.2435, lng: 80.6402, pincode: "522201" },
-  "mangalagiri": { lat: 16.4300, lng: 80.5500, pincode: "522503" },
-  "amaravati": { lat: 16.5417, lng: 80.5158, pincode: "522503" },
-  "tadepalle": { lat: 16.4800, lng: 80.6000, pincode: "522501" },
+  // Andhra Pradesh Major Cities & Localities
+  "guntur": { lat: 16.3067, lng: 80.4365, pincode: "522002", displayName: "Guntur, Andhra Pradesh, India" },
+  "brodipet": { lat: 16.3120, lng: 80.4380, pincode: "522002", displayName: "Brodipet, Guntur, Andhra Pradesh, 522002, India" },
+  "arundelpet": { lat: 16.3080, lng: 80.4420, pincode: "522002", displayName: "Arundelpet, Guntur, Andhra Pradesh, 522002, India" },
+  "lakshmipuram guntur": { lat: 16.3010, lng: 80.4280, pincode: "522007", displayName: "Lakshmipuram, Guntur, Andhra Pradesh, 522007, India" },
+  "visakhapatnam": { lat: 17.6868, lng: 83.2185, pincode: "530001", displayName: "Visakhapatnam, Andhra Pradesh, India" },
+  "vizag": { lat: 17.6868, lng: 83.2185, pincode: "530001", displayName: "Visakhapatnam, Andhra Pradesh, India" },
+  "mvp colony": { lat: 17.7420, lng: 83.3370, pincode: "530017", displayName: "MVP Colony, Visakhapatnam, Andhra Pradesh, 530017, India" },
+  "gajuwaka": { lat: 17.6900, lng: 83.2080, pincode: "530026", displayName: "Gajuwaka, Visakhapatnam, Andhra Pradesh, 530026, India" },
+  "madhurawada": { lat: 17.8000, lng: 83.3550, pincode: "530048", displayName: "Madhurawada, Visakhapatnam, Andhra Pradesh, 530048, India" },
+  "siripuram": { lat: 17.7210, lng: 83.3150, pincode: "530003", displayName: "Siripuram, Visakhapatnam, Andhra Pradesh, 530003, India" },
+  "dwaraka nagar": { lat: 17.7250, lng: 83.3050, pincode: "530016", displayName: "Dwaraka Nagar, Visakhapatnam, Andhra Pradesh, 530016, India" },
+  "seethammadhara": { lat: 17.7400, lng: 83.3120, pincode: "530013", displayName: "Seethammadhara, Visakhapatnam, Andhra Pradesh, 530013, India" },
+  "tirupati": { lat: 13.6288, lng: 79.4192, pincode: "517501", displayName: "Tirupati, Andhra Pradesh, India" },
+  "alipiri": { lat: 13.6550, lng: 79.4000, pincode: "517507", displayName: "Alipiri, Tirupati, Andhra Pradesh, India" },
+  "nellore": { lat: 14.4426, lng: 79.9865, pincode: "524001", displayName: "Nellore, Andhra Pradesh, India" },
+  "kakinada": { lat: 16.9891, lng: 82.2475, pincode: "533001", displayName: "Kakinada, Andhra Pradesh, India" },
+  "rajahmundry": { lat: 17.0005, lng: 81.8040, pincode: "533101", displayName: "Rajahmundry, Andhra Pradesh, India" },
+  "kurnool": { lat: 15.8281, lng: 78.0373, pincode: "518001", displayName: "Kurnool, Andhra Pradesh, India" },
+  "anantapur": { lat: 14.6819, lng: 77.6006, pincode: "515001", displayName: "Anantapur, Andhra Pradesh, India" },
+  "kadapa": { lat: 14.4673, lng: 78.8242, pincode: "516001", displayName: "Kadapa, Andhra Pradesh, India" },
+  "eluru": { lat: 16.7107, lng: 81.0952, pincode: "534001", displayName: "Eluru, Andhra Pradesh, India" },
+  "ongole": { lat: 15.5057, lng: 80.0499, pincode: "523001", displayName: "Ongole, Andhra Pradesh, India" },
+  "machilipatnam": { lat: 16.1875, lng: 81.1389, pincode: "521001", displayName: "Machilipatnam, Andhra Pradesh, India" },
+  "tenali": { lat: 16.2435, lng: 80.6402, pincode: "522201", displayName: "Tenali, Andhra Pradesh, India" },
+  "amaravati": { lat: 16.5417, lng: 80.5158, pincode: "522503", displayName: "Amaravati, Andhra Pradesh, India" },
 
   // Telangana Major Cities & Hubs
-  "hyderabad": { lat: 17.3850, lng: 78.4867, pincode: "500001" },
-  "secunderabad": { lat: 17.4399, lng: 78.4983, pincode: "500003" },
-  "warangal": { lat: 17.9689, lng: 79.5941, pincode: "506001" },
-  "karimnagar": { lat: 18.4386, lng: 79.1288, pincode: "505001" },
-  "nizamabad": { lat: 18.6725, lng: 78.0941, pincode: "503001" },
-  "khammam": { lat: 17.2473, lng: 80.1514, pincode: "507001" },
-  "nalgonda": { lat: 17.0577, lng: 79.2684, pincode: "508001" },
-  "mahbubnagar": { lat: 16.7488, lng: 77.9856, pincode: "509001" },
-  "hitec city": { lat: 17.4435, lng: 78.3772, pincode: "500081" },
-  "gachibowli": { lat: 17.4401, lng: 78.3489, pincode: "500032" },
-  "madhapur": { lat: 17.4483, lng: 78.3915, pincode: "500081" },
-  "kukatpally": { lat: 17.4849, lng: 78.4138, pincode: "500072" },
-  "dilsukhnagar": { lat: 17.3688, lng: 78.5247, pincode: "500060" },
-  "ameerpet": { lat: 17.4375, lng: 78.4482, pincode: "500016" }
+  "hyderabad": { lat: 17.3850, lng: 78.4867, pincode: "500001", displayName: "Hyderabad, Telangana, India" },
+  "secunderabad": { lat: 17.4399, lng: 78.4983, pincode: "500003", displayName: "Secunderabad, Telangana, India" },
+  "warangal": { lat: 17.9689, lng: 79.5941, pincode: "506001", displayName: "Warangal, Telangana, India" },
+  "karimnagar": { lat: 18.4386, lng: 79.1288, pincode: "505001", displayName: "Karimnagar, Telangana, India" },
+  "nizamabad": { lat: 18.6725, lng: 78.0941, pincode: "503001", displayName: "Nizamabad, Telangana, India" },
+  "khammam": { lat: 17.2473, lng: 80.1514, pincode: "507001", displayName: "Khammam, Telangana, India" },
+  "nalgonda": { lat: 17.0577, lng: 79.2684, pincode: "508001", displayName: "Nalgonda, Telangana, India" },
+  "mahbubnagar": { lat: 16.7488, lng: 77.9856, pincode: "509001", displayName: "Mahbubnagar, Telangana, India" },
+  "hitec city": { lat: 17.4435, lng: 78.3772, pincode: "500081", displayName: "HITEC City, Hyderabad, Telangana, 500081, India" },
+  "gachibowli": { lat: 17.4401, lng: 78.3489, pincode: "500032", displayName: "Gachibowli, Hyderabad, Telangana, 500032, India" },
+  "madhapur": { lat: 17.4483, lng: 78.3915, pincode: "500081", displayName: "Madhapur, Hyderabad, Telangana, 500081, India" },
+  "kukatpally": { lat: 17.4849, lng: 78.4138, pincode: "500072", displayName: "Kukatpally, Hyderabad, Telangana, 500072, India" },
+  "dilsukhnagar": { lat: 17.3688, lng: 78.5247, pincode: "500060", displayName: "Dilsukhnagar, Hyderabad, Telangana, 500060, India" },
+  "ameerpet": { lat: 17.4375, lng: 78.4482, pincode: "500016", displayName: "Ameerpet, Hyderabad, Telangana, 500016, India" },
+  "kondapur": { lat: 17.4680, lng: 78.3580, pincode: "500084", displayName: "Kondapur, Hyderabad, Telangana, 500084, India" },
+  "miyapur": { lat: 17.4980, lng: 78.3550, pincode: "500049", displayName: "Miyapur, Hyderabad, Telangana, 500049, India" },
+  "manikonda": { lat: 17.3990, lng: 78.3850, pincode: "500089", displayName: "Manikonda, Hyderabad, Telangana, 500089, India" },
 };
 
 /**
@@ -375,10 +447,26 @@ export async function geocodeAddressToCoords(
   if (!address || address.trim().length < 2) return null;
   
   const cleanAddr = address.toLowerCase().trim();
+  const normalizedQuery = cleanAddr.replace(/[^\w\s]/g, " ").replace(/\s+/g, " ").trim();
 
-  // 1. Fast match against known localities
+  // 1. Fast match against known localities (exact, word-boundary, or substring match)
+  // Check exact key match first
+  if (KNOWN_LOCALITIES[cleanAddr]) {
+    return { latitude: KNOWN_LOCALITIES[cleanAddr].lat, longitude: KNOWN_LOCALITIES[cleanAddr].lng };
+  }
+  if (KNOWN_LOCALITIES[normalizedQuery]) {
+    return { latitude: KNOWN_LOCALITIES[normalizedQuery].lat, longitude: KNOWN_LOCALITIES[normalizedQuery].lng };
+  }
+
+  // Check dictionary keys in clean address
   for (const [key, coords] of Object.entries(KNOWN_LOCALITIES)) {
-    if (cleanAddr.includes(key) || key.includes(cleanAddr)) {
+    const keyNorm = key.replace(/[^\w\s]/g, " ").replace(/\s+/g, " ").trim();
+    if (
+      normalizedQuery === keyNorm ||
+      normalizedQuery.includes(keyNorm) ||
+      keyNorm.includes(normalizedQuery) ||
+      cleanAddr.includes(key)
+    ) {
       return { latitude: coords.lat, longitude: coords.lng };
     }
   }

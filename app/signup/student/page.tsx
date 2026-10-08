@@ -17,13 +17,9 @@ import { cn } from "@/lib/utils";
 const CLOUDINARY_CLOUD_NAME = "dx2o9yq2t";
 const CLOUDINARY_UPLOAD_PRESET = "gallery";
 
-const SUBJECTS = [
-    "Mathematics", "Physics", "Chemistry", "Biology", "English",
-    "Hindi", "History", "Geography", "Computer Science", "Economics",
-    "Accountancy", "Business Studies", "Political Science", "Psychology",
-    "Sociology", "Sanskrit", "French", "German", "Music", "Art", "Chess",
-    "Abacus", "Drawing", "Dance", "Yoga", "Robotics"
-];
+import { ALL_STANDARD_SUBJECTS } from "@/lib/classConstants";
+
+const SUBJECTS = ALL_STANDARD_SUBJECTS;
 
 const STEPS = [
     { id: 1, title: "Account Details", desc: "Basic account information" },

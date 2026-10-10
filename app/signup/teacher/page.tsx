@@ -8,7 +8,8 @@ import {
     User, ArrowLeft, ArrowRight, Mail, Phone, Calendar, MapPin,
     BookOpen, GraduationCap, Award, Briefcase, Camera, Plus, X,
     Loader2, CheckCircle2, Upload, Star, ShieldCheck, ImageIcon,
-    Lock, Eye, EyeOff, Check, Heart, HelpCircle, Search, Users, TrendingUp
+    Lock, Eye, EyeOff, Check, Heart, HelpCircle, Search, Users, TrendingUp,
+    Brain, Palette, Music, Sparkles, MessageSquare, Cpu, Layers, Filter
 } from "lucide-react";
 import { toast } from "sonner";
 import MapLocationPicker from "@/components/ui/DynamicMapPicker";
@@ -18,7 +19,12 @@ import { cn } from "@/lib/utils";
 const CLOUDINARY_CLOUD_NAME = "dx2o9yq2t";
 const CLOUDINARY_UPLOAD_PRESET = "gallery";
 
-import { ALL_STANDARD_SUBJECTS } from "@/lib/classConstants";
+import { 
+    ALL_STANDARD_SUBJECTS, 
+    ACADEMIC_SUBJECTS, 
+    ALL_SUBJECT_SECTIONS, 
+    ACADEMIC_STREAMS 
+} from "@/lib/classConstants";
 
 const SUBJECTS = ALL_STANDARD_SUBJECTS;
 
@@ -95,6 +101,23 @@ export default function TeacherSignupPage() {
     const [pendingCertImage, setPendingCertImage] = useState<string>("");
     
     const [errors, setErrors] = useState<Record<string, string>>({});
+
+    const [subjectSearch, setSubjectSearch] = useState("");
+    const [selectedSectionTab, setSelectedSectionTab] = useState<string>("all");
+    const [academicStreamFilter, setAcademicStreamFilter] = useState("All Academics");
+
+    const renderSectionIcon = (iconName: string) => {
+        switch (iconName) {
+            case "book": return <BookOpen className="w-4 h-4 text-amber-500 shrink-0" />;
+            case "brain": return <Brain className="w-4 h-4 text-indigo-500 shrink-0" />;
+            case "palette": return <Palette className="w-4 h-4 text-pink-500 shrink-0" />;
+            case "music": return <Music className="w-4 h-4 text-rose-500 shrink-0" />;
+            case "sparkles": return <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />;
+            case "message": return <MessageSquare className="w-4 h-4 text-sky-500 shrink-0" />;
+            case "cpu": return <Cpu className="w-4 h-4 text-emerald-500 shrink-0" />;
+            default: return <BookOpen className="w-4 h-4 text-amber-500 shrink-0" />;
+        }
+    };
 
     useEffect(() => {
         const savedData = sessionStorage.getItem("teacher_signup_form_data");
@@ -345,10 +368,11 @@ export default function TeacherSignupPage() {
             if (formData.subjects.length === 0) {
                 newErrors.subjects = "Select at least one subject you offer";
             } else if (tutorType === "teacher") {
-                for (const subject of formData.subjects) {
+                const academicSelected = formData.subjects.filter(s => ACADEMIC_SUBJECTS.includes(s.split(" (")[0]));
+                for (const subject of academicSelected) {
                     const levels = subjectLevels[subject] || [];
                     if (levels.length === 0) {
-                        newErrors.subjects = `Please select at least one teaching level for ${subject}`;
+                        newErrors.subjects = `Please select at least one class grade for ${subject}`;
                         break;
                     }
                 }
@@ -438,11 +462,12 @@ export default function TeacherSignupPage() {
         }
 
         if (tutorType === "teacher") {
-            for (const subject of formData.subjects) {
+            const academicSelected = formData.subjects.filter(s => ACADEMIC_SUBJECTS.includes(s.split(" (")[0]));
+            for (const subject of academicSelected) {
                 const levels = subjectLevels[subject] || [];
                 if (levels.length === 0) {
                     setStep(4);
-                    toast.error(`Please select at least one teaching level for ${subject}`);
+                    toast.error(`Please select at least one class grade for ${subject}`);
                     return false;
                 }
             }
@@ -1380,45 +1405,297 @@ export default function TeacherSignupPage() {
                                 <div className="flex items-center gap-2 border-b border-slate-50 pb-2">
                                     <span className="w-5 h-5 rounded-full bg-[#0a1829] text-white text-[10px] font-black flex items-center justify-center">4</span>
                                     <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider">Subjects Offered</h3>
-                                    <span className="text-[10px] text-slate-400 font-bold ml-1">• Choose subjects you teach</span>
+                                    <span className="text-[10px] text-slate-400 font-bold ml-1">• Categorized by Academic Curriculum & Co-curricular Skills</span>
                                 </div>
 
-                                <div className="space-y-1.5 text-left">
-                                    <p className="text-xs text-slate-500 font-bold mb-2">Select the subjects or activities you are qualified to tutor:</p>
-                                    {errors.subjects && <p className="text-red-500 text-xs font-black mb-2">{errors.subjects}</p>}
+                                <div className="space-y-3.5 text-left">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                        <p className="text-xs text-slate-600 font-bold">
+                                            Select all subjects or activities you are qualified to tutor:
+                                        </p>
+                                        <span className="text-[11px] font-black text-slate-500">
+                                            {formData.subjects.length} selected in total
+                                        </span>
+                                    </div>
 
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-[290px] overflow-y-auto pr-1">
-                                        {SUBJECTS.map((subject) => {
-                                            const isSelected = formData.subjects.includes(subject);
+                                    {errors.subjects && (
+                                        <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-black flex items-center gap-2">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                                            {errors.subjects}
+                                        </div>
+                                    )}
+
+                                    {/* Search Bar */}
+                                    <div className="relative">
+                                        <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                                        <input
+                                            type="text"
+                                            value={subjectSearch}
+                                            onChange={(e) => setSubjectSearch(e.target.value)}
+                                            placeholder="Search any subject or activity (e.g. Mathematics, Coding, Piano, Chess)..."
+                                            className="w-full pl-10 pr-9 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-amber-400 focus:bg-white transition-colors"
+                                        />
+                                        {subjectSearch && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setSubjectSearch("")}
+                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer p-0.5"
+                                            >
+                                                <X className="w-3.5 h-3.5" />
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {/* Category Section Navigation Tabs */}
+                                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-[11px] font-bold">
+                                        <button
+                                            type="button"
+                                            onClick={() => setSelectedSectionTab("all")}
+                                            className={cn(
+                                                "px-3 py-1.5 rounded-xl border shrink-0 transition-all flex items-center gap-1.5 cursor-pointer",
+                                                selectedSectionTab === "all"
+                                                    ? "bg-slate-900 text-white border-slate-900 shadow-sm font-black"
+                                                    : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                                            )}
+                                        >
+                                            <Layers className="w-3.5 h-3.5" />
+                                            <span>All Sections</span>
+                                            {formData.subjects.length > 0 && (
+                                                <span className={cn(
+                                                    "px-1.5 py-0.2 rounded-full text-[9px]",
+                                                    selectedSectionTab === "all" ? "bg-amber-400 text-slate-950 font-black" : "bg-slate-100 text-slate-700"
+                                                )}>
+                                                    {formData.subjects.length}
+                                                </span>
+                                            )}
+                                        </button>
+
+                                        {ALL_SUBJECT_SECTIONS.map((sec) => {
+                                            const secSelectedCount = formData.subjects.filter((s) => sec.subjects.includes(s.split(" (")[0])).length;
+                                            const isActive = selectedSectionTab === sec.id;
                                             return (
                                                 <button
-                                                    key={subject}
+                                                    key={sec.id}
                                                     type="button"
-                                                    onClick={() => toggleSubject(subject)}
-                                                    className={`p-3 rounded-2xl border-2 text-left transition-all cursor-pointer ${isSelected
-                                                        ? "border-amber-400 bg-amber-50/10 text-slate-900"
-                                                        : "border-slate-100 hover:border-slate-200 text-slate-700 bg-white"
-                                                        }`}
+                                                    onClick={() => setSelectedSectionTab(sec.id)}
+                                                    className={cn(
+                                                        "px-3 py-1.5 rounded-xl border shrink-0 transition-all flex items-center gap-1.5 cursor-pointer",
+                                                        isActive
+                                                            ? "bg-amber-400 text-slate-950 border-amber-400 font-black shadow-sm"
+                                                            : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                                                    )}
                                                 >
-                                                    <div className="flex items-center gap-2.5">
-                                                        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${isSelected ? "border-amber-400 bg-amber-400" : "border-slate-250"
-                                                            }`}>
-                                                            {isSelected && <Check className="w-3.5 h-3.5 text-slate-950 stroke-[3]" />}
-                                                        </div>
-                                                        <span className="text-[11px] font-black leading-snug">{subject}</span>
-                                                    </div>
+                                                    {renderSectionIcon(sec.iconName)}
+                                                    <span>{sec.name}</span>
+                                                    {secSelectedCount > 0 && (
+                                                        <span className={cn(
+                                                            "px-1.5 py-0.2 rounded-full text-[9px] font-black",
+                                                            isActive ? "bg-slate-950 text-white" : "bg-amber-100 text-amber-800"
+                                                        )}>
+                                                            {secSelectedCount}
+                                                        </span>
+                                                    )}
                                                 </button>
                                             );
                                         })}
                                     </div>
 
-                                    {/* Subjects Level Section (Only for academic teacher) */}
-                                    {formData.subjects.length > 0 && tutorType === "teacher" && (
+                                    {/* Selected Subjects Summary Chips */}
+                                    {formData.subjects.length > 0 && (
+                                        <div className="bg-amber-50/40 border border-amber-200/80 rounded-2xl p-3 space-y-2">
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-[11px] font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                                                    <CheckCircle2 className="w-4 h-4 text-amber-600" />
+                                                    Selected Subjects ({formData.subjects.length})
+                                                </span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setFormData((prev) => ({ ...prev, subjects: [] }));
+                                                        setSubjectLevels({});
+                                                    }}
+                                                    className="text-[10px] font-black text-rose-600 hover:text-rose-800 cursor-pointer uppercase tracking-wider"
+                                                >
+                                                    Clear All
+                                                </button>
+                                            </div>
+                                            <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
+                                                {formData.subjects.map((sub) => {
+                                                    const base = sub.split(" (")[0];
+                                                    const isAcad = ACADEMIC_SUBJECTS.includes(base);
+                                                    return (
+                                                        <span
+                                                            key={sub}
+                                                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-black bg-white border border-slate-200 text-slate-800 shadow-xs"
+                                                        >
+                                                            <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", isAcad ? "bg-amber-500" : "bg-purple-500")} />
+                                                            <span>{base}</span>
+                                                            <span className="text-[9px] font-bold text-slate-400">
+                                                                {isAcad ? "Academic" : "Activity"}
+                                                            </span>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => toggleSubject(base)}
+                                                                className="text-slate-400 hover:text-slate-700 ml-0.5 cursor-pointer"
+                                                            >
+                                                                <X className="w-3 h-3" />
+                                                            </button>
+                                                        </span>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Section Cards Breakdown */}
+                                    <div className="space-y-4 max-h-[460px] overflow-y-auto pr-1">
+                                        {ALL_SUBJECT_SECTIONS
+                                            .filter((sec) => selectedSectionTab === "all" || selectedSectionTab === sec.id)
+                                            .map((sec) => {
+                                                let subjectsToRender = sec.subjects;
+                                                if (subjectSearch.trim()) {
+                                                    const q = subjectSearch.toLowerCase().trim();
+                                                    subjectsToRender = subjectsToRender.filter((s) => s.toLowerCase().includes(q));
+                                                }
+                                                if (sec.id === "academics" && academicStreamFilter !== "All Academics") {
+                                                    const stream = ACADEMIC_STREAMS.find((s) => s.name === academicStreamFilter);
+                                                    if (stream) {
+                                                        subjectsToRender = subjectsToRender.filter((s) => stream.subjects.includes(s));
+                                                    }
+                                                }
+
+                                                if (subjectSearch.trim() && subjectsToRender.length === 0) {
+                                                    return null;
+                                                }
+
+                                                const secSelectedCount = formData.subjects.filter((s) => sec.subjects.includes(s.split(" (")[0])).length;
+
+                                                return (
+                                                    <div key={sec.id} className="border border-slate-200/90 rounded-2xl bg-white p-4 space-y-3 shadow-xs">
+                                                        {/* Section Header */}
+                                                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 pb-3">
+                                                            <div className="flex items-center gap-2.5">
+                                                                <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200/60">
+                                                                    {renderSectionIcon(sec.iconName)}
+                                                                </div>
+                                                                <div>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <h4 className="text-xs font-black text-slate-900 tracking-wide uppercase">
+                                                                            {sec.name}
+                                                                        </h4>
+                                                                        <span className={cn(
+                                                                            "text-[9px] font-extrabold px-2 py-0.5 rounded-full border",
+                                                                            sec.categoryType === "academic"
+                                                                                ? "bg-amber-50 text-amber-800 border-amber-200"
+                                                                                : "bg-purple-50 text-purple-800 border-purple-200"
+                                                                        )}>
+                                                                            {sec.badge}
+                                                                        </span>
+                                                                    </div>
+                                                                    <p className="text-[10px] text-slate-400 font-medium">
+                                                                        {sec.description}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="flex items-center gap-2 shrink-0">
+                                                                <span className={cn(
+                                                                    "text-[10px] font-black px-2 py-0.5 rounded-full",
+                                                                    secSelectedCount > 0 ? "bg-amber-400 text-slate-950 font-black" : "bg-slate-100 text-slate-500"
+                                                                )}>
+                                                                    {secSelectedCount} selected
+                                                                </span>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Academic Stream Sub-filters */}
+                                                        {sec.id === "academics" && (
+                                                            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-[10px] font-bold">
+                                                                <span className="text-slate-400 font-black uppercase tracking-wider text-[9px] shrink-0 mr-1 flex items-center gap-1">
+                                                                    <Filter className="w-3 h-3" /> Stream:
+                                                                </span>
+                                                                {ACADEMIC_STREAMS.map((st) => (
+                                                                    <button
+                                                                        key={st.name}
+                                                                        type="button"
+                                                                        onClick={() => setAcademicStreamFilter(st.name)}
+                                                                        className={cn(
+                                                                            "px-2.5 py-1 rounded-lg border shrink-0 transition-all cursor-pointer",
+                                                                            academicStreamFilter === st.name
+                                                                                ? "bg-slate-900 text-white border-slate-900 font-black shadow-xs"
+                                                                                : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                                                                        )}
+                                                                    >
+                                                                        {st.name}
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        )}
+
+                                                        {/* Subjects Grid */}
+                                                        {subjectsToRender.length === 0 ? (
+                                                            <div className="py-4 text-center text-slate-400 text-xs font-bold italic">
+                                                                No subjects found matching your filters in this section.
+                                                            </div>
+                                                        ) : (
+                                                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                                                {subjectsToRender.map((subject) => {
+                                                                    const isSelected = formData.subjects.includes(subject);
+                                                                    return (
+                                                                        <button
+                                                                            key={subject}
+                                                                            type="button"
+                                                                            onClick={() => toggleSubject(subject)}
+                                                                            className={cn(
+                                                                                "p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between gap-2",
+                                                                                isSelected
+                                                                                    ? "border-amber-400 bg-amber-50/20 text-slate-900 ring-1 ring-amber-400/30"
+                                                                                    : "border-slate-150 hover:border-slate-300 text-slate-700 bg-white"
+                                                                            )}
+                                                                        >
+                                                                            <span className="text-[11px] font-extrabold leading-snug line-clamp-1">{subject}</span>
+                                                                            <div className={cn(
+                                                                                "w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0",
+                                                                                isSelected ? "border-amber-400 bg-amber-400" : "border-slate-300"
+                                                                            )}>
+                                                                                {isSelected && <Check className="w-3 h-3 text-slate-950 stroke-[3]" />}
+                                                                            </div>
+                                                                        </button>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
+
+                                        {subjectSearch.trim() &&
+                                            ALL_SUBJECT_SECTIONS.every((sec) => {
+                                                const q = subjectSearch.toLowerCase().trim();
+                                                return !sec.subjects.some((s) => s.toLowerCase().includes(q));
+                                            }) && (
+                                                <div className="py-8 text-center space-y-2 border border-dashed border-slate-200 rounded-2xl p-4 bg-slate-50/50">
+                                                    <p className="text-xs font-bold text-slate-500">
+                                                        No subjects found matching "{subjectSearch}".
+                                                    </p>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setSubjectSearch("")}
+                                                        className="text-xs font-black text-amber-600 hover:underline cursor-pointer"
+                                                    >
+                                                        Clear Search Filter
+                                                    </button>
+                                                </div>
+                                            )}
+                                    </div>
+
+                                    {/* Subjects Level Section (Only for Academic Subjects if Academic Teacher) */}
+                                    {formData.subjects.some((s) => ACADEMIC_SUBJECTS.includes(s.split(" (")[0])) && tutorType === "teacher" && (
                                         <div className="mt-6 border border-slate-200/80 rounded-3xl p-5 bg-white shadow-sm space-y-4 text-left">
                                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 pb-3">
                                                 <div>
                                                     <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider">
-                                                        Select Classes Offered for each Subject (LKG – Class 12)
+                                                        Select Classes Offered for Academic Subjects (LKG – Class 12)
                                                     </h4>
                                                     <p className="text-[11px] text-slate-500 font-medium mt-0.5">
                                                         Choose individual classes for each subject to ensure students find you when searching for specific classes.
@@ -1427,136 +1704,138 @@ export default function TeacherSignupPage() {
                                             </div>
 
                                             <div className="space-y-4">
-                                                {formData.subjects.map((subj) => {
-                                                    const baseSubj = subj.split(" (")[0];
-                                                    const levels = subjectLevels[baseSubj] || [];
-                                                    const INDIVIDUAL_CLASSES_LIST = [
-                                                        "LKG", "UKG",
-                                                        "Class 1", "Class 2", "Class 3", "Class 4", "Class 5",
-                                                        "Class 6", "Class 7", "Class 8", "Class 9", "Class 10",
-                                                        "Class 11", "Class 12"
-                                                    ];
-                                                    const allSelected = INDIVIDUAL_CLASSES_LIST.every((cls) => levels.includes(cls));
+                                                {formData.subjects
+                                                    .filter((subj) => ACADEMIC_SUBJECTS.includes(subj.split(" (")[0]))
+                                                    .map((subj) => {
+                                                        const baseSubj = subj.split(" (")[0];
+                                                        const levels = subjectLevels[baseSubj] || [];
+                                                        const INDIVIDUAL_CLASSES_LIST = [
+                                                            "LKG", "UKG",
+                                                            "Class 1", "Class 2", "Class 3", "Class 4", "Class 5",
+                                                            "Class 6", "Class 7", "Class 8", "Class 9", "Class 10",
+                                                            "Class 11", "Class 12"
+                                                        ];
+                                                        const allSelected = INDIVIDUAL_CLASSES_LIST.every((cls) => levels.includes(cls));
 
-                                                    const toggleClass = (cls: string) => {
-                                                        const currentLevels = subjectLevels[baseSubj] || [];
-                                                        const nextLevels = currentLevels.includes(cls)
-                                                            ? currentLevels.filter((l) => l !== cls)
-                                                            : [...currentLevels, cls];
-                                                        setSubjectLevels((prev) => ({
-                                                            ...prev,
-                                                            [baseSubj]: nextLevels,
-                                                        }));
-                                                    };
+                                                        const toggleClass = (cls: string) => {
+                                                            const currentLevels = subjectLevels[baseSubj] || [];
+                                                            const nextLevels = currentLevels.includes(cls)
+                                                                ? currentLevels.filter((l) => l !== cls)
+                                                                : [...currentLevels, cls];
+                                                            setSubjectLevels((prev) => ({
+                                                                ...prev,
+                                                                [baseSubj]: nextLevels,
+                                                            }));
+                                                        };
 
-                                                    const selectBatch = (classesToAdd: string[]) => {
-                                                        const currentLevels = subjectLevels[baseSubj] || [];
-                                                        const allInBatch = classesToAdd.every((c) => currentLevels.includes(c));
-                                                        let nextLevels: string[];
-                                                        if (allInBatch) {
-                                                            nextLevels = currentLevels.filter((c) => !classesToAdd.includes(c));
-                                                        } else {
-                                                            const set = new Set([...currentLevels, ...classesToAdd]);
-                                                            nextLevels = Array.from(set);
-                                                        }
-                                                        setSubjectLevels((prev) => ({
-                                                            ...prev,
-                                                            [baseSubj]: nextLevels,
-                                                        }));
-                                                    };
+                                                        const selectBatch = (classesToAdd: string[]) => {
+                                                            const currentLevels = subjectLevels[baseSubj] || [];
+                                                            const allInBatch = classesToAdd.every((c) => currentLevels.includes(c));
+                                                            let nextLevels: string[];
+                                                            if (allInBatch) {
+                                                                nextLevels = currentLevels.filter((c) => !classesToAdd.includes(c));
+                                                            } else {
+                                                                const set = new Set([...currentLevels, ...classesToAdd]);
+                                                                nextLevels = Array.from(set);
+                                                            }
+                                                            setSubjectLevels((prev) => ({
+                                                                ...prev,
+                                                                [baseSubj]: nextLevels,
+                                                            }));
+                                                        };
 
-                                                    return (
-                                                        <div key={baseSubj} className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/60 space-y-3">
-                                                            <div className="flex flex-wrap items-center justify-between gap-2">
-                                                                <span className="text-xs font-extrabold text-slate-900 flex items-center gap-1.5">
-                                                                    <span className="w-2 h-2 rounded-full bg-amber-500" />
-                                                                    {baseSubj}
-                                                                    <span className="text-[10px] text-amber-700 font-bold bg-amber-100/80 px-2 py-0.5 rounded-full">
-                                                                        {levels.length} {levels.length === 1 ? "class" : "classes"} selected
+                                                        return (
+                                                            <div key={baseSubj} className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/60 space-y-3">
+                                                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                                                    <span className="text-xs font-extrabold text-slate-900 flex items-center gap-1.5">
+                                                                        <span className="w-2 h-2 rounded-full bg-amber-500" />
+                                                                        {baseSubj}
+                                                                        <span className="text-[10px] text-amber-700 font-bold bg-amber-100/80 px-2 py-0.5 rounded-full">
+                                                                            {levels.length} {levels.length === 1 ? "class" : "classes"} selected
+                                                                        </span>
                                                                     </span>
-                                                                </span>
 
-                                                                {/* Batch selector quick buttons */}
-                                                                <div className="flex flex-wrap items-center gap-1.5 text-[10px]">
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => selectBatch(INDIVIDUAL_CLASSES_LIST)}
-                                                                        className={`px-2 py-1 rounded-lg font-bold transition-all ${
-                                                                            allSelected
-                                                                                ? "bg-slate-900 text-white"
-                                                                                : "bg-white text-slate-700 border border-slate-200 hover:border-amber-400"
-                                                                        }`}
-                                                                    >
-                                                                        {allSelected ? "Clear All" : "Select All (LKG-12)"}
-                                                                    </button>
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => selectBatch(["LKG", "UKG"])}
-                                                                        className="px-2 py-1 rounded-lg font-bold bg-white text-slate-700 border border-slate-200 hover:border-amber-400 transition-all"
-                                                                    >
-                                                                        LKG-UKG
-                                                                    </button>
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => selectBatch(["Class 1", "Class 2", "Class 3", "Class 4", "Class 5"])}
-                                                                        className="px-2 py-1 rounded-lg font-bold bg-white text-slate-700 border border-slate-200 hover:border-amber-400 transition-all"
-                                                                    >
-                                                                        Class 1–5
-                                                                    </button>
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => selectBatch(["Class 6", "Class 7", "Class 8"])}
-                                                                        className="px-2 py-1 rounded-lg font-bold bg-white text-slate-700 border border-slate-200 hover:border-amber-400 transition-all"
-                                                                    >
-                                                                        Class 6–8
-                                                                    </button>
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => selectBatch(["Class 9", "Class 10"])}
-                                                                        className="px-2 py-1 rounded-lg font-bold bg-white text-slate-700 border border-slate-200 hover:border-amber-400 transition-all"
-                                                                    >
-                                                                        Class 9–10
-                                                                    </button>
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => selectBatch(["Class 11", "Class 12"])}
-                                                                        className="px-2 py-1 rounded-lg font-bold bg-white text-slate-700 border border-slate-200 hover:border-amber-400 transition-all"
-                                                                    >
-                                                                        Class 11–12
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-
-                                                            {/* Individual Class Chips Grid */}
-                                                            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-1.5">
-                                                                {INDIVIDUAL_CLASSES_LIST.map((cls) => {
-                                                                    const isChecked = levels.includes(cls);
-                                                                    return (
+                                                                    {/* Batch selector quick buttons */}
+                                                                    <div className="flex flex-wrap items-center gap-1.5 text-[10px]">
                                                                         <button
-                                                                            key={cls}
                                                                             type="button"
-                                                                            onClick={() => toggleClass(cls)}
-                                                                            className={`px-2.5 py-2 rounded-xl text-xs font-bold transition-all border flex items-center justify-between gap-1.5 ${
-                                                                                isChecked
-                                                                                    ? "bg-amber-400 text-slate-950 border-amber-400 shadow-sm font-black"
-                                                                                    : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
+                                                                            onClick={() => selectBatch(INDIVIDUAL_CLASSES_LIST)}
+                                                                            className={`px-2 py-1 rounded-lg font-bold transition-all ${
+                                                                                allSelected
+                                                                                    ? "bg-slate-900 text-white"
+                                                                                    : "bg-white text-slate-700 border border-slate-200 hover:border-amber-400"
                                                                             }`}
                                                                         >
-                                                                            <span>{cls}</span>
-                                                                            <div
-                                                                                className={`w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 ${
-                                                                                    isChecked ? "bg-slate-950 border-slate-950 text-white" : "border-slate-300"
+                                                                            {allSelected ? "Clear All" : "Select All (LKG-12)"}
+                                                                        </button>
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => selectBatch(["LKG", "UKG"])}
+                                                                            className="px-2 py-1 rounded-lg font-bold bg-white text-slate-700 border border-slate-200 hover:border-amber-400 transition-all"
+                                                                        >
+                                                                            LKG-UKG
+                                                                        </button>
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => selectBatch(["Class 1", "Class 2", "Class 3", "Class 4", "Class 5"])}
+                                                                            className="px-2 py-1 rounded-lg font-bold bg-white text-slate-700 border border-slate-200 hover:border-amber-400 transition-all"
+                                                                        >
+                                                                            Class 1–5
+                                                                        </button>
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => selectBatch(["Class 6", "Class 7", "Class 8"])}
+                                                                            className="px-2 py-1 rounded-lg font-bold bg-white text-slate-700 border border-slate-200 hover:border-amber-400 transition-all"
+                                                                        >
+                                                                            Class 6–8
+                                                                        </button>
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => selectBatch(["Class 9", "Class 10"])}
+                                                                            className="px-2 py-1 rounded-lg font-bold bg-white text-slate-700 border border-slate-200 hover:border-amber-400 transition-all"
+                                                                        >
+                                                                            Class 9–10
+                                                                        </button>
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => selectBatch(["Class 11", "Class 12"])}
+                                                                            className="px-2 py-1 rounded-lg font-bold bg-white text-slate-700 border border-slate-200 hover:border-amber-400 transition-all"
+                                                                        >
+                                                                            Class 11–12
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* Individual Class Chips Grid */}
+                                                                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-1.5">
+                                                                    {INDIVIDUAL_CLASSES_LIST.map((cls) => {
+                                                                        const isChecked = levels.includes(cls);
+                                                                        return (
+                                                                            <button
+                                                                                key={cls}
+                                                                                type="button"
+                                                                                onClick={() => toggleClass(cls)}
+                                                                                className={`px-2.5 py-2 rounded-xl text-xs font-bold transition-all border flex items-center justify-between gap-1.5 ${
+                                                                                    isChecked
+                                                                                        ? "bg-amber-400 text-slate-950 border-amber-400 shadow-sm font-black"
+                                                                                        : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
                                                                                 }`}
                                                                             >
-                                                                                {isChecked && <Check className="w-2.5 h-2.5 stroke-[3]" />}
-                                                                            </div>
-                                                                        </button>
-                                                                    );
-                                                                })}
+                                                                                <span>{cls}</span>
+                                                                                <div
+                                                                                    className={`w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 ${
+                                                                                        isChecked ? "bg-slate-950 border-slate-950 text-white" : "border-slate-300"
+                                                                                    }`}
+                                                                                >
+                                                                                    {isChecked && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                                                                                </div>
+                                                                            </button>
+                                                                        );
+                                                                    })}
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    );
-                                                })}
+                                                        );
+                                                    })}
                                             </div>
                                         </div>
                                     )}

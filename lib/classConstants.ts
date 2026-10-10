@@ -185,6 +185,118 @@ export const ALL_STANDARD_SUBJECTS = Array.from(
     new Set([...ACADEMIC_SUBJECTS, ...ACTIVITY_SUBJECTS])
 );
 
+export const ACADEMIC_STREAMS = [
+    {
+        name: "All Academics",
+        subjects: ACADEMIC_SUBJECTS,
+    },
+    {
+        name: "Science & Mathematics",
+        subjects: [
+            "Mathematics",
+            "Applied Mathematics",
+            "Physics",
+            "Chemistry",
+            "Biology",
+            "Science",
+            "Environmental Studies",
+        ],
+    },
+    {
+        name: "Commerce & Management",
+        subjects: [
+            "Accountancy",
+            "Business Studies",
+            "Economics",
+            "Entrepreneurship",
+        ],
+    },
+    {
+        name: "Humanities & Social Sciences",
+        subjects: [
+            "Social Science",
+            "History",
+            "Geography",
+            "Political Science",
+            "Sociology",
+            "Psychology",
+            "Legal Studies",
+        ],
+    },
+    {
+        name: "Computers & Information Tech",
+        subjects: [
+            "Computer",
+            "Computer Applications",
+            "Information Technology",
+            "Informatics Practices",
+            "Artificial Intelligence",
+        ],
+    },
+    {
+        name: "Languages & Literature",
+        subjects: [
+            "English",
+            "Hindi",
+            "Sanskrit",
+            "Assamese",
+            "Bengali",
+            "Gujarati",
+            "Kannada",
+            "Kashmiri",
+            "Malayalam",
+            "Marathi",
+            "Odia",
+            "Punjabi",
+            "Tamil",
+            "Telugu",
+            "Urdu",
+        ],
+    },
+    {
+        name: "Vocational & Applied Arts",
+        subjects: [
+            "Fine Arts",
+            "Home Science",
+        ],
+    },
+];
+
+export interface SubjectSectionGroup {
+    id: string;
+    name: string;
+    categoryType: "academic" | "activity";
+    iconName: string;
+    badge: string;
+    description: string;
+    subjects: string[];
+}
+
+export const ALL_SUBJECT_SECTIONS: SubjectSectionGroup[] = [
+    {
+        id: "academics",
+        name: "Academic Subjects",
+        categoryType: "academic",
+        iconName: "book",
+        badge: "Curriculum (LKG - 12)",
+        description: "Core school & college curriculum subjects (Maths, Science, Commerce, Languages)",
+        subjects: ACADEMIC_SUBJECTS,
+    },
+    ...ACTIVITY_CATEGORIES.map((c) => ({
+        id: c.category.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+        name: c.category,
+        categoryType: "activity" as const,
+        iconName: c.category.toLowerCase().includes("mind") ? "brain" :
+                  c.category.toLowerCase().includes("art") ? "palette" :
+                  c.category.toLowerCase().includes("music") ? "music" :
+                  c.category.toLowerCase().includes("dance") ? "sparkles" :
+                  c.category.toLowerCase().includes("communication") ? "message" : "cpu",
+        badge: "Co-curricular & Skills",
+        description: `Training and coaching in ${c.category.toLowerCase()}`,
+        subjects: c.activities,
+    })),
+];
+
 export const STANDARD_TEACHING_MODES = [
     { value: "Home Tutor", label: "At Student Home" },
     { value: "Online Tutor", label: "Online mode" },

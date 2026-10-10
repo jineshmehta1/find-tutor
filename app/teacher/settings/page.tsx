@@ -5,20 +5,21 @@ import { useSession } from "next-auth/react";
 import {
     Settings, Shield, Bell, Eye, EyeOff, Save,
     User, Mail, Phone, Calendar, MapPin, BookOpen,
-    Loader2, Camera, X, CheckCircle2, Lock, GraduationCap, Briefcase, Award, Plus, Upload, ImageIcon, AlertTriangle, Check
+    Loader2, Camera, X, CheckCircle2, Lock, GraduationCap, Briefcase, Award, Plus, Upload, ImageIcon, AlertTriangle, Check,
+    Brain, Palette, Music, Sparkles, MessageSquare, Cpu, Layers, Filter, Search
 } from "lucide-react";
 import { toast } from "sonner";
 import MapLocationPicker from "@/components/ui/DynamicMapPicker";
 import StructuredAddressForm from "@/components/ui/DynamicStructuredAddressForm";
 import { cn } from "@/lib/utils";
+import { 
+    ALL_STANDARD_SUBJECTS, 
+    ACADEMIC_SUBJECTS, 
+    ALL_SUBJECT_SECTIONS, 
+    ACADEMIC_STREAMS 
+} from "@/lib/classConstants";
 
-const ALL_SUBJECTS = [
-    "Mathematics", "Physics", "Chemistry", "Biology", "English",
-    "Hindi", "History", "Geography", "Computer Science", "Economics",
-    "Accountancy", "Business Studies", "Political Science", "Psychology",
-    "Sociology", "Sanskrit", "French", "German", "Music", "Art", "Chess",
-    "Abacus", "Drawing", "Dance", "Yoga", "Robotics"
-];
+const ALL_SUBJECTS = ALL_STANDARD_SUBJECTS;
 
 const TEACHING_LEVELS_OPTIONS = [
     "Primary (Class 1-5)",
@@ -81,6 +82,23 @@ export default function TeacherSettingsPage() {
     
     const [tutorType, setTutorType] = useState<"teacher" | "coach">("teacher");
     const [subjectLevels, setSubjectLevels] = useState<Record<string, string[]>>({});
+
+    const [subjectSearch, setSubjectSearch] = useState("");
+    const [selectedSectionTab, setSelectedSectionTab] = useState<string>("all");
+    const [academicStreamFilter, setAcademicStreamFilter] = useState("All Academics");
+
+    const renderSectionIcon = (iconName: string) => {
+        switch (iconName) {
+            case "book": return <BookOpen className="w-4 h-4 text-amber-500 shrink-0" />;
+            case "brain": return <Brain className="w-4 h-4 text-indigo-500 shrink-0" />;
+            case "palette": return <Palette className="w-4 h-4 text-pink-500 shrink-0" />;
+            case "music": return <Music className="w-4 h-4 text-rose-500 shrink-0" />;
+            case "sparkles": return <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />;
+            case "message": return <MessageSquare className="w-4 h-4 text-sky-500 shrink-0" />;
+            case "cpu": return <Cpu className="w-4 h-4 text-emerald-500 shrink-0" />;
+            default: return <BookOpen className="w-4 h-4 text-amber-500 shrink-0" />;
+        }
+    };
 
     const [isUploadingProfile, setIsUploadingProfile] = useState(false);
     const [isUploadingCertImage, setIsUploadingCertImage] = useState(false);
@@ -431,6 +449,15 @@ export default function TeacherSettingsPage() {
 
         setSaving(true);
         try {
+            // Build classes array from subject levels
+            const allLevelsSet = new Set<string>();
+            if (tutorType === "teacher") {
+                Object.values(subjectLevels).forEach(levels => {
+                    levels.forEach(lvl => allLevelsSet.add(lvl));
+                });
+            }
+            const extractedClasses = Array.from(allLevelsSet);
+
             // Build payload subjects with levels
             const payloadSubjects = tutorType === "teacher"
                 ? formData.subjects.map(subj => {
@@ -445,19 +472,29 @@ export default function TeacherSettingsPage() {
                 body: JSON.stringify({
                     ...formData,
                     subjects: payloadSubjects,
+                    classesOrAgeGroup: extractedClasses.length > 0 ? extractedClasses : formData.classesOrAgeGroup,
                 }),
             });
 
-            if (!res.ok) throw new Error("Failed to save changes");
+            if (!res.ok) {
+                const errData = await res.json().catch(() => ({}));
+                throw new Error(errData.error || "Failed to save changes");
+            }
             
+            // Mark as unverified immediately in local state
+            setProfile(prev => prev ? {
+                ...prev,
+                teacher: prev.teacher ? { ...prev.teacher, isApproved: false } : null
+            } : null);
+
             await updateSession();
-            toast.success("Profile updated! Changes have been submitted for Admin re-verification.");
+            toast.success("Profile saved! Your changes have been submitted for Admin review and your profile is now unverified.");
             
             // Dispatch storage event to update header layout
             window.dispatchEvent(new Event("storage"));
             await fetchProfile();
-        } catch { 
-            toast.error("Failed to update profile changes."); 
+        } catch (err: any) { 
+            toast.error(err?.message || "Failed to update profile changes."); 
         } finally { 
             setSaving(false); 
         }
@@ -601,12 +638,13 @@ export default function TeacherSettingsPage() {
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Email Address</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Email Address *</label>
                             <input 
                                 type="email" 
-                                disabled
+                                required
                                 value={formData.email} 
-                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none bg-slate-100 text-slate-500 cursor-not-allowed" 
+                                onChange={e => updateField("email", e.target.value)}
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-amber-400 bg-slate-50/50" 
                             />
                         </div>
                         <div className="space-y-1.5">
@@ -630,6 +668,34 @@ export default function TeacherSettingsPage() {
                                 <option value="female">Female</option>
                                 <option value="other">Other</option>
                             </select>
+                        </div>
+                    </div>
+
+                    {/* Security Question & Answer */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Security Question</label>
+                            <select
+                                value={formData.securityQuestion}
+                                onChange={e => updateField("securityQuestion", e.target.value)}
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-amber-400 bg-slate-50/50 cursor-pointer"
+                            >
+                                <option value="">Select a security question</option>
+                                <option value="school">What was your first school name?</option>
+                                <option value="pet">What was the name of your first pet?</option>
+                                <option value="city">In what city were you born?</option>
+                                <option value="maiden">What is your mother's maiden name?</option>
+                            </select>
+                        </div>
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Security Answer</label>
+                            <input
+                                type="text"
+                                value={formData.securityAnswer}
+                                onChange={e => updateField("securityAnswer", e.target.value)}
+                                placeholder="Enter your security answer"
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-amber-400 bg-slate-50/50"
+                            />
                         </div>
                     </div>
                 </div>
@@ -710,6 +776,38 @@ export default function TeacherSettingsPage() {
                                 placeholder="e.g. 5 Years Experience"
                                 value={formData.experience} 
                                 onChange={e => updateField("experience", e.target.value)}
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-amber-400 bg-slate-50/50" 
+                            />
+                        </div>
+                    </div>
+
+                    {/* Qualification Level & Specialization Name */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Qualification Level</label>
+                            <select
+                                value={formData.qualificationLevel}
+                                onChange={e => updateField("qualificationLevel", e.target.value)}
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-amber-400 bg-slate-50/50 cursor-pointer"
+                            >
+                                <option value="">Select Qualification Level</option>
+                                <option value="Higher Secondary / 12th">Higher Secondary / 12th</option>
+                                <option value="Graduate / Degree">Graduate / Degree (B.Sc, B.A, B.Com, B.Tech, etc.)</option>
+                                <option value="Post Graduate">Post Graduate (M.Sc, M.A, M.Tech, etc.)</option>
+                                <option value="B.Ed / M.Ed">B.Ed / M.Ed</option>
+                                <option value="M.Phil">M.Phil</option>
+                                <option value="PhD / Doctorate">PhD / Doctorate</option>
+                                <option value="Certified Trainer / Coach">Certified Trainer / Coach</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Degree / Qualification Specialization Name</label>
+                            <input 
+                                type="text" 
+                                placeholder="e.g. B.Tech Computer Science, M.Sc Physics"
+                                value={formData.qualificationName} 
+                                onChange={e => updateField("qualificationName", e.target.value)}
                                 className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-amber-400 bg-slate-50/50" 
                             />
                         </div>
@@ -803,6 +901,67 @@ export default function TeacherSettingsPage() {
                             )}
                         </div>
                         <input ref={identityProofInputRef} type="file" accept="image/*" onChange={handleIdentityProofUpload} className="hidden" />
+                    </div>
+
+                    {/* Key Achievement / Award & Certificate */}
+                    <div className="space-y-3 p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                                Key Achievement / Honors / Awards (optional)
+                            </label>
+                            <input
+                                type="text"
+                                placeholder="e.g. National Merit Scholar, Gold Medalist in Mathematics, State Awardee"
+                                value={formData.achievements}
+                                onChange={e => updateField("achievements", e.target.value)}
+                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-amber-400 bg-white"
+                            />
+                        </div>
+
+                        {/* Achievement Certificate Upload */}
+                        <div className="space-y-1.5">
+                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                                Achievement Proof Document <span className="text-slate-400 font-normal lowercase">(required if achievement entered above)</span>
+                            </label>
+                            <div className="flex items-center gap-4 p-3 bg-white border border-slate-200 rounded-xl">
+                                <div
+                                    className="w-14 h-14 bg-slate-50 rounded-xl flex items-center justify-center border-2 border-dashed border-slate-200 cursor-pointer hover:border-amber-500 transition-all overflow-hidden shrink-0"
+                                    onClick={() => achCertInputRef.current?.click()}
+                                >
+                                    {isUploadingAchCert ? (
+                                        <Loader2 className="w-5 h-5 text-amber-500 animate-spin" />
+                                    ) : formData.achievementCertificate ? (
+                                        <img src={formData.achievementCertificate} alt="Achievement Certificate" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <Upload className="w-5 h-5 text-slate-400" />
+                                    )}
+                                </div>
+                                <div className="flex-1">
+                                    <button
+                                        type="button"
+                                        onClick={() => achCertInputRef.current?.click()}
+                                        disabled={isUploadingAchCert}
+                                        className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-black rounded-lg transition-colors border border-slate-200 disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+                                    >
+                                        {isUploadingAchCert ? "Uploading..." : formData.achievementCertificate ? "Change Proof" : "Upload Proof Certificate"}
+                                    </button>
+                                    <p className="text-[9px] text-slate-400 mt-0.5 font-bold">Upload certificate image or award letter. Max 4MB.</p>
+                                </div>
+                                {formData.achievementCertificate && (
+                                    <div className="flex items-center gap-2">
+                                        <a href={formData.achievementCertificate} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 font-bold hover:underline">View</a>
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData(prev => ({ ...prev, achievementCertificate: "" }))}
+                                            className="p-1 hover:text-red-500 transition-colors border-none bg-transparent cursor-pointer"
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                            <input ref={achCertInputRef} type="file" accept="image/*" onChange={handleAchCertUpload} className="hidden" />
+                        </div>
                     </div>
 
                     {/* Certifications & Achievements Widget */}
@@ -959,64 +1118,304 @@ export default function TeacherSettingsPage() {
 
                     {/* Subjects Selection */}
                     <div className="space-y-3">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">
-                            Subjects Offered ({formData.subjects.length} selected) *
-                        </label>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-[300px] overflow-y-auto p-2 bg-slate-50 rounded-2xl border border-slate-100">
-                            {ALL_SUBJECTS.map((subject) => {
-                                const isSelected = formData.subjects.includes(subject);
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">
+                                Subjects Offered ({formData.subjects.length} selected) *
+                            </label>
+                            <span className="text-[10px] text-slate-400 font-bold">
+                                Categorized by Curriculum & Co-curricular Skills
+                            </span>
+                        </div>
+
+                        {/* Search Bar */}
+                        <div className="relative">
+                            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                            <input
+                                type="text"
+                                value={subjectSearch}
+                                onChange={(e) => setSubjectSearch(e.target.value)}
+                                placeholder="Search any subject or activity (e.g. Mathematics, Coding, Piano, Chess)..."
+                                className="w-full pl-10 pr-9 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-amber-400 focus:bg-white transition-colors"
+                            />
+                            {subjectSearch && (
+                                <button
+                                    type="button"
+                                    onClick={() => setSubjectSearch("")}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer p-0.5"
+                                >
+                                    <X className="w-3.5 h-3.5" />
+                                </button>
+                            )}
+                        </div>
+
+                        {/* Category Section Navigation Tabs */}
+                        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-[11px] font-bold">
+                            <button
+                                type="button"
+                                onClick={() => setSelectedSectionTab("all")}
+                                className={cn(
+                                    "px-3 py-1.5 rounded-xl border shrink-0 transition-all flex items-center gap-1.5 cursor-pointer",
+                                    selectedSectionTab === "all"
+                                        ? "bg-slate-900 text-white border-slate-900 shadow-sm font-black"
+                                        : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                                )}
+                            >
+                                <Layers className="w-3.5 h-3.5" />
+                                <span>All Sections</span>
+                                {formData.subjects.length > 0 && (
+                                    <span className={cn(
+                                        "px-1.5 py-0.2 rounded-full text-[9px]",
+                                        selectedSectionTab === "all" ? "bg-amber-400 text-slate-950 font-black" : "bg-slate-100 text-slate-700"
+                                    )}>
+                                        {formData.subjects.length}
+                                    </span>
+                                )}
+                            </button>
+
+                            {ALL_SUBJECT_SECTIONS.map((sec) => {
+                                const secSelectedCount = formData.subjects.filter((s) => sec.subjects.includes(s.split(" (")[0])).length;
+                                const isActive = selectedSectionTab === sec.id;
                                 return (
                                     <button
-                                        key={subject}
+                                        key={sec.id}
                                         type="button"
-                                        onClick={() => toggleSubject(subject)}
+                                        onClick={() => setSelectedSectionTab(sec.id)}
                                         className={cn(
-                                            "p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between",
-                                            isSelected 
-                                                ? "border-amber-400 bg-amber-50/40 text-slate-900 ring-1 ring-amber-400/30" 
-                                                : "border-slate-200 bg-white text-slate-650 hover:bg-slate-50"
+                                            "px-3 py-1.5 rounded-xl border shrink-0 transition-all flex items-center gap-1.5 cursor-pointer",
+                                            isActive
+                                                ? "bg-amber-400 text-slate-950 border-amber-400 font-black shadow-sm"
+                                                : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
                                         )}
                                     >
-                                        <span className="text-xs font-bold truncate">{subject}</span>
-                                        {isSelected && <Check className="w-3.5 h-3.5 text-amber-600 shrink-0 ml-1" />}
+                                        {renderSectionIcon(sec.iconName)}
+                                        <span>{sec.name}</span>
+                                        {secSelectedCount > 0 && (
+                                            <span className={cn(
+                                                "px-1.5 py-0.2 rounded-full text-[9px] font-black",
+                                                isActive ? "bg-slate-950 text-white" : "bg-amber-100 text-amber-800"
+                                            )}>
+                                                {secSelectedCount}
+                                            </span>
+                                        )}
                                     </button>
                                 );
                             })}
                         </div>
+
+                        {/* Selected Subjects Summary Chips */}
+                        {formData.subjects.length > 0 && (
+                            <div className="bg-amber-50/40 border border-amber-200/80 rounded-2xl p-3 space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[11px] font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                                        <CheckCircle2 className="w-4 h-4 text-amber-600" />
+                                        Selected Subjects ({formData.subjects.length})
+                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setFormData((prev) => ({ ...prev, subjects: [] }));
+                                            setSubjectLevels({});
+                                        }}
+                                        className="text-[10px] font-black text-rose-600 hover:text-rose-800 cursor-pointer uppercase tracking-wider"
+                                    >
+                                        Clear All
+                                    </button>
+                                </div>
+                                <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
+                                    {formData.subjects.map((sub) => {
+                                        const base = sub.split(" (")[0];
+                                        const isAcad = ACADEMIC_SUBJECTS.includes(base);
+                                        return (
+                                            <span
+                                                key={sub}
+                                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-black bg-white border border-slate-200 text-slate-800 shadow-xs"
+                                            >
+                                                <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", isAcad ? "bg-amber-500" : "bg-purple-500")} />
+                                                <span>{base}</span>
+                                                <span className="text-[9px] font-bold text-slate-400">
+                                                    {isAcad ? "Academic" : "Activity"}
+                                                </span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => toggleSubject(base)}
+                                                    className="text-slate-400 hover:text-slate-700 ml-0.5 cursor-pointer"
+                                                >
+                                                    <X className="w-3 h-3" />
+                                                </button>
+                                            </span>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Section Cards Breakdown */}
+                        <div className="space-y-3.5 max-h-[380px] overflow-y-auto pr-1">
+                            {ALL_SUBJECT_SECTIONS
+                                .filter((sec) => selectedSectionTab === "all" || selectedSectionTab === sec.id)
+                                .map((sec) => {
+                                    let subjectsToRender = sec.subjects;
+                                    if (subjectSearch.trim()) {
+                                        const q = subjectSearch.toLowerCase().trim();
+                                        subjectsToRender = subjectsToRender.filter((s) => s.toLowerCase().includes(q));
+                                    }
+                                    if (sec.id === "academics" && academicStreamFilter !== "All Academics") {
+                                        const stream = ACADEMIC_STREAMS.find((s) => s.name === academicStreamFilter);
+                                        if (stream) {
+                                            subjectsToRender = subjectsToRender.filter((s) => stream.subjects.includes(s));
+                                        }
+                                    }
+
+                                    if (subjectSearch.trim() && subjectsToRender.length === 0) {
+                                        return null;
+                                    }
+
+                                    const secSelectedCount = formData.subjects.filter((s) => sec.subjects.includes(s.split(" (")[0])).length;
+
+                                    return (
+                                        <div key={sec.id} className="border border-slate-200/90 rounded-2xl bg-white p-3.5 space-y-3 shadow-xs">
+                                            {/* Section Header */}
+                                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 border-b border-slate-100 pb-2.5">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200/60">
+                                                        {renderSectionIcon(sec.iconName)}
+                                                    </div>
+                                                    <div>
+                                                        <div className="flex items-center gap-1.5">
+                                                            <h4 className="text-[11px] font-black text-slate-900 tracking-wide uppercase">
+                                                                {sec.name}
+                                                            </h4>
+                                                            <span className={cn(
+                                                                "text-[8px] font-extrabold px-1.5 py-0.2 rounded-full border",
+                                                                sec.categoryType === "academic"
+                                                                    ? "bg-amber-50 text-amber-800 border-amber-200"
+                                                                    : "bg-purple-50 text-purple-800 border-purple-200"
+                                                            )}>
+                                                                {sec.badge}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <span className={cn(
+                                                    "text-[9px] font-black px-2 py-0.5 rounded-full shrink-0 self-start sm:self-auto",
+                                                    secSelectedCount > 0 ? "bg-amber-400 text-slate-950 font-black" : "bg-slate-100 text-slate-500"
+                                                )}>
+                                                    {secSelectedCount} selected
+                                                </span>
+                                            </div>
+
+                                            {/* Academic Stream Sub-filters */}
+                                            {sec.id === "academics" && (
+                                                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-[10px] font-bold">
+                                                    <span className="text-slate-400 font-black uppercase tracking-wider text-[9px] shrink-0 mr-1 flex items-center gap-1">
+                                                        <Filter className="w-3 h-3" /> Stream:
+                                                    </span>
+                                                    {ACADEMIC_STREAMS.map((st) => (
+                                                        <button
+                                                            key={st.name}
+                                                            type="button"
+                                                            onClick={() => setAcademicStreamFilter(st.name)}
+                                                            className={cn(
+                                                                "px-2 py-0.5 rounded-lg border shrink-0 transition-all cursor-pointer",
+                                                                academicStreamFilter === st.name
+                                                                    ? "bg-slate-900 text-white border-slate-900 font-black shadow-xs"
+                                                                    : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                                                            )}
+                                                        >
+                                                            {st.name}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            {/* Subjects Grid */}
+                                            {subjectsToRender.length === 0 ? (
+                                                <div className="py-3 text-center text-slate-400 text-xs font-bold italic">
+                                                    No subjects found matching your filters.
+                                                </div>
+                                            ) : (
+                                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                                                    {subjectsToRender.map((subject) => {
+                                                        const isSelected = formData.subjects.includes(subject);
+                                                        return (
+                                                            <button
+                                                                key={subject}
+                                                                type="button"
+                                                                onClick={() => toggleSubject(subject)}
+                                                                className={cn(
+                                                                    "p-2 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between gap-1.5",
+                                                                    isSelected
+                                                                        ? "border-amber-400 bg-amber-50/20 text-slate-900 ring-1 ring-amber-400/30"
+                                                                        : "border-slate-150 hover:border-slate-300 text-slate-700 bg-white"
+                                                                )}
+                                                            >
+                                                                <span className="text-xs font-bold truncate">{subject}</span>
+                                                                {isSelected && <Check className="w-3.5 h-3.5 text-amber-600 shrink-0 ml-1" />}
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+
+                            {subjectSearch.trim() &&
+                                ALL_SUBJECT_SECTIONS.every((sec) => {
+                                    const q = subjectSearch.toLowerCase().trim();
+                                    return !sec.subjects.some((s) => s.toLowerCase().includes(q));
+                                }) && (
+                                    <div className="py-6 text-center space-y-1.5 border border-dashed border-slate-200 rounded-2xl p-4 bg-slate-50/50">
+                                        <p className="text-xs font-bold text-slate-500">
+                                            No subjects found matching "{subjectSearch}".
+                                        </p>
+                                        <button
+                                            type="button"
+                                            onClick={() => setSubjectSearch("")}
+                                            className="text-xs font-black text-amber-600 hover:underline cursor-pointer"
+                                        >
+                                            Clear Search Filter
+                                        </button>
+                                    </div>
+                                )}
+                        </div>
                     </div>
 
                     {/* Levels per Subject if Academic Teacher */}
-                    {tutorType === "teacher" && formData.subjects.length > 0 && (
+                    {tutorType === "teacher" && formData.subjects.some((s) => ACADEMIC_SUBJECTS.includes(s.split(" (")[0])) && (
                         <div className="space-y-3 pt-2">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">
-                                Teaching Levels for Selected Subjects
+                                Teaching Levels for Academic Subjects
                             </label>
                             <div className="space-y-3">
-                                {formData.subjects.map((subj) => (
-                                    <div key={subj} className="p-3 bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
-                                        <div className="text-xs font-black text-slate-900">{subj}</div>
-                                        <div className="flex flex-wrap gap-1.5">
-                                            {TEACHING_LEVELS_OPTIONS.map((lvl) => {
-                                                const hasLvl = (subjectLevels[subj] || []).includes(lvl);
-                                                return (
-                                                    <button
-                                                        key={lvl}
-                                                        type="button"
-                                                        onClick={() => toggleSubjectLevel(subj, lvl)}
-                                                        className={cn(
-                                                            "px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer",
-                                                            hasLvl 
-                                                                ? "bg-amber-400 text-slate-950 border-amber-400 shadow-sm" 
-                                                                : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
-                                                        )}
-                                                    >
-                                                        {lvl}
-                                                    </button>
-                                                );
-                                            })}
+                                {formData.subjects
+                                    .filter((subj) => ACADEMIC_SUBJECTS.includes(subj.split(" (")[0]))
+                                    .map((subj) => (
+                                        <div key={subj} className="p-3 bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
+                                            <div className="text-xs font-black text-slate-900">{subj}</div>
+                                            <div className="flex flex-wrap gap-1.5">
+                                                {TEACHING_LEVELS_OPTIONS.map((lvl) => {
+                                                    const hasLvl = (subjectLevels[subj] || []).includes(lvl);
+                                                    return (
+                                                        <button
+                                                            key={lvl}
+                                                            type="button"
+                                                            onClick={() => toggleSubjectLevel(subj, lvl)}
+                                                            className={cn(
+                                                                "px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer",
+                                                                hasLvl 
+                                                                    ? "bg-amber-400 text-slate-950 border-amber-400 shadow-sm" 
+                                                                    : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                                                            )}
+                                                        >
+                                                            {lvl}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))}
                             </div>
                         </div>
                     )}

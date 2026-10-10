@@ -64,9 +64,23 @@ export async function PATCH(request: NextRequest) {
             include: { teacher: true }
         });
 
+        if (!existingUser) {
+            return NextResponse.json({ error: "User not found" }, { status: 404 });
+        }
+
         // Update user basic info
         const updateData: any = {};
         if (name) updateData.name = name;
+        if (body.email && body.email.trim() && body.email.toLowerCase() !== existingUser.email.toLowerCase()) {
+            const trimmedEmail = body.email.trim().toLowerCase();
+            const emailExists = await prisma.user.findUnique({
+                where: { email: trimmedEmail }
+            });
+            if (emailExists) {
+                return NextResponse.json({ error: "Email address is already in use by another account." }, { status: 400 });
+            }
+            updateData.email = trimmedEmail;
+        }
         if (phone) updateData.phone = phone;
         if (address) updateData.address = address;
         if (profilePhoto !== undefined) updateData.profilePhoto = profilePhoto;
@@ -79,7 +93,7 @@ export async function PATCH(request: NextRequest) {
         if (body.securityAnswer !== undefined) updateData.securityAnswer = body.securityAnswer;
 
         const user = await prisma.user.update({
-            where: { email: session.user.email! },
+            where: { id: existingUser.id },
             data: updateData,
             include: {
                 student: true,
@@ -129,7 +143,7 @@ export async function PATCH(request: NextRequest) {
 
         // Fetch updated user
         const updatedUser = await prisma.user.findUnique({
-            where: { email: session.user.email! },
+            where: { id: user.id },
             include: {
                 student: true,
                 teacher: true,

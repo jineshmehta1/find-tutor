@@ -200,8 +200,24 @@ function ShowcaseCard({ item, isCoach }: { item: any; isCoach: boolean }) {
           </span>
         </div>
 
-        {/* Action Buttons: Contact & View Full Profile */}
-        <div className="grid grid-cols-2 gap-2 pt-1">
+        {/* Action Buttons: Message, Call & View Full Profile (3 options side by side) */}
+        <div className="grid grid-cols-3 gap-1.5 pt-1">
+          <button
+            onClick={() => {
+              if (item.phone) {
+                const cleanPhone = item.phone.replace(/\D/g, "").slice(-10);
+                window.open(`https://wa.me/91${cleanPhone}?text=${encodeURIComponent(`Hi ${item.name}, I found your tutoring profile on Aacharya Academy and would like to inquire about classes.`)}`, "_blank");
+              } else {
+                window.location.href = `/tutor/${item.id}`;
+              }
+            }}
+            className="py-2.5 px-1 bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-[10px] sm:text-[11px] rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 shadow-xs active:scale-95 border-none"
+            title="Message Tutor"
+          >
+            <MessageSquare className="w-3.5 h-3.5 shrink-0" />
+            <span>Message</span>
+          </button>
+
           <button
             onClick={() => {
               if (item.phone) {
@@ -210,18 +226,20 @@ function ShowcaseCard({ item, isCoach }: { item: any; isCoach: boolean }) {
                 window.location.href = `/tutor/${item.id}`;
               }
             }}
-            className="py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[11px] rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 shadow-sm active:scale-95 border-none"
+            className="py-2.5 px-1 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[10px] sm:text-[11px] rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 shadow-xs active:scale-95 border-none"
+            title="Call Tutor"
           >
-            <Phone className="w-3.5 h-3.5" />
-            <span>Call / Contact</span>
+            <Phone className="w-3.5 h-3.5 shrink-0" />
+            <span>Call</span>
           </button>
           
           <button
             onClick={() => window.location.href = `/tutor/${item.id}`}
-            className="py-2.5 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white font-black text-[11px] rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 shadow-sm active:scale-95 border-none"
+            className="py-2.5 px-1 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white font-black text-[10px] sm:text-[11px] rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 shadow-xs active:scale-95 border-none"
+            title="View Full Profile"
           >
             <span>Full Profile</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <ArrowRight className="w-3 h-3 shrink-0" />
           </button>
         </div>
       </div>

@@ -1,14 +1,18 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { 
   Sparkles, CheckCircle2, ShieldCheck, ArrowRight, Star, Users, Zap, BookOpen, Clock, HeartHandshake,
-  MapPin, Loader2, Phone, Mail, User, GraduationCap, Send
+  MapPin, Loader2, Phone, Mail, User, GraduationCap, Send, Search, X, Check, Brain, Palette, Music, Cpu, MessageSquare
 } from "lucide-react";
 import { toast } from "sonner";
 import { smartReverseGeocode, getBrowserCoordinates } from "@/lib/geoUtils";
 import StructuredAddressForm from "@/components/ui/DynamicStructuredAddressForm";
+import { 
+  ALL_STANDARD_SUBJECTS, 
+  ALL_SUBJECT_SECTIONS 
+} from "@/lib/classConstants";
 
 export default function RequestTutorPage() {
   const router = useRouter();
@@ -29,6 +33,68 @@ export default function RequestTutorPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<"success" | "error" | null>(null);
   const [detectingLocation, setDetectingLocation] = useState(false);
+  const [showSubjectSuggestions, setShowSubjectSuggestions] = useState(false);
+  const subjectContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (subjectContainerRef.current && !subjectContainerRef.current.contains(event.target as Node)) {
+        setShowSubjectSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const POPULAR_SUBJECTS = [
+    "Mathematics", "Physics", "Chemistry", "Biology",
+    "Spoken English", "Chess", "Coding", "Abacus",
+    "Keyboard", "Drawing"
+  ];
+
+  const filteredSubjects = useMemo(() => {
+    const query = formData.subject.trim().toLowerCase();
+    if (!query) {
+      return ALL_STANDARD_SUBJECTS;
+    }
+    return ALL_STANDARD_SUBJECTS.filter(s => 
+      s.toLowerCase().includes(query)
+    );
+  }, [formData.subject]);
+
+  const getSubjectMeta = (subjectName: string) => {
+    for (const group of ALL_SUBJECT_SECTIONS) {
+      if (group.subjects.some(s => s.toLowerCase() === subjectName.toLowerCase())) {
+        return {
+          category: group.name,
+          badge: group.badge,
+          iconName: group.iconName,
+        };
+      }
+    }
+    return {
+      category: "Academic & Skill",
+      badge: "Curriculum",
+      iconName: "book",
+    };
+  };
+
+  const renderSubjectIcon = (iconName: string) => {
+    switch (iconName) {
+      case "brain": return <Brain className="w-3.5 h-3.5 text-amber-500 shrink-0" />;
+      case "palette": return <Palette className="w-3.5 h-3.5 text-pink-500 shrink-0" />;
+      case "music": return <Music className="w-3.5 h-3.5 text-rose-500 shrink-0" />;
+      case "sparkles": return <Sparkles className="w-3.5 h-3.5 text-purple-500 shrink-0" />;
+      case "message": return <MessageSquare className="w-3.5 h-3.5 text-sky-500 shrink-0" />;
+      case "cpu": return <Cpu className="w-3.5 h-3.5 text-emerald-500 shrink-0" />;
+      default: return <BookOpen className="w-3.5 h-3.5 text-blue-500 shrink-0" />;
+    }
+  };
+
+  const handleSelectSubject = (selectedSubject: string) => {
+    setFormData(prev => ({ ...prev, subject: selectedSubject }));
+    setShowSubjectSuggestions(false);
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -201,20 +267,126 @@ export default function RequestTutorPage() {
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 
-                {/* Subject */}
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
-                    1. Subject or Skill Required *
-                  </label>
-                  <input
-                    type="text"
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleChange}
-                    placeholder="e.g. Mathematics, Physics, Abacus, Chess, Coding"
-                    required
-                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#ffb800]/20 focus:border-[#ffb800] focus:bg-white text-xs font-bold transition-all"
-                  />
+                {/* Subject with Auto-suggestions */}
+                <div ref={subjectContainerRef} className="relative">
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">
+                      1. Subject or Skill Required *
+                    </label>
+                    <span className="text-[10px] font-bold text-amber-600">
+                      Auto-suggestions for Academics & Activities
+                    </span>
+                  </div>
+
+                  <div className="relative">
+                    <input
+                      type="text"
+                      name="subject"
+                      value={formData.subject}
+                      onChange={(e) => {
+                        handleChange(e);
+                        setShowSubjectSuggestions(true);
+                      }}
+                      onFocus={() => setShowSubjectSuggestions(true)}
+                      placeholder="Type or select (e.g. Chess, Coding, Mathematics, Music, Spoken English)"
+                      required
+                      autoComplete="off"
+                      className="w-full pl-4 pr-10 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#ffb800]/20 focus:border-[#ffb800] focus:bg-white text-xs font-bold transition-all"
+                    />
+
+                    {formData.subject ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData(prev => ({ ...prev, subject: "" }));
+                          setShowSubjectSuggestions(true);
+                        }}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
+                        title="Clear subject"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    ) : (
+                      <Search className="w-3.5 h-3.5 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    )}
+                  </div>
+
+                  {/* Quick Select Popular Pills */}
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {POPULAR_SUBJECTS.map((pop) => (
+                      <button
+                        key={pop}
+                        type="button"
+                        onClick={() => handleSelectSubject(pop)}
+                        className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all border cursor-pointer ${
+                          formData.subject.toLowerCase() === pop.toLowerCase()
+                            ? "bg-amber-400 text-slate-950 border-amber-400 shadow-xs"
+                            : "bg-slate-100 hover:bg-amber-50 hover:border-amber-200 text-slate-600 border-slate-200/80"
+                        }`}
+                      >
+                        {pop === "Chess" ? "♟️ " : pop === "Coding" ? "💻 " : pop === "Keyboard" ? "🎹 " : ""}
+                        {pop}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Auto-suggest dropdown */}
+                  {showSubjectSuggestions && (
+                    <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 bg-white rounded-2xl shadow-2xl border border-slate-200 max-h-72 overflow-y-auto p-2 divide-y divide-slate-100 animate-in fade-in slide-in-from-top-2 duration-150">
+                      <div className="px-2.5 py-1.5 flex items-center justify-between text-[10px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/80 rounded-xl mb-1">
+                        <span>
+                          {formData.subject.trim() 
+                            ? `Matching Subjects & Activities (${filteredSubjects.length})` 
+                            : "All Available Subjects & Activities"}
+                        </span>
+                        <span className="text-amber-600 font-extrabold">Tap to select</span>
+                      </div>
+
+                      <div className="space-y-0.5 pt-1">
+                        {filteredSubjects.length > 0 ? (
+                          filteredSubjects.slice(0, 30).map((subj) => {
+                            const meta = getSubjectMeta(subj);
+                            const isSelected = formData.subject.toLowerCase() === subj.toLowerCase();
+                            return (
+                              <button
+                                key={subj}
+                                type="button"
+                                onClick={() => handleSelectSubject(subj)}
+                                className={`w-full px-3 py-2 rounded-xl text-left flex items-center justify-between text-xs font-bold transition-colors cursor-pointer ${
+                                  isSelected 
+                                    ? "bg-amber-500 text-slate-950 font-black" 
+                                    : "hover:bg-amber-50 text-slate-800 hover:text-slate-950"
+                                }`}
+                              >
+                                <div className="flex items-center gap-2.5 min-w-0">
+                                  {renderSubjectIcon(meta.iconName)}
+                                  <span className="truncate">{subj}</span>
+                                </div>
+                                <span className={`text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider shrink-0 ${
+                                  isSelected 
+                                    ? "bg-slate-950 text-amber-300" 
+                                    : "bg-slate-100 text-slate-500"
+                                }`}>
+                                  {meta.category}
+                                </span>
+                              </button>
+                            );
+                          })
+                        ) : (
+                          <div className="p-3 text-center">
+                            <p className="text-xs text-slate-500 font-medium">No exact match in dictionary.</p>
+                            <button
+                              type="button"
+                              onClick={() => setShowSubjectSuggestions(false)}
+                              className="mt-2 text-xs font-black text-amber-600 hover:underline cursor-pointer"
+                            >
+                              Use custom: &quot;{formData.subject}&quot;
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -246,10 +418,6 @@ export default function RequestTutorPage() {
                       <option value="Class 10">Class 10</option>
                       <option value="Class 11">Class 11</option>
                       <option value="Class 12">Class 12</option>
-                      <option value="Degree / Graduation">Degree / Graduation</option>
-                      <option value="JEE / NEET Prep">JEE / NEET Prep</option>
-                      <option value="Tech & Coding">Tech & Coding</option>
-                      <option value="Chess & Abacus">Chess & Abacus</option>
                     </select>
                   </div>
 
@@ -272,11 +440,10 @@ export default function RequestTutorPage() {
                   </div>
                 </div>
 
-                {/* Location with Auto Detect GPS */}
-                {/* Location with Map & Structured Inputs */}
+                {/* Location with Map & Area Selection (Street/Area Only) */}
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-                    4. Location & Address Details *
+                    4. Location & Area (Street / Area / Landmark) *
                   </label>
                   <StructuredAddressForm
                     onAddressChange={(data) => setFormData(prev => ({ ...prev, location: data.fullAddress }))}
@@ -284,6 +451,7 @@ export default function RequestTutorPage() {
                     accentColor="amber"
                     height="200px"
                     required={true}
+                    hideDoorAndHouse={true}
                   />
                 </div>
 

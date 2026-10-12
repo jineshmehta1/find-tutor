@@ -12,7 +12,19 @@ import {
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
-const sidebarGroups = [
+interface SidebarItem {
+    label: string;
+    href: string;
+    icon: any;
+    isLogout?: boolean;
+}
+
+interface SidebarGroup {
+    label: string;
+    items: SidebarItem[];
+}
+
+const sidebarGroups: SidebarGroup[] = [
     {
         label: "MAIN",
         items: [
@@ -46,6 +58,7 @@ const sidebarGroups = [
         items: [
             { label: "Edit Profile",     href: "/teacher/edit-profile",  icon: Settings },
             { label: "Help & Support",  href: "/teacher/support",       icon: HelpCircle },
+            { label: "Sign Out",        href: "#logout",                icon: LogOut, isLogout: true },
         ]
     }
 ];
@@ -201,12 +214,12 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
 
             {/* Sidebar (Matching Flipkart/E-commerce Dark Navy Aesthetics) */}
             <aside className={cn(
-                "fixed lg:static inset-y-0 left-0 z-40 w-64 bg-[#0a1829] text-slate-300 transform transition-transform duration-300 ease-in-out lg:translate-x-0 flex flex-col justify-between shadow-2xl border-r border-slate-900/40 h-screen shrink-0",
+                "fixed lg:static top-14 lg:top-0 bottom-0 left-0 z-40 w-64 bg-[#0a1829] text-slate-300 transform transition-transform duration-300 ease-in-out lg:translate-x-0 flex flex-col justify-between shadow-2xl border-r border-slate-900/40 h-[calc(100dvh-3.5rem)] lg:h-screen shrink-0",
                 isOpen ? "translate-x-0" : "-translate-x-full"
             )}>
                 <div className="flex flex-col flex-1 min-h-0">
                     {/* Brand Header with yellow bird icon */}
-                    <div className="px-6 py-5 border-b border-slate-900/60 shrink-0">
+                    <div className="px-6 py-5 border-b border-slate-900/60 shrink-0 hidden lg:block">
                         <Link href="/" className="flex items-center gap-2.5 group">
                             <div className="w-8 h-8 rounded-lg bg-white p-0.5 shadow-lg group-hover:scale-105 transition-transform flex items-center justify-center shrink-0">
                                 <img src="/image.png" alt="Aacharya Logo" className="w-full h-full object-contain" />
@@ -233,6 +246,26 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
                                     {group.items.map((item) => {
                                         const Icon = item.icon;
                                         const isActive = pathname === item.href;
+
+                                        if (item.isLogout) {
+                                            return (
+                                                <button
+                                                    key={item.label}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setIsOpen(false);
+                                                        signOut({ callbackUrl: "/login" });
+                                                    }}
+                                                    className="flex items-center justify-between w-full px-3 py-2 rounded-xl text-[12px] font-bold text-rose-400 hover:bg-rose-500/15 hover:text-rose-350 transition-all group cursor-pointer"
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <Icon className="w-4 h-4 shrink-0 text-rose-400 group-hover:text-rose-300" />
+                                                        <span className="truncate">{item.label}</span>
+                                                    </div>
+                                                </button>
+                                            );
+                                        }
+
                                         return (
                                             <Link
                                                 key={item.label}
@@ -267,9 +300,10 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
                 </div>
 
                 {/* Bottom section */}
-                <div className="p-4 border-t border-slate-900/60 space-y-1 shrink-0">
+                <div className="p-4 border-t border-slate-900/60 space-y-1 shrink-0 bg-[#0a1829]">
                     <Link
                         href="/"
+                        onClick={() => setIsOpen(false)}
                         className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-slate-400 hover:bg-[#122238] hover:text-white transition-all"
                     >
                         <div className="flex items-center gap-2.5">
@@ -279,8 +313,12 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
                         <ChevronRight className="w-3.5 h-3.5 opacity-60" />
                     </Link>
                     <button
-                        onClick={() => signOut({ callbackUrl: "/login" })}
-                        className="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-bold text-rose-400 hover:bg-rose-900/20 hover:text-rose-350 rounded-xl transition-colors"
+                        type="button"
+                        onClick={() => {
+                            setIsOpen(false);
+                            signOut({ callbackUrl: "/login" });
+                        }}
+                        className="flex items-center gap-2.5 w-full px-3 py-2 text-xs font-bold text-rose-400 hover:bg-rose-900/20 hover:text-rose-350 rounded-xl transition-colors cursor-pointer"
                     >
                         <LogOut className="w-4 h-4" />
                         <span>Sign Out</span>

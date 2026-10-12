@@ -111,9 +111,6 @@ export function FeeEstimator({ onSelectEstimate }: FeeEstimatorProps) {
                 <option value="Class 10">Class 10</option>
                 <option value="Class 11">Class 11</option>
                 <option value="Class 12">Class 12</option>
-                <option value="Degree / Graduation">Degree / Graduation</option>
-                <option value="Competitive JEE/NEET">JEE Prep / NEET Exam</option>
-                <option value="Tech & Programming">Coding, AI & Robotics</option>
               </select>
             </div>
 

@@ -25,9 +25,7 @@ const TEACHING_LEVELS_OPTIONS = [
     "Primary (Class 1-5)",
     "Middle (Class 6-8)",
     "High School (Class 9-10)",
-    "Intermediate (Class 11-12)",
-    "Degree / College",
-    "Competitive Exams"
+    "Intermediate (Class 11-12)"
 ];
 
 const CLOUDINARY_CLOUD_NAME = "dx2o9yq2t";

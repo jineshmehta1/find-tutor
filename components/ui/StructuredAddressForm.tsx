@@ -26,6 +26,7 @@ interface StructuredAddressFormProps {
   compact?: boolean;
   required?: boolean;
   showPreview?: boolean;
+  hideDoorAndHouse?: boolean;
 }
 
 export default function StructuredAddressForm({
@@ -40,9 +41,10 @@ export default function StructuredAddressForm({
   compact = false,
   required = false,
   showPreview = true,
+  hideDoorAndHouse = false,
 }: StructuredAddressFormProps) {
   // Parse initial address if doorNumber / houseName not explicitly given
-  const parsed = parseStructuredAddress(initialAddress);
+  const parsed = hideDoorAndHouse ? { doorNumber: "", houseName: "", streetLocation: initialAddress } : parseStructuredAddress(initialAddress);
   const [doorNumber, setDoorNumber] = useState(initialDoorNumber || parsed.doorNumber);
   const [houseName, setHouseName] = useState(initialHouseName || parsed.houseName);
   const [streetLocation, setStreetLocation] = useState(parsed.streetLocation || initialAddress);
@@ -80,17 +82,17 @@ export default function StructuredAddressForm({
   // Recalculate full address on changes
   const updateAddress = useCallback(
     (newDoor: string, newHouse: string, newStreet: string, lat?: number, lng?: number) => {
-      const full = combineStructuredAddress(newDoor, newHouse, newStreet);
+      const full = hideDoorAndHouse ? newStreet.trim() : combineStructuredAddress(newDoor, newHouse, newStreet);
       onAddressChange({
         fullAddress: full,
-        doorNumber: newDoor,
-        houseName: newHouse,
+        doorNumber: hideDoorAndHouse ? "" : newDoor,
+        houseName: hideDoorAndHouse ? "" : newHouse,
         streetLocation: newStreet,
         latitude: lat ?? coords.lat,
         longitude: lng ?? coords.lng,
       });
     },
-    [coords.lat, coords.lng, onAddressChange]
+    [coords.lat, coords.lng, hideDoorAndHouse, onAddressChange]
   );
 
   const handleDoorChange = (val: string) => {
@@ -106,45 +108,47 @@ export default function StructuredAddressForm({
   const handleLocationSelect = (loc: LocationData) => {
     setStreetLocation(loc.address);
     setCoords({ lat: loc.latitude, lng: loc.longitude });
-    updateAddress(doorNumber, houseName, loc.address, loc.latitude, loc.longitude);
+    updateAddress(hideDoorAndHouse ? "" : doorNumber, hideDoorAndHouse ? "" : houseName, loc.address, loc.latitude, loc.longitude);
   };
 
-  const fullCombined = combineStructuredAddress(doorNumber, houseName, streetLocation);
+  const fullCombined = hideDoorAndHouse ? streetLocation : combineStructuredAddress(doorNumber, houseName, streetLocation);
 
   return (
     <div className="space-y-4 text-left">
-      {/* 2 Manual Input Fields: Door Number & House/Apartment Name */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {/* Door Number */}
-        <div className="space-y-1">
-          <label className="block text-[11px] font-black text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-            <Hash className="w-3.5 h-3.5 text-slate-400" />
-            <span>Door / House No.</span>
-          </label>
-          <input
-            type="text"
-            value={doorNumber}
-            onChange={(e) => handleDoorChange(e.target.value)}
-            placeholder="e.g. 76-8/5-13A or D.No 12"
-            className={`w-full px-3.5 py-2.5 text-xs font-bold border border-slate-200 rounded-xl outline-none bg-white transition-all ${theme.ring}`}
-          />
-        </div>
+      {/* 2 Manual Input Fields: Door Number & House/Apartment Name (Hidden when hideDoorAndHouse is true) */}
+      {!hideDoorAndHouse && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {/* Door Number */}
+          <div className="space-y-1">
+            <label className="block text-[11px] font-black text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+              <Hash className="w-3.5 h-3.5 text-slate-400" />
+              <span>Door / House No.</span>
+            </label>
+            <input
+              type="text"
+              value={doorNumber}
+              onChange={(e) => handleDoorChange(e.target.value)}
+              placeholder="e.g. 76-8/5-13A or D.No 12"
+              className={`w-full px-3.5 py-2.5 text-xs font-bold border border-slate-200 rounded-xl outline-none bg-white transition-all ${theme.ring}`}
+            />
+          </div>
 
-        {/* House / Apartment Name */}
-        <div className="space-y-1">
-          <label className="block text-[11px] font-black text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-            <Building2 className="w-3.5 h-3.5 text-slate-400" />
-            <span>House / Apartment Name</span>
-          </label>
-          <input
-            type="text"
-            value={houseName}
-            onChange={(e) => handleHouseChange(e.target.value)}
-            placeholder="e.g. Bommarillu Apartment, Surya Nilayam"
-            className={`w-full px-3.5 py-2.5 text-xs font-bold border border-slate-200 rounded-xl outline-none bg-white transition-all ${theme.ring}`}
-          />
+          {/* House / Apartment Name */}
+          <div className="space-y-1">
+            <label className="block text-[11px] font-black text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+              <Building2 className="w-3.5 h-3.5 text-slate-400" />
+              <span>House / Apartment Name</span>
+            </label>
+            <input
+              type="text"
+              value={houseName}
+              onChange={(e) => handleHouseChange(e.target.value)}
+              placeholder="e.g. Bommarillu Apartment, Surya Nilayam"
+              className={`w-full px-3.5 py-2.5 text-xs font-bold border border-slate-200 rounded-xl outline-none bg-white transition-all ${theme.ring}`}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Map Location Field (Street Level Onward) */}
       <div className="space-y-1.5">
@@ -182,7 +186,7 @@ export default function StructuredAddressForm({
           value={streetLocation}
           onChange={(e) => {
             setStreetLocation(e.target.value);
-            updateAddress(doorNumber, houseName, e.target.value);
+            updateAddress(hideDoorAndHouse ? "" : doorNumber, hideDoorAndHouse ? "" : houseName, e.target.value);
           }}
           placeholder="e.g. Hanumaiah street, Swathi Road, Bhavanipuram, Vijayawada - 520012"
           className={`w-full px-3.5 py-2.5 text-xs font-bold border border-slate-200 rounded-xl outline-none bg-white transition-all ${theme.ring}`}
@@ -195,7 +199,7 @@ export default function StructuredAddressForm({
           <span className="text-base mt-0.5 shrink-0">📍</span>
           <div className="min-w-0 flex-1">
             <p className={`text-[10px] font-black uppercase tracking-wider ${theme.text} mb-0.5`}>
-              Complete Formatted Address
+              {hideDoorAndHouse ? "Selected Location / Area" : "Complete Formatted Address"}
             </p>
             <p className="text-xs font-bold text-slate-800 leading-relaxed break-words">
               {fullCombined}

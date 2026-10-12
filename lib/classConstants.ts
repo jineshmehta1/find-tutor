@@ -35,8 +35,6 @@ export const STANDARD_CLASSES = [
     "Class 10",
     "Class 11",
     "Class 12",
-    "Degree / Graduation",
-    "Competitive Exams",
 ];
 
 export const ACADEMIC_SUBJECTS = [
@@ -319,8 +317,6 @@ export const TEACHER_CLASS_LEVELS = [
     "Class 11",
     "Class 12",
     "Nursery",
-    "Degree / Graduation",
-    "Competitive Exams",
 ];
 
 /**

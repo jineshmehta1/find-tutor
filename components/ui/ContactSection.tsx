@@ -226,7 +226,6 @@ const ContactSection: React.FC = () => {
                                        <option value="Coding & AI Robotics Class">Coding & AI Robotics Class</option>
                                        <option value="Abacus Speed Math Class">Abacus Speed Math Class</option>
                                        <option value="Grandmaster Chess Coaching">Grandmaster Chess Coaching</option>
-                                       <option value="JEE / NEET Competitive Exam Prep">JEE / NEET Competitive Exam Prep</option>
                                        <option value="Tutor Registration / Join Network">Tutor Registration / Join Network</option>
                                        <option value="General Enquiries">General Enquiries</option>
                                     </select>

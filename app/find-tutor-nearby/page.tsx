@@ -52,13 +52,25 @@ const MODES = STANDARD_TEACHING_MODES;
 
 
 const POPULAR_CITIES = [
-    "Vijayawada", "Hyderabad", "Visakhapatnam", "Guntur", 
+    "Vijayawada", "Visakhapatnam", "Hyderabad", "Rajamahendravaram", "Guntur", 
     "Tirupati", "Warangal", "Nellore", "Kakinada", 
-    "Rajahmundry", "Karimnagar", "Kurnool", "Nizamabad",
+    "Karimnagar", "Kurnool", "Nizamabad",
     "Khammam", "Anantapur", "Kadapa", "Eluru", "Ongole"
 ];
 
 const CITY_LOCALITIES: Record<string, string[]> = {
+    "rajamahendravaram": [
+        "Danavaipeta", "Aryapuram", "Morampudi", "Lalacheruvu", 
+        "Innespeta", "Kotipalli", "Prakash Nagar", "Sai Nagar", 
+        "Kambala Cheruvu", "Tilak Road", "Dowleswaram", "Katheru", 
+        "Diwancheruvu", "Hukumpeta", "Syamala Nagar"
+    ],
+    "rajahmundry": [
+        "Danavaipeta", "Aryapuram", "Morampudi", "Lalacheruvu", 
+        "Innespeta", "Kotipalli", "Prakash Nagar", "Sai Nagar", 
+        "Kambala Cheruvu", "Tilak Road", "Dowleswaram", "Katheru", 
+        "Diwancheruvu", "Hukumpeta", "Syamala Nagar"
+    ],
     "visakhapatnam": [
         "MVP Colony", "Gajuwaka", "Madhurawada", "Siripuram", 
         "Dwaraka Nagar", "Seethammadhara", "Rushikonda", "Pendurthi", 
@@ -72,7 +84,8 @@ const CITY_LOCALITIES: Record<string, string[]> = {
     "vijayawada": [
         "Bhavanipuram", "Patamata", "Gollapudi", "Vidyadharapuram", 
         "Benz Circle", "Labbipet", "Gurunanak Colony", "Kanuru", 
-        "Moghalrajpuram", "Lalitha Nagar", "Satyanarayanapuram", "Gunadala"
+        "Moghalrajpuram", "Lalitha Nagar", "Satyanarayanapuram", "Gunadala",
+        "Ajit Singh Nagar", "Poranki"
     ],
     "hyderabad": [
         "Madhapur", "Gachibowli", "Kukatpally", "Banjara Hills", 
@@ -95,10 +108,6 @@ const CITY_LOCALITIES: Record<string, string[]> = {
         "Suryaraopeta", "Bhanugudi Junction", "Ramanayyapeta", 
         "Gandhi Nagar", "Madhavapatnam", "Gaigolupadu"
     ],
-    "rajahmundry": [
-        "Danavaipeta", "Kotipalli", "Innespeta", "Aryapuram", 
-        "Lalacheruvu", "Morampudi", "Prakash Nagar"
-    ],
     "nellore": [
         "Magunta Layout", "Vedayapalem", "Dargamitta", 
         "Stonehousepet", "Pogathota", "Balaji Nagar"
@@ -106,7 +115,75 @@ const CITY_LOCALITIES: Record<string, string[]> = {
     "kurnool": [
         "Nandyal Road", "Gayatri Estate", "Budhawarpet", 
         "B Camp", "Santosh Nagar", "Roza"
+    ],
+    "eluru": [
+        "Powerpet", "Sanivarapupeta", "Tangellamudi", 
+        "RR Pet", "Ashok Nagar", "Vangayagudem"
+    ],
+    "kadapa": [
+        "Nagarajupeta", "Yerramukkapalli", "Rami Reddy Nagar", 
+        "Ravindra Nagar", "Apsara Circle", "Maruthi Nagar"
+    ],
+    "anantapur": [
+        "Court Road", "Ramaraju Palli", "Subash Nagar", 
+        "Sarada Nagar", "Kalyandurg Road", "Sai Nagar"
+    ],
+    "ongole": [
+        "Kurnool Road", "Mangamuru Road", "Lawyerpet", 
+        "Santhapet", "Bhagya Nagar", "Gopal Nagar"
     ]
+};
+
+const CITY_NAME_NORMALIZATION: Record<string, { key: string; displayName: string }> = {
+    "rajamahendravaram": { key: "rajamahendravaram", displayName: "Rajamahendravaram" },
+    "rajahmundry": { key: "rajamahendravaram", displayName: "Rajamahendravaram" },
+    "east godavari": { key: "rajamahendravaram", displayName: "Rajamahendravaram" },
+    "visakhapatnam": { key: "visakhapatnam", displayName: "Visakhapatnam" },
+    "vizag": { key: "visakhapatnam", displayName: "Visakhapatnam" },
+    "waltair": { key: "visakhapatnam", displayName: "Visakhapatnam" },
+    "vijayawada": { key: "vijayawada", displayName: "Vijayawada" },
+    "bezawada": { key: "vijayawada", displayName: "Vijayawada" },
+    "ntr": { key: "vijayawada", displayName: "Vijayawada" },
+    "hyderabad": { key: "hyderabad", displayName: "Hyderabad" },
+    "secunderabad": { key: "hyderabad", displayName: "Hyderabad" },
+    "cyberabad": { key: "hyderabad", displayName: "Hyderabad" },
+    "guntur": { key: "guntur", displayName: "Guntur" },
+    "tirupati": { key: "tirupati", displayName: "Tirupati" },
+    "kakinada": { key: "kakinada", displayName: "Kakinada" },
+    "nellore": { key: "nellore", displayName: "Nellore" },
+    "kurnool": { key: "kurnool", displayName: "Kurnool" },
+    "warangal": { key: "warangal", displayName: "Warangal" },
+    "hanamkonda": { key: "warangal", displayName: "Warangal" },
+    "kazipet": { key: "warangal", displayName: "Warangal" },
+    "eluru": { key: "eluru", displayName: "Eluru" },
+    "kadapa": { key: "kadapa", displayName: "Kadapa" },
+    "cuddapah": { key: "kadapa", displayName: "Kadapa" },
+    "anantapur": { key: "anantapur", displayName: "Anantapur" },
+    "ananthapur": { key: "anantapur", displayName: "Anantapur" },
+    "ongole": { key: "ongole", displayName: "Ongole" },
+    "karimnagar": { key: "karimnagar", displayName: "Karimnagar" },
+    "nizamabad": { key: "nizamabad", displayName: "Nizamabad" },
+    "khammam": { key: "khammam", displayName: "Khammam" },
+};
+
+const CITY_CENTERS: Record<string, { lat: number; lng: number; displayName: string }> = {
+    "rajamahendravaram": { lat: 17.0005, lng: 81.8040, displayName: "Rajamahendravaram" },
+    "visakhapatnam": { lat: 17.6868, lng: 83.2185, displayName: "Visakhapatnam" },
+    "vijayawada": { lat: 16.5062, lng: 80.6480, displayName: "Vijayawada" },
+    "hyderabad": { lat: 17.3850, lng: 78.4867, displayName: "Hyderabad" },
+    "guntur": { lat: 16.3067, lng: 80.4365, displayName: "Guntur" },
+    "tirupati": { lat: 13.6288, lng: 79.4192, displayName: "Tirupati" },
+    "kakinada": { lat: 16.9891, lng: 82.2475, displayName: "Kakinada" },
+    "nellore": { lat: 14.4426, lng: 79.9865, displayName: "Nellore" },
+    "kurnool": { lat: 15.8281, lng: 78.0373, displayName: "Kurnool" },
+    "warangal": { lat: 17.9689, lng: 79.5941, displayName: "Warangal" },
+    "eluru": { lat: 16.7107, lng: 81.0952, displayName: "Eluru" },
+    "kadapa": { lat: 14.4673, lng: 78.8242, displayName: "Kadapa" },
+    "anantapur": { lat: 14.6819, lng: 77.6006, displayName: "Anantapur" },
+    "ongole": { lat: 15.5057, lng: 80.0499, displayName: "Ongole" },
+    "karimnagar": { lat: 18.4386, lng: 79.1288, displayName: "Karimnagar" },
+    "nizamabad": { lat: 18.6725, lng: 78.0941, displayName: "Nizamabad" },
+    "khammam": { lat: 17.2473, lng: 80.1514, displayName: "Khammam" },
 };
 
 const TESTIMONIALS = [
@@ -525,51 +602,88 @@ function FindTutorNearbyPageContent() {
     const dynamicNearbyLocalities = useMemo(() => {
         const locLower = (location || "").toLowerCase().trim();
 
-        // 1. Check if location matches any known city directly or as substring
-        let matchedCity: string | null = null;
-        for (const city of Object.keys(CITY_LOCALITIES)) {
-            if (locLower.includes(city)) {
-                matchedCity = city;
-                break;
-            }
-        }
+        let matchedKey: string | null = null;
+        let matchedDisplayName: string | null = null;
 
-        // 2. Also check if searched location matches any specific locality in our city dictionary
-        if (!matchedCity && locLower) {
-            for (const [city, locList] of Object.entries(CITY_LOCALITIES)) {
-                if (locList.some(l => locLower.includes(l.toLowerCase()))) {
-                    matchedCity = city;
+        // 1. Check if location string matches any city or alias
+        if (locLower) {
+            for (const [alias, meta] of Object.entries(CITY_NAME_NORMALIZATION)) {
+                if (locLower.includes(alias)) {
+                    matchedKey = meta.key;
+                    matchedDisplayName = meta.displayName;
                     break;
                 }
             }
         }
 
-        let suggestions: string[] = [];
-
-        if (matchedCity && CITY_LOCALITIES[matchedCity]) {
-            suggestions = [...CITY_LOCALITIES[matchedCity]];
-        }
-
-        // 3. Extract unique localities from actual tutors in results / database matching context
-        if (processedTeachers.length > 0) {
-            const tutorLocs = processedTeachers
-                .map(t => getPublicLocality(t.address))
-                .filter(Boolean);
-            
-            // Add tutor localities to the front if not already present
-            tutorLocs.forEach(tl => {
-                if (!suggestions.some(s => s.toLowerCase() === tl.toLowerCase())) {
-                    suggestions.unshift(tl);
+        // 2. Also check if searched location matches any specific locality in our city dictionary
+        if (!matchedKey && locLower) {
+            for (const [cityKey, locList] of Object.entries(CITY_LOCALITIES)) {
+                if (locList.some(l => locLower.includes(l.toLowerCase()))) {
+                    matchedKey = cityKey;
+                    matchedDisplayName = CITY_NAME_NORMALIZATION[cityKey]?.displayName || cityKey;
+                    break;
                 }
-            });
+            }
         }
 
-        if (suggestions.length === 0) {
-            suggestions = CITY_LOCALITIES["visakhapatnam"] || CITY_LOCALITIES["vijayawada"];
+        // 3. Proximity detection from coordinates (if user selected on map or autocomplete)
+        if (!matchedKey && locationLat !== undefined && locationLng !== undefined && !isNaN(locationLat) && !isNaN(locationLng)) {
+            let closestDist = Infinity;
+            let closestKey: string | null = null;
+            let closestName: string | null = null;
+
+            for (const [key, center] of Object.entries(CITY_CENTERS)) {
+                const d = calculateHaversineDistance(locationLat, locationLng, center.lat, center.lng);
+                if (d < closestDist) {
+                    closestDist = d;
+                    closestKey = key;
+                    closestName = center.displayName;
+                }
+            }
+
+            // If within 45 km radius of known city center
+            if (closestKey && closestDist <= 45) {
+                matchedKey = closestKey;
+                matchedDisplayName = closestName;
+            }
         }
 
-        return Array.from(new Set(suggestions)).slice(0, 12);
-    }, [location, processedTeachers]);
+        // If a specific city was identified, show localities for THAT city
+        if (matchedKey && CITY_LOCALITIES[matchedKey]) {
+            let suggestions: string[] = [...CITY_LOCALITIES[matchedKey]];
+
+            // Include any actual tutor localities from this city
+            if (processedTeachers.length > 0) {
+                const tutorLocs = processedTeachers
+                    .map(t => getPublicLocality(t.address))
+                    .filter(Boolean);
+                
+                tutorLocs.forEach(tl => {
+                    if (!suggestions.some(s => s.toLowerCase() === tl.toLowerCase())) {
+                        suggestions.unshift(tl);
+                    }
+                });
+            }
+
+            const uniqueLocalities = Array.from(new Set(suggestions)).slice(0, 15);
+            return {
+                isLocal: true,
+                cityName: matchedDisplayName || "your area",
+                title: `Suggestions with Nearby Localities in & around ${matchedDisplayName || location}`,
+                items: uniqueLocalities,
+            };
+        }
+
+        // Fallback when NO city is matched (or search location is cleared/unmapped):
+        // Show prominent regional cities so users can explore tutors across AP & Telangana
+        return {
+            isLocal: false,
+            cityName: null,
+            title: "Explore Tutors in Popular Cities Across Andhra Pradesh & Telangana",
+            items: POPULAR_CITIES,
+        };
+    }, [location, locationLat, locationLng, processedTeachers]);
 
     const handlePostRequirement = async () => {
         if (!session) {
@@ -1122,6 +1236,16 @@ function FindTutorNearbyPageContent() {
                                     {t.reviewsCount > 0 && <span className="text-slate-400 font-normal text-[9px]">({t.reviewsCount})</span>}
                                 </span>
                             </div>
+
+                            {/* Floating Rate / Fee Badge */}
+                            <div className="absolute bottom-2.5 right-2.5 z-20">
+                                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-950/80 backdrop-blur-md text-amber-400 rounded-xl text-xs font-black shadow-md border border-white/15">
+                                    <span>{t.expectedFee ? `₹${t.expectedFee.toLocaleString()}` : "Contact"}</span>
+                                    <span className="text-[9px] font-semibold text-slate-300">
+                                        {t.expectedFee ? (t.feeType ? (t.feeType.startsWith("/") ? t.feeType : `/${t.feeType}`) : "/hr") : "for Fee"}
+                                    </span>
+                                </span>
+                            </div>
                         </div>
 
                         {/* Profile Info & Content */}
@@ -1212,54 +1336,44 @@ function FindTutorNearbyPageContent() {
                             </div>
                         </div>
 
-                        {/* Footer / CTA Actions */}
-                        <div className="p-3 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between gap-2">
-                            <div className="min-w-0">
-                                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest block leading-none">Fee</span>
-                                <span className="text-xs font-black text-slate-900 truncate block">
-                                    {t.expectedFee ? `₹${t.expectedFee.toLocaleString()}` : "Contact"}
-                                    {t.expectedFee && <span className="text-[8px] font-normal text-slate-400 ml-0.5">{t.feeType || "/hr"}</span>}
-                                </span>
-                            </div>
-
-                            <div className="flex items-center gap-1.5 shrink-0">
-                                <button 
-                                    onClick={() => {
-                                        if (t.phone) {
-                                            const cleanPhone = t.phone.replace(/\D/g, "").slice(-10);
-                                            window.open(`https://wa.me/91${cleanPhone}?text=${encodeURIComponent(`Hi ${t.name}, I found your tutoring profile on Aacharya Academy and would like to inquire about classes.`)}`, "_blank");
-                                        } else {
-                                            router.push(`/tutor/${t.id}`);
-                                        }
-                                    }}
-                                    title="Message Tutor"
-                                    className="px-2.5 py-1.5 bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-[10px] rounded-xl transition-all shadow-xs active:scale-95 cursor-pointer flex items-center gap-1 border-none"
-                                >
-                                    <MessageSquare className="w-3 h-3 shrink-0" />
-                                    <span>Message</span>
-                                </button>
-                                <button 
-                                    onClick={() => {
-                                        if (t.phone) {
-                                            window.open(`tel:${t.phone}`, "_self");
-                                        } else {
-                                            router.push(`/tutor/${t.id}`);
-                                        }
-                                    }}
-                                    title="Call Tutor"
-                                    className="px-2.5 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[10px] rounded-xl transition-all shadow-xs active:scale-95 cursor-pointer flex items-center gap-1 border-none"
-                                >
-                                    <Phone className="w-3 h-3 shrink-0" />
-                                    <span>Call</span>
-                                </button>
-                                <button 
-                                    onClick={() => router.push(`/tutor/${t.id}`)}
-                                    className="px-2.5 py-1.5 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white font-black text-[10px] rounded-xl transition-all shadow-xs active:scale-95 cursor-pointer flex items-center gap-1 border-none"
-                                >
-                                    <span>Full Profile</span>
-                                    <ArrowRight className="w-3 h-3 shrink-0" />
-                                </button>
-                            </div>
+                        {/* Footer / CTA Actions: 3 buttons side-by-side full width */}
+                        <div className="p-3 bg-slate-50/80 border-t border-slate-100 grid grid-cols-3 gap-1.5">
+                            <button 
+                                onClick={() => {
+                                    if (t.phone) {
+                                        const cleanPhone = t.phone.replace(/\D/g, "").slice(-10);
+                                        window.open(`https://wa.me/91${cleanPhone}?text=${encodeURIComponent(`Hi ${t.name}, I found your tutoring profile on Aacharya Academy and would like to inquire about classes.`)}`, "_blank");
+                                    } else {
+                                        router.push(`/tutor/${t.id}`);
+                                    }
+                                }}
+                                title="Message Tutor"
+                                className="py-2 px-1 bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-[10.5px] rounded-xl transition-all shadow-xs active:scale-95 cursor-pointer flex items-center justify-center gap-1 border-none"
+                            >
+                                <MessageSquare className="w-3.5 h-3.5 shrink-0" />
+                                <span>Message</span>
+                            </button>
+                            <button 
+                                onClick={() => {
+                                    if (t.phone) {
+                                        window.open(`tel:${t.phone}`, "_self");
+                                    } else {
+                                        router.push(`/tutor/${t.id}`);
+                                    }
+                                }}
+                                title="Call Tutor"
+                                className="py-2 px-1 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[10.5px] rounded-xl transition-all shadow-xs active:scale-95 cursor-pointer flex items-center justify-center gap-1 border-none"
+                            >
+                                <Phone className="w-3.5 h-3.5 shrink-0" />
+                                <span>Call</span>
+                            </button>
+                            <button 
+                                onClick={() => router.push(`/tutor/${t.id}`)}
+                                className="py-2 px-1 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white font-black text-[10.5px] rounded-xl transition-all shadow-xs active:scale-95 cursor-pointer flex items-center justify-center gap-1 border-none"
+                            >
+                                <span>Full Profile</span>
+                                <ArrowRight className="w-3 h-3 shrink-0" />
+                            </button>
                         </div>
                     </motion.div>
                 );
@@ -1272,30 +1386,36 @@ function FindTutorNearbyPageContent() {
             <section className="py-12 bg-slate-50 border-y border-slate-100">
                 <div className="container mx-auto px-4 md:px-6 text-center">
                     <h3 className="text-xs md:text-sm font-extrabold text-slate-500 uppercase tracking-widest mb-6">
-                        Suggestions with Nearby Localities {location ? `in & around ${location}` : ""}
+                        {dynamicNearbyLocalities.title}
                     </h3>
                     <div className="flex flex-wrap items-center justify-center gap-3 max-w-5xl mx-auto">
-                        {dynamicNearbyLocalities.map((loc) => (
-                            <button
-                                key={loc}
-                                onClick={async () => {
-                                    setLocation(loc);
-                                    const coords = await geocodeAddressToCoords(loc);
-                                    if (coords) {
-                                        setLocationLat(coords.latitude);
-                                        setLocationLng(coords.longitude);
-                                    }
-                                    performSearch(subject, loc);
-                                    if (listingRef.current) {
-                                        listingRef.current.scrollIntoView({ behavior: "smooth" });
-                                    }
-                                }}
-                                className="px-5 py-2.5 bg-white border border-slate-200 hover:border-primary hover:text-primary rounded-xl text-xs font-bold text-slate-600 transition-all duration-300 shadow-sm active:scale-95 cursor-pointer flex items-center gap-1.5"
-                            >
-                                <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                                <span>{loc}</span>
-                            </button>
-                        ))}
+                        {dynamicNearbyLocalities.items.map((loc) => {
+                            const isLocal = dynamicNearbyLocalities.isLocal;
+                            const cityName = dynamicNearbyLocalities.cityName;
+                            const searchQuery = isLocal && cityName ? `${loc}, ${cityName}` : loc;
+
+                            return (
+                                <button
+                                    key={loc}
+                                    onClick={async () => {
+                                        setLocation(searchQuery);
+                                        const coords = await geocodeAddressToCoords(searchQuery);
+                                        if (coords) {
+                                            setLocationLat(coords.latitude);
+                                            setLocationLng(coords.longitude);
+                                        }
+                                        performSearch(subject, searchQuery);
+                                        if (listingRef.current) {
+                                            listingRef.current.scrollIntoView({ behavior: "smooth" });
+                                        }
+                                    }}
+                                    className="px-5 py-2.5 bg-white border border-slate-200 hover:border-primary hover:text-primary rounded-xl text-xs font-bold text-slate-600 transition-all duration-300 shadow-sm active:scale-95 cursor-pointer flex items-center gap-1.5"
+                                >
+                                    <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                    <span>{loc}</span>
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
             </section>

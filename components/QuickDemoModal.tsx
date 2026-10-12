@@ -185,8 +185,6 @@ export function QuickDemoModal({ isOpen, onClose, defaultSubject = "", defaultTu
                     <option value="Class 10">Class 10</option>
                     <option value="Class 11">Class 11</option>
                     <option value="Class 12">Class 12</option>
-                    <option value="Degree / Graduation">Degree / Graduation</option>
-                    <option value="Competitive/Tech">Competitive / Tech</option>
                   </select>
                 </div>
               </div>

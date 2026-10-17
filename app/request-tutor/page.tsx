@@ -2,9 +2,12 @@
 
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { 
   Sparkles, CheckCircle2, ShieldCheck, ArrowRight, Star, Users, Zap, BookOpen, Clock, HeartHandshake,
-  MapPin, Loader2, Phone, Mail, User, GraduationCap, Send, Search, X, Check, Brain, Palette, Music, Cpu, MessageSquare
+  MapPin, Loader2, Phone, Mail, User, GraduationCap, Send, Search, X, Check, Brain, Palette, Music, Cpu, MessageSquare,
+  Lock, LogIn, UserPlus
 } from "lucide-react";
 import { toast } from "sonner";
 import { smartReverseGeocode, getBrowserCoordinates } from "@/lib/geoUtils";
@@ -16,6 +19,8 @@ import {
 
 export default function RequestTutorPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   // Form States
   const [formData, setFormData] = useState({
@@ -45,6 +50,41 @@ export default function RequestTutorPage() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Prefill details if user is signed in as student
+  useEffect(() => {
+    if (session?.user) {
+      if (session.user.role === "STUDENT") {
+        setFormData(prev => ({
+          ...prev,
+          parentName: prev.parentName || session.user.name || "",
+          email: prev.email || session.user.email || "",
+        }));
+      } else {
+        // For teachers/admins, keep parentName blank so teacher name is not used as student/parent
+        setFormData(prev => ({
+          ...prev,
+          email: prev.email || session.user.email || "",
+        }));
+      }
+    }
+  }, [session]);
+
+  // Restore saved draft from session storage
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem("pending_tutor_request");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setFormData(prev => ({ ...prev, ...parsed }));
+        if (session?.user) {
+          toast.success("Welcome back! Your saved requirement details were restored.");
+        }
+      }
+    } catch (err) {
+      console.error("Error restoring pending tutor request:", err);
+    }
+  }, [session]);
 
   const POPULAR_SUBJECTS = [
     "Mathematics", "Physics", "Chemistry", "Biology",
@@ -122,10 +162,23 @@ export default function RequestTutorPage() {
       return;
     }
 
+    // Require signup or login
+    if (!session) {
+      try {
+        sessionStorage.setItem("pending_tutor_request", JSON.stringify(formData));
+      } catch (err) {}
+      setShowAuthModal(true);
+      toast.error("Account required. Please sign up or log in to post your requirement.");
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitStatus(null);
 
     // Map to /api/send schema
+    const contactHeader = formData.studentName && formData.studentName !== formData.parentName
+      ? `Parent: ${formData.parentName} | Student: ${formData.studentName}`
+      : `Parent / Contact: ${formData.parentName}`;
     const payload = {
       parentName: formData.parentName,
       studentName: formData.studentName || formData.parentName,
@@ -134,7 +187,7 @@ export default function RequestTutorPage() {
       course: formData.subject,
       experience: formData.classLevel || "General",
       age: formData.mode, // Send teaching mode in place of age/experience
-      message: `Location: ${formData.location}. Learning Goals: ${formData.goals || "Not specified"}`
+      message: `${contactHeader} | Location: ${formData.location}. Learning Goals: ${formData.goals || "Not specified"}`
     };
 
     try {
@@ -146,19 +199,22 @@ export default function RequestTutorPage() {
 
       if (response.ok) {
         setSubmitStatus("success");
+        try {
+          sessionStorage.removeItem("pending_tutor_request");
+        } catch (err) {}
         toast.success("Tutor Request Submitted! Our coordinator will call you within 2 hours.");
         setFormData({
           subject: "",
           classLevel: "",
           mode: "Home Tuition",
           location: "",
-          parentName: "",
+          parentName: session?.user?.name || "",
           studentName: "",
-          email: "",
+          email: session?.user?.email || "",
           phone: "",
           goals: ""
         });
-        setTimeout(() => setSubmitStatus(null), 5000);
+        setTimeout(() => setSubmitStatus(null), 8000);
       } else {
         setSubmitStatus("error");
         toast.error("Failed to send request. Please try again.");
@@ -261,9 +317,75 @@ export default function RequestTutorPage() {
                 </div>
                 <div className="hidden sm:flex items-center gap-1 bg-amber-50 text-amber-800 border border-amber-200 px-3 py-1 rounded-full text-xs font-extrabold">
                   <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                  Free Trial
+                  Free Matching
                 </div>
               </div>
+
+              {/* AUTHENTICATION STATUS BANNER */}
+              {session?.user ? (
+                <div className="mb-6 p-3.5 rounded-2xl bg-emerald-50/90 border border-emerald-200 text-emerald-900 flex items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                      <CheckCircle2 className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="font-black text-slate-900">
+                        Posting as <span className="text-emerald-700 font-extrabold">{session.user.name || session.user.email}</span>
+                      </p>
+                      <p className="text-[11px] text-slate-500 font-medium">Verified Account • Requirement will be linked to your student dashboard</p>
+                    </div>
+                  </div>
+                  <span className="hidden sm:inline-block px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider shrink-0">
+                    Logged In
+                  </span>
+                </div>
+              ) : (
+                <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/90 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-md">
+                      <Lock className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-black text-slate-900 flex items-center gap-1.5">
+                        Account Required to Post Requirements
+                        <span className="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-amber-200/70 text-amber-900">
+                          Signup Needed
+                        </span>
+                      </h4>
+                      <p className="text-[11px] sm:text-xs text-slate-600 font-medium mt-0.5 leading-relaxed">
+                        Please sign in or create a student account so verified tutors can connect with you directly.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        try {
+                          sessionStorage.setItem("pending_tutor_request", JSON.stringify(formData));
+                        } catch (err) {}
+                        router.push("/login?callbackUrl=/request-tutor");
+                      }}
+                      className="flex-1 sm:flex-none text-center px-3.5 py-2 rounded-xl border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 font-bold text-xs transition-all shadow-xs cursor-pointer"
+                    >
+                      Sign In
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        try {
+                          sessionStorage.setItem("pending_tutor_request", JSON.stringify(formData));
+                        } catch (err) {}
+                        router.push("/signup/student?redirect=/request-tutor");
+                      }}
+                      className="flex-1 sm:flex-none text-center px-4 py-2 rounded-xl bg-[#ffb800] hover:bg-[#ffa000] text-white font-extrabold text-xs transition-all shadow-md flex items-center justify-center gap-1 cursor-pointer"
+                    >
+                      <span>Sign Up</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              )}
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 
@@ -505,8 +627,21 @@ export default function RequestTutorPage() {
                 </div>
 
                 {submitStatus === "success" && (
-                  <div className="p-3 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-xl flex items-center gap-2 border border-emerald-200">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" /> Request received! We will contact you within 2 hours.
+                  <div className="p-4 bg-emerald-50 text-emerald-900 text-xs font-bold rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border border-emerald-200">
+                    <div className="flex items-center gap-2.5">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                      <div>
+                        <p className="font-black text-slate-900">Request received successfully!</p>
+                        <p className="text-[11px] text-emerald-700 font-medium">Our coordinator will call you within 2 hours. You can also view matching tutors in your dashboard.</p>
+                      </div>
+                    </div>
+                    <Link
+                      href="/student/leads"
+                      className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-black text-[11px] shrink-0 transition-all flex items-center gap-1 shadow-xs"
+                    >
+                      <span>View Leads</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
                   </div>
                 )}
                 {submitStatus === "error" && (
@@ -518,12 +653,17 @@ export default function RequestTutorPage() {
                 <button 
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-[#ffb800] hover:bg-[#ffa000] text-white font-black py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-70 text-xs uppercase tracking-wider"
+                  className="w-full bg-[#ffb800] hover:bg-[#ffa000] text-white font-black py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-70 text-xs uppercase tracking-wider cursor-pointer"
                 >
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
                       <span>Submitting Request...</span>
+                    </>
+                  ) : !session ? (
+                    <>
+                      <Lock className="w-4 h-4" />
+                      <span>Sign In / Sign Up to Submit Requirement &rarr;</span>
                     </>
                   ) : (
                     <>
@@ -538,6 +678,84 @@ export default function RequestTutorPage() {
 
         </div>
       </div>
+
+      {/* AUTH REQUIRED MODAL */}
+      {showAuthModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 relative space-y-5 animate-in zoom-in-95 duration-200">
+            <button
+              onClick={() => setShowAuthModal(false)}
+              className="absolute top-5 right-5 p-1.5 text-slate-400 hover:text-slate-800 rounded-full hover:bg-slate-100 transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="w-14 h-14 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center mx-auto shadow-inner">
+              <Lock className="w-7 h-7" />
+            </div>
+
+            <div className="text-center space-y-1.5">
+              <h3 className="text-xl font-black text-slate-900 tracking-tight">Account Required</h3>
+              <p className="text-xs text-slate-500 font-medium">
+                To post a tuition requirement and get matched with verified tutors, you must sign up or sign in.
+              </p>
+            </div>
+
+            {/* Preserved details indicator */}
+            <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="font-extrabold text-slate-700">Requirement Preserved:</span>
+                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                  Draft Saved
+                </span>
+              </div>
+              <p className="text-slate-600 font-bold truncate">
+                {formData.subject || "Subject not picked"} • {formData.classLevel || "General"} • {formData.mode}
+              </p>
+              {formData.location && (
+                <p className="text-[11px] text-slate-500 truncate flex items-center gap-1">
+                  <MapPin className="w-3 h-3 shrink-0 text-amber-500" />
+                  <span>{formData.location}</span>
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  try {
+                    sessionStorage.setItem("pending_tutor_request", JSON.stringify(formData));
+                  } catch (err) {}
+                  router.push("/signup/student?redirect=/request-tutor");
+                }}
+                className="w-full py-3.5 bg-[#ffb800] hover:bg-[#ffa000] text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <UserPlus className="w-4 h-4" />
+                <span>Create Student / Parent Account</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  try {
+                    sessionStorage.setItem("pending_tutor_request", JSON.stringify(formData));
+                  } catch (err) {}
+                  router.push("/login?callbackUrl=/request-tutor");
+                }}
+                className="w-full py-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <LogIn className="w-4 h-4 text-amber-500" />
+                <span>Sign In to Existing Account</span>
+              </button>
+            </div>
+
+            <p className="text-center text-[10px] text-slate-400 font-semibold">
+              ✨ Your requirement details are automatically restored right after you sign in.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

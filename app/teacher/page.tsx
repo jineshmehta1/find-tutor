@@ -31,6 +31,38 @@ interface Lead {
     };
 }
 
+function getLeadDisplayInfo(lead: Lead, sessionUser?: { name?: string | null; email?: string | null }) {
+    let parentName = "";
+    let studentName = "";
+
+    if (lead.message) {
+        const pMatch = lead.message.match(/(?:Parent(?:\s*\/\s*Contact)?|Contact)\s*:\s*([^|.\n]+)/i);
+        if (pMatch && pMatch[1]?.trim()) parentName = pMatch[1].trim();
+
+        const sMatch = lead.message.match(/Student(?:\s*Name)?\s*:\s*([^|.\n]+)/i);
+        if (sMatch && sMatch[1]?.trim()) studentName = sMatch[1].trim();
+    }
+
+    const teacherName = (sessionUser?.name || "").trim().toLowerCase();
+    const studentUserName = (lead.student?.user?.name || "").trim();
+    const isTeacher = teacherName && studentUserName && (studentUserName.toLowerCase() === teacherName || teacherName.includes(studentUserName.toLowerCase()));
+
+    let primaryName = studentName || parentName;
+    if (!primaryName) {
+        if (studentUserName && !isTeacher && !studentUserName.toLowerCase().startsWith("dr.") && !studentUserName.toLowerCase().includes("teacher")) {
+            primaryName = studentUserName;
+        } else {
+            primaryName = "Student / Parent";
+        }
+    }
+
+    return {
+        displayName: primaryName,
+        parentName: parentName || (primaryName !== studentName ? primaryName : ""),
+        studentName: studentName || primaryName,
+    };
+}
+
 export default function TeacherDashboard() {
     const { data: session } = useSession();
     const [leads, setLeads] = useState<Lead[]>([]);
@@ -444,7 +476,8 @@ export default function TeacherDashboard() {
                                         ) : (
                                             directLeads.map((lead) => {
                                                 const ReqIcon = lead.mode === "Online Tutor" ? MessageSquare : Phone;
-                                                const initials = lead.student?.user?.name ? lead.student.user.name.split(" ").map(n => n[0]).join("") : "S";
+                                                const contact = getLeadDisplayInfo(lead, session?.user);
+                                                const initials = contact.displayName.split(" ").map(n => n[0]).join("") || "S";
                                                 return (
                                                     <tr key={lead.id} className="hover:bg-slate-50/30 transition-colors text-xs font-bold text-slate-700">
                                                         <td className="px-6 py-4">
@@ -453,8 +486,8 @@ export default function TeacherDashboard() {
                                                                     {initials}
                                                                 </div>
                                                                 <div>
-                                                                    <div className="font-extrabold text-slate-900">{lead.student?.user?.name || "Student"}</div>
-                                                                    <div className="text-[10px] text-slate-400 font-bold mt-0.5">Parent</div>
+                                                                    <div className="font-extrabold text-slate-900">{contact.displayName}</div>
+                                                                    <div className="text-[10px] text-slate-400 font-bold mt-0.5">{contact.parentName ? `Parent: ${contact.parentName}` : "Parent"}</div>
                                                                 </div>
                                                             </div>
                                                         </td>

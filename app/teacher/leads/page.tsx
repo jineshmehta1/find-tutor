@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import {
     Users, Search, Mail, Phone, MapPin, User, Loader2,
     CheckCircle2, Clock, X, MessageCircle, BookOpen, GraduationCap, Home, Sparkles, Filter, CheckCircle, ShieldCheck
@@ -26,11 +27,68 @@ interface Lead {
             phone: string;
             address: string;
             profilePhoto: string | null;
+            role?: string;
         };
+    };
+    teacher?: {
+        id: string;
+        user?: {
+            id: string;
+            name: string;
+            email: string;
+        };
+    } | null;
+}
+
+function getLeadDisplayInfo(lead: Lead, sessionUser?: { name?: string | null; email?: string | null }) {
+    let parentName = "";
+    let studentName = "";
+
+    if (lead.message) {
+        // Matches "Parent / Contact: Name", "Parent: Name", "Contact: Name"
+        const pMatch = lead.message.match(/(?:Parent(?:\s*\/\s*Contact)?|Contact)\s*:\s*([^|.\n]+)/i);
+        if (pMatch && pMatch[1]?.trim()) parentName = pMatch[1].trim();
+
+        // Matches "Student: Name", "Student Name: Name"
+        const sMatch = lead.message.match(/Student(?:\s*Name)?\s*:\s*([^|.\n]+)/i);
+        if (sMatch && sMatch[1]?.trim()) studentName = sMatch[1].trim();
+    }
+
+    const teacherName = (lead.teacher?.user?.name || sessionUser?.name || "").trim().toLowerCase();
+    const teacherEmail = (lead.teacher?.user?.email || sessionUser?.email || "").trim().toLowerCase();
+    const studentUserName = (lead.student?.user?.name || "").trim();
+    const isTeacherName = studentUserName && teacherName && (studentUserName.toLowerCase() === teacherName || teacherName.includes(studentUserName.toLowerCase()));
+
+    let primaryName = studentName || parentName;
+    if (!primaryName) {
+        // Avoid showing teacher's name as student name
+        if (studentUserName && !isTeacherName && !studentUserName.toLowerCase().startsWith("dr.") && !studentUserName.toLowerCase().includes("teacher")) {
+            primaryName = studentUserName;
+        } else {
+            primaryName = "Student / Parent Contact";
+        }
+    }
+
+    // Determine contact email safely (do NOT display teacher's email or dummy system email)
+    const rawEmail = (lead.student?.user?.email || "").trim();
+    const isTeacherEmail = teacherEmail && rawEmail.toLowerCase() === teacherEmail;
+    const isDummyEmail = rawEmail.toLowerCase().includes("@aacharya.net") || rawEmail.toLowerCase().includes("anonymous");
+    const displayEmail = (!isTeacherEmail && !isDummyEmail && rawEmail) ? rawEmail : "";
+
+    // Contact phone
+    const displayPhone = lead.student?.user?.phone && lead.student.user.phone !== "0000000000" ? lead.student.user.phone : "";
+
+    return {
+        displayName: primaryName,
+        parentName: parentName || (primaryName !== studentName && primaryName !== "Student / Parent Contact" ? primaryName : ""),
+        studentName: studentName || (primaryName !== "Student / Parent Contact" ? primaryName : ""),
+        displayEmail,
+        displayPhone,
     };
 }
 
 export default function TeacherLeadsPage() {
+    const { data: session } = useSession();
     const [leads, setLeads] = useState<Lead[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
@@ -77,8 +135,10 @@ export default function TeacherLeadsPage() {
     };
 
     const filteredLeads = leads.filter((lead) => {
-        const matchesSearch = lead.student.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            lead.student.user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        const contact = getLeadDisplayInfo(lead, session?.user);
+        const matchesSearch = contact.displayName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            contact.parentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (contact.displayEmail && contact.displayEmail.toLowerCase().includes(searchTerm.toLowerCase())) ||
             (lead.subject && lead.subject.toLowerCase().includes(searchTerm.toLowerCase()));
 
         const matchesStatus = statusFilter === "ALL" || lead.status === statusFilter;
@@ -185,7 +245,9 @@ export default function TeacherLeadsPage() {
                 </div>
             ) : (
                 <div className="space-y-4">
-                    {filteredLeads.map((lead) => (
+                    {filteredLeads.map((lead) => {
+                        const contact = getLeadDisplayInfo(lead, session?.user);
+                        return (
                         <div
                             key={lead.id}
                             onClick={() => setSelectedLead(lead)}
@@ -195,36 +257,45 @@ export default function TeacherLeadsPage() {
                                 <div className="flex items-center gap-3">
                                     <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#ffb800] flex items-center justify-center font-bold shrink-0 overflow-hidden border border-amber-200/60">
                                         {lead.student.user.profilePhoto ? (
-                                            <img src={lead.student.user.profilePhoto} alt={lead.student.user.name} className="w-full h-full object-cover" />
+                                            <img src={lead.student.user.profilePhoto} alt={contact.displayName} className="w-full h-full object-cover" />
                                         ) : (
                                             <User className="w-6 h-6 text-[#ffb800]" />
                                         )}
                                     </div>
                                     <div>
                                         <h3 className="font-extrabold text-base text-slate-900 leading-tight">
-                                            {lead.student.user.name}
+                                            {contact.displayName}
                                         </h3>
-                                        <p className="text-xs font-bold text-[#ffb800] mt-0.5">
-                                            Requested: {lead.subject || "General Tuition"}
-                                        </p>
+                                        <div className="flex items-center gap-2 mt-0.5">
+                                            {contact.parentName && contact.parentName !== contact.displayName && (
+                                                <span className="text-[11px] font-bold text-slate-500">
+                                                    Parent: {contact.parentName}
+                                                </span>
+                                            )}
+                                            <p className="text-xs font-bold text-[#ffb800]">
+                                                Requested: {lead.subject || "General Tuition"}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="self-start sm:self-auto flex items-center gap-2">
                                     {lead.status === "PENDING" ? (
                                         <>
-                                            <a
-                                                href={`https://wa.me/91${lead.student.user.phone?.replace(/\D/g, "").slice(-10)}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                onClick={(e) => { e.stopPropagation(); updateLeadStatus(lead.id, "CONTACTED"); }}
-                                                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-extrabold bg-[#0a1829] text-white hover:bg-slate-800 transition-colors shadow-sm"
-                                            >
-                                                <MessageCircle className="w-3.5 h-3.5 text-amber-400" />
-                                                Message
-                                            </a>
-                                            {lead.student.user.phone && (
+                                            {contact.displayPhone ? (
                                                 <a
-                                                    href={`tel:${lead.student.user.phone}`}
+                                                    href={`https://wa.me/91${contact.displayPhone.replace(/\D/g, "").slice(-10)}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    onClick={(e) => { e.stopPropagation(); updateLeadStatus(lead.id, "CONTACTED"); }}
+                                                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-extrabold bg-[#0a1829] text-white hover:bg-slate-800 transition-colors shadow-sm"
+                                                >
+                                                    <MessageCircle className="w-3.5 h-3.5 text-amber-400" />
+                                                    Message
+                                                </a>
+                                            ) : null}
+                                            {contact.displayPhone && (
+                                                <a
+                                                    href={`tel:${contact.displayPhone}`}
                                                     onClick={(e) => { e.stopPropagation(); updateLeadStatus(lead.id, "CONTACTED"); }}
                                                     className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-extrabold bg-amber-400 text-slate-900 hover:bg-amber-500 transition-colors shadow-sm"
                                                 >
@@ -280,38 +351,43 @@ export default function TeacherLeadsPage() {
                                 </span>
                             </div>
                         </div>
-                    ))}
+                    );})}
                 </div>
             )}
 
             {/* Lead Detail & Status Modal */}
-            {selectedLead && (
+            {selectedLead && (() => {
+                const contact = getLeadDisplayInfo(selectedLead, session?.user);
+                return (
                 <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                     <div className="bg-white rounded-3xl w-full max-w-lg p-6 sm:p-8 space-y-6 shadow-2xl">
                         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-xl bg-amber-50 text-[#ffb800] flex items-center justify-center font-bold shrink-0 overflow-hidden">
                                     {selectedLead.student.user.profilePhoto ? (
-                                        <img src={selectedLead.student.user.profilePhoto} alt={selectedLead.student.user.name} className="w-full h-full object-cover" />
+                                        <img src={selectedLead.student.user.profilePhoto} alt={contact.displayName} className="w-full h-full object-cover" />
                                     ) : (
                                         <User className="w-5 h-5 text-[#ffb800]" />
                                     )}
                                 </div>
                                 <div>
-                                    <h3 className="text-base font-black text-slate-900">{selectedLead.student.user.name}</h3>
-                                    <p className="text-xs text-slate-500 font-medium">{selectedLead.student.user.email}</p>
+                                    <h3 className="text-base font-black text-slate-900">{contact.displayName}</h3>
+                                    <p className="text-xs text-slate-500 font-medium">
+                                        {contact.parentName && contact.parentName !== contact.displayName ? `Parent: ${contact.parentName} • ` : ""}
+                                        {contact.displayEmail ? contact.displayEmail : (contact.displayPhone ? `Ph: ${contact.displayPhone}` : "Parent Inquiry")}
+                                    </p>
                                 </div>
                             </div>
-                            <button onClick={() => setSelectedLead(null)} className="p-1.5 hover:bg-slate-100 rounded-xl">
+                            <button onClick={() => setSelectedLead(null)} className="p-1.5 hover:bg-slate-100 rounded-xl cursor-pointer">
                                 <X className="w-5 h-5 text-slate-400" />
                             </button>
                         </div>
 
                         {/* Contact Buttons */}
                         <div className="grid grid-cols-2 gap-3">
-                            {selectedLead.student.user.phone ? (
+                            {contact.displayPhone ? (
                                 <a
-                                    href={`tel:${selectedLead.student.user.phone}`}
+                                    href={`tel:${contact.displayPhone}`}
                                     onClick={() => updateLeadStatus(selectedLead.id, "CONTACTED")}
                                     className="py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-md transition-colors"
                                 >
@@ -322,16 +398,20 @@ export default function TeacherLeadsPage() {
                                 <div className="py-3 px-4 bg-slate-100 text-slate-400 font-bold text-xs rounded-xl text-center">No Phone Provided</div>
                             )}
 
-                            <a
-                                href={`https://wa.me/91${selectedLead.student.user.phone?.replace(/\D/g, "").slice(-10)}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={() => updateLeadStatus(selectedLead.id, "CONTACTED")}
-                                className="py-3 px-4 bg-[#ffb800] hover:bg-[#ffa000] text-slate-900 font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-md transition-colors"
-                            >
-                                <MessageCircle className="w-4 h-4" />
-                                <span>Message on WA</span>
-                            </a>
+                            {contact.displayPhone ? (
+                                <a
+                                    href={`https://wa.me/91${contact.displayPhone.replace(/\D/g, "").slice(-10)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={() => updateLeadStatus(selectedLead.id, "CONTACTED")}
+                                    className="py-3 px-4 bg-[#ffb800] hover:bg-[#ffa000] text-slate-900 font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-md transition-colors"
+                                >
+                                    <MessageCircle className="w-4 h-4" />
+                                    <span>Message on WA</span>
+                                </a>
+                            ) : (
+                                <div className="py-3 px-4 bg-slate-100 text-slate-400 font-bold text-xs rounded-xl text-center">No WhatsApp Available</div>
+                            )}
                         </div>
 
                         {/* Requirement Info */}
@@ -393,7 +473,7 @@ export default function TeacherLeadsPage() {
                         </div>
                     </div>
                 </div>
-            )}
+            );})()}
         </div>
     );
 }

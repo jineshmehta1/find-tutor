@@ -35,6 +35,8 @@
 
 import { Resend } from 'resend';
 import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 
@@ -119,23 +121,41 @@ export async function POST(req: Request) {
 
     // Create Lead in the database so it hooks up to the admin page
     try {
-      const targetEmail = (email || "").toLowerCase().trim();
+      const session = await getServerSession(authOptions);
+      const isStudentSession = session?.user?.role === "STUDENT";
+      const sessionEmail = isStudentSession && session?.user?.email ? session.user.email.toLowerCase().trim() : null;
+      const targetEmail = (sessionEmail || email || "").toLowerCase().trim();
       const targetPhone = (phone || "").trim();
+      const contactDisplayName = (parentName || studentName || "Student / Parent Contact").trim();
 
-      let student = await prisma.student.findFirst({
-        where: {
-          user: {
-            OR: [
-              ...(targetEmail ? [{ email: { equals: targetEmail, mode: "insensitive" as const } }] : []),
-              ...(targetPhone ? [{ phone: targetPhone }] : []),
-            ],
+      let student = null;
+      if (sessionEmail) {
+        student = await prisma.student.findFirst({
+          where: {
+            user: { email: { equals: sessionEmail, mode: "insensitive" } },
           },
-        },
-      });
+        });
+      }
 
       if (!student) {
-        const existingUser = await prisma.user.findFirst({
+        // Look for existing user with role STUDENT (do not attach to TEACHER accounts)
+        student = await prisma.student.findFirst({
           where: {
+            user: {
+              role: "STUDENT",
+              OR: [
+                ...(targetEmail ? [{ email: { equals: targetEmail, mode: "insensitive" as const } }] : []),
+                ...(targetPhone ? [{ phone: targetPhone }] : []),
+              ],
+            },
+          },
+        });
+      }
+
+      if (!student) {
+        const existingStudentUser = await prisma.user.findFirst({
+          where: {
+            role: "STUDENT",
             OR: [
               ...(targetEmail ? [{ email: { equals: targetEmail, mode: "insensitive" as const } }] : []),
               ...(targetPhone ? [{ phone: targetPhone }] : []),
@@ -144,26 +164,26 @@ export async function POST(req: Request) {
           include: { student: true },
         });
 
-        if (existingUser) {
-          if (existingUser.student) {
-            student = existingUser.student;
+        if (existingStudentUser) {
+          if (existingStudentUser.student) {
+            student = existingStudentUser.student;
           } else {
             student = await prisma.student.create({
               data: {
-                userId: existingUser.id,
+                userId: existingStudentUser.id,
                 subjects: JSON.stringify([course || "General"]),
               },
             });
           }
         } else {
-          const fallbackEmail = targetEmail || `user_${Date.now()}@aacharya.net`;
+          const fallbackEmail = targetEmail || `student_${Date.now()}@aacharya.net`;
           const fallbackPhone = targetPhone || "0000000000";
           const dummyPassword = Math.random().toString(36).slice(-8);
           const passwordHash = await bcrypt.hash(dummyPassword, 10);
 
           const newUser = await prisma.user.create({
             data: {
-              name: studentName || parentName || "Anonymous User",
+              name: contactDisplayName,
               email: fallbackEmail,
               phone: fallbackPhone,
               password: passwordHash,
@@ -185,14 +205,27 @@ export async function POST(req: Request) {
       }
 
       if (student) {
+        // Build contact prefix to guarantee student/parent name is always visible
+        const contactHeader = parentName ? `Parent / Contact: ${parentName}${studentName && studentName !== parentName ? ` (Student: ${studentName})` : ""}` : "";
+        const formattedMessage = contactHeader && !message?.includes("Parent / Contact:")
+          ? `${contactHeader} | ${message || "Admission Query"}`
+          : (message || `Admission Query: ${queryType || "None"}`);
+
+        // Extract location string if present
+        let parsedLocation = "Vijayawada";
+        if (message && message.includes("Location: ")) {
+          const locPart = message.split("Location: ")[1]?.split(".")[0];
+          if (locPart && locPart.trim()) parsedLocation = locPart.trim();
+        }
+
         await prisma.lead.create({
           data: {
             studentId: student.id,
             subject: course || queryType || "General Inquiry",
             classLevel: experience || "General",
             mode: age || "General",
-            message: message || `Admission Query: ${queryType || "None"}`,
-            location: "Vijayawada",
+            message: formattedMessage,
+            location: parsedLocation,
             status: "PENDING"
           }
         });

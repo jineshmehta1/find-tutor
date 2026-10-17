@@ -26,7 +26,7 @@ import {
     HelpCircle, PhoneCall, Mail, Facebook, Twitter, 
     Instagram, Linkedin, ArrowUpRight, ArrowRight, Filter,
     CheckCircle, UserCheck, Timer, Smile, Laptop, 
-    Home, School, BookMarked, Sparkles, Loader2, Phone, Compass
+    Home, School, BookMarked, Sparkles, Loader2, Phone, Compass, Lock
 } from "lucide-react";
 
 
@@ -322,7 +322,7 @@ function FindTutorNearbyPageContent() {
     const subjectRef = useRef<HTMLDivElement>(null);
     const listingRef = useRef<HTMLDivElement>(null);
 
-    /* ── 4.4 Click Outside ── */
+    /* ── 4.4 Click Outside & Restore Saved Requirement ── */
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (heroMapRef.current && !heroMapRef.current.contains(event.target as Node)) setShowHeroMap(false);
@@ -331,6 +331,26 @@ function FindTutorNearbyPageContent() {
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
+
+    useEffect(() => {
+        try {
+            const saved = sessionStorage.getItem("pending_nearby_requirement");
+            if (saved) {
+                const p = JSON.parse(saved);
+                if (p.reqLocation) setReqLocation(p.reqLocation);
+                if (p.reqLat) setReqLat(p.reqLat);
+                if (p.reqLng) setReqLng(p.reqLng);
+                if (p.reqSubject) setReqSubject(p.reqSubject);
+                if (p.reqClass) setReqClass(p.reqClass);
+                if (p.reqMode) setReqMode(p.reqMode);
+                if (p.reqMessage) setReqMessage(p.reqMessage);
+                if (session?.user) {
+                    toast.success("Welcome back! Your saved requirement details were restored.");
+                    sessionStorage.removeItem("pending_nearby_requirement");
+                }
+            }
+        } catch (e) {}
+    }, [session]);
 
     /* ── 4.5 Data Fetching ── */
     useEffect(() => {
@@ -687,8 +707,13 @@ function FindTutorNearbyPageContent() {
 
     const handlePostRequirement = async () => {
         if (!session) {
-            toast.error("Please login first to post requirements.");
-            router.push("/signup");
+            try {
+                sessionStorage.setItem("pending_nearby_requirement", JSON.stringify({
+                    reqLocation, reqLat, reqLng, reqSubject, reqClass, reqMode, reqMessage
+                }));
+            } catch (e) {}
+            toast.error("Account required. Please sign in or create an account to post your requirement.");
+            router.push("/signup/student?redirect=/find-tutor-nearby");
             return;
         }
         if (!reqSubject || !reqLocation) {
@@ -707,6 +732,9 @@ function FindTutorNearbyPageContent() {
                 }),
             });
             if (!res.ok) throw new Error("Submission failed");
+            try {
+                sessionStorage.removeItem("pending_nearby_requirement");
+            } catch (e) {}
             toast.success("Success! Verified tutors will reach out to you within 24 hours.");
             setReqLocation(""); setReqSubject(""); setReqMessage(""); setReqClass(""); setReqMode("");
         } catch (err) {
@@ -1463,6 +1491,55 @@ function FindTutorNearbyPageContent() {
             {/* RIGHT SIDE: THE FORM */}
             <div className="lg:w-2/3">
                 <div className="bg-white rounded-[2rem] md:rounded-[3rem] lg:rounded-[4rem] p-6 md:p-10 lg:p-16 shadow-2xl border border-slate-50 relative">
+                    {/* AUTH STATUS NOTIFICATION */}
+                    {session?.user ? (
+                        <div className="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 flex items-center justify-between gap-3 text-xs">
+                            <div className="flex items-center gap-2.5">
+                                <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                                <span className="font-bold">Posting as {session.user.name || session.user.email} (Linked to your student account)</span>
+                            </div>
+                            <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase">Verified</span>
+                        </div>
+                    ) : (
+                        <div className="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+                            <div className="flex items-center gap-2.5">
+                                <Lock className="w-4 h-4 text-amber-600 shrink-0" />
+                                <div>
+                                    <span className="font-extrabold block">Account Required to Post Requirements</span>
+                                    <span className="text-[11px] text-amber-800 font-medium">Please sign in or register so verified tutors can connect directly with you.</span>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0">
+                                <button 
+                                    onClick={() => {
+                                        try {
+                                            sessionStorage.setItem("pending_nearby_requirement", JSON.stringify({
+                                                reqLocation, reqLat, reqLng, reqSubject, reqClass, reqMode, reqMessage
+                                            }));
+                                        } catch (e) {}
+                                        router.push("/login?callbackUrl=/find-tutor-nearby");
+                                    }}
+                                    className="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-800 font-bold hover:bg-slate-50 cursor-pointer"
+                                >
+                                    Sign In
+                                </button>
+                                <button 
+                                    onClick={() => {
+                                        try {
+                                            sessionStorage.setItem("pending_nearby_requirement", JSON.stringify({
+                                                reqLocation, reqLat, reqLng, reqSubject, reqClass, reqMode, reqMessage
+                                            }));
+                                        } catch (e) {}
+                                        router.push("/signup/student?redirect=/find-tutor-nearby");
+                                    }}
+                                    className="px-3 py-1.5 rounded-xl bg-primary text-white font-extrabold hover:bg-primary/90 cursor-pointer"
+                                >
+                                    Sign Up
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10 mb-8 lg:mb-10">
                         {/* INPUTS COLUMN */}
                         <div className="space-y-6 lg:space-y-8">
@@ -1521,9 +1598,9 @@ function FindTutorNearbyPageContent() {
                     {/* SUBMIT BUTTON */}
                     <button 
                         onClick={handlePostRequirement} disabled={submittingReq}
-                        className="w-full h-16 md:h-20 bg-primary hover:bg-primary/95 text-white font-[1000] rounded-[1.5rem] md:rounded-[2.5rem] transition-all duration-300 shadow-2xl shadow-primary/20 active:scale-95 disabled:opacity-50 uppercase text-xs md:text-sm tracking-[0.25em]"
+                        className="w-full h-16 md:h-20 bg-primary hover:bg-primary/95 text-white font-[1000] rounded-[1.5rem] md:rounded-[2.5rem] transition-all duration-300 shadow-2xl shadow-primary/20 active:scale-95 disabled:opacity-50 uppercase text-xs md:text-sm tracking-[0.25em] cursor-pointer"
                     >
-                        {submittingReq ? "Submitting Request..." : "Submit Requirement Now"}
+                        {submittingReq ? "Submitting Request..." : !session ? "Sign In / Sign Up to Submit Requirement" : "Submit Requirement Now"}
                     </button>
                 </div>
             </div>

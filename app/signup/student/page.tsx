@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useRef, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { signIn, useSession } from "next-auth/react";
 import {
@@ -27,8 +27,10 @@ const STEPS = [
     { id: 3, title: "You're All Set!", desc: "Select learning preferences" },
 ];
 
-export default function StudentSignupPage() {
+function StudentSignupContent() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const redirectUrl = searchParams.get("redirect") || searchParams.get("callbackUrl");
     const { data: session } = useSession();
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
@@ -272,9 +274,9 @@ export default function StudentSignupPage() {
                     role: "STUDENT",
                 });
                 if (res?.ok) {
-                    window.location.href = "/student";
+                    window.location.href = redirectUrl || "/student";
                 } else {
-                    window.location.href = `/login?email=${encodeURIComponent(cleanEmail)}`;
+                    window.location.href = `/login?email=${encodeURIComponent(cleanEmail)}${redirectUrl ? `&callbackUrl=${encodeURIComponent(redirectUrl)}` : ""}`;
                 }
             }, 1200);
         } catch (error) {
@@ -1061,10 +1063,27 @@ export default function StudentSignupPage() {
 
                     <div className="pt-6 border-t border-slate-200/60 max-w-sm mx-auto text-xs font-bold text-slate-500">
                         <span>Already have an account? </span>
-                        <Link href="/login" className="text-amber-600 hover:underline font-black">Login here</Link>
+                        <Link 
+                            href={redirectUrl ? `/login?callbackUrl=${encodeURIComponent(redirectUrl)}` : "/login"} 
+                            className="text-amber-600 hover:underline font-black"
+                        >
+                            Login here
+                        </Link>
                     </div>
                 </div>
             </section>
         </div>
+    );
+}
+
+export default function StudentSignupPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-slate-50">
+                <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
+            </div>
+        }>
+            <StudentSignupContent />
+        </Suspense>
     );
 }

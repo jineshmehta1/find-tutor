@@ -1,16 +1,26 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { GraduationCap, User, ArrowRight, Sparkles, ChevronLeft } from "lucide-react";
 import { motion } from "framer-motion";
 
-export default function SignupPage() {
+function SignupContent() {
+    const searchParams = useSearchParams();
+    const redirectUrl = searchParams.get("redirect") || searchParams.get("callbackUrl");
+
+    const getRoleHref = (baseHref: string) => {
+        if (!redirectUrl) return baseHref;
+        return `${baseHref}?redirect=${encodeURIComponent(redirectUrl)}`;
+    };
+
     const roles = [
         {
             id: "student",
             label: "Student / Parent",
             icon: GraduationCap,
-            href: "/signup/student",
+            href: getRoleHref("/signup/student"),
             color: "from-[#ffb800] to-[#ffa000]",
             bgColor: "bg-amber-500/10",
             borderColor: "border-amber-500/25",
@@ -21,7 +31,7 @@ export default function SignupPage() {
             id: "teacher",
             label: "Teacher / Trainer",
             icon: User,
-            href: "/signup/teacher",
+            href: getRoleHref("/signup/teacher"),
             color: "from-amber-500 to-amber-600",
             bgColor: "bg-amber-500/10",
             borderColor: "border-amber-500/25",
@@ -120,7 +130,10 @@ export default function SignupPage() {
                 <div className="mt-10 text-center">
                     <p className="text-slate-400 text-xs font-semibold">
                         Already have an account?{" "}
-                        <Link href="/login" className="text-amber-400 font-extrabold hover:underline">
+                        <Link 
+                            href={redirectUrl ? `/login?callbackUrl=${encodeURIComponent(redirectUrl)}` : "/login"} 
+                            className="text-amber-400 font-extrabold hover:underline"
+                        >
                             Sign in
                         </Link>
                     </p>
@@ -132,5 +145,13 @@ export default function SignupPage() {
                 © {new Date().getFullYear()} Aacharya Academy Bhavanipuram. All Rights Reserved.
             </div>
         </div>
+    );
+}
+
+export default function SignupPage() {
+    return (
+        <Suspense fallback={null}>
+            <SignupContent />
+        </Suspense>
     );
 }

@@ -11,11 +11,13 @@ export async function POST(request: NextRequest) {
 
         let studentId = "";
 
-        if (session?.user) {
+        const isStudentSession = session?.user?.role === "STUDENT";
+        if (isStudentSession && session?.user?.email) {
             const student = await prisma.student.findFirst({
                 where: {
                     user: {
                         email: session.user.email,
+                        role: "STUDENT",
                     },
                 },
             });
@@ -25,12 +27,13 @@ export async function POST(request: NextRequest) {
         }
 
         if (!studentId) {
-            const targetEmail = (email || session?.user?.email || "").toLowerCase().trim();
+            const targetEmail = (email || (isStudentSession && session?.user?.email ? session.user.email : "") || "").toLowerCase().trim();
             const targetPhone = (phone || "").trim();
 
             let student = await prisma.student.findFirst({
                 where: {
                     user: {
+                        role: "STUDENT",
                         OR: [
                             ...(targetEmail ? [{ email: { equals: targetEmail, mode: "insensitive" as const } }] : []),
                             ...(targetPhone ? [{ phone: targetPhone }] : []),
@@ -40,9 +43,10 @@ export async function POST(request: NextRequest) {
             });
 
             if (!student) {
-                // Check if user exists by email or phone before attempting user creation
+                // Check if student user exists by email or phone before attempting user creation (exclude teachers)
                 const existingUser = await prisma.user.findFirst({
                     where: {
+                        role: "STUDENT",
                         OR: [
                             ...(targetEmail ? [{ email: { equals: targetEmail, mode: "insensitive" as const } }] : []),
                             ...(targetPhone ? [{ phone: targetPhone }] : []),
@@ -55,7 +59,7 @@ export async function POST(request: NextRequest) {
                     if (existingUser.student) {
                         student = existingUser.student;
                     } else {
-                        // Create student relation for existing user
+                        // Create student relation for existing student user
                         const newStudentRel = await prisma.student.create({
                             data: {
                                 userId: existingUser.id,
@@ -65,14 +69,14 @@ export async function POST(request: NextRequest) {
                         student = newStudentRel;
                     }
                 } else {
-                    const fallbackEmail = targetEmail || `anonymous_${Date.now()}@aacharya.net`;
+                    const fallbackEmail = targetEmail || `student_lead_${Date.now()}@aacharya.net`;
                     const fallbackPhone = targetPhone || "0000000000";
                     const randomPassword = Math.random().toString(36).slice(-8);
                     const passwordHash = await require("bcryptjs").hash(randomPassword, 10);
 
                     const newUser = await prisma.user.create({
                         data: {
-                            name: name || "Anonymous Student",
+                            name: name || "Student / Parent Contact",
                             email: fallbackEmail,
                             phone: fallbackPhone,
                             password: passwordHash,
@@ -104,11 +108,16 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        const contactHeader = name ? `Parent / Contact: ${name}` : "";
+        const formattedMessage = contactHeader && !message?.includes("Parent / Contact:")
+            ? `${contactHeader} | ${message || "Tuition Enquiry"}`
+            : (message || null);
+
         const lead = await prisma.lead.create({
             data: {
                 studentId: studentId,
                 teacherId: teacherId || null,
-                message: message || null,
+                message: formattedMessage,
                 location: location || null,
                 latitude: latitude ? parseFloat(latitude.toString()) : null,
                 longitude: longitude ? parseFloat(longitude.toString()) : null,

@@ -175,7 +175,8 @@ export default function MapLocationPicker({
     /* ─── Search debounce ─── */
     useEffect(() => {
         if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-        if (!searchQuery.trim() || searchQuery.length < 3) {
+        const trimmed = searchQuery.trim();
+        if (!trimmed || trimmed.length < 2) {
             setSearchResults([]);
             setShowResults(false);
             return;
@@ -184,11 +185,11 @@ export default function MapLocationPicker({
         searchTimeoutRef.current = setTimeout(async () => {
             const userLat = markerPos ? markerPos[0] : initialLat;
             const userLng = markerPos ? markerPos[1] : initialLng;
-            const results = await searchPlacesAccurate(searchQuery, userLat, userLng);
+            const results = await searchPlacesAccurate(trimmed, userLat, userLng);
             setSearchResults(results);
             setShowResults(results.length > 0);
             setIsSearching(false);
-        }, 400);
+        }, 250);
         return () => {
             if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
         };
@@ -211,14 +212,17 @@ export default function MapLocationPicker({
         const lng = parseFloat(result.lon);
         handlePlaceMarker(lat, lng);
         setSearchQuery("");
+        setShowResults(false);
     };
 
+    const resolvedHeight = height && !height.includes(" ") ? height : "240px";
+
     return (
-        <div ref={containerRef} className="space-y-3">
+        <div ref={containerRef} className="space-y-3 relative">
             {/* Search Bar + GPS Button */}
-            <div className="flex gap-2">
+            <div className="flex gap-2 relative z-50">
                 <div className="relative flex-1">
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
                         </svg>
@@ -226,27 +230,61 @@ export default function MapLocationPicker({
                     <input
                         type="text"
                         value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search for a place or address..."
-                        className={`w-full pl-9 pr-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:${theme.ring} focus:border-transparent outline-none bg-white text-sm`}
+                        onChange={(e) => {
+                            setSearchQuery(e.target.value);
+                            setShowResults(true);
+                        }}
+                        onFocus={() => {
+                            if (searchResults.length > 0 || searchQuery.trim().length >= 2) {
+                                setShowResults(true);
+                            }
+                        }}
+                        placeholder="Search for an area, street or pin (e.g. Bhavanipuram)..."
+                        className={`w-full pl-9 pr-9 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:${theme.ring} focus:border-transparent outline-none bg-white text-sm font-medium shadow-xs`}
                     />
-                    {isSearching && (
-                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    
+                    {/* Clear Button or Spinner */}
+                    {isSearching ? (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
                             <div className="w-4 h-4 border-2 border-slate-300 border-t-transparent rounded-full animate-spin" />
                         </div>
-                    )}
+                    ) : searchQuery ? (
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setSearchQuery("");
+                                setSearchResults([]);
+                                setShowResults(false);
+                            }}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                            title="Clear search"
+                        >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18" />
+                                <line x1="6" y1="6" x2="18" y2="18" />
+                            </svg>
+                        </button>
+                    ) : null}
 
                     {/* Search Results Dropdown */}
                     {showResults && searchResults.length > 0 && (
-                        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-[1000] max-h-48 overflow-y-auto">
+                        <div className="absolute top-full left-0 right-0 mt-1.5 bg-white border border-slate-200 rounded-xl shadow-2xl z-[9999] max-h-56 overflow-y-auto divide-y divide-slate-100">
                             {searchResults.map((result) => (
                                 <button
                                     key={result.place_id}
-                                    onClick={() => handleSelectResult(result)}
-                                    className="w-full text-left px-4 py-2.5 hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-b-0 flex items-start gap-2"
+                                    type="button"
+                                    onMouseDown={(e) => {
+                                        e.preventDefault();
+                                        handleSelectResult(result);
+                                    }}
+                                    className="w-full text-left px-3.5 py-2.5 hover:bg-amber-50/70 transition-colors flex items-start gap-2.5 cursor-pointer group"
                                 >
-                                    <span className="text-slate-400 mt-0.5 shrink-0">📍</span>
-                                    <span className="text-sm text-slate-700 line-clamp-2">{result.display_name}</span>
+                                    <span className="text-amber-500 mt-0.5 shrink-0 text-sm">📍</span>
+                                    <div className="min-w-0 flex-1">
+                                        <span className="text-xs sm:text-sm font-bold text-slate-800 line-clamp-2 group-hover:text-amber-800">
+                                            {result.display_name}
+                                        </span>
+                                    </div>
                                 </button>
                             ))}
                         </div>
@@ -258,7 +296,7 @@ export default function MapLocationPicker({
                     type="button"
                     onClick={handleUseMyLocation}
                     disabled={isLocating}
-                    className={`px-3 py-2.5 ${theme.bg} ${theme.text} rounded-xl ${theme.hoverBg} transition-all border ${theme.border} flex items-center gap-1.5 text-sm font-semibold whitespace-nowrap disabled:opacity-50 shrink-0`}
+                    className={`px-3 py-2.5 ${theme.bg} ${theme.text} rounded-xl ${theme.hoverBg} transition-all border ${theme.border} flex items-center gap-1.5 text-sm font-semibold whitespace-nowrap disabled:opacity-50 shrink-0 cursor-pointer shadow-xs`}
                     title="Use my current location"
                 >
                     {isLocating ? (
@@ -274,7 +312,7 @@ export default function MapLocationPicker({
             </div>
 
             {/* Map */}
-            <div className="rounded-xl overflow-hidden border border-slate-200 shadow-sm" style={{ height }}>
+            <div className="rounded-xl overflow-hidden border border-slate-200 shadow-sm relative z-10 w-full" style={{ height: resolvedHeight }}>
                 <MapContainer
                     center={markerPos || [DEFAULT_LAT, DEFAULT_LNG]}
                     zoom={markerPos ? 16 : DEFAULT_ZOOM}

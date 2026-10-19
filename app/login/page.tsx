@@ -106,15 +106,15 @@ export default function LoginPage() {
           </div>
         </Link>
 
-        <Link href="/" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-bold transition-all text-white">
+        <Link href="/" className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-bold transition-all text-white">
           <ChevronLeft className="w-4 h-4 text-amber-300" />
-          <span>Back to Home</span>
+          <span><span className="hidden sm:inline">Back to </span>Home</span>
         </Link>
       </div>
 
       {/* Login Card */}
-      <div className="flex-1 flex items-center justify-center relative z-10 py-8">
-        <div className="bg-white rounded-3xl p-6 sm:p-10 text-slate-900 shadow-2xl w-full max-w-md space-y-6 border border-slate-100">
+      <div className="flex-1 flex items-center justify-center relative z-10 py-6 sm:py-8">
+        <div className="bg-white rounded-3xl p-5 sm:p-8 md:p-10 text-slate-900 shadow-2xl w-full max-w-md space-y-6 border border-slate-100">
           
           <div className="text-center space-y-2">
             <div className="w-14 h-14 bg-amber-50 border-2 border-amber-200/80 rounded-2xl flex items-center justify-center mx-auto text-[#ffb800] shadow-sm">

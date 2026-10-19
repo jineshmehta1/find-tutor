@@ -59,7 +59,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </Link>
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="p-2 text-white hover:bg-white/10 rounded-xl"
+          className="p-2 text-white hover:bg-white/10 rounded-xl min-w-[40px] min-h-[40px] flex items-center justify-center cursor-pointer"
+          aria-label="Toggle Navigation"
         >
           {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
@@ -80,7 +81,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       )}>
         <div className="flex flex-col flex-1 min-h-0">
           {/* Brand Header */}
-          <div className="p-6 border-b border-white/10">
+          <div className="p-5 sm:p-6 border-b border-white/10 flex items-center justify-between">
             <Link href="/" className="flex items-center gap-3">
               <div className="bg-white p-1.5 rounded-xl shadow-md shrink-0">
                 <img src="/image.png" alt="Aacharya Academy" className="h-7 w-auto object-contain" />
@@ -93,6 +94,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </p>
               </div>
             </Link>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="lg:hidden p-1.5 text-slate-300 hover:text-white rounded-lg hover:bg-white/10 cursor-pointer"
+              aria-label="Close menu"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
 
           {/* Admin User Card */}
@@ -142,7 +150,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="p-4 border-t border-white/10 shrink-0">
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
-            className="flex items-center gap-3 w-full px-4 py-3 text-rose-300 hover:bg-rose-500/20 rounded-xl text-xs font-bold transition-colors"
+            className="flex items-center gap-3 w-full px-4 py-3 text-rose-300 hover:bg-rose-500/20 rounded-xl text-xs font-bold transition-colors cursor-pointer"
           >
             <LogOut className="w-4 h-4" />
             <span>Sign Out</span>
@@ -151,7 +159,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-6 lg:p-10 overflow-y-auto h-screen pt-16 lg:pt-10">
+      <main className="flex-1 p-4 sm:p-6 lg:p-10 overflow-y-auto min-w-0 h-[calc(100dvh-3.5rem)] lg:h-screen mt-14 lg:mt-0">
         {children}
       </main>
     </div>

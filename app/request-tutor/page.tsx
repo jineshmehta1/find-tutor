@@ -232,7 +232,7 @@ export default function RequestTutorPage() {
       <div className="container mx-auto px-4 max-w-7xl">
         
         {/* HERO BANNER */}
-        <div className="bg-[#ffb800] p-6 sm:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden mb-8">
+        <div className="bg-[#ffb800] p-5 sm:p-8 md:p-10 rounded-3xl text-white shadow-xl relative overflow-hidden mb-8">
           <div className="absolute top-0 right-0 w-80 h-80 bg-white/5 rounded-full blur-3xl pointer-events-none" />
           <div className="relative z-10 space-y-3 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 text-amber-300 text-xs font-bold tracking-wider uppercase border border-white/15">
@@ -252,7 +252,7 @@ export default function RequestTutorPage() {
           
           {/* LEFT SIDE PANEL: Trust Guarantees & Features */}
           <div className="lg:col-span-5 space-y-6">
-            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-md space-y-6">
+            <div className="bg-white p-5 sm:p-8 rounded-3xl border border-slate-200/80 shadow-md space-y-6">
               <h3 className="text-lg font-black text-slate-900 tracking-tight">Why Parents Choose Aacharya</h3>
               
               <div className="space-y-4">
@@ -309,7 +309,7 @@ export default function RequestTutorPage() {
 
           {/* RIGHT SIDE FORM CARD */}
           <div className="lg:col-span-7">
-            <div className="bg-white rounded-3xl p-6 sm:p-10 shadow-xl border border-slate-200/80 relative">
+            <div className="bg-white rounded-3xl p-4 sm:p-8 md:p-10 shadow-xl border border-slate-200/80 relative">
               <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
                 <div>
                   <h3 className="text-xl font-black text-slate-900 tracking-tight">Post Your Requirement</h3>

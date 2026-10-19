@@ -255,7 +255,42 @@ export async function searchPlacesAccurate(
   userLat?: number,
   userLng?: number
 ): Promise<NominatimPlace[]> {
-  if (!query.trim() || query.length < 2) return [];
+  const cleanQ = (query || "").trim();
+  if (!cleanQ || cleanQ.length < 2) return [];
+
+  // 1. Instant local match from KNOWN_LOCALITIES (0ms latency fallback)
+  const qNorm = cleanQ.toLowerCase().replace(/[^\w\s]/g, " ").replace(/\s+/g, " ").trim();
+  const qWords = qNorm.split(" ").filter((w) => w.length >= 2);
+  const localMatches: NominatimPlace[] = [];
+  const seenNames = new Set<string>();
+
+  for (const [key, loc] of Object.entries(KNOWN_LOCALITIES)) {
+    const keyNorm = key.toLowerCase();
+    const displayNorm = (loc.displayName || "").toLowerCase();
+    let isMatch = keyNorm.includes(qNorm) || displayNorm.includes(qNorm);
+    if (!isMatch && qWords.length > 1) {
+      isMatch = qWords.every((w) => keyNorm.includes(w) || displayNorm.includes(w));
+    }
+    if (isMatch) {
+      const displayName = loc.displayName || `${key.toUpperCase()}, Andhra Pradesh, India`;
+      if (!seenNames.has(displayName)) {
+        seenNames.add(displayName);
+        // Generate stable pseudo-ID from key string
+        let hash = 0;
+        for (let i = 0; i < key.length; i++) {
+          hash = (hash << 5) - hash + key.charCodeAt(i);
+          hash |= 0;
+        }
+        localMatches.push({
+          place_id: Math.abs(hash) || 99999,
+          display_name: displayName,
+          lat: String(loc.lat),
+          lon: String(loc.lng),
+        });
+      }
+      if (localMatches.length >= 8) break;
+    }
+  }
 
   let proximityLat = userLat;
   let proximityLng = userLng;
@@ -273,30 +308,66 @@ export async function searchPlacesAccurate(
     } catch {}
   }
 
-  const queryParams = new URLSearchParams({ q: query });
+  const queryParams = new URLSearchParams({ q: cleanQ });
   if (proximityLat !== undefined && proximityLng !== undefined && !isNaN(proximityLat) && !isNaN(proximityLng)) {
     queryParams.set("userLat", String(proximityLat));
     queryParams.set("userLng", String(proximityLng));
   }
 
+  // 2. Fetch from server API proxy
+  let serverResults: NominatimPlace[] = [];
   try {
-    const res = await fetch(`/api/geocode/search?${queryParams.toString()}`);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
+    const res = await fetch(`/api/geocode/search?${queryParams.toString()}`, { signal: controller.signal });
+    clearTimeout(timeoutId);
     if (res.ok) {
-      return await res.json();
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        serverResults = data;
+      }
     }
   } catch (err) {
     console.warn("Server search proxy failed, trying direct nominatim:", err);
   }
 
-  try {
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=6&countrycodes=in&addressdetails=1`
-    );
-    if (!res.ok) return [];
-    return await res.json();
-  } catch {
-    return [];
+  // 3. If server returned nothing and local returned nothing, fallback to direct OSM Nominatim
+  if (serverResults.length === 0 && localMatches.length === 0) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3500);
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cleanQ)}&limit=6&countrycodes=in&addressdetails=1`,
+        { signal: controller.signal }
+      );
+      clearTimeout(timeoutId);
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          serverResults = data;
+        }
+      }
+    } catch {}
   }
+
+  // 4. Merge results: curated/local matches first, then deduplicated external results
+  const combined: NominatimPlace[] = [...localMatches];
+  for (const sPlace of serverResults) {
+    const sName = (sPlace.display_name || "").toLowerCase();
+    const isDup = combined.some((c) => {
+      const cName = c.display_name.toLowerCase();
+      return (
+        cName === sName ||
+        (Math.abs(parseFloat(c.lat) - parseFloat(sPlace.lat)) < 0.003 &&
+          Math.abs(parseFloat(c.lon) - parseFloat(sPlace.lon)) < 0.003)
+      );
+    });
+    if (!isDup) {
+      combined.push(sPlace);
+    }
+  }
+
+  return combined.slice(0, 10);
 }
 
 // Enhanced comprehensive dictionary of known localities with high precision coordinates in AP, Telangana, and major Indian hubs.

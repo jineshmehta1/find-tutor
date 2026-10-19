@@ -143,7 +143,8 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
                 </div>
                 <button
                     onClick={() => setIsOpen(!isOpen)}
-                    className="bg-slate-950/10 hover:bg-slate-950/20 text-slate-950 p-2 rounded-xl border border-slate-950/10 transition-all"
+                    className="text-white hover:bg-white/10 p-2 rounded-xl border border-white/20 transition-all min-w-[40px] min-h-[40px] flex items-center justify-center cursor-pointer"
+                    aria-label="Toggle Navigation"
                 >
                     {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
                 </button>
@@ -268,7 +269,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
             </aside>
 
             {/* Main view container */}
-            <main className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto mt-14 lg:mt-0">
+            <main className="flex-1 flex flex-col min-w-0 h-[calc(100dvh-3.5rem)] lg:h-screen overflow-y-auto mt-14 lg:mt-0">
                 {/* Desktop Top Header Bar (Matching mock) */}
                 <header className="hidden lg:flex items-center justify-between px-8 py-4 bg-white border-b border-slate-100 shrink-0">
                     <div className="space-y-1">

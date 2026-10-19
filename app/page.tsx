@@ -4,8 +4,8 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
-import { 
-  Search, MapPin, Star, GraduationCap, Users, ShieldCheck, 
+import {
+  Search, MapPin, Star, GraduationCap, Users, ShieldCheck,
   Sparkles, BookOpen, Music, Code, Beaker, Swords, ArrowRight,
   MessageSquare, Laptop, ChevronRight, Palette, Activity,
   BrainCircuit, Clock, Locate, Phone
@@ -14,11 +14,11 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import MapLocationPicker from "@/components/ui/DynamicMapPicker";
 import { smartReverseGeocode, getBrowserCoordinates, getPublicLocality } from "@/lib/geoUtils";
-import { 
-  STANDARD_CLASSES, 
-  ACADEMIC_SUBJECTS, 
-  ACTIVITY_SUBJECTS, 
-  STANDARD_TEACHING_MODES 
+import {
+  STANDARD_CLASSES,
+  ACADEMIC_SUBJECTS,
+  ACTIVITY_SUBJECTS,
+  STANDARD_TEACHING_MODES
 } from "@/lib/classConstants";
 
 // Static constants TEACHERS and COACHES removed to force real database content only.
@@ -79,13 +79,13 @@ function ShowcaseCard({ item, isCoach }: { item: any; isCoach: boolean }) {
 
   return (
     <div className="bg-white border border-slate-100/90 rounded-[2rem] shadow-sm hover:shadow-xl hover:border-amber-200/60 transition-all duration-300 flex flex-col justify-between relative overflow-hidden group h-full text-left">
-      
+
       {/* Cover Image Header */}
       <div className="relative h-28 w-full overflow-hidden shrink-0">
         <div className="absolute inset-0 bg-slate-900/10 z-10" />
-        <img 
-          src={coverUrl} 
-          alt={item.subject} 
+        <img
+          src={coverUrl}
+          alt={item.subject}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         {/* Rating & Verification Badges */}
@@ -110,15 +110,14 @@ function ShowcaseCard({ item, isCoach }: { item: any; isCoach: boolean }) {
 
       {/* Profile info overlay & details */}
       <div className="p-5 pt-0 flex-1 flex flex-col justify-between space-y-4">
-        
+
         {/* Profile Avatar overlapping cover */}
         <div className="flex items-start gap-3 relative z-20 pt-2">
           <div className="relative w-16 h-16 shrink-0 -mt-8">
-            <div className={`profile-fallback w-16 h-16 rounded-full flex items-center justify-center font-black text-xl border-4 border-white shadow-md ${
-              isCoach 
-                ? "bg-gradient-to-tr from-indigo-500 to-purple-600 text-white" 
+            <div className={`profile-fallback w-16 h-16 rounded-full flex items-center justify-center font-black text-xl border-4 border-white shadow-md ${isCoach
+                ? "bg-gradient-to-tr from-indigo-500 to-purple-600 text-white"
                 : "bg-gradient-to-tr from-amber-400 to-orange-500 text-white"
-            }`}>
+              }`}>
               {item.name.charAt(0)}
             </div>
             {item.image && !imgError && (
@@ -130,7 +129,7 @@ function ShowcaseCard({ item, isCoach }: { item: any; isCoach: boolean }) {
               />
             )}
           </div>
-          
+
           <div className="min-w-0 flex-1 pt-0.5">
             <h4 className="font-extrabold text-base text-[#0f223a] group-hover:text-amber-500 transition-colors truncate leading-tight">
               {item.name}
@@ -143,7 +142,7 @@ function ShowcaseCard({ item, isCoach }: { item: any; isCoach: boolean }) {
 
         {/* Details Area */}
         <div className="space-y-2.5 w-full pt-1">
-          
+
           {/* Subjects Offered */}
           <div className="flex flex-wrap gap-1.5 items-center">
             {item.subjectsList && item.subjectsList.length > 0 ? (
@@ -190,18 +189,18 @@ function ShowcaseCard({ item, isCoach }: { item: any; isCoach: boolean }) {
 
         {/* Bottom Info Row */}
         <div className="w-full border-t border-slate-100 pt-3 flex items-center justify-between text-[10px] text-slate-500 font-bold">
-          <span className="flex items-center gap-1.5 text-slate-500 font-bold">
+          <span className="flex items-center gap-1.5 text-slate-500 font-bold shrink-0">
             <Clock className="w-3.5 h-3.5 shrink-0 text-amber-500" />
             <span>{item.experience}</span>
           </span>
-          <span className="flex items-center gap-1.5 text-slate-500 font-bold">
+          <span className="flex items-center gap-1.5 text-slate-500 font-bold min-w-0" title={item.location}>
             <MapPin className="w-3.5 h-3.5 shrink-0 text-amber-500" />
-            <span className="truncate max-w-[130px]">{item.location}</span>
+            <span className="truncate max-w-[90px] xs:max-w-[120px] sm:max-w-[140px]">{item.location}</span>
           </span>
         </div>
 
         {/* Action Buttons: Message, Call & View Full Profile (3 options side by side) */}
-        <div className="grid grid-cols-3 gap-1.5 pt-1">
+        <div className="grid grid-cols-3 gap-1 sm:gap-1.5 pt-1">
           <button
             onClick={() => {
               if (item.phone) {
@@ -211,11 +210,11 @@ function ShowcaseCard({ item, isCoach }: { item: any; isCoach: boolean }) {
                 window.location.href = `/tutor/${item.id}`;
               }
             }}
-            className="py-2.5 px-1 bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-[10px] sm:text-[11px] rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 shadow-xs active:scale-95 border-none"
+            className="py-2.5 px-1 bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-[9.5px] xs:text-[10px] sm:text-[11px] rounded-xl transition-all cursor-pointer flex items-center justify-center gap-0.5 sm:gap-1 shadow-xs active:scale-95 border-none"
             title="Message Tutor"
           >
-            <MessageSquare className="w-3.5 h-3.5 shrink-0" />
-            <span>Message</span>
+            <MessageSquare className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+            <span className="truncate">Message</span>
           </button>
 
           <button
@@ -226,19 +225,19 @@ function ShowcaseCard({ item, isCoach }: { item: any; isCoach: boolean }) {
                 window.location.href = `/tutor/${item.id}`;
               }
             }}
-            className="py-2.5 px-1 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[10px] sm:text-[11px] rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 shadow-xs active:scale-95 border-none"
+            className="py-2.5 px-1 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[9.5px] xs:text-[10px] sm:text-[11px] rounded-xl transition-all cursor-pointer flex items-center justify-center gap-0.5 sm:gap-1 shadow-xs active:scale-95 border-none"
             title="Call Tutor"
           >
-            <Phone className="w-3.5 h-3.5 shrink-0" />
+            <Phone className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
             <span>Call</span>
           </button>
-          
+
           <button
             onClick={() => window.location.href = `/tutor/${item.id}`}
-            className="py-2.5 px-1 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white font-black text-[10px] sm:text-[11px] rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 shadow-xs active:scale-95 border-none"
+            className="py-2.5 px-1 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white font-black text-[9.5px] xs:text-[10px] sm:text-[11px] rounded-xl transition-all cursor-pointer flex items-center justify-center gap-0.5 sm:gap-1 shadow-xs active:scale-95 border-none"
             title="View Full Profile"
           >
-            <span>Full Profile</span>
+            <span className="truncate"><span className="hidden sm:inline">Full </span>Profile</span>
             <ArrowRight className="w-3 h-3 shrink-0" />
           </button>
         </div>
@@ -286,20 +285,20 @@ export default function HomePage() {
         console.log("Fetched tutors successfully, count:", data.length, data);
         const teachersList: any[] = [];
         const coachesList: any[] = [];
-        
+
         data.forEach((item: any) => {
           const subjects = item.subjects || [];
           const isActivity = subjects.some((sub: string) => {
             const lower = sub.toLowerCase();
             return (
-              lower.includes("chess") || 
-              lower.includes("yoga") || 
-              lower.includes("abacus") || 
-              lower.includes("music") || 
-              lower.includes("dance") || 
-              lower.includes("cricket") || 
-              lower.includes("coach") || 
-              lower.includes("drawing") || 
+              lower.includes("chess") ||
+              lower.includes("yoga") ||
+              lower.includes("abacus") ||
+              lower.includes("music") ||
+              lower.includes("dance") ||
+              lower.includes("cricket") ||
+              lower.includes("coach") ||
+              lower.includes("drawing") ||
               lower.includes("art") ||
               lower.includes("sports") ||
               ACTIVITY_SUBJECTS.some(act => lower.includes(act.toLowerCase()))
@@ -408,12 +407,12 @@ export default function HomePage() {
     }
     if (searchClass) query.set("classLevel", searchClass);
     if (searchMode) query.set("mode", searchMode);
-    
+
     // Pass active tab filter if not custom selected
     if (activeSearchTab === "activities" && !searchSubject) {
       query.set("type", "coach");
     }
-    
+
     router.push(`/find-tutor-nearby?${query.toString()}#results`);
   };
 
@@ -421,7 +420,7 @@ export default function HomePage() {
     setSearchSubject(subjectName);
     if (isCoach) setActiveSearchTab("activities");
     else setActiveSearchTab("academics");
-    
+
     const query = new URLSearchParams();
     query.set("subject", subjectName);
     query.set("location", searchLocation);
@@ -454,10 +453,10 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans antialiased">
-      
+
       {/* 1. HERO SECTION */}
       <section className="relative overflow-hidden bg-white pt-10 pb-20 md:pt-14 md:pb-24 border-b border-slate-100">
-        
+
         {/* Dotted Grid Pattern in Top-Left */}
         <div className="absolute top-10 left-6 w-20 h-32 pointer-events-none opacity-40">
           <svg width="80" height="150" fill="currentColor" className="text-amber-500">
@@ -477,7 +476,7 @@ export default function HomePage() {
         <div className="absolute -top-26 right-0 w-[76%] h-[calc(100%+4rem)] z-10 hidden lg:block select-none pointer-events-none">
           {/* Smooth curved shape background behind image */}
           <div className="absolute inset-0 bg-[#fcf4e2] rounded-bl-[14rem] -z-10" />
-          
+
           <img
             src="/hero-bg.png"
             alt="Find Right Teacher Near You"
@@ -502,21 +501,21 @@ export default function HomePage() {
 
         <div className="max-w-[1400px] mx-auto px-4 md:px-8 relative z-20">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-y-8 lg:gap-y-0">
-            
+
             {/* LEFT HEADER AREA: TITLE & TAGLINE */}
             <div className="lg:col-span-7 space-y-4 text-left self-center pb-6 lg:pb-12">
-              <h1 className="text-4xl md:text-5xl lg:text-[3.25rem] font-extrabold tracking-tight leading-[1.12] text-[#0f223a]">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-extrabold tracking-tight leading-[1.12] text-[#0f223a]">
                 Find the Right <br />
                 Teacher <span className="text-[#ffb800]">Near You</span>
               </h1>
-              
-              <p className="text-slate-600 text-sm md:text-[15px] font-medium leading-relaxed max-w-xl">
+
+              <p className="text-slate-600 text-xs sm:text-sm md:text-[15px] font-medium leading-relaxed max-w-xl">
                 <strong className="font-extrabold text-[#0f223a]">AACHARYA</strong> connects students and parents with trusted teachers and coaches for Classes 1 to 12 – Academics, Activities & More.
               </p>
             </div>
 
             {/* MOBILE IMAGE AREA - Rendered only on mobile screens */}
-            <div className="lg:hidden w-full relative h-[240px] rounded-3xl overflow-hidden bg-slate-100/50 flex items-center justify-center border border-slate-200 shadow-inner">
+            <div className="lg:hidden w-full relative h-[200px] xs:h-[240px] rounded-3xl overflow-hidden bg-slate-100/50 flex items-center justify-center border border-slate-200 shadow-inner">
               <img
                 src="/hero-bg.png"
                 alt="Find Right Teacher Near You"
@@ -535,15 +534,15 @@ export default function HomePage() {
             </div>
 
             {/* FULL-WIDTH CARD WIDGET: OVERLAPS BOTTOM ROW */}
-            <div className="lg:col-span-12 bg-white rounded-3xl shadow-xl border border-slate-100 p-5 md:p-6 space-y-4">
-              
+            <div className="lg:col-span-12 bg-white rounded-3xl shadow-xl border border-slate-100 p-4 sm:p-5 md:p-6 space-y-4">
+
               <h3 className="text-slate-900 font-extrabold text-sm md:text-base text-left">
                 What are you looking for?
               </h3>
 
               {/* Tab Toggles */}
-              <div className="flex flex-col sm:flex-row border-b border-slate-100 pb-3.5 gap-4">
-                
+              <div className="flex flex-col sm:flex-row border-b border-slate-100 pb-3.5 gap-3 sm:gap-4">
+
                 {/* Tab 1: Academics */}
                 <button
                   type="button"
@@ -551,15 +550,13 @@ export default function HomePage() {
                     setActiveSearchTab("academics");
                     setSearchSubject("");
                   }}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 text-left border flex-1 cursor-pointer ${
-                    activeSearchTab === "academics" 
-                      ? "bg-[#fef9eb] border-[#fbebc6] text-slate-900 shadow-sm" 
+                  className={`flex items-center gap-3 p-3 sm:px-4 sm:py-3 rounded-2xl transition-all duration-200 text-left border flex-1 cursor-pointer ${activeSearchTab === "academics"
+                      ? "bg-[#fef9eb] border-[#fbebc6] text-slate-900 shadow-sm"
                       : "bg-white border-slate-200 text-slate-400 hover:bg-slate-50/50"
-                  }`}
+                    }`}
                 >
-                  <div className={`p-2 rounded-xl shrink-0 transition-colors ${
-                    activeSearchTab === "academics" ? "bg-amber-100 text-amber-600" : "bg-slate-100 text-slate-400"
-                  }`}>
+                  <div className={`p-2 rounded-xl shrink-0 transition-colors ${activeSearchTab === "academics" ? "bg-amber-100 text-amber-600" : "bg-slate-100 text-slate-400"
+                    }`}>
                     <GraduationCap className="w-5 h-5" />
                   </div>
                   <div className="leading-tight">
@@ -575,15 +572,13 @@ export default function HomePage() {
                     setActiveSearchTab("activities");
                     setSearchSubject("");
                   }}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 text-left border flex-1 cursor-pointer ${
-                    activeSearchTab === "activities" 
-                      ? "bg-[#f5f5ff] border-[#e0e0ff] text-slate-900 shadow-sm" 
+                  className={`flex items-center gap-3 p-3 sm:px-4 sm:py-3 rounded-2xl transition-all duration-200 text-left border flex-1 cursor-pointer ${activeSearchTab === "activities"
+                      ? "bg-[#f5f5ff] border-[#e0e0ff] text-slate-900 shadow-sm"
                       : "bg-white border-slate-200 text-slate-400 hover:bg-slate-50/50"
-                  }`}
+                    }`}
                 >
-                  <div className={`p-2 rounded-xl shrink-0 transition-colors ${
-                    activeSearchTab === "activities" ? "bg-indigo-100 text-indigo-600" : "bg-slate-100 text-slate-400"
-                  }`}>
+                  <div className={`p-2 rounded-xl shrink-0 transition-colors ${activeSearchTab === "activities" ? "bg-indigo-100 text-indigo-600" : "bg-slate-100 text-slate-400"
+                    }`}>
                     <Users className="w-5 h-5" />
                   </div>
                   <div className="leading-tight">
@@ -596,7 +591,7 @@ export default function HomePage() {
               {/* 5-Column Input Row Form */}
               <form onSubmit={handleSearchSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 text-slate-700">
-                  
+
                   {/* Subject Dropdown */}
                   <div className="space-y-1 text-left lg:col-span-3">
                     <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Subject / Activity</label>
@@ -637,7 +632,7 @@ export default function HomePage() {
                   {/* Location Input */}
                   <div className="space-y-1 text-left lg:col-span-3">
                     <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Location</label>
-                    <div 
+                    <div
                       className="relative flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2 transition-colors hover:border-amber-500 cursor-pointer"
                       onClick={() => setIsLocationModalOpen(true)}
                     >
@@ -717,14 +712,14 @@ export default function HomePage() {
       {/* 2. SUB-HERO SPLIT BANNERS */}
       <section className="py-12 bg-white border-b border-slate-100">
         <div className="max-w-[1400px] mx-auto px-4 md:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+
             {/* Banner 1: For Students & Parents */}
-            <div className="bg-[#fff9e6] rounded-3xl p-6 md:p-8 flex items-start gap-5 border border-[#ffeebf] hover:shadow-lg transition-all duration-300">
-              <div className="w-14 h-14 bg-amber-500 rounded-full flex items-center justify-center shrink-0 text-slate-950">
-                <BookOpen className="w-7 h-7" />
+            <div className="bg-[#fff9e6] rounded-3xl p-5 sm:p-6 md:p-8 flex flex-col sm:flex-row items-start gap-4 sm:gap-5 border border-[#ffeebf] hover:shadow-lg transition-all duration-300">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-amber-500 rounded-2xl sm:rounded-full flex items-center justify-center shrink-0 text-slate-950">
+                <BookOpen className="w-6 h-6 sm:w-7 sm:h-7" />
               </div>
-              <div className="space-y-4">
+              <div className="space-y-4 w-full">
                 <div>
                   <h3 className="text-lg md:text-xl font-black text-slate-900 leading-tight">For Students & Parents</h3>
                   <p className="text-slate-500 text-xs md:text-sm font-medium mt-1">
@@ -733,7 +728,7 @@ export default function HomePage() {
                 </div>
                 <button
                   onClick={() => router.push("/find-tutor-nearby")}
-                  className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs uppercase tracking-widest rounded-xl transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer"
+                  className="w-full sm:w-auto px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs uppercase tracking-widest rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
                 >
                   <span>Browse Teachers & Coaches</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -742,11 +737,11 @@ export default function HomePage() {
             </div>
 
             {/* Banner 2: Can't Find Right Teacher */}
-            <div className="bg-[#eef4fc] rounded-3xl p-6 md:p-8 flex items-start gap-5 border border-[#d6e4f8] hover:shadow-lg transition-all duration-300">
-              <div className="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center shrink-0 text-white">
-                <Users className="w-7 h-7" />
+            <div className="bg-[#eef4fc] rounded-3xl p-5 sm:p-6 md:p-8 flex flex-col sm:flex-row items-start gap-4 sm:gap-5 border border-[#d6e4f8] hover:shadow-lg transition-all duration-300">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-blue-600 rounded-2xl sm:rounded-full flex items-center justify-center shrink-0 text-white">
+                <Users className="w-6 h-6 sm:w-7 sm:h-7" />
               </div>
-              <div className="space-y-4">
+              <div className="space-y-4 w-full">
                 <div>
                   <h3 className="text-lg md:text-xl font-black text-slate-900 leading-tight">Can't Find the Right Teacher?</h3>
                   <p className="text-slate-500 text-xs md:text-sm font-medium mt-1">
@@ -755,7 +750,7 @@ export default function HomePage() {
                 </div>
                 <button
                   onClick={() => router.push("/request-tutor")}
-                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer"
+                  className="w-full sm:w-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
                 >
                   <span>Post Requirement</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -768,28 +763,28 @@ export default function HomePage() {
       </section>
 
       {/* 3. HOW IT WORKS SECTION */}
-      <section id="how-it-works" className="py-16 md:py-20 bg-white">
-        <div className="max-w-[1400px] mx-auto px-4 md:px-8 space-y-12">
-          
+      <section id="how-it-works" className="py-12 sm:py-16 md:py-20 bg-white">
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8 space-y-8 sm:space-y-12">
+
           <div className="space-y-2 text-center">
             <h2 className="text-2xl md:text-3.5xl font-extrabold text-slate-900 tracking-tight">How It Works</h2>
             <div className="w-12 h-1 bg-[#ffb800] mx-auto rounded-full" />
           </div>
 
-          <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8 lg:gap-3 max-w-5xl mx-auto pt-4">
-            
+          <div className="grid grid-cols-2 lg:flex lg:flex-row items-start justify-between gap-x-3 sm:gap-x-6 gap-y-6 sm:gap-y-8 lg:gap-3 max-w-5xl mx-auto pt-2 sm:pt-4">
+
             {/* Step 1 */}
-            <div className="flex-1 flex flex-col items-center lg:items-start text-center lg:text-left space-y-3.5 max-w-xs">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-[#f3e5f5] text-[#9c27b0] flex items-center justify-center border border-[#e1bee7] font-bold shadow-sm shrink-0">
-                  <Search className="w-7 h-7" />
+            <div className="flex-1 flex flex-col items-center text-center lg:items-start lg:text-left space-y-2 sm:space-y-3.5 max-w-xs mx-auto">
+              <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 lg:gap-4">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-[#f3e5f5] text-[#9c27b0] flex items-center justify-center border border-[#e1bee7] font-bold shadow-sm shrink-0">
+                  <Search className="w-5 h-5 sm:w-7 sm:h-7" />
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-5 h-5 rounded-full bg-[#ffb800] text-slate-900 font-extrabold text-[10px] flex items-center justify-center shrink-0">1</span>
-                  <h4 className="font-extrabold text-sm text-[#0f223a] uppercase tracking-wider">Search</h4>
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#ffb800] text-slate-900 font-extrabold text-[9px] sm:text-[10px] flex items-center justify-center shrink-0">1</span>
+                  <h4 className="font-extrabold text-xs sm:text-sm text-[#0f223a] uppercase tracking-wider">Search</h4>
                 </div>
               </div>
-              <p className="text-[12px] text-slate-500 leading-relaxed font-medium pl-0 lg:pl-4">
+              <p className="text-[11px] sm:text-[12px] text-slate-500 leading-snug sm:leading-relaxed font-medium pl-0 lg:pl-4">
                 Search by subject/activity, class, location and preferred mode.
               </p>
             </div>
@@ -802,17 +797,17 @@ export default function HomePage() {
             </div>
 
             {/* Step 2 */}
-            <div className="flex-1 flex flex-col items-center lg:items-start text-center lg:text-left space-y-3.5 max-w-xs">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-[#fff3e0] text-[#f57c00] flex items-center justify-center border border-[#ffe0b2] font-bold shadow-sm shrink-0">
-                  <Users className="w-7 h-7" />
+            <div className="flex-1 flex flex-col items-center text-center lg:items-start lg:text-left space-y-2 sm:space-y-3.5 max-w-xs mx-auto">
+              <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 lg:gap-4">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-[#fff3e0] text-[#f57c00] flex items-center justify-center border border-[#ffe0b2] font-bold shadow-sm shrink-0">
+                  <Users className="w-5 h-5 sm:w-7 sm:h-7" />
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-5 h-5 rounded-full bg-[#ffb800] text-slate-900 font-extrabold text-[10px] flex items-center justify-center shrink-0">2</span>
-                  <h4 className="font-extrabold text-sm text-[#0f223a] uppercase tracking-wider">Connect</h4>
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#ffb800] text-slate-900 font-extrabold text-[9px] sm:text-[10px] flex items-center justify-center shrink-0">2</span>
+                  <h4 className="font-extrabold text-xs sm:text-sm text-[#0f223a] uppercase tracking-wider">Connect</h4>
                 </div>
               </div>
-              <p className="text-[12px] text-slate-500 leading-relaxed font-medium pl-0 lg:pl-4">
+              <p className="text-[11px] sm:text-[12px] text-slate-500 leading-snug sm:leading-relaxed font-medium pl-0 lg:pl-4">
                 View profiles, compare and connect with the best match.
               </p>
             </div>
@@ -825,17 +820,17 @@ export default function HomePage() {
             </div>
 
             {/* Step 3 */}
-            <div className="flex-1 flex flex-col items-center lg:items-start text-center lg:text-left space-y-3.5 max-w-xs">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-[#e8f5e9] text-[#2e7d32] flex items-center justify-center border border-[#c8e6c9] font-bold shadow-sm shrink-0">
-                  <MessageSquare className="w-7 h-7" />
+            <div className="flex-1 flex flex-col items-center text-center lg:items-start lg:text-left space-y-2 sm:space-y-3.5 max-w-xs mx-auto">
+              <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 lg:gap-4">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-[#e8f5e9] text-[#2e7d32] flex items-center justify-center border border-[#c8e6c9] font-bold shadow-sm shrink-0">
+                  <MessageSquare className="w-5 h-5 sm:w-7 sm:h-7" />
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-5 h-5 rounded-full bg-[#ffb800] text-slate-900 font-extrabold text-[10px] flex items-center justify-center shrink-0">3</span>
-                  <h4 className="font-extrabold text-sm text-[#0f223a] uppercase tracking-wider">Communicate</h4>
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#ffb800] text-slate-900 font-extrabold text-[9px] sm:text-[10px] flex items-center justify-center shrink-0">3</span>
+                  <h4 className="font-extrabold text-xs sm:text-sm text-[#0f223a] uppercase tracking-wider">Communicate</h4>
                 </div>
               </div>
-              <p className="text-[12px] text-slate-500 leading-relaxed font-medium pl-0 lg:pl-4">
+              <p className="text-[11px] sm:text-[12px] text-slate-500 leading-snug sm:leading-relaxed font-medium pl-0 lg:pl-4">
                 Discuss requirements, schedule classes and finalize details.
               </p>
             </div>
@@ -848,17 +843,17 @@ export default function HomePage() {
             </div>
 
             {/* Step 4 */}
-            <div className="flex-1 flex flex-col items-center lg:items-start text-center lg:text-left space-y-3.5 max-w-xs">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-[#e3f2fd] text-[#1565c0] flex items-center justify-center border border-[#bbdefb] font-bold shadow-sm shrink-0">
-                  <GraduationCap className="w-7 h-7" />
+            <div className="flex-1 flex flex-col items-center text-center lg:items-start lg:text-left space-y-2 sm:space-y-3.5 max-w-xs mx-auto">
+              <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 lg:gap-4">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-[#e3f2fd] text-[#1565c0] flex items-center justify-center border border-[#bbdefb] font-bold shadow-sm shrink-0">
+                  <GraduationCap className="w-5 h-5 sm:w-7 sm:h-7" />
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-5 h-5 rounded-full bg-[#ffb800] text-slate-900 font-extrabold text-[10px] flex items-center justify-center shrink-0">4</span>
-                  <h4 className="font-extrabold text-sm text-[#0f223a] uppercase tracking-wider">Start Learning</h4>
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#ffb800] text-slate-900 font-extrabold text-[9px] sm:text-[10px] flex items-center justify-center shrink-0">4</span>
+                  <h4 className="font-extrabold text-xs sm:text-sm text-[#0f223a] uppercase tracking-wider">Start Learning</h4>
                 </div>
               </div>
-              <p className="text-[12px] text-slate-500 leading-relaxed font-medium pl-0 lg:pl-4">
+              <p className="text-[11px] sm:text-[12px] text-slate-500 leading-snug sm:leading-relaxed font-medium pl-0 lg:pl-4">
                 Begin your learning journey with the right teacher or coach.
               </p>
             </div>
@@ -871,7 +866,7 @@ export default function HomePage() {
       <section className="py-16 md:py-20 bg-white border-y border-slate-100">
         <div className="max-w-[1400px] mx-auto px-4 md:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-            
+
             {/* LEFT COLUMN: Top Academic Teachers */}
             <div className="lg:col-span-6 flex flex-col space-y-6">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3 shrink-0">
@@ -884,7 +879,7 @@ export default function HomePage() {
                   <ChevronRight className="w-3.5 h-3.5" />
                 </a>
               </div>
-              
+
               {/* Grid of Teachers - 2 per row */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
                 {apiError ? (
@@ -902,10 +897,10 @@ export default function HomePage() {
                   </div>
                 ) : (
                   displayTeachers.slice(0, 4).map((teacher, idx) => (
-                    <ShowcaseCard 
-                      key={idx} 
-                      item={teacher} 
-                      isCoach={false} 
+                    <ShowcaseCard
+                      key={idx}
+                      item={teacher}
+                      isCoach={false}
                     />
                   ))
                 )}
@@ -945,10 +940,10 @@ export default function HomePage() {
                   </div>
                 ) : (
                   displayCoaches.slice(0, 4).map((coach, idx) => (
-                    <ShowcaseCard 
-                      key={idx} 
-                      item={coach} 
-                      isCoach={true} 
+                    <ShowcaseCard
+                      key={idx}
+                      item={coach}
+                      isCoach={true}
                     />
                   ))
                 )}
@@ -960,63 +955,63 @@ export default function HomePage() {
       </section>
 
       {/* 5. WHY CHOOSE AACHARYA? */}
-      <section className="py-16 md:py-20 bg-slate-50">
-        <div className="max-w-[1400px] mx-auto px-4 md:px-8 text-center space-y-12">
-          
+      <section className="py-12 sm:py-16 md:py-20 bg-slate-50">
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8 text-center space-y-8 sm:space-y-12">
+
           <div className="space-y-2">
             <h2 className="text-2xl md:text-3.5xl font-black text-slate-900 tracking-tight">Why Choose AACHARYA?</h2>
             <div className="w-12 h-1 bg-amber-500 mx-auto rounded-full" />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center max-w-[1200px] mx-auto">
-            
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-8 items-stretch lg:items-center max-w-[1200px] mx-auto">
+
             {/* Left Column: 3 Reasons */}
-            <div className="space-y-6 flex flex-col justify-center">
+            <div className="contents lg:flex lg:flex-col lg:space-y-6 lg:justify-center">
               {/* Reason 1 */}
-              <div className="bg-white rounded-2xl p-5 border border-slate-100 flex flex-col lg:flex-row-reverse lg:text-right items-center lg:items-start gap-4 shadow-sm hover:shadow-md transition-all duration-300">
-                <div className="w-12 h-12 bg-green-50 text-green-600 rounded-full flex items-center justify-center border border-green-100 shrink-0">
-                  <ShieldCheck className="w-6 h-6" />
+              <div className="bg-white rounded-2xl p-3 sm:p-5 border border-slate-100 flex flex-col lg:flex-row-reverse items-center lg:items-start text-center lg:text-right gap-2 sm:gap-4 shadow-sm hover:shadow-md transition-all duration-300 justify-center">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-50 text-green-600 rounded-full flex items-center justify-center border border-green-100 shrink-0">
+                  <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
                 <div className="space-y-1">
-                  <h4 className="font-extrabold text-sm text-slate-900 leading-tight">Trusted & Verified</h4>
-                  <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
+                  <h4 className="font-extrabold text-xs sm:text-sm text-slate-900 leading-tight">Trusted & Verified</h4>
+                  <p className="text-[10px] sm:text-[11px] text-slate-500 leading-snug sm:leading-relaxed font-medium">
                     All teachers & coaches are verified for quality and trust.
                   </p>
                 </div>
               </div>
 
               {/* Reason 2 */}
-              <div className="bg-white rounded-2xl p-5 border border-slate-100 flex flex-col lg:flex-row-reverse lg:text-right items-center lg:items-start gap-4 shadow-sm hover:shadow-md transition-all duration-300">
-                <div className="w-12 h-12 bg-pink-50 text-pink-600 rounded-full flex items-center justify-center border border-pink-100 shrink-0">
-                  <Users className="w-6 h-6" />
+              <div className="bg-white rounded-2xl p-3 sm:p-5 border border-slate-100 flex flex-col lg:flex-row-reverse items-center lg:items-start text-center lg:text-right gap-2 sm:gap-4 shadow-sm hover:shadow-md transition-all duration-300 justify-center">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-pink-50 text-pink-600 rounded-full flex items-center justify-center border border-pink-100 shrink-0">
+                  <Users className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
                 <div className="space-y-1">
-                  <h4 className="font-extrabold text-sm text-slate-900 leading-tight">Trusted by Parents</h4>
-                  <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
+                  <h4 className="font-extrabold text-xs sm:text-sm text-slate-900 leading-tight">Trusted by Parents</h4>
+                  <p className="text-[10px] sm:text-[11px] text-slate-500 leading-snug sm:leading-relaxed font-medium">
                     Loved by thousands of parents across your city.
                   </p>
                 </div>
               </div>
 
               {/* Reason 3 */}
-              <div className="bg-white rounded-2xl p-5 border border-slate-100 flex flex-col lg:flex-row-reverse lg:text-right items-center lg:items-start gap-4 shadow-sm hover:shadow-md transition-all duration-300">
-                <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center border border-blue-100 shrink-0">
-                  <ShieldCheck className="w-6 h-6" />
+              <div className="bg-white rounded-2xl p-3 sm:p-5 border border-slate-100 flex flex-col lg:flex-row-reverse items-center lg:items-start text-center lg:text-right gap-2 sm:gap-4 shadow-sm hover:shadow-md transition-all duration-300 justify-center">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center border border-blue-100 shrink-0">
+                  <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
                 <div className="space-y-1">
-                  <h4 className="font-extrabold text-sm text-slate-900 leading-tight">Safe & Secure</h4>
-                  <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
+                  <h4 className="font-extrabold text-xs sm:text-sm text-slate-900 leading-tight">Safe & Secure</h4>
+                  <p className="text-[10px] sm:text-[11px] text-slate-500 leading-snug sm:leading-relaxed font-medium">
                     Your information is protected and completely private.
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Center Column: Image */}
-            <div className="flex justify-center items-center py-4 lg:py-0">
+            {/* Center Column: Image (Desktop only - removed on mobile) */}
+            <div className="hidden lg:flex justify-center items-center py-4 lg:py-0">
               <div className="relative group">
                 <div className="absolute -inset-1 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full blur-xl opacity-20 group-hover:opacity-35 transition duration-1000 group-hover:duration-200" />
-                <img 
+                <img
                   src="/tutor-new-removebg-preview.png"
                   alt="Why Choose Aacharya"
                   className="relative w-full max-w-[280px] sm:max-w-[320px] lg:max-w-[360px] object-contain transition-transform duration-500 group-hover:scale-105"
@@ -1025,41 +1020,41 @@ export default function HomePage() {
             </div>
 
             {/* Right Column: 3 Reasons */}
-            <div className="space-y-6 flex flex-col justify-center">
+            <div className="contents lg:flex lg:flex-col lg:space-y-6 lg:justify-center">
               {/* Reason 4 */}
-              <div className="bg-white rounded-2xl p-5 border border-slate-100 flex flex-col lg:flex-row lg:text-left items-center lg:items-start gap-4 shadow-sm hover:shadow-md transition-all duration-300">
-                <div className="w-12 h-12 bg-orange-50 text-orange-600 rounded-full flex items-center justify-center border border-orange-100 shrink-0">
-                  <MapPin className="w-6 h-6" />
+              <div className="bg-white rounded-2xl p-3 sm:p-5 border border-slate-100 flex flex-col lg:flex-row items-center lg:items-start text-center lg:text-left gap-2 sm:gap-4 shadow-sm hover:shadow-md transition-all duration-300 justify-center">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-50 text-orange-600 rounded-full flex items-center justify-center border border-orange-100 shrink-0">
+                  <MapPin className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
                 <div className="space-y-1">
-                  <h4 className="font-extrabold text-sm text-slate-900 leading-tight">Nearby Teachers</h4>
-                  <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
+                  <h4 className="font-extrabold text-xs sm:text-sm text-slate-900 leading-tight">Nearby Teachers</h4>
+                  <p className="text-[10px] sm:text-[11px] text-slate-500 leading-snug sm:leading-relaxed font-medium">
                     Find the best teachers and coaches in your area.
                   </p>
                 </div>
               </div>
 
               {/* Reason 5 */}
-              <div className="bg-white rounded-2xl p-5 border border-slate-100 flex flex-col lg:flex-row lg:text-left items-center lg:items-start gap-4 shadow-sm hover:shadow-md transition-all duration-300">
-                <div className="w-12 h-12 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center border border-purple-100 shrink-0">
-                  <Laptop className="w-6 h-6" />
+              <div className="bg-white rounded-2xl p-3 sm:p-5 border border-slate-100 flex flex-col lg:flex-row items-center lg:items-start text-center lg:text-left gap-2 sm:gap-4 shadow-sm hover:shadow-md transition-all duration-300 justify-center">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center border border-purple-100 shrink-0">
+                  <Laptop className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
                 <div className="space-y-1">
-                  <h4 className="font-extrabold text-sm text-slate-900 leading-tight">Flexible Learning</h4>
-                  <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
+                  <h4 className="font-extrabold text-xs sm:text-sm text-slate-900 leading-tight">Flexible Learning</h4>
+                  <p className="text-[10px] sm:text-[11px] text-slate-500 leading-snug sm:leading-relaxed font-medium">
                     Choose Home Tutor, Online or At Tutor's Place.
                   </p>
                 </div>
               </div>
 
               {/* Reason 6 */}
-              <div className="bg-white rounded-2xl p-5 border border-slate-100 flex flex-col lg:flex-row lg:text-left items-center lg:items-start gap-4 shadow-sm hover:shadow-md transition-all duration-300">
-                <div className="w-12 h-12 bg-yellow-50 text-yellow-600 rounded-full flex items-center justify-center border border-yellow-100 shrink-0">
-                  <Star className="w-6 h-6" />
+              <div className="bg-white rounded-2xl p-3 sm:p-5 border border-slate-100 flex flex-col lg:flex-row items-center lg:items-start text-center lg:text-left gap-2 sm:gap-4 shadow-sm hover:shadow-md transition-all duration-300 justify-center">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-50 text-yellow-600 rounded-full flex items-center justify-center border border-yellow-100 shrink-0">
+                  <Star className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
                 <div className="space-y-1">
-                  <h4 className="font-extrabold text-sm text-slate-900 leading-tight">Better Results</h4>
-                  <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
+                  <h4 className="font-extrabold text-xs sm:text-sm text-slate-900 leading-tight">Better Results</h4>
+                  <p className="text-[10px] sm:text-[11px] text-slate-500 leading-snug sm:leading-relaxed font-medium">
                     Personalized guidance that helps students excel.
                   </p>
                 </div>
@@ -1073,7 +1068,7 @@ export default function HomePage() {
       {/* 6. POPULAR ACTIVITIES & SUBJECTS */}
       <section className="py-16 md:py-20 bg-white border-b border-slate-100">
         <div className="max-w-[1400px] mx-auto px-4 md:px-8 text-center space-y-12">
-          
+
           <div className="space-y-2">
             <h2 className="text-2xl md:text-3.5xl font-black text-slate-900 tracking-tight">Popular Activities & Subjects</h2>
             <div className="w-12 h-1 bg-amber-500 mx-auto rounded-full" />
@@ -1089,14 +1084,14 @@ export default function HomePage() {
                   className="relative h-36 rounded-2xl overflow-hidden group shadow-sm hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-pointer w-full text-left"
                 >
                   {/* Background Image */}
-                  <img 
-                    src={activity.image} 
+                  <img
+                    src={activity.image}
                     alt={activity.name}
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 pointer-events-none"
                   />
                   {/* Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/40 to-transparent z-10" />
-                  
+
                   {/* Content Container */}
                   <div className="absolute bottom-4 left-4 right-4 z-20 flex flex-col space-y-1.5 text-white">
                     <div className="w-8 h-8 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shrink-0">
@@ -1109,7 +1104,7 @@ export default function HomePage() {
                 </button>
               );
             })}
-            
+
             {/* "More" Card */}
             <button
               onClick={() => router.push("/find-tutor-nearby")}
@@ -1117,7 +1112,7 @@ export default function HomePage() {
             >
               {/* Gradient Backdrop */}
               <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/30 to-orange-600/30 opacity-40 group-hover:opacity-60 transition-opacity" />
-              
+
               {/* Content Container */}
               <div className="absolute bottom-4 left-4 right-4 z-20 flex flex-col space-y-1.5 text-white">
                 <div className="w-8 h-8 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center shadow-lg group-hover:translate-x-1 transition-transform">
@@ -1141,7 +1136,7 @@ export default function HomePage() {
       {/* 7. WHAT PARENTS & STUDENTS SAY */}
       <section className="py-16 md:py-20 bg-slate-50 border-b border-slate-100 font-sans">
         <div className="max-w-[1400px] mx-auto px-4 md:px-8 space-y-12">
-          
+
           <div className="flex items-end justify-between border-b border-slate-200 pb-3">
             <div className="text-left space-y-1">
               <h2 className="text-2xl md:text-3.5xl font-black text-slate-900 tracking-tight leading-none">What Parents & Students Say</h2>
@@ -1156,14 +1151,14 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {TESTIMONIALS.map((test, idx) => (
               <div key={idx} className="bg-white border border-slate-100 rounded-3xl p-6 md:p-8 flex flex-col justify-between space-y-6 shadow-sm hover:shadow-md transition-shadow relative">
-                
+
                 {/* Custom Big Quote Icon */}
                 <div className="absolute top-6 right-6 text-slate-100 pointer-events-none select-none font-serif text-8xl leading-none">
                   ”
                 </div>
 
                 <div className="space-y-4 font-sans">
-                  
+
                   {/* Rating Stars */}
                   <div className="flex gap-0.5 text-amber-400">
                     {[...Array(test.rating)].map((_, i) => (
@@ -1207,12 +1202,12 @@ export default function HomePage() {
       {/* 8. ARE YOU A TEACHER OR COACH? CTA BANNER */}
       <section className="py-12 bg-white font-sans">
         <div className="max-w-[1400px] mx-auto px-4 md:px-8">
-          <div className="bg-[#091a30] text-white rounded-[2.5rem] p-8 md:p-12 flex flex-col lg:flex-row items-center justify-between gap-8 md:gap-12 relative overflow-hidden shadow-2xl">
-            
+          <div className="bg-[#091a30] text-white rounded-3xl md:rounded-[2.5rem] p-6 sm:p-8 md:p-12 flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8 md:gap-12 relative overflow-hidden shadow-2xl">
+
             {/* Background pattern */}
             <div className="absolute right-0 bottom-0 w-[40%] h-[150%] bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.03] rotate-12 pointer-events-none" />
 
-            <div className="space-y-4 max-w-xl text-left font-sans">
+            <div className="space-y-4 max-w-xl text-left font-sans w-full lg:w-auto">
               <h3 className="text-2xl md:text-3.5xl font-black tracking-tight leading-tight">
                 Are you a Teacher or Coach?
               </h3>
@@ -1222,8 +1217,8 @@ export default function HomePage() {
             </div>
 
             {/* Mid Feature Columns */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-6 text-left border-y border-white/10 lg:border-y-0 py-6 lg:py-0">
-              
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-6 text-left border-y border-white/10 lg:border-y-0 py-6 lg:py-0 w-full lg:w-auto">
+
               <div className="space-y-1">
                 <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center mb-2">
                   <Star className="w-4 h-4 text-amber-500 fill-current" />
@@ -1260,7 +1255,7 @@ export default function HomePage() {
 
             <button
               onClick={() => router.push("/signup/teacher")}
-              className="px-8 py-3.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs uppercase tracking-widest rounded-xl transition-all hover:scale-102 flex items-center gap-2 shrink-0 shadow-lg shadow-amber-500/10 cursor-pointer"
+              className="w-full sm:w-auto px-6 sm:px-8 py-3.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs uppercase tracking-widest rounded-xl transition-all hover:scale-102 flex items-center justify-center gap-2 shrink-0 shadow-lg shadow-amber-500/10 cursor-pointer"
             >
               <span>Join as a Teacher / Coach</span>
               <ArrowRight className="w-4 h-4" />

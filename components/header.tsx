@@ -81,17 +81,17 @@ const Header: React.FC = () => {
         <div className="max-w-[1400px] mx-auto px-4 md:px-8 flex items-center justify-between">
           
           {/* Logo Section */}
-          <a href="/" className="flex items-center gap-2.5 shrink-0">
+          <a href="/" className="flex items-center gap-2 sm:gap-2.5 shrink-0">
             <img
               src="/image.png"
               alt="Aacharya Academy"
-              className="w-10 h-10 md:w-12 md:h-12 object-contain"
+              className="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 object-contain shrink-0"
             />
             <div className="flex flex-col">
-              <span className="font-black text-xl md:text-2xl text-[#0f223a] tracking-tight leading-none uppercase">
+              <span className="font-black text-lg sm:text-xl md:text-2xl text-[#0f223a] tracking-tight leading-none uppercase">
                 AACHARYA
               </span>
-              <span className="text-[8px] md:text-[9px] font-black text-amber-500 tracking-wider mt-0.5 uppercase">
+              <span className="text-[7.5px] sm:text-[8.5px] md:text-[9px] font-black text-amber-500 tracking-wider mt-0.5 uppercase">
                 FIND TUTORS NEARBY
               </span>
             </div>
@@ -143,7 +143,7 @@ const Header: React.FC = () => {
           </nav>
 
           {/* Right Section: Buttons */}
-          <div className="flex items-center gap-3 md:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
             <div className="hidden md:flex items-center gap-3">
               {session ? (
                 <>
@@ -193,9 +193,10 @@ const Header: React.FC = () => {
             {/* Mobile Hamburger - Visible below XL */}
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="xl:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+              aria-label="Open mobile menu"
+              className="xl:hidden p-2 text-slate-700 hover:bg-slate-100/80 active:bg-slate-200 rounded-xl transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
             >
-              <MenuIcon className="w-8 h-8" />
+              <MenuIcon className="w-7 h-7 sm:w-8 sm:h-8" />
             </button>
           </div>
         </div>
@@ -203,38 +204,54 @@ const Header: React.FC = () => {
 
       {/* Mobile Menu Overlay */}
       <div className={`fixed inset-0 z-[100] xl:hidden transition-opacity duration-300 ${isMobileMenuOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"}`}>
-        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)} />
-        <div className={`absolute top-0 right-0 h-full w-[280px] bg-white shadow-2xl transition-transform duration-300 ease-in-out flex flex-col ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"}`}>
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)} />
+        <div className={`absolute top-0 right-0 h-full w-[85vw] max-w-xs bg-white shadow-2xl transition-transform duration-300 ease-in-out flex flex-col ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"}`}>
           
-          <div className="p-5 flex items-center justify-between border-b border-slate-100">
-            <span className="font-bold text-slate-900">Navigation</span>
-            <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-slate-500 hover:bg-slate-100 rounded-full">
+          <div className="p-4 sm:p-5 flex items-center justify-between border-b border-slate-100">
+            <div className="flex items-center gap-2">
+              <img src="/image.png" alt="Aacharya" className="w-8 h-8 object-contain" />
+              <span className="font-extrabold text-slate-900 text-sm">Navigation</span>
+            </div>
+            <button 
+              onClick={() => setIsMobileMenuOpen(false)} 
+              aria-label="Close menu"
+              className="p-2 text-slate-500 hover:bg-slate-100 rounded-full min-w-[40px] min-h-[40px] flex items-center justify-center"
+            >
               <XIcon className="w-6 h-6" />
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-5 space-y-1">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-1">
             {navItems.map((item) => (
-              <div key={item.name} className="py-2">
+              <div key={item.name} className="py-1">
                 {item.hasDropdown ? (
                   <>
                     <button
                       onClick={() => setMobileSubMenuOpen(mobileSubMenuOpen === item.name ? null : item.name)}
-                      className="flex items-center justify-between w-full text-left font-semibold text-slate-700 py-2"
+                      className="flex items-center justify-between w-full text-left font-bold text-slate-700 py-2.5 px-3 rounded-xl hover:bg-slate-50 transition-colors"
                     >
-                      {item.name}
+                      <span>{item.name}</span>
                       <ChevronDown className={`w-5 h-5 transition-transform ${mobileSubMenuOpen === item.name ? "rotate-180 text-primary" : ""}`} />
                     </button>
-                    <div className={`pl-4 overflow-hidden transition-all duration-300 ${mobileSubMenuOpen === item.name ? "max-h-60 mt-2" : "max-h-0"}`}>
+                    <div className={`pl-4 overflow-hidden transition-all duration-300 ${mobileSubMenuOpen === item.name ? "max-h-60 mt-1" : "max-h-0"}`}>
                       {item.subMenu?.map((sub) => (
-                        <a key={sub.name} href={sub.href} className="block py-2.5 text-sm font-medium text-slate-500 hover:text-primary">
+                        <a 
+                          key={sub.name} 
+                          href={sub.href} 
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className="block py-2 px-3 text-sm font-semibold text-slate-600 hover:text-primary rounded-lg hover:bg-slate-50 transition-colors"
+                        >
                           {sub.name}
                         </a>
                       ))}
                     </div>
                   </>
                 ) : (
-                  <a href={item.href} className="block py-2 font-semibold text-slate-700 hover:text-primary">
+                  <a 
+                    href={item.href} 
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="block py-2.5 px-3 font-bold text-slate-800 hover:text-amber-500 rounded-xl hover:bg-slate-50 transition-colors"
+                  >
                     {item.name}
                   </a>
                 )}
@@ -242,7 +259,7 @@ const Header: React.FC = () => {
             ))}
           </div>
 
-          <div className="p-5 border-t border-slate-100 bg-slate-50 gap-2.5 flex flex-col">
+          <div className="p-4 sm:p-5 border-t border-slate-100 bg-slate-50 gap-2.5 flex flex-col">
             {session ? (
               <>
                 <a
@@ -253,12 +270,16 @@ const Header: React.FC = () => {
                       ? "/teacher"
                       : "/student"
                   }
+                  onClick={() => setIsMobileMenuOpen(false)}
                   className="w-full py-3 text-center text-slate-800 font-bold border border-slate-200 rounded-xl bg-white shadow-sm"
                 >
                   Dashboard
                 </a>
                 <button
-                  onClick={() => signOut({ callbackUrl: "/" })}
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    signOut({ callbackUrl: "/" });
+                  }}
                   className="w-full py-3 text-center text-red-600 font-bold border border-red-200 rounded-xl bg-red-50"
                 >
                   Logout
@@ -267,17 +288,29 @@ const Header: React.FC = () => {
             ) : (
               <>
                 <div className="grid grid-cols-2 gap-2">
-                  <a href="/login" className="w-full py-2.5 text-center text-slate-800 font-extrabold border border-slate-200 rounded-xl bg-white shadow-sm hover:bg-slate-50 flex items-center justify-center gap-1 text-sm">
+                  <a 
+                    href="/login" 
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full py-2.5 text-center text-slate-800 font-extrabold border border-slate-200 rounded-xl bg-white shadow-sm hover:bg-slate-50 flex items-center justify-center gap-1 text-xs sm:text-sm"
+                  >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4 text-amber-500">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H8.25" />
                     </svg>
                     Sign In
                   </a>
-                  <a href="/signup" className="w-full py-2.5 text-center text-slate-950 font-extrabold rounded-xl bg-amber-500 hover:bg-amber-600 shadow-sm flex items-center justify-center gap-1 text-sm">
+                  <a 
+                    href="/signup" 
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full py-2.5 text-center text-slate-950 font-extrabold rounded-xl bg-amber-500 hover:bg-amber-600 shadow-sm flex items-center justify-center gap-1 text-xs sm:text-sm"
+                  >
                     Sign Up
                   </a>
                 </div>
-                <a href="/request-tutor" className="w-full py-3 text-center text-white bg-slate-900 hover:bg-slate-800 font-bold rounded-xl shadow-md text-sm">
+                <a 
+                  href="/request-tutor" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full py-3 text-center text-white bg-slate-900 hover:bg-slate-800 font-bold rounded-xl shadow-md text-xs sm:text-sm"
+                >
                   Request a Tutor
                 </a>
               </>

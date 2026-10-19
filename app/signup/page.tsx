@@ -58,34 +58,34 @@ function SignupContent() {
                     </div>
                 </Link>
 
-                <Link href="/" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-bold transition-all text-white">
+                <Link href="/" className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-bold transition-all text-white">
                     <ChevronLeft className="w-4 h-4 text-amber-300" />
-                    <span>Back to Home</span>
+                    <span><span className="hidden sm:inline">Back to </span>Home</span>
                 </Link>
             </div>
 
             {/* Role Cards Area */}
-            <div className="flex-grow flex flex-col justify-center items-center relative z-10 py-10 max-w-4xl mx-auto w-full">
+            <div className="flex-grow flex flex-col justify-center items-center relative z-10 py-6 sm:py-10 max-w-4xl mx-auto w-full">
                 
                 {/* Header */}
-                <div className="text-center mb-10 space-y-3">
+                <div className="text-center mb-8 sm:mb-10 space-y-3">
                     <div className="inline-flex items-center gap-2 bg-amber-500/20 text-amber-300 border border-amber-500/30 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
                         <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
                         <span>Join Our Community</span>
                     </div>
-                    <h1 className="text-3xl md:text-5xl font-black tracking-tight text-white">Create Your Account</h1>
+                    <h1 className="text-2xl sm:text-3xl md:text-5xl font-black tracking-tight text-white">Create Your Account</h1>
                     <p className="text-slate-300 text-xs md:text-sm font-semibold">Select how you want to register on Aacharya Platform</p>
                 </div>
 
                 {/* Grid */}
-                <div className="grid md:grid-cols-2 gap-6 w-full">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 w-full">
                     {roles.map((role) => {
                         const Icon = role.icon;
                         return (
                             <Link
                                 key={role.id}
                                 href={role.href}
-                                className={`group relative bg-white/5 border border-white/15 rounded-[2.5rem] p-8 transition-all duration-500 hover:shadow-2xl hover:scale-[1.02] hover:border-transparent overflow-hidden flex flex-col justify-between`}
+                                className={`group relative bg-white/5 border border-white/15 rounded-3xl sm:rounded-[2.5rem] p-6 sm:p-8 transition-all duration-500 hover:shadow-2xl hover:scale-[1.02] hover:border-transparent overflow-hidden flex flex-col justify-between`}
                             >
                                 {/* Background Gradient on Hover */}
                                 <div className={`absolute inset-0 bg-gradient-to-br ${role.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10`} />

@@ -225,7 +225,7 @@ export default function StudentDashboard() {
     };
 
     return (
-        <div className="space-y-6 pb-12 p-6 sm:p-8 bg-slate-50 min-h-[calc(100vh-70px)]">
+        <div className="space-y-6 pb-12 p-4 sm:p-6 md:p-8 bg-slate-50 min-h-[calc(100vh-70px)]">
             
             {/* Main grid columns */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -234,7 +234,7 @@ export default function StudentDashboard() {
                 <div className="lg:col-span-8 space-y-6">
                     
                     {/* Stats Metric Row */}
-                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 lg:gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 lg:gap-4">
                         
                         {/* Enquiries Sent */}
                         <div className="bg-white p-4 rounded-2xl border border-slate-200/50 shadow-sm flex flex-col justify-between h-[100px] hover:shadow-md transition-shadow">
@@ -313,7 +313,7 @@ export default function StudentDashboard() {
                     </div>
 
                     {/* Recent Enquiries table */}
-                    <div className="bg-white rounded-3xl border border-slate-200/50 shadow-sm p-6 space-y-4">
+                    <div className="bg-white rounded-3xl border border-slate-200/50 shadow-sm p-4 sm:p-6 space-y-4">
                         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                             <h3 className="text-[13px] font-black text-slate-900 uppercase tracking-wider">
                                 Recent Enquiries
@@ -323,7 +323,7 @@ export default function StudentDashboard() {
                             </Link>
                         </div>
 
-                        <div className="overflow-x-auto">
+                        <div className="overflow-x-auto w-full">
                             {leads.length === 0 ? (
                                 <div className="py-8 text-center text-slate-400 font-semibold text-xs space-y-2">
                                     <p>No active enquiries yet.</p>
@@ -332,7 +332,7 @@ export default function StudentDashboard() {
                                     </Link>
                                 </div>
                             ) : (
-                                <table className="w-full text-left border-collapse">
+                                <table className="w-full text-left border-collapse min-w-[550px]">
                                     <thead>
                                         <tr className="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-50 pb-2">
                                             <th className="pb-3">Subject / Activity</th>
@@ -412,7 +412,7 @@ export default function StudentDashboard() {
                                 No tutors registered yet. Tutors will appear here once approved.
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                 {teachers.slice(0, 4).map((tutor) => (
                                     <div key={tutor.id} className="bg-white rounded-3xl border border-slate-200/50 shadow-sm p-4 flex flex-col justify-between hover:shadow-md transition-shadow relative group">
                                         

@@ -327,7 +327,7 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
             </aside>
 
             {/* Main Content Pane */}
-            <main className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto mt-14 lg:mt-0">
+            <main className="flex-1 flex flex-col min-w-0 h-[calc(100dvh-3.5rem)] lg:h-screen overflow-y-auto mt-14 lg:mt-0">
                 {/* Desktop Top Header Bar */}
                 <header className="hidden lg:flex items-center justify-between px-8 py-4 bg-white border-b border-slate-100 shrink-0">
                     <div className="flex items-center gap-3">

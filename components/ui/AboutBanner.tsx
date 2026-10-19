@@ -10,7 +10,7 @@ import {
 
 const AboutBanner: React.FC = () => {
   return (
-    <div className="relative w-full bg-gradient-premium text-white overflow-hidden pt-0 pb-16 md:pt-16 md:pb-24">
+    <div className="relative w-full bg-gradient-premium text-white overflow-hidden pt-6 pb-12 sm:pb-16 md:pt-16 md:pb-24">
       
       {/* --- Ambient Background Lights & Grid --- */}
       <div className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] bg-primary/20 rounded-full blur-[140px] pointer-events-none animate-pulse-glow" />
@@ -18,7 +18,7 @@ const AboutBanner: React.FC = () => {
       <div className="absolute inset-0 opacity-5 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:28px_28px]" />
 
       {/* Main Content Container */}
-      <div className="max-w-[1400px] mx-auto px-4 md:px-8 relative z-10 space-y-10">
+      <div className="max-w-[1400px] mx-auto px-4 md:px-8 relative z-10 space-y-8 sm:space-y-10">
         
         {/* Breadcrumb Navigation Pill */}
         <div className="flex justify-center md:justify-start">
@@ -35,7 +35,7 @@ const AboutBanner: React.FC = () => {
         </div>
 
         {/* Hero Banner Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
           
           {/* Left Column: Heading & Platform Intro */}
           <motion.div 
@@ -57,27 +57,27 @@ const AboutBanner: React.FC = () => {
             </div>
 
             {/* Title */}
-            <h1 className="text-3xl md:text-5xl lg:text-5xl font-black tracking-tight leading-[1.08] text-white">
+            <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight leading-[1.08] text-white">
               Revolutionizing Private Tutoring & <span className="text-gradient-gold">Specialized Skills</span>
             </h1>
 
             {/* Paragraph Description */}
-            <p className="text-base md:text-lg text-slate-300 font-medium leading-relaxed max-w-2xl mx-auto lg:mx-0">
+            <p className="text-sm sm:text-base md:text-lg text-slate-300 font-medium leading-relaxed max-w-2xl mx-auto lg:mx-0">
               Aacharya Platform is Vijayawada’s premier tutor matching network and skill development academy. We eliminate unverified middleman agencies to connect parents with physically audited home tutors, live 1-on-1 online educators, Abacus trainers, Chess grandmasters, and JEE/NEET faculty.
             </p>
 
             {/* CTA Button Row */}
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
+            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 sm:gap-4 pt-2">
               <Link
                 href="/find-tutor-nearby"
-                className="px-7 py-3.5 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl shadow-lg shadow-primary/20 text-xs uppercase tracking-wider transition-all hover:scale-102 flex items-center gap-2"
+                className="w-full sm:w-auto px-7 py-3.5 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl shadow-lg shadow-primary/20 text-xs uppercase tracking-wider transition-all hover:scale-102 flex items-center justify-center gap-2"
               >
                 <span>Find Tutors Nearby</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
                 href="/request-tutor"
-                className="px-7 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl border border-white/15 backdrop-blur-md text-xs uppercase tracking-wider transition-all flex items-center gap-2"
+                className="w-full sm:w-auto px-7 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl border border-white/15 backdrop-blur-md text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2"
               >
                 <Zap className="w-4 h-4 text-amber-400" />
                 <span>Request a Tutor</span>
@@ -85,17 +85,17 @@ const AboutBanner: React.FC = () => {
             </div>
 
             {/* Bullet Trust Chips */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-4 text-xs font-semibold text-slate-300">
+            <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3 pt-4 text-xs font-semibold text-slate-300">
               <div className="flex items-center gap-2 justify-center lg:justify-start">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span>Physically Audited IDs</span>
               </div>
               <div className="flex items-center gap-2 justify-center lg:justify-start">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span>0% Hidden Commission</span>
               </div>
               <div className="flex items-center gap-2 justify-center lg:justify-start">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span>Free Trial Demo Class</span>
               </div>
             </div>
@@ -106,41 +106,41 @@ const AboutBanner: React.FC = () => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="lg:col-span-5 grid grid-cols-2 gap-4"
+            className="lg:col-span-5 grid grid-cols-2 gap-3 sm:gap-4"
           >
-            <div className="p-6 bg-white/10 backdrop-blur-xl border border-white/15 rounded-3xl space-y-2 hover:border-amber-400/40 transition-all shadow-xl">
-              <div className="w-10 h-10 bg-amber-500/20 text-amber-400 rounded-2xl flex items-center justify-center font-black">
-                <Users className="w-5 h-5" />
+            <div className="p-4 sm:p-6 bg-white/10 backdrop-blur-xl border border-white/15 rounded-2xl sm:rounded-3xl space-y-1.5 sm:space-y-2 hover:border-amber-400/40 transition-all shadow-xl">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 bg-amber-500/20 text-amber-400 rounded-xl sm:rounded-2xl flex items-center justify-center font-black">
+                <Users className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
-              <div className="text-3xl font-black text-white">5,000+</div>
-              <div className="text-xs font-bold text-slate-300 uppercase tracking-wider">Tutors Matched</div>
+              <div className="text-2xl sm:text-3xl font-black text-white">5,000+</div>
+              <div className="text-[11px] sm:text-xs font-bold text-slate-300 uppercase tracking-wider">Tutors Matched</div>
               <p className="text-[10px] text-slate-400 font-medium">Verified local & online instructors</p>
             </div>
 
-            <div className="p-6 bg-white/10 backdrop-blur-xl border border-white/15 rounded-3xl space-y-2 hover:border-emerald-400/40 transition-all shadow-xl">
-              <div className="w-10 h-10 bg-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center font-black">
-                <Star className="w-5 h-5 fill-current" />
+            <div className="p-4 sm:p-6 bg-white/10 backdrop-blur-xl border border-white/15 rounded-2xl sm:rounded-3xl space-y-1.5 sm:space-y-2 hover:border-emerald-400/40 transition-all shadow-xl">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 bg-emerald-500/20 text-emerald-400 rounded-xl sm:rounded-2xl flex items-center justify-center font-black">
+                <Star className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
               </div>
-              <div className="text-3xl font-black text-white">4.95★</div>
-              <div className="text-xs font-bold text-slate-300 uppercase tracking-wider">Parent Rating</div>
+              <div className="text-2xl sm:text-3xl font-black text-white">4.95★</div>
+              <div className="text-[11px] sm:text-xs font-bold text-slate-300 uppercase tracking-wider">Parent Rating</div>
               <p className="text-[10px] text-slate-400 font-medium">Over 1,200+ reviewed lessons</p>
             </div>
 
-            <div className="p-6 bg-white/10 backdrop-blur-xl border border-white/15 rounded-3xl space-y-2 hover:border-blue-400/40 transition-all shadow-xl">
-              <div className="w-10 h-10 bg-blue-500/20 text-blue-400 rounded-2xl flex items-center justify-center font-black">
-                <ShieldCheck className="w-5 h-5" />
+            <div className="p-4 sm:p-6 bg-white/10 backdrop-blur-xl border border-white/15 rounded-2xl sm:rounded-3xl space-y-1.5 sm:space-y-2 hover:border-blue-400/40 transition-all shadow-xl">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 bg-blue-500/20 text-blue-400 rounded-xl sm:rounded-2xl flex items-center justify-center font-black">
+                <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
-              <div className="text-3xl font-black text-white">100%</div>
-              <div className="text-xs font-bold text-slate-300 uppercase tracking-wider">Verified IDs</div>
+              <div className="text-2xl sm:text-3xl font-black text-white">100%</div>
+              <div className="text-[11px] sm:text-xs font-bold text-slate-300 uppercase tracking-wider">Verified IDs</div>
               <p className="text-[10px] text-slate-400 font-medium">Physical degree & address audit</p>
             </div>
 
-            <div className="p-6 bg-white/10 backdrop-blur-xl border border-white/15 rounded-3xl space-y-2 hover:border-purple-400/40 transition-all shadow-xl">
-              <div className="w-10 h-10 bg-purple-500/20 text-purple-400 rounded-2xl flex items-center justify-center font-black">
-                <Zap className="w-5 h-5" />
+            <div className="p-4 sm:p-6 bg-white/10 backdrop-blur-xl border border-white/15 rounded-2xl sm:rounded-3xl space-y-1.5 sm:space-y-2 hover:border-purple-400/40 transition-all shadow-xl">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 bg-purple-500/20 text-purple-400 rounded-xl sm:rounded-2xl flex items-center justify-center font-black">
+                <Zap className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
-              <div className="text-3xl font-black text-white">24 hrs</div>
-              <div className="text-xs font-bold text-slate-300 uppercase tracking-wider">Fast Matching</div>
+              <div className="text-2xl sm:text-3xl font-black text-white">24 hrs</div>
+              <div className="text-[11px] sm:text-xs font-bold text-slate-300 uppercase tracking-wider">Fast Matching</div>
               <p className="text-[10px] text-slate-400 font-medium">Instant quotes from local tutors</p>
             </div>
           </motion.div>

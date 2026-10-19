@@ -165,14 +165,14 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
           {/* Avatar */}
           <div className="relative shrink-0">
             {tutor.profilePhoto ? (
-              <img src={tutor.profilePhoto} alt={tutor.name} className="w-28 h-28 md:w-36 md:h-36 rounded-3xl object-cover border-4 border-slate-800 shadow-2xl" />
+              <img src={tutor.profilePhoto} alt={tutor.name} className="w-24 h-24 sm:w-28 sm:h-28 md:w-36 md:h-36 rounded-3xl object-cover border-4 border-slate-800 shadow-2xl" />
             ) : (
-              <div className="w-28 h-28 md:w-36 md:h-36 bg-amber-400 text-slate-950 rounded-3xl flex items-center justify-center font-black text-4xl md:text-5xl">
+              <div className="w-24 h-24 sm:w-28 sm:h-28 md:w-36 md:h-36 bg-amber-400 text-slate-950 rounded-3xl flex items-center justify-center font-black text-3xl sm:text-4xl md:text-5xl">
                 {tutor.name[0]}
               </div>
             )}
             <div className={`absolute -bottom-2 -right-2 p-2 rounded-2xl shadow-xl ${tutor.isApproved ? "bg-emerald-500 text-white" : "bg-amber-500 text-slate-950"}`}>
-              {tutor.isApproved ? <ShieldCheck className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
+              {tutor.isApproved ? <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" /> : <Clock className="w-4 h-4 sm:w-5 sm:h-5" />}
             </div>
           </div>
 
@@ -498,7 +498,7 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
         <div className="lg:col-span-4 space-y-6 md:space-y-8">
           
           {/* Rate / Booking Card */}
-          <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-xl space-y-6 text-center sticky top-6">
+          <div className="bg-white rounded-3xl p-5 sm:p-6 md:p-8 border border-slate-100 shadow-xl space-y-6 text-center lg:sticky lg:top-6">
             <div>
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
                 {tutor.feeType === "/month" ? "Monthly Fee Rate" : "Hourly Fee Rate"}

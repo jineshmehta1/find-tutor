@@ -1,5 +1,4 @@
-import type React from "react"
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
 import { Analytics } from "@vercel/analytics/next"
@@ -12,6 +11,13 @@ export const metadata: Metadata = {
   title: "Aacharya – Complete Learning Center for Children in Bhavanipuram, Vijayawada",
   description:
     "Aacharya Learning Hub in Bhavanipuram, Vijayawada offers Pre Primary School, Chess Academy, Robotics Center, Abacus training and Tuition for children. One campus for complete child development.",
+}
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#ffb800",
 }
 
 export default function RootLayout({

@@ -90,7 +90,7 @@ const ContactSection: React.FC = () => {
                
                {/* --- LEFT: Contact Info --- */}
                <div className="w-full lg:w-5/12">
-                  <div className="bg-slate-900 rounded-[2.5rem] p-8 md:p-12 text-white relative overflow-hidden shadow-2xl flex flex-col justify-between h-full space-y-12">
+                  <div className="bg-slate-900 rounded-3xl md:rounded-[2.5rem] p-6 sm:p-8 md:p-12 text-white relative overflow-hidden shadow-2xl flex flex-col justify-between h-full space-y-8 sm:space-y-12">
                      <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2"></div>
                      
                      <div className="space-y-6 relative z-10">
@@ -152,7 +152,7 @@ const ContactSection: React.FC = () => {
 
                {/* --- RIGHT: The Form --- */}
                <div className="w-full lg:w-7/12">
-                  <div className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-xl border border-slate-100/50">
+                  <div className="bg-white rounded-3xl md:rounded-[2.5rem] p-5 sm:p-8 md:p-12 shadow-xl border border-slate-100/50">
                      {status === 'success' ? (
                         <div className="text-center py-12 space-y-4">
                            <div className="w-16 h-16 bg-emerald-50 border border-emerald-100 text-emerald-500 rounded-full flex items-center justify-center mx-auto shadow-md">
@@ -240,7 +240,7 @@ const ContactSection: React.FC = () => {
                               </div>
 
                               {/* --- reCAPTCHA --- */}
-                              <div className="md:col-span-2">
+                              <div className="md:col-span-2 overflow-x-auto max-w-full py-1">
                                  <ReCAPTCHA
                                     ref={recaptchaRef}
                                     sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''}

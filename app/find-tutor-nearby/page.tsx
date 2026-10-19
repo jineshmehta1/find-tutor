@@ -883,13 +883,13 @@ function FindTutorNearbyPageContent() {
                                         <motion.div 
                                             ref={heroMapRef}
                                             initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                                            className="absolute top-[110%] right-0 w-[92vw] sm:w-[400px] md:w-[450px] bg-white rounded-[2rem] shadow-2xl border border-slate-100 p-4 md:p-6 z-[150]"
+                                            className="absolute top-[110%] right-0 w-[calc(100vw-32px)] max-w-[450px] sm:w-[400px] md:w-[450px] bg-white rounded-[2rem] shadow-2xl border border-slate-100 p-4 md:p-6 z-[150]"
                                         >
                                             <div className="flex items-center justify-between mb-4 px-2">
                                                 <span className="text-xs md:text-sm font-bold text-slate-900 uppercase tracking-wider">Select Location</span>
                                                 <X onClick={() => setShowHeroMap(false)} className="w-5 h-5 cursor-pointer text-slate-400 hover:text-slate-900" />
                                             </div>
-                                            <div className="rounded-2xl overflow-hidden border border-slate-50 shadow-inner">
+                                            <div className="rounded-2xl border border-slate-50 shadow-inner relative">
                                                 <MapLocationPicker
                                                     onLocationSelect={(loc) => {
                                                         setLocation(loc.address); 
@@ -1023,9 +1023,9 @@ function FindTutorNearbyPageContent() {
                 initial={{ opacity: 0, height: 0 }} 
                 animate={{ opacity: 1, height: "auto" }} 
                 exit={{ opacity: 0, height: 0 }}
-                className="mb-8 p-6 bg-slate-50 border border-slate-100 rounded-[2rem] overflow-hidden space-y-6"
+                className="mb-8 p-4 sm:p-6 bg-slate-50 border border-slate-100 rounded-3xl sm:rounded-[2rem] overflow-hidden space-y-6"
             >
-                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6">
                     {/* Subject Filter */}
                     <div className="space-y-2 relative">
                         <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Subject</label>
@@ -1365,7 +1365,7 @@ function FindTutorNearbyPageContent() {
                         </div>
 
                         {/* Footer / CTA Actions: 3 buttons side-by-side full width */}
-                        <div className="p-3 bg-slate-50/80 border-t border-slate-100 grid grid-cols-3 gap-1.5">
+                        <div className="p-2.5 sm:p-3 bg-slate-50/80 border-t border-slate-100 grid grid-cols-3 gap-1 sm:gap-1.5">
                             <button 
                                 onClick={() => {
                                     if (t.phone) {
@@ -1376,10 +1376,10 @@ function FindTutorNearbyPageContent() {
                                     }
                                 }}
                                 title="Message Tutor"
-                                className="py-2 px-1 bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-[10.5px] rounded-xl transition-all shadow-xs active:scale-95 cursor-pointer flex items-center justify-center gap-1 border-none"
+                                className="py-2.5 px-1 bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-[9.5px] xs:text-[10px] sm:text-[11px] rounded-xl transition-all shadow-xs active:scale-95 cursor-pointer flex items-center justify-center gap-0.5 sm:gap-1 border-none"
                             >
-                                <MessageSquare className="w-3.5 h-3.5 shrink-0" />
-                                <span>Message</span>
+                                <MessageSquare className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+                                <span className="truncate">Message</span>
                             </button>
                             <button 
                                 onClick={() => {
@@ -1390,16 +1390,17 @@ function FindTutorNearbyPageContent() {
                                     }
                                 }}
                                 title="Call Tutor"
-                                className="py-2 px-1 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[10.5px] rounded-xl transition-all shadow-xs active:scale-95 cursor-pointer flex items-center justify-center gap-1 border-none"
+                                className="py-2.5 px-1 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[9.5px] xs:text-[10px] sm:text-[11px] rounded-xl transition-all shadow-xs active:scale-95 cursor-pointer flex items-center justify-center gap-0.5 sm:gap-1 border-none"
                             >
-                                <Phone className="w-3.5 h-3.5 shrink-0" />
+                                <Phone className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
                                 <span>Call</span>
                             </button>
                             <button 
                                 onClick={() => router.push(`/tutor/${t.id}`)}
-                                className="py-2 px-1 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white font-black text-[10.5px] rounded-xl transition-all shadow-xs active:scale-95 cursor-pointer flex items-center justify-center gap-1 border-none"
+                                title="View Full Profile"
+                                className="py-2.5 px-1 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white font-black text-[9.5px] xs:text-[10px] sm:text-[11px] rounded-xl transition-all shadow-xs active:scale-95 cursor-pointer flex items-center justify-center gap-0.5 sm:gap-1 border-none"
                             >
-                                <span>Full Profile</span>
+                                <span className="truncate"><span className="hidden xs:inline">Full </span>Profile</span>
                                 <ArrowRight className="w-3 h-3 shrink-0" />
                             </button>
                         </div>
@@ -1576,10 +1577,10 @@ function FindTutorNearbyPageContent() {
                         {/* MAP COLUMN */}
                         <div className="space-y-2 md:space-y-3">
                             <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Exact Area / Pin</label>
-                            <div className="rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden border-2 md:border-4 border-slate-50 shadow-inner">
+                            <div className="rounded-[1.5rem] md:rounded-[2.5rem] p-2 sm:p-3 bg-slate-50/80 border-2 md:border-4 border-slate-50 shadow-inner relative">
                                 <MapLocationPicker
                                     onLocationSelect={(loc) => { setReqLocation(loc.address); setReqLat(loc.latitude); setReqLng(loc.longitude); }}
-                                    initialAddress={reqLocation} height="220px md:245px" compact={true} accentColor="amber"
+                                    initialAddress={reqLocation} height="240px" compact={true} accentColor="amber"
                                 />
                             </div>
                         </div>

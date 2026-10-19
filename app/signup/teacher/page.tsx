@@ -584,7 +584,7 @@ export default function TeacherSignupPage() {
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col font-sans antialiased text-slate-800">
             {/* Header Navbar Brand */}
-            <header className="w-full bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between z-10 shrink-0">
+            <header className="w-full bg-white border-b border-slate-100 px-4 sm:px-6 py-3.5 sm:py-4 flex items-center justify-between z-10 shrink-0">
                 <Link href="/" className="flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-lg bg-white p-0.5 shadow flex items-center justify-center shrink-0">
                         <img src="/image.png" alt="Aacharya Logo" className="w-full h-full object-contain" />
@@ -609,18 +609,18 @@ export default function TeacherSignupPage() {
                 </div>
 
                 {/* Auth Buttons */}
-                <div className="flex items-center gap-3">
-                    <Link href="/login" className="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 font-extrabold text-xs uppercase tracking-wider rounded-xl transition-all border border-slate-200 shadow-sm flex items-center gap-2">
+                <div className="flex items-center gap-2 sm:gap-3">
+                    <Link href="/login" className="px-3 sm:px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 font-extrabold text-xs uppercase tracking-wider rounded-xl transition-all border border-slate-200 shadow-sm flex items-center gap-1.5 sm:gap-2">
                         <User className="w-3.5 h-3.5" /> Login
                     </Link>
-                    <Link href="/signup" className="px-4 py-2 bg-[#ffb800] hover:bg-[#ffa000] text-slate-955 font-extrabold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md">
+                    <Link href="/signup" className="px-3 sm:px-4 py-2 bg-[#ffb800] hover:bg-[#ffa000] text-slate-955 font-extrabold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md">
                         Sign Up
                     </Link>
                 </div>
             </header>
 
             {/* Signup Form Container Wrapper */}
-            <div className="flex-grow flex items-center justify-center p-4 sm:p-8">
+            <div className="flex-grow flex items-center justify-center p-3 sm:p-6 md:p-8">
                 <div className="max-w-6xl w-full bg-white rounded-3xl shadow-xl overflow-hidden grid lg:grid-cols-12 min-h-[690px] border border-slate-100">
                     
                     {/* LEFT SIDEBAR: Overview & Progress Steps */}

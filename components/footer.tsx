@@ -83,14 +83,14 @@ export default function Footer() {
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Chat on WhatsApp"
-        className="fixed bottom-6 right-6 z-[100] group flex items-center justify-center"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[90] group flex items-center justify-center"
       >
         <span className="absolute w-full h-full bg-green-500 rounded-full animate-ping opacity-25"></span>
-        <span className="absolute w-14 h-14 bg-green-500 rounded-full animate-pulse opacity-40"></span>
+        <span className="absolute w-12 h-12 sm:w-14 sm:h-14 bg-green-500 rounded-full animate-pulse opacity-40"></span>
 
-        <div className="relative w-14 h-14 bg-[#25D366] text-white rounded-full flex items-center justify-center shadow-[0_10px_25px_rgba(37,211,102,0.4)] transition-all duration-300 group-hover:scale-110 group-hover:-translate-y-1">
-          <WhatsAppIcon className="w-8 h-8" />
-          <span className="absolute right-16 bg-white text-slate-900 text-xs font-bold px-3 py-1.5 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 whitespace-nowrap">
+        <div className="relative w-12 h-12 sm:w-14 sm:h-14 bg-[#25D366] text-white rounded-full flex items-center justify-center shadow-[0_10px_25px_rgba(37,211,102,0.4)] transition-all duration-300 group-hover:scale-110 group-hover:-translate-y-1">
+          <WhatsAppIcon className="w-7 h-7 sm:w-8 sm:h-8" />
+          <span className="absolute right-14 sm:right-16 bg-white text-slate-900 text-xs font-bold px-3 py-1.5 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 whitespace-nowrap">
             Chat with us!
             <span className="absolute -right-1 top-1/2 -translate-y-1/2 w-2 h-2 bg-white rotate-45"></span>
           </span>
@@ -106,7 +106,7 @@ export default function Footer() {
       </div>
 
       <div className="max-w-[1400px] mx-auto px-4 md:px-8 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 md:gap-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 md:gap-10">
 
           {/* 1. BRAND INFO */}
           <div className="space-y-5 lg:col-span-1">
@@ -114,7 +114,7 @@ export default function Footer() {
               <img
                 src="/image.png"
                 alt="Aacharya Academy"
-                className="w-10 h-10 object-contain bg-white rounded-full p-1"
+                className="w-10 h-10 object-contain bg-white rounded-full p-1 shrink-0"
               />
               <div className="flex flex-col">
                 <span className="font-black text-lg text-white leading-none tracking-tight">
@@ -156,7 +156,7 @@ export default function Footer() {
                 { name: "Find a Teacher", href: "/find-tutor-nearby" },
                 { name: "Find a Coach", href: "/find-tutor-nearby?type=coach" },
                 { name: "How It Works", href: "/#how-it-works" },
-                { name: "Post Requirement", href: "/#post-requirement" },
+                { name: "Post Requirement", href: "/request-tutor" },
                 { name: "Browse Subjects/Activities", href: "/find-tutor-nearby" },
                 { name: "Browse Locations", href: "/find-tutor-nearby" },
                 { name: "Help Center", href: "/contact" },
@@ -181,8 +181,8 @@ export default function Footer() {
                 { name: "Teacher / Coach Login", href: "/login" },
                 { name: "Create Your Profile", href: "/signup/teacher" },
                 { name: "Benefits", href: "/signup/teacher" },
-                { name: "Success Stories", href: "/#success-stories" },
-                { name: "Blog", href: "/" },
+                { name: "Success Stories", href: "/#how-it-works" },
+                { name: "Reviews", href: "/reviews" },
               ].map((link) => (
                 <li key={link.name}>
                   <a href={link.href} className="hover:text-amber-500 transition-colors">
@@ -203,8 +203,8 @@ export default function Footer() {
                 { name: "Help Center", href: "/contact" },
                 { name: "Contact Us", href: "/contact" },
                 { name: "Safety & Verification", href: "/about" },
-                { name: "Privacy Policy", href: "/privacy" },
-                { name: "Terms & Conditions", href: "/terms" },
+                { name: "About Us", href: "/about" },
+                { name: "Student Reviews", href: "/reviews" },
               ].map((link) => (
                 <li key={link.name}>
                   <a href={link.href} className="hover:text-amber-500 transition-colors">
@@ -223,11 +223,11 @@ export default function Footer() {
             <div className="space-y-3">
               <div className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-amber-500 shrink-0" />
-                <a href="tel:+918074103400" className="hover:text-amber-500">+91 80741 03400</a>
+                <a href="tel:+918074103400" className="hover:text-amber-500 break-words-anywhere">+91 80741 03400</a>
               </div>
               <div className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-amber-500 shrink-0" />
-                <a href="mailto:support@aacharya.net" className="hover:text-amber-500">support@aacharya.net</a>
+                <a href="mailto:support@aacharya.net" className="hover:text-amber-500 break-words-anywhere">support@aacharya.net</a>
               </div>
               <div className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />

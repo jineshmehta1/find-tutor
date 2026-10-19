@@ -1,9 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Star, MessageSquare, Quote, Sparkles, UserCheck, ShieldCheck, Heart, Award } from "lucide-react";
-import Header from "@/components/header";
-import Footer from "@/components/footer";
+import { Star, MessageSquare, Quote, Sparkles, ShieldCheck } from "lucide-react";
 
 interface Review {
     id: number;
@@ -36,18 +34,16 @@ export default function ReviewsPage() {
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans flex flex-col justify-between">
-            
-
-            <main className="max-w-[1400px] mx-auto px-4 md:px-8 py-10 w-full space-y-12 flex-1">
+            <main className="max-w-[1400px] mx-auto px-4 md:px-8 py-8 md:py-10 w-full space-y-8 md:space-y-12 flex-1">
                 {/* Hero Banner */}
-                <div className="bg-[#ffb800] p-8 sm:p-14 rounded-3xl text-white shadow-2xl relative overflow-hidden text-center sm:text-left">
+                <div className="bg-[#ffb800] p-5 sm:p-10 md:p-14 rounded-3xl text-white shadow-2xl relative overflow-hidden text-center sm:text-left">
                     <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none" />
                     <div className="relative z-10 space-y-4 max-w-3xl">
-                        <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 text-amber-300 text-xs font-black rounded-full border border-white/15 shadow-sm">
+                        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white/10 text-amber-300 text-xs font-black rounded-full border border-white/15 shadow-sm">
                             <Sparkles className="w-4 h-4 text-amber-300" />
                             <span>Parent & Student Testimonials</span>
                         </div>
-                        <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">What Parents & Students Say About Aacharya</h1>
+                        <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight">What Parents & Students Say About Aacharya</h1>
                         <p className="text-xs sm:text-base text-amber-100 font-medium leading-relaxed">
                             Verified reviews and testimonials from families in Bhavanipuram & Vijayawada taking home tuitions and academy coaching.
                         </p>
@@ -56,7 +52,7 @@ export default function ReviewsPage() {
 
                 {/* Reviews Feed */}
                 {loading ? (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                         {[1, 2, 3, 4, 5, 6].map((i) => (
                             <div key={i} className="h-56 bg-slate-200/60 rounded-3xl animate-pulse" />
                         ))}
@@ -68,7 +64,7 @@ export default function ReviewsPage() {
                         <p className="text-xs text-slate-500 max-w-sm mx-auto font-medium">Check back soon as parents share their learning experiences with Aacharya Academy.</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                         {reviews.map((rev, index) => {
                             const style = CARD_STYLES[index % CARD_STYLES.length];
                             const isDark = style.bg.includes("teal-900");
@@ -77,7 +73,7 @@ export default function ReviewsPage() {
                             return (
                                 <div
                                     key={rev.id}
-                                    className={`${style.bg} ${style.border} rounded-3xl p-7 sm:p-8 flex flex-col justify-between space-y-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl relative overflow-hidden`}
+                                    className={`${style.bg} ${style.border} rounded-3xl p-5 sm:p-6 md:p-8 flex flex-col justify-between space-y-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl relative overflow-hidden`}
                                 >
                                     <div className="space-y-4">
                                         <div className="flex items-center justify-between">
@@ -86,8 +82,8 @@ export default function ReviewsPage() {
                                                     <Star key={idx} className="w-3.5 h-3.5 fill-amber-400 stroke-amber-400" />
                                                 ))}
                                             </div>
-                                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${style.badge}`}>
-                                                Instructor: {rev.pageKey || "Tuition"}
+                                            <span className={`px-2.5 py-1 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider border truncate max-w-[140px] ${style.badge}`}>
+                                                {rev.pageKey || "Tuition"}
                                             </span>
                                         </div>
 
@@ -100,15 +96,15 @@ export default function ReviewsPage() {
                                     </div>
 
                                     <div className={`flex items-center gap-3 border-t pt-4 ${isDark ? "border-white/10" : isAmber ? "border-slate-950/15" : "border-slate-100"}`}>
-                                        <div className={`w-11 h-11 rounded-2xl flex items-center justify-center font-black text-sm shrink-0 shadow-md ${isDark ? "bg-white/15 text-white" : isAmber ? "bg-slate-950 text-amber-400" : "bg-[#ffb800] text-white"}`}>
+                                        <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-2xl flex items-center justify-center font-black text-sm shrink-0 shadow-md ${isDark ? "bg-white/15 text-white" : isAmber ? "bg-slate-950 text-amber-400" : "bg-[#ffb800] text-white"}`}>
                                             {rev.name.charAt(0)}
                                         </div>
-                                        <div>
-                                            <h4 className={`text-xs sm:text-sm font-black flex items-center gap-1.5 ${isDark ? "text-white" : isAmber ? "text-slate-950" : "text-slate-900"}`}>
-                                                <span>{rev.name}</span>
-                                                <ShieldCheck className={`w-4 h-4 inline ${isDark ? "text-amber-300" : isAmber ? "text-slate-950" : "text-emerald-600"}`} />
+                                        <div className="min-w-0 flex-1">
+                                            <h4 className={`text-xs sm:text-sm font-black flex items-center gap-1.5 truncate ${isDark ? "text-white" : isAmber ? "text-slate-950" : "text-slate-900"}`}>
+                                                <span className="truncate">{rev.name}</span>
+                                                <ShieldCheck className={`w-4 h-4 shrink-0 inline ${isDark ? "text-amber-300" : isAmber ? "text-slate-950" : "text-emerald-600"}`} />
                                             </h4>
-                                            <p className={`text-[11px] font-bold ${style.subtext}`}>{rev.role || "Verified Parent"}</p>
+                                            <p className={`text-[11px] font-bold truncate ${style.subtext}`}>{rev.role || "Verified Parent"}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -117,8 +113,6 @@ export default function ReviewsPage() {
                     </div>
                 )}
             </main>
-
-            <Footer />
         </div>
     );
 }

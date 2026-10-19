@@ -850,8 +850,9 @@ export async function GET(request: Request) {
             "Accept-Language": "en-US,en;q=0.9",
           },
           cache: "no-store",
+          signal: AbortSignal.timeout(3000),
         }
-      ).then((r) => (r.ok ? r.json() : [])),
+      ).then((r) => (r.ok ? r.json() : [])).catch(() => []),
     ];
 
     // If query doesn't specify a city, also query with "Vijayawada" to ensure regional completeness
@@ -865,6 +866,7 @@ export async function GET(request: Request) {
               "Accept-Language": "en-US,en;q=0.9",
             },
             cache: "no-store",
+            signal: AbortSignal.timeout(3000),
           }
         ).then((r) => (r.ok ? r.json() : [])).catch(() => [])
       );

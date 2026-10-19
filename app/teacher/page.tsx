@@ -294,7 +294,7 @@ export default function TeacherDashboard() {
     };
 
     return (
-        <div className="space-y-6 pb-12 p-6 sm:p-8 bg-slate-50 min-h-[calc(100vh-70px)]">
+        <div className="space-y-6 pb-12 p-4 sm:p-6 md:p-8 bg-slate-50 min-h-[calc(100vh-70px)]">
             
             {/* Pending Approval Banner */}
             {!isApproved && (
@@ -338,7 +338,7 @@ export default function TeacherDashboard() {
                 <div className="lg:col-span-8 space-y-6">
                     
                     {/* Stat Cards Row */}
-                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 lg:gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 lg:gap-4">
                         
                         {/* Card 1: Total Leads */}
                         <div className="bg-white p-4 rounded-2xl border border-slate-200/50 shadow-sm flex flex-col justify-between h-[110px] hover:shadow-md transition-shadow relative overflow-hidden">
@@ -454,8 +454,8 @@ export default function TeacherDashboard() {
 
                         {/* Recent Leads Tab Content */}
                         {activeTab === "recent" && (
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left border-collapse">
+                            <div className="overflow-x-auto w-full">
+                                <table className="w-full text-left border-collapse min-w-[600px]">
                                     <thead>
                                         <tr className="border-b border-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50/40">
                                             <th className="px-6 py-3.5">Name & Details</th>
@@ -601,8 +601,8 @@ export default function TeacherDashboard() {
                             </Link>
                         </div>
 
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left border-collapse">
+                        <div className="overflow-x-auto w-full">
+                            <table className="w-full text-left border-collapse min-w-[550px]">
                                 <thead>
                                     <tr className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
                                         <th className="pb-2">Requirement</th>

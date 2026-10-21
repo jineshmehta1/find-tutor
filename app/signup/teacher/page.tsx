@@ -22,8 +22,7 @@ const CLOUDINARY_UPLOAD_PRESET = "gallery";
 import { 
     ALL_STANDARD_SUBJECTS, 
     ACADEMIC_SUBJECTS, 
-    ALL_SUBJECT_SECTIONS, 
-    ACADEMIC_STREAMS 
+    ALL_SUBJECT_SECTIONS 
 } from "@/lib/classConstants";
 
 const SUBJECTS = ALL_STANDARD_SUBJECTS;
@@ -55,7 +54,6 @@ export default function TeacherSignupPage() {
     const certImageInputRef = useRef<HTMLInputElement>(null);
     const qualCertInputRef = useRef<HTMLInputElement>(null);
     const identityProofInputRef = useRef<HTMLInputElement>(null);
-    const achCertInputRef = useRef<HTMLInputElement>(null);
 
     const [formData, setFormData] = useState({
         name: "",
@@ -93,7 +91,6 @@ export default function TeacherSignupPage() {
     const [isUploadingCertImage, setIsUploadingCertImage] = useState(false);
     const [isUploadingQualCert, setIsUploadingQualCert] = useState(false);
     const [isUploadingIdentityProof, setIsUploadingIdentityProof] = useState(false);
-    const [isUploadingAchCert, setIsUploadingAchCert] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -105,7 +102,6 @@ export default function TeacherSignupPage() {
 
     const [subjectSearch, setSubjectSearch] = useState("");
     const [selectedSectionTab, setSelectedSectionTab] = useState<string>("all");
-    const [academicStreamFilter, setAcademicStreamFilter] = useState("All Academics");
 
     const renderSectionIcon = (iconName: string) => {
         switch (iconName) {
@@ -254,33 +250,6 @@ export default function TeacherSignupPage() {
             setFormData(prev => ({ ...prev, identityProof: data.secure_url }));
             toast.success("Identity proof uploaded!");
         } catch { toast.error("Upload failed."); } finally { setIsUploadingIdentityProof(false); }
-    };
-
-    const handleAchCertUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        if (!file.type.startsWith("image/")) {
-            toast.error("Please select an image file");
-            return;
-        }
-        if (file.size > 4 * 1024 * 1024) {
-            toast.error("Certificate photo must be less than 4MB");
-            return;
-        }
-
-        setIsUploadingAchCert(true);
-        try {
-            const form = new FormData();
-            form.append("file", file);
-            form.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-            form.append("folder", "certificates");
-            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: form });
-            if (!res.ok) throw new Error("Upload failed");
-            const data = await res.json();
-            setFormData(prev => ({ ...prev, achievementCertificate: data.secure_url }));
-            toast.success("Achievement certificate uploaded!");
-        } catch { toast.error("Upload failed."); } finally { setIsUploadingAchCert(false); }
     };
 
     const addCertification = () => {
@@ -583,7 +552,7 @@ export default function TeacherSignupPage() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col font-sans antialiased text-slate-800">
+        <div className="min-h-screen bg-slate-50 flex flex-col font-sans antialiased text-slate-800 w-full overflow-x-hidden pb-20 sm:pb-0">
             {/* Header Navbar Brand */}
             <header className="w-full bg-white border-b border-slate-100 px-4 sm:px-6 py-3.5 sm:py-4 flex items-center justify-between z-10 shrink-0">
                 <Link href="/" className="flex items-center gap-2.5">
@@ -676,7 +645,7 @@ export default function TeacherSignupPage() {
                         </div>
 
                         {/* Left bottom details block */}
-                        <div className="mt-8 pt-6 border-t border-slate-900/60 space-y-4">
+                        <div className="hidden lg:block mt-8 pt-6 border-t border-slate-900/60 space-y-4">
                             <h4 className="text-[10px] font-black text-slate-450 uppercase tracking-widest">Why Register as a Tutor?</h4>
                             <ul className="space-y-3 text-[10px] text-slate-400 font-bold">
                                 <li className="flex items-start gap-2.5">
@@ -701,7 +670,7 @@ export default function TeacherSignupPage() {
                     </div>
 
                     {/* RIGHT SIDE: Form steps container */}
-                    <div className="lg:col-span-8 p-6 sm:p-8 flex flex-col justify-between">
+                    <div className="lg:col-span-8 p-4 sm:p-8 flex flex-col justify-between w-full min-w-0 max-w-full overflow-hidden">
                         
                         {/* Header Details with cartoon uploader mockup */}
                         <div className="flex flex-col sm:flex-row justify-between gap-4 border-b border-slate-100 pb-4 mb-6 items-start">
@@ -1448,7 +1417,7 @@ export default function TeacherSignupPage() {
                                     </div>
 
                                     {/* Category Section Navigation Tabs */}
-                                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-[11px] font-bold">
+                                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-[11px] font-bold w-full max-w-full min-w-0">
                                         <button
                                             type="button"
                                             onClick={() => setSelectedSectionTab("all")}
@@ -1558,12 +1527,6 @@ export default function TeacherSignupPage() {
                                                     const q = subjectSearch.toLowerCase().trim();
                                                     subjectsToRender = subjectsToRender.filter((s) => s.toLowerCase().includes(q));
                                                 }
-                                                if (sec.id === "academics" && academicStreamFilter !== "All Academics") {
-                                                    const stream = ACADEMIC_STREAMS.find((s) => s.name === academicStreamFilter);
-                                                    if (stream) {
-                                                        subjectsToRender = subjectsToRender.filter((s) => stream.subjects.includes(s));
-                                                    }
-                                                }
 
                                                 if (subjectSearch.trim() && subjectsToRender.length === 0) {
                                                     return null;
@@ -1608,30 +1571,6 @@ export default function TeacherSignupPage() {
                                                                 </span>
                                                             </div>
                                                         </div>
-
-                                                        {/* Academic Stream Sub-filters */}
-                                                        {sec.id === "academics" && (
-                                                            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-[10px] font-bold">
-                                                                <span className="text-slate-400 font-black uppercase tracking-wider text-[9px] shrink-0 mr-1 flex items-center gap-1">
-                                                                    <Filter className="w-3 h-3" /> Stream:
-                                                                </span>
-                                                                {ACADEMIC_STREAMS.map((st) => (
-                                                                    <button
-                                                                        key={st.name}
-                                                                        type="button"
-                                                                        onClick={() => setAcademicStreamFilter(st.name)}
-                                                                        className={cn(
-                                                                            "px-2.5 py-1 rounded-lg border shrink-0 transition-all cursor-pointer",
-                                                                            academicStreamFilter === st.name
-                                                                                ? "bg-slate-900 text-white border-slate-900 font-black shadow-xs"
-                                                                                : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
-                                                                        )}
-                                                                    >
-                                                                        {st.name}
-                                                                    </button>
-                                                                ))}
-                                                            </div>
-                                                        )}
 
                                                         {/* Subjects Grid */}
                                                         {subjectsToRender.length === 0 ? (
@@ -1692,7 +1631,7 @@ export default function TeacherSignupPage() {
 
                                     {/* Subjects Level Section (Only for Academic Subjects if Academic Teacher) */}
                                     {formData.subjects.some((s) => ACADEMIC_SUBJECTS.includes(s.split(" (")[0])) && tutorType === "teacher" && (
-                                        <div className="mt-6 border border-slate-200/80 rounded-3xl p-4 sm:p-5 bg-white shadow-sm space-y-4 text-left">
+                                        <div className="mt-6 border border-slate-200/80 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 bg-white shadow-sm space-y-4 text-left w-full min-w-0 max-w-full overflow-hidden">
                                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 pb-3">
                                                 <div>
                                                     <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
@@ -1877,12 +1816,12 @@ export default function TeacherSignupPage() {
                                     )}
 
                                     {/* Teaching Mode & Expected Fee section */}
-                                    <div className="mt-8 pt-6 border-t border-slate-100">
+                                    <div className="mt-8 pt-6 border-t border-slate-100 w-full min-w-0">
                                         <h4 className="text-[11px] font-black text-slate-800 uppercase tracking-wider mb-4">Teaching Preferences & Fees</h4>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full min-w-0">
                                             
                                             {/* Teaching Mode */}
-                                            <div className="space-y-3 text-left">
+                                            <div className="space-y-3 text-left w-full min-w-0">
                                                 <label className="block text-[11px] font-black text-slate-450 uppercase tracking-wider">
                                                     Preferred location of tuition
                                                 </label>
@@ -1910,22 +1849,22 @@ export default function TeacherSignupPage() {
                                             </div>
 
                                             {/* Expected Fee */}
-                                            <div className="space-y-3 text-left">
+                                            <div className="space-y-3 text-left w-full min-w-0">
                                                 <label className="block text-[11px] font-black text-slate-450 uppercase tracking-wider">
                                                     Fee Expected (₹)
                                                 </label>
-                                                <div className="flex items-center gap-3">
+                                                <div className="grid grid-cols-2 gap-2 sm:gap-3 w-full min-w-0">
                                                     <input 
                                                         type="number"
                                                         placeholder="e.g. 1000"
                                                         value={formData.expectedFee || ""}
                                                         onChange={(e) => setFormData(prev => ({ ...prev, expectedFee: parseInt(e.target.value) || 0 }))}
-                                                        className="w-full sm:w-1/2 px-4 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
+                                                        className="w-full min-w-0 px-3 sm:px-4 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
                                                     />
                                                     <select 
                                                         value={formData.feeType}
                                                         onChange={(e) => setFormData(prev => ({ ...prev, feeType: e.target.value }))}
-                                                        className="w-full sm:w-1/2 px-4 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 cursor-pointer"
+                                                        className="w-full min-w-0 px-2 sm:px-4 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 cursor-pointer"
                                                     >
                                                         <option value="/hr">per Hour</option>
                                                         <option value="/month">per Month</option>
@@ -1940,23 +1879,23 @@ export default function TeacherSignupPage() {
                         )}
 
                         {/* Bottom Wizard Controls */}
-                        <div className="flex items-center justify-between pt-6 mt-8 border-t border-slate-100">
+                        <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-6 mt-8 border-t border-slate-100 w-full min-w-0">
                             {step > 1 ? (
                                 <button
                                     type="button"
                                     onClick={prevStep}
-                                    className="px-5 py-2.5 text-xs font-black text-slate-400 hover:text-slate-800 transition-colors flex items-center gap-1.5 border-none bg-transparent cursor-pointer"
+                                    className="w-full sm:w-auto px-5 py-3 sm:py-2.5 text-xs font-black text-slate-500 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 sm:bg-transparent rounded-xl transition-all flex items-center justify-center gap-1.5 border-none cursor-pointer"
                                 >
                                     <ArrowLeft className="w-4 h-4" />
                                     <span>Back</span>
                                 </button>
-                            ) : <div />}
+                            ) : <div className="hidden sm:block" />}
 
                             {step < 4 ? (
                                 <button
                                     type="button"
                                     onClick={nextStep}
-                                    className="px-6 py-3 bg-[#ffb800] hover:bg-[#ffa000] text-slate-950 text-xs font-black rounded-xl transition-all shadow-md flex items-center gap-2 cursor-pointer border-none"
+                                    className="w-full sm:w-auto px-6 py-3.5 sm:py-3 bg-[#ffb800] hover:bg-[#ffa000] active:scale-[0.99] text-slate-950 text-xs font-black rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer border-none"
                                 >
                                     <span>Next Step</span>
                                     <ArrowRight className="w-4 h-4" />
@@ -1966,16 +1905,17 @@ export default function TeacherSignupPage() {
                                     type="button"
                                     onClick={handleSubmit}
                                     disabled={loading}
-                                    className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all shadow-md disabled:opacity-50 flex items-center gap-2 cursor-pointer border-none"
+                                    id="teacher-complete-profile-btn"
+                                    className="w-full sm:w-auto px-6 py-3.5 sm:py-3 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white text-xs font-black rounded-xl transition-all shadow-lg shadow-emerald-600/25 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer border-none"
                                 >
                                     {loading ? (
                                         <>
                                             <Loader2 className="w-4 h-4 animate-spin" />
-                                            <span>Registering...</span>
+                                            <span>Submitting Application...</span>
                                         </>
                                     ) : (
                                         <>
-                                            <span>Complete Registration</span>
+                                            <span>Complete Registration & Submit</span>
                                             <CheckCircle2 className="w-4 h-4" />
                                         </>
                                     )}
@@ -2071,6 +2011,50 @@ export default function TeacherSignupPage() {
                     </div>
                 </div>
             </section>
+
+            {/* Sticky Mobile Floating Action Bar */}
+            <div className="sm:hidden fixed bottom-0 left-0 right-0 p-3 bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-2xl z-50 flex items-center gap-2.5">
+                {step > 1 && (
+                    <button
+                        type="button"
+                        onClick={prevStep}
+                        className="px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-black rounded-xl transition-colors flex items-center justify-center gap-1 border-none cursor-pointer shrink-0"
+                    >
+                        <ArrowLeft className="w-4 h-4" />
+                        <span>Back</span>
+                    </button>
+                )}
+                {step < 4 ? (
+                    <button
+                        type="button"
+                        onClick={nextStep}
+                        className="flex-1 py-3 bg-[#ffb800] hover:bg-[#ffa000] text-slate-950 text-xs font-black rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer border-none"
+                    >
+                        <span>Next Step (Step {step + 1}/4)</span>
+                        <ArrowRight className="w-4 h-4" />
+                    </button>
+                ) : (
+                    <button
+                        type="button"
+                        onClick={handleSubmit}
+                        disabled={loading}
+                        id="mobile-teacher-submit-btn"
+                        className="flex-1 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black rounded-xl transition-all shadow-lg shadow-emerald-600/30 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer border-none"
+                    >
+                        {loading ? (
+                            <>
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                <span>Submitting...</span>
+                            </>
+                        ) : (
+                            <>
+                                <span>Complete & Submit Profile</span>
+                                <CheckCircle2 className="w-4 h-4" />
+                            </>
+                        )}
+                    </button>
+                )}
+            </div>
         </div>
     );
 }

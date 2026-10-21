@@ -15,8 +15,7 @@ import { cn } from "@/lib/utils";
 import { 
     ALL_STANDARD_SUBJECTS, 
     ACADEMIC_SUBJECTS, 
-    ALL_SUBJECT_SECTIONS, 
-    ACADEMIC_STREAMS 
+    ALL_SUBJECT_SECTIONS 
 } from "@/lib/classConstants";
 
 const ALL_SUBJECTS = ALL_STANDARD_SUBJECTS;
@@ -83,7 +82,6 @@ export default function TeacherSettingsPage() {
 
     const [subjectSearch, setSubjectSearch] = useState("");
     const [selectedSectionTab, setSelectedSectionTab] = useState<string>("all");
-    const [academicStreamFilter, setAcademicStreamFilter] = useState("All Academics");
 
     const renderSectionIcon = (iconName: string) => {
         switch (iconName) {
@@ -102,13 +100,11 @@ export default function TeacherSettingsPage() {
     const [isUploadingCertImage, setIsUploadingCertImage] = useState(false);
     const [isUploadingQualCert, setIsUploadingQualCert] = useState(false);
     const [isUploadingIdentityProof, setIsUploadingIdentityProof] = useState(false);
-    const [isUploadingAchCert, setIsUploadingAchCert] = useState(false);
     
     const profileInputRef = useRef<HTMLInputElement>(null);
     const certImageInputRef = useRef<HTMLInputElement>(null);
     const qualCertInputRef = useRef<HTMLInputElement>(null);
     const identityProofInputRef = useRef<HTMLInputElement>(null);
-    const achCertInputRef = useRef<HTMLInputElement>(null);
 
     const [formData, setFormData] = useState({
         name: "",
@@ -321,23 +317,6 @@ export default function TeacherSettingsPage() {
         } catch { toast.error("Upload failed."); } finally { setIsUploadingIdentityProof(false); }
     };
 
-    const handleAchCertUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        setIsUploadingAchCert(true);
-        try {
-            const form = new FormData();
-            form.append("file", file);
-            form.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-            form.append("folder", "certificates");
-            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: form });
-            if (!res.ok) throw new Error();
-            const data = await res.json();
-            setFormData(prev => ({ ...prev, achievementCertificate: data.secure_url }));
-            toast.success("Achievement certificate uploaded!");
-        } catch { toast.error("Upload failed."); } finally { setIsUploadingAchCert(false); }
-    };
-
     const addCertification = () => {
         if (certInput.trim()) {
             if (!pendingCertImage) {
@@ -426,10 +405,6 @@ export default function TeacherSettingsPage() {
         }
         if (formData.certifications.some(c => !c.image)) {
             toast.error("Every entered achievement must have an uploaded proof document.");
-            return false;
-        }
-        if (formData.achievements.trim().length > 0 && !formData.achievementCertificate) {
-            toast.error("Please upload proof document for your entered achievement award.");
             return false;
         }
 
@@ -901,67 +876,6 @@ export default function TeacherSettingsPage() {
                         <input ref={identityProofInputRef} type="file" accept="image/*" onChange={handleIdentityProofUpload} className="hidden" />
                     </div>
 
-                    {/* Key Achievement / Award & Certificate */}
-                    <div className="space-y-3 p-4 bg-slate-50 border border-slate-100 rounded-2xl">
-                        <div className="space-y-1.5">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
-                                Key Achievement / Honors / Awards (optional)
-                            </label>
-                            <input
-                                type="text"
-                                placeholder="e.g. National Merit Scholar, Gold Medalist in Mathematics, State Awardee"
-                                value={formData.achievements}
-                                onChange={e => updateField("achievements", e.target.value)}
-                                className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-amber-400 bg-white"
-                            />
-                        </div>
-
-                        {/* Achievement Certificate Upload */}
-                        <div className="space-y-1.5">
-                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider">
-                                Achievement Proof Document <span className="text-slate-400 font-normal lowercase">(required if achievement entered above)</span>
-                            </label>
-                            <div className="flex items-center gap-4 p-3 bg-white border border-slate-200 rounded-xl">
-                                <div
-                                    className="w-14 h-14 bg-slate-50 rounded-xl flex items-center justify-center border-2 border-dashed border-slate-200 cursor-pointer hover:border-amber-500 transition-all overflow-hidden shrink-0"
-                                    onClick={() => achCertInputRef.current?.click()}
-                                >
-                                    {isUploadingAchCert ? (
-                                        <Loader2 className="w-5 h-5 text-amber-500 animate-spin" />
-                                    ) : formData.achievementCertificate ? (
-                                        <img src={formData.achievementCertificate} alt="Achievement Certificate" className="w-full h-full object-cover" />
-                                    ) : (
-                                        <Upload className="w-5 h-5 text-slate-400" />
-                                    )}
-                                </div>
-                                <div className="flex-1">
-                                    <button
-                                        type="button"
-                                        onClick={() => achCertInputRef.current?.click()}
-                                        disabled={isUploadingAchCert}
-                                        className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-black rounded-lg transition-colors border border-slate-200 disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
-                                    >
-                                        {isUploadingAchCert ? "Uploading..." : formData.achievementCertificate ? "Change Proof" : "Upload Proof Certificate"}
-                                    </button>
-                                    <p className="text-[9px] text-slate-400 mt-0.5 font-bold">Upload certificate image or award letter. Max 4MB.</p>
-                                </div>
-                                {formData.achievementCertificate && (
-                                    <div className="flex items-center gap-2">
-                                        <a href={formData.achievementCertificate} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 font-bold hover:underline">View</a>
-                                        <button
-                                            type="button"
-                                            onClick={() => setFormData(prev => ({ ...prev, achievementCertificate: "" }))}
-                                            className="p-1 hover:text-red-500 transition-colors border-none bg-transparent cursor-pointer"
-                                        >
-                                            <X className="w-4 h-4" />
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                            <input ref={achCertInputRef} type="file" accept="image/*" onChange={handleAchCertUpload} className="hidden" />
-                        </div>
-                    </div>
-
                     {/* Certifications & Achievements Widget */}
                     <div className="space-y-2.5 text-left">
                         <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider">
@@ -1257,12 +1171,6 @@ export default function TeacherSettingsPage() {
                                         const q = subjectSearch.toLowerCase().trim();
                                         subjectsToRender = subjectsToRender.filter((s) => s.toLowerCase().includes(q));
                                     }
-                                    if (sec.id === "academics" && academicStreamFilter !== "All Academics") {
-                                        const stream = ACADEMIC_STREAMS.find((s) => s.name === academicStreamFilter);
-                                        if (stream) {
-                                            subjectsToRender = subjectsToRender.filter((s) => stream.subjects.includes(s));
-                                        }
-                                    }
 
                                     if (subjectSearch.trim() && subjectsToRender.length === 0) {
                                         return null;
@@ -1302,30 +1210,6 @@ export default function TeacherSettingsPage() {
                                                     {secSelectedCount} selected
                                                 </span>
                                             </div>
-
-                                            {/* Academic Stream Sub-filters */}
-                                            {sec.id === "academics" && (
-                                                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-[10px] font-bold">
-                                                    <span className="text-slate-400 font-black uppercase tracking-wider text-[9px] shrink-0 mr-1 flex items-center gap-1">
-                                                        <Filter className="w-3 h-3" /> Stream:
-                                                    </span>
-                                                    {ACADEMIC_STREAMS.map((st) => (
-                                                        <button
-                                                            key={st.name}
-                                                            type="button"
-                                                            onClick={() => setAcademicStreamFilter(st.name)}
-                                                            className={cn(
-                                                                "px-2 py-0.5 rounded-lg border shrink-0 transition-all cursor-pointer",
-                                                                academicStreamFilter === st.name
-                                                                    ? "bg-slate-900 text-white border-slate-900 font-black shadow-xs"
-                                                                    : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
-                                                            )}
-                                                        >
-                                                            {st.name}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            )}
 
                                             {/* Subjects Grid */}
                                             {subjectsToRender.length === 0 ? (

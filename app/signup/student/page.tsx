@@ -307,7 +307,7 @@ function StudentSignupContent() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col font-sans antialiased text-slate-800">
+        <div className="min-h-screen bg-slate-50 flex flex-col font-sans antialiased text-slate-800 w-full overflow-x-hidden pb-20 sm:pb-0">
             {/* Header Navbar Brand */}
             <header className="w-full bg-white border-b border-slate-100 px-4 sm:px-6 py-3.5 sm:py-4 flex items-center justify-between z-10 shrink-0">
                 <Link href="/" className="flex items-center gap-2.5">
@@ -395,7 +395,7 @@ function StudentSignupContent() {
                         </div>
 
                         {/* Left bottom details block */}
-                        <div className="mt-8 pt-6 border-t border-slate-900/60 space-y-4">
+                        <div className="hidden lg:block mt-8 pt-6 border-t border-slate-900/60 space-y-4">
                             <h4 className="text-[10px] font-black text-slate-450 uppercase tracking-widest">Why Create an Account?</h4>
                             
                             <ul className="space-y-3 text-[10px] text-slate-400 font-bold">
@@ -425,7 +425,7 @@ function StudentSignupContent() {
                     </div>
 
                     {/* RIGHT SIDE: Wizard content area */}
-                    <div className="lg:col-span-8 p-6 sm:p-8 flex flex-col justify-between">
+                    <div className="lg:col-span-8 p-4 sm:p-8 flex flex-col justify-between w-full min-w-0 max-w-full overflow-hidden">
                         
                         {/* Header Details with cartoon girl working mockup */}
                         <div className="flex flex-col sm:flex-row justify-between gap-4 border-b border-slate-100 pb-4 mb-6">
@@ -928,23 +928,23 @@ function StudentSignupContent() {
                         )}
 
                         {/* Bottom Wizard Controls (Back / Next Step / Complete Register) */}
-                        <div className="flex items-center justify-between pt-6 mt-8 border-t border-slate-100">
+                        <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-6 mt-8 border-t border-slate-100 w-full min-w-0">
                             {step > 1 ? (
                                 <button
                                     type="button"
                                     onClick={prevStep}
-                                    className="px-5 py-2.5 text-xs font-black text-slate-400 hover:text-slate-800 transition-colors flex items-center gap-1.5 border-none bg-transparent cursor-pointer"
+                                    className="w-full sm:w-auto px-5 py-3 sm:py-2.5 text-xs font-black text-slate-500 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 sm:bg-transparent rounded-xl transition-all flex items-center justify-center gap-1.5 border-none cursor-pointer"
                                 >
                                     <ArrowLeft className="w-4 h-4" />
                                     <span>Back</span>
                                 </button>
-                            ) : <div />}
+                            ) : <div className="hidden sm:block" />}
 
                             {step < 3 ? (
                                 <button
                                     type="button"
                                     onClick={nextStep}
-                                    className="px-6 py-3 bg-[#ffb800] hover:bg-[#ffa000] text-slate-950 text-xs font-black rounded-xl transition-all shadow-md flex items-center gap-2 cursor-pointer border-none"
+                                    className="w-full sm:w-auto px-6 py-3.5 sm:py-3 bg-[#ffb800] hover:bg-[#ffa000] active:scale-[0.99] text-slate-950 text-xs font-black rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer border-none"
                                 >
                                     <span>Next Step</span>
                                     <ArrowRight className="w-4 h-4" />
@@ -954,16 +954,17 @@ function StudentSignupContent() {
                                     type="button"
                                     onClick={handleSubmit}
                                     disabled={loading}
-                                    className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all shadow-md disabled:opacity-50 flex items-center gap-2 cursor-pointer border-none"
+                                    id="student-complete-profile-btn"
+                                    className="w-full sm:w-auto px-6 py-3.5 sm:py-3 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white text-xs font-black rounded-xl transition-all shadow-lg shadow-emerald-600/25 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer border-none"
                                 >
                                     {loading ? (
                                         <>
                                             <Loader2 className="w-4 h-4 animate-spin" />
-                                            <span>Registering...</span>
+                                            <span>Submitting Application...</span>
                                         </>
                                     ) : (
                                         <>
-                                            <span>Complete Registration</span>
+                                            <span>Complete Registration & Submit</span>
                                             <CheckCircle2 className="w-4 h-4" />
                                         </>
                                     )}
@@ -1072,6 +1073,50 @@ function StudentSignupContent() {
                     </div>
                 </div>
             </section>
+
+            {/* Sticky Mobile Floating Action Bar */}
+            <div className="sm:hidden fixed bottom-0 left-0 right-0 p-3 bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-2xl z-50 flex items-center gap-2.5">
+                {step > 1 && (
+                    <button
+                        type="button"
+                        onClick={prevStep}
+                        className="px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-black rounded-xl transition-colors flex items-center justify-center gap-1 border-none cursor-pointer shrink-0"
+                    >
+                        <ArrowLeft className="w-4 h-4" />
+                        <span>Back</span>
+                    </button>
+                )}
+                {step < 3 ? (
+                    <button
+                        type="button"
+                        onClick={nextStep}
+                        className="flex-1 py-3 bg-[#ffb800] hover:bg-[#ffa000] text-slate-950 text-xs font-black rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer border-none"
+                    >
+                        <span>Next Step (Step {step + 1}/3)</span>
+                        <ArrowRight className="w-4 h-4" />
+                    </button>
+                ) : (
+                    <button
+                        type="button"
+                        onClick={handleSubmit}
+                        disabled={loading}
+                        id="mobile-student-submit-btn"
+                        className="flex-1 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black rounded-xl transition-all shadow-lg shadow-emerald-600/30 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer border-none"
+                    >
+                        {loading ? (
+                            <>
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                <span>Submitting...</span>
+                            </>
+                        ) : (
+                            <>
+                                <span>Complete & Submit Profile</span>
+                                <CheckCircle2 className="w-4 h-4" />
+                            </>
+                        )}
+                    </button>
+                )}
+            </div>
         </div>
     );
 }

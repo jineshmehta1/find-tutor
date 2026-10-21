@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
@@ -131,11 +131,16 @@ function ShowcaseCard({ item, isCoach }: { item: any; isCoach: boolean }) {
           </div>
 
           <div className="min-w-0 flex-1 pt-0.5">
-            <h4 className="font-extrabold text-base text-[#0f223a] group-hover:text-amber-500 transition-colors truncate leading-tight">
-              {item.name}
-            </h4>
+            <div className="flex items-center justify-between gap-1">
+              <h4 className="font-extrabold text-base text-[#0f223a] group-hover:text-amber-500 transition-colors truncate leading-tight">
+                {item.name}
+              </h4>
+              <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider shrink-0 ${isCoach ? "bg-purple-50 text-purple-700 border border-purple-200/60" : "bg-amber-50 text-amber-800 border border-amber-200/60"}`}>
+                {isCoach ? "Coach" : "Teacher"}
+              </span>
+            </div>
             <p className="text-[11px] text-slate-400 font-bold truncate mt-0.5">
-              {item.qualificationName || "Qualified Mentor"}
+              {item.qualificationName || (isCoach ? "Certified Coach" : "Qualified Teacher")}
             </p>
           </div>
         </div>
@@ -256,7 +261,7 @@ export default function HomePage() {
   // Search Fields
   const [searchSubject, setSearchSubject] = useState("");
   const [searchClass, setSearchClass] = useState("");
-  const [searchLocation, setSearchLocation] = useState("Bhavanipuram, Vijayawada");
+  const [searchLocation, setSearchLocation] = useState("");
   const [searchLat, setSearchLat] = useState<number | null>(null);
   const [searchLng, setSearchLng] = useState<number | null>(null);
   const [searchMode, setSearchMode] = useState("");
@@ -267,6 +272,7 @@ export default function HomePage() {
   const [realCoaches, setRealCoaches] = useState<any[]>([]);
   const [isLoadingTutors, setIsLoadingTutors] = useState(true);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [showcaseFilter, setShowcaseFilter] = useState<"all" | "academic" | "coach">("all");
 
   useEffect(() => {
     let active = true;
@@ -353,6 +359,7 @@ export default function HomePage() {
             name: item.name,
             phone: item.phone,
             isApproved: item.isApproved,
+            isCoach: isActivity,
             expectedFee: item.expectedFee ? `₹${item.expectedFee.toLocaleString()}${item.feeType || '/hr'}` : "Contact for Fee",
             subject: cleanSubjects[0] || (isActivity ? "Co-curricular Coach" : "Academic Teacher"),
             subjectsList: cleanSubjects,
@@ -423,7 +430,7 @@ export default function HomePage() {
 
     const query = new URLSearchParams();
     query.set("subject", subjectName);
-    query.set("location", searchLocation);
+    if (searchLocation) query.set("location", searchLocation);
     if (searchLat !== null && searchLng !== null) {
       query.set("lat", searchLat.toString());
       query.set("lng", searchLng.toString());
@@ -450,6 +457,22 @@ export default function HomePage() {
   // Fallbacks if database is empty
   const displayTeachers = realTeachers;
   const displayCoaches = realCoaches;
+
+  const mixedTutors = useMemo(() => {
+    const result: any[] = [];
+    const maxLen = Math.max(realTeachers.length, realCoaches.length);
+    for (let i = 0; i < maxLen; i++) {
+      if (i < realTeachers.length) result.push(realTeachers[i]);
+      if (i < realCoaches.length) result.push(realCoaches[i]);
+    }
+    return result;
+  }, [realTeachers, realCoaches]);
+
+  const filteredShowcaseList = useMemo(() => {
+    if (showcaseFilter === "academic") return realTeachers;
+    if (showcaseFilter === "coach") return realCoaches;
+    return mixedTutors;
+  }, [showcaseFilter, realTeachers, realCoaches, mixedTutors]);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans antialiased">
@@ -589,20 +612,19 @@ export default function HomePage() {
               </div>
 
               {/* 5-Column Input Row Form */}
-              <form onSubmit={handleSearchSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 text-slate-700">
+              <form onSubmit={handleSearchSubmit} className="space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2.5 sm:gap-3 text-slate-700 items-center">
 
                   {/* Subject Dropdown */}
-                  <div className="space-y-1 text-left lg:col-span-3">
-                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Subject / Activity</label>
-                    <div className="relative flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2.5 transition-colors focus-within:border-amber-500">
+                  <div className="text-left lg:col-span-3">
+                    <div className="relative flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2.5 transition-colors focus-within:border-amber-500 shadow-xs">
                       <BookOpen className="w-4 h-4 text-slate-400 mr-2 shrink-0" />
                       <select
                         value={searchSubject}
                         onChange={(e) => setSearchSubject(e.target.value)}
                         className="w-full bg-transparent border-none text-[12px] font-bold outline-none text-slate-800 py-1 cursor-pointer"
                       >
-                        <option value="">Select Subject / Activity</option>
+                        <option value="">Select Subject/Activity</option>
                         {(activeSearchTab === "academics" ? ACADEMIC_SUBJECTS : ACTIVITY_SUBJECTS).map((sub) => (
                           <option key={sub} value={sub}>{sub}</option>
                         ))}
@@ -611,9 +633,8 @@ export default function HomePage() {
                   </div>
 
                   {/* Class Dropdown */}
-                  <div className="space-y-1 text-left lg:col-span-2">
-                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Class / Grade</label>
-                    <div className="relative flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2.5 transition-colors focus-within:border-amber-500">
+                  <div className="text-left lg:col-span-2">
+                    <div className="relative flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2.5 transition-colors focus-within:border-amber-500 shadow-xs">
                       <GraduationCap className="w-4 h-4 text-slate-400 mr-2 shrink-0" />
                       <select
                         value={searchClass}
@@ -630,19 +651,18 @@ export default function HomePage() {
                   </div>
 
                   {/* Location Input */}
-                  <div className="space-y-1 text-left lg:col-span-3">
-                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Location</label>
+                  <div className="text-left lg:col-span-3">
                     <div
-                      className="relative flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2 transition-colors hover:border-amber-500 cursor-pointer"
+                      className="relative flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2 transition-colors hover:border-amber-500 cursor-pointer shadow-xs"
                       onClick={() => setIsLocationModalOpen(true)}
                     >
                       <MapPin className="w-4 h-4 text-slate-400 mr-2 shrink-0" />
                       <input
                         type="text"
-                        placeholder="Search Area"
+                        placeholder="Select Location"
                         value={searchLocation}
                         readOnly
-                        className="w-full bg-transparent border-none text-[12px] font-bold outline-none text-slate-800 py-1 cursor-pointer pointer-events-none truncate pr-8"
+                        className="w-full bg-transparent border-none text-[12px] font-bold outline-none text-slate-800 py-1 cursor-pointer pointer-events-none truncate pr-8 placeholder:text-slate-800 placeholder:font-bold"
                       />
                       <button
                         type="button"
@@ -659,16 +679,15 @@ export default function HomePage() {
                   </div>
 
                   {/* Mode of Teaching Dropdown */}
-                  <div className="space-y-1 text-left lg:col-span-2">
-                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Mode of Teaching</label>
-                    <div className="relative flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2.5 transition-colors focus-within:border-amber-500">
+                  <div className="text-left lg:col-span-2">
+                    <div className="relative flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2.5 transition-colors focus-within:border-amber-500 shadow-xs">
                       <Users className="w-4 h-4 text-slate-400 mr-2 shrink-0" />
                       <select
                         value={searchMode}
                         onChange={(e) => setSearchMode(e.target.value)}
                         className="w-full bg-transparent border-none text-[12px] font-bold outline-none text-slate-800 py-1 cursor-pointer"
                       >
-                        <option value="">Any type of mode</option>
+                        <option value="">Select Learning Mode</option>
                         {STANDARD_TEACHING_MODES.map((m) => (
                           <option key={m.value} value={m.value}>{m.label}</option>
                         ))}
@@ -677,11 +696,10 @@ export default function HomePage() {
                   </div>
 
                   {/* Search Button */}
-                  <div className="space-y-1 lg:col-span-2">
-                    <label className="block text-[11px] font-bold text-transparent select-none hidden lg:block">&nbsp;</label>
+                  <div className="lg:col-span-2">
                     <button
                       type="submit"
-                      className="w-full py-3.5 bg-[#ffb800] hover:bg-[#ffa000] text-slate-950 font-extrabold text-[13px] uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                      className="w-full py-3 bg-[#ffb800] hover:bg-[#ffa000] text-slate-950 font-extrabold text-[13px] uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <Search className="w-4 h-4 text-slate-950 shrink-0" />
                       <span>Search Now</span>
@@ -862,95 +880,97 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 4. TEACHERS & COACHES SIDE BY SIDE GRID (2-COLUMN GRID) */}
+      {/* 4. UNIFIED TEACHERS & COACHES SHOWCASE (MIXED SECTION) */}
       <section className="py-16 md:py-20 bg-white border-y border-slate-100">
-        <div className="max-w-[1400px] mx-auto px-4 md:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8 space-y-6 md:space-y-8">
 
-            {/* LEFT COLUMN: Top Academic Teachers */}
-            <div className="lg:col-span-6 flex flex-col space-y-6">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3 shrink-0">
-                <h3 className="text-lg md:text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                  <GraduationCap className="w-5 h-5 text-amber-500" />
-                  <span>Academic Teachers</span>
-                </h3>
-                <a href="/find-tutor-nearby" className="text-xs font-bold text-amber-500 hover:underline flex items-center gap-1">
-                  <span>View All</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </a>
-              </div>
-
-              {/* Grid of Teachers - 2 per row */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
-                {apiError ? (
-                  <div className="col-span-full py-10 text-center text-red-500 font-bold text-xs uppercase tracking-widest bg-red-50 border border-dashed border-red-200 rounded-[2rem] p-4">
-                    Error: {apiError}
-                  </div>
-                ) : isLoadingTutors ? (
-                  <div className="col-span-full py-10 text-center text-slate-400 font-bold text-xs uppercase tracking-widest bg-slate-50 border border-dashed border-slate-200 rounded-[2rem] animate-pulse">
-                    Loading Teachers...
-                  </div>
-                ) : displayTeachers.length === 0 ? (
-                  <div className="col-span-full py-10 text-center text-slate-400 font-bold text-xs uppercase tracking-widest bg-slate-50 border border-dashed border-slate-200 rounded-[2rem] min-h-[300px] flex flex-col items-center justify-center p-6">
-                    <Users className="w-8 h-8 text-slate-300 mb-2" />
-                    <span>No teachers registered</span>
-                  </div>
-                ) : (
-                  displayTeachers.slice(0, 4).map((teacher, idx) => (
-                    <ShowcaseCard
-                      key={idx}
-                      item={teacher}
-                      isCoach={false}
-                    />
-                  ))
-                )}
-              </div>
+          {/* Section Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+            <div>
+              <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
+                <GraduationCap className="w-6 h-6 text-amber-500" />
+                <span>Featured Teachers & Coaches</span>
+              </h3>
+              <p className="text-xs text-slate-400 font-medium mt-1">
+                Find trusted academic teachers and activity coaches near you
+              </p>
             </div>
 
-            {/* RIGHT COLUMN: Top Activity Coaches */}
-            <div className="lg:col-span-6 flex flex-col space-y-6">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3 shrink-0">
-                <h3 className="text-lg md:text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                  <Activity className="w-5 h-5 text-amber-500" />
-                  <span>Activity Coaches</span>
-                </h3>
-                <a href="/find-tutor-nearby?type=coach" className="text-xs font-bold text-amber-500 hover:underline flex items-center gap-1">
-                  <span>View All</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </a>
+            <div className="flex items-center gap-3 flex-wrap">
+              {/* Filter Tabs */}
+              <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-bold">
+                <button
+                  type="button"
+                  onClick={() => setShowcaseFilter("all")}
+                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                    showcaseFilter === "all"
+                      ? "bg-white text-slate-900 shadow-xs font-black"
+                      : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  All ({mixedTutors.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowcaseFilter("academic")}
+                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                    showcaseFilter === "academic"
+                      ? "bg-white text-slate-900 shadow-xs font-black"
+                      : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  Teachers ({realTeachers.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowcaseFilter("coach")}
+                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                    showcaseFilter === "coach"
+                      ? "bg-white text-slate-900 shadow-xs font-black"
+                      : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  Coaches ({realCoaches.length})
+                </button>
               </div>
 
-              {/* Grid of Coaches - 2 per row */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
-                {apiError ? (
-                  <div className="col-span-full py-10 text-center text-red-500 font-bold text-xs uppercase tracking-widest bg-red-50 border border-dashed border-red-200 rounded-[2rem] p-4">
-                    Error: {apiError}
-                  </div>
-                ) : isLoadingTutors ? (
-                  <div className="col-span-full py-10 text-center text-slate-400 font-bold text-xs uppercase tracking-widest bg-slate-50 border border-dashed border-slate-200 rounded-[2rem] animate-pulse">
-                    Loading Coaches...
-                  </div>
-                ) : displayCoaches.length === 0 ? (
-                  <div className="col-span-full py-10 text-center text-slate-400 font-bold text-xs uppercase tracking-widest bg-slate-50 border border-dashed border-slate-200 rounded-[2rem] min-h-[300px] flex flex-col items-center justify-center p-6">
-                    <Users className="w-8 h-8 text-slate-300 mb-2" />
-                    <span className="text-slate-500 font-extrabold text-sm">No Coaches Registered</span>
-                    <p className="text-[10px] text-slate-400 max-w-[200px] mt-1 font-medium leading-relaxed">
-                      Activity tutors and coaches from your database will appear here.
-                    </p>
-                  </div>
-                ) : (
-                  displayCoaches.slice(0, 4).map((coach, idx) => (
-                    <ShowcaseCard
-                      key={idx}
-                      item={coach}
-                      isCoach={true}
-                    />
-                  ))
-                )}
-              </div>
+              {/* View All Button */}
+              <a
+                href="/find-tutor-nearby"
+                className="text-xs font-black text-amber-600 hover:text-amber-700 hover:underline flex items-center gap-1 ml-auto sm:ml-0"
+              >
+                <span>View All</span>
+                <ChevronRight className="w-4 h-4" />
+              </a>
             </div>
-
           </div>
+
+          {/* Grid of Mixed Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {apiError ? (
+              <div className="col-span-full py-12 text-center text-red-500 font-bold text-xs uppercase tracking-widest bg-red-50 border border-dashed border-red-200 rounded-[2rem] p-4">
+                Error: {apiError}
+              </div>
+            ) : isLoadingTutors ? (
+              <div className="col-span-full py-16 text-center text-slate-400 font-bold text-xs uppercase tracking-widest bg-slate-50 border border-dashed border-slate-200 rounded-[2rem] animate-pulse">
+                Loading Teachers & Coaches...
+              </div>
+            ) : filteredShowcaseList.length === 0 ? (
+              <div className="col-span-full py-16 text-center text-slate-400 font-bold text-xs uppercase tracking-widest bg-slate-50 border border-dashed border-slate-200 rounded-[2rem] min-h-[300px] flex flex-col items-center justify-center p-6">
+                <Users className="w-10 h-10 text-slate-300 mb-2" />
+                <span className="text-slate-600 font-extrabold text-sm">No tutors registered yet</span>
+              </div>
+            ) : (
+              filteredShowcaseList.slice(0, 8).map((tutor, idx) => (
+                <ShowcaseCard
+                  key={tutor.id || idx}
+                  item={tutor}
+                  isCoach={tutor.isCoach}
+                />
+              ))
+            )}
+          </div>
+
         </div>
       </section>
 
@@ -1278,6 +1298,10 @@ export default function HomePage() {
               initialAddress={searchLocation}
               onLocationSelect={(loc) => {
                 setSearchLocation(loc.address);
+                if (loc.latitude && loc.longitude) {
+                  setSearchLat(loc.latitude);
+                  setSearchLng(loc.longitude);
+                }
                 setIsLocationModalOpen(false);
               }}
               height="280px"

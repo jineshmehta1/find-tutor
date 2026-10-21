@@ -825,8 +825,8 @@ function FindTutorNearbyPageContent() {
                                             value={subject}
                                             onChange={(e) => { setSubject(e.target.value); setShowSubjectSuggestions(true); }}
                                             onFocus={() => setShowSubjectSuggestions(true)}
-                                            placeholder="Maths, Piano..."
-                                            className="w-full bg-transparent outline-none text-sm md:text-base font-semibold text-slate-800 placeholder:text-slate-300"
+                                            placeholder="Select Subject/Activity"
+                                            className="w-full bg-transparent outline-none text-sm md:text-base font-semibold text-slate-800 placeholder:text-slate-400"
                                         />
                                     </div>
                                 </div>
@@ -858,7 +858,7 @@ function FindTutorNearbyPageContent() {
                                             onChange={(e) => setSelectedClass(e.target.value)}
                                             className="w-full bg-transparent border-none text-sm md:text-base font-semibold outline-none text-slate-850 py-1 cursor-pointer"
                                         >
-                                            <option value="All">All Grades</option>
+                                            <option value="All">Select Level</option>
                                             {CLASSES.map((c) => (
                                                 <option key={c} value={c}>{c}</option>
                                             ))}
@@ -873,8 +873,8 @@ function FindTutorNearbyPageContent() {
                                     <MapPin className="w-5 h-5 md:w-6 md:h-6 text-red-500 mr-3 md:mr-4 shrink-0" />
                                     <div onClick={() => setShowHeroMap(!showHeroMap)} className="flex-1 text-left cursor-pointer">
                                         <p className="text-[8px] md:text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-0.5">Location</p>
-                                        <p className={`text-sm md:text-base font-semibold truncate ${location ? 'text-slate-900' : 'text-slate-300'}`}>
-                                            {location || "Search Area"}
+                                        <p className={`text-sm md:text-base font-semibold truncate ${location ? 'text-slate-900' : 'text-slate-400'}`}>
+                                            {location || "Select Location"}
                                         </p>
                                     </div>
                                 </div>
@@ -920,7 +920,7 @@ function FindTutorNearbyPageContent() {
                                             }}
                                             className="w-full bg-transparent border-none text-sm md:text-base font-semibold outline-none text-slate-850 py-1 cursor-pointer"
                                         >
-                                            <option value="All">Any type of mode</option>
+                                            <option value="All">Select Learning Mode</option>
                                             {MODES.map(m => (
                                                 <option key={m.value} value={m.value}>{m.label}</option>
                                             ))}
@@ -1096,7 +1096,7 @@ function FindTutorNearbyPageContent() {
                             }}
                             className="w-full h-12 px-4 bg-white border border-slate-200/80 rounded-xl outline-none font-bold text-xs text-slate-700 shadow-sm cursor-pointer"
                         >
-                            <option value="All">Any type of mode</option>
+                            <option value="All">Select Learning Mode</option>
                             {MODES.map(m => (
                                 <option key={m.value} value={m.value}>{m.label}</option>
                             ))}

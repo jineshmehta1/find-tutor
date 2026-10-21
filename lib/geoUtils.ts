@@ -606,7 +606,7 @@ export function matchesTeachingMode(
   storedMode: string | null | undefined,
   filterMode: string | null | undefined
 ): boolean {
-  if (!filterMode || filterMode === "All" || filterMode.trim() === "" || filterMode === "Any type of mode") {
+  if (!filterMode || filterMode === "All" || filterMode.trim() === "" || filterMode === "Any type of mode" || filterMode.toLowerCase().includes("select")) {
     return true;
   }
   if (!storedMode) return false;

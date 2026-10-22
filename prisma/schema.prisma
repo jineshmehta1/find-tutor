@@ -80,6 +80,7 @@ model Teacher {
   updatedAt             DateTime  @updatedAt
 
   leads                 Lead[]
+  leadContacts          LeadContact[]
   classes               ScheduledClass[]
   earnings              TutorEarning[]
   progressReports       StudentProgressReport[]
@@ -115,8 +116,20 @@ model Lead {
   classLevel String?
   mode       String?
   status     LeadStatus @default(PENDING)
+  contacts   LeadContact[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+}
+
+model LeadContact {
+  id        String   @id @default(cuid())
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  teacherId String
+  teacher   Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([leadId, teacherId])
 }
 
 // ===========================================

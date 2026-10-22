@@ -17,6 +17,8 @@ interface Lead {
     message: string | null;
     status: string;
     createdAt: string;
+    contactCount?: number;
+    hasContacted?: boolean;
     subject?: string | null;
     classLevel?: string | null;
     location?: string | null;
@@ -184,8 +186,8 @@ export default function TeacherDashboard() {
     };
 
     // Filter leads
-    const directLeads = leads.filter(l => l.teacherId === teacherId);
-    const openLeads = leads.filter(l => l.teacherId === null);
+    const directLeads = leads.filter(l => l.teacherId === teacherId || l.hasContacted);
+    const openLeads = leads.filter(l => l.status !== "CONVERTED" && l.status !== "REJECTED");
 
     // Fallback Mock data for leads as per screen mockup
     const mockRecentLeads = [
@@ -541,7 +543,7 @@ export default function TeacherDashboard() {
                                             <th className="px-6 py-3.5">Requirement</th>
                                             <th className="px-6 py-3.5">Location</th>
                                             <th className="px-6 py-3.5">Posted On</th>
-                                            <th className="px-6 py-3.5">Budget</th>
+                                            <th className="px-6 py-3.5">Tutors Contacted</th>
                                             <th className="px-6 py-3.5 text-center">Action</th>
                                         </tr>
                                     </thead>
@@ -563,11 +565,16 @@ export default function TeacherDashboard() {
                                                     </td>
                                                     <td className="px-6 py-4 text-slate-500">{lead.location || "Vijayawada"}</td>
                                                     <td className="px-6 py-4 text-slate-500">{new Date(lead.createdAt).toLocaleDateString()}</td>
-                                                    <td className="px-6 py-4 text-slate-800 font-extrabold">{lead.message || "₹5,000/mo"}</td>
+                                                    <td className="px-6 py-4">
+                                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-slate-800 border border-amber-200">
+                                                            <Users className="w-3.5 h-3.5 text-amber-600" />
+                                                            <span>Contacted: <strong className="text-slate-950 font-black">{String(lead.contactCount ?? 0).padStart(2, "0")}</strong></span>
+                                                        </span>
+                                                    </td>
                                                     <td className="px-6 py-4 text-center">
-                                                        <button onClick={handleViewContact} className="px-4 py-1.5 bg-[#0a1829] hover:bg-amber-500 hover:text-slate-900 text-white font-extrabold rounded-lg text-[10px] transition-colors uppercase tracking-wider cursor-pointer border border-none">
+                                                        <Link href="/teacher/leads" className="inline-block px-4 py-1.5 bg-[#0a1829] hover:bg-amber-500 hover:text-slate-900 text-white font-extrabold rounded-lg text-[10px] transition-colors uppercase tracking-wider cursor-pointer border border-none">
                                                             View & Contact
-                                                        </button>
+                                                        </Link>
                                                     </td>
                                                 </tr>
                                             ))

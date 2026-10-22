@@ -8,6 +8,8 @@ interface Lead {
     id: string;
     status: string;
     createdAt: string;
+    contactCount?: number;
+    hasContacted?: boolean;
     subject?: string | null;
     classLevel?: string | null;
     student: {
@@ -38,9 +40,9 @@ export default function TeacherStudentsPage() {
             const res = await fetch("/api/leads?role=teacher");
             if (!res.ok) throw new Error("Failed to fetch");
             const data = await res.json();
-            // Only show converted/contacted students
+            // Show converted or contacted students for this tutor
             const students = (Array.isArray(data) ? data : []).filter(
-                (l: Lead) => l.status === "CONVERTED" || l.status === "CONTACTED"
+                (l: Lead) => l.status === "CONVERTED" || Boolean(l.hasContacted)
             );
             setLeads(students);
         } catch (error) {

@@ -17,6 +17,8 @@ interface Lead {
     mode: string | null;
     status: string;
     createdAt: string;
+    contactCount?: number;
+    hasContacted?: boolean;
     student: {
         id: string;
         subjects: string;
@@ -113,6 +115,60 @@ export default function TeacherLeadsPage() {
         }
     };
 
+    const handleContactLead = async (leadId: string) => {
+        // Optimistic UI update
+        setLeads((prev) =>
+            prev.map((l) => {
+                if (l.id !== leadId) return l;
+                const nextCount = l.hasContacted ? (l.contactCount ?? 0) : (l.contactCount ?? 0) + 1;
+                return {
+                    ...l,
+                    hasContacted: true,
+                    contactCount: nextCount,
+                };
+            })
+        );
+
+        if (selectedLead && selectedLead.id === leadId) {
+            setSelectedLead((prev) =>
+                prev
+                    ? {
+                          ...prev,
+                          hasContacted: true,
+                          contactCount: prev.hasContacted ? (prev.contactCount ?? 0) : (prev.contactCount ?? 0) + 1,
+                      }
+                    : null
+            );
+        }
+
+        try {
+            const res = await fetch("/api/leads", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ leadId, status: "CONTACTED" }),
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (typeof data.contactCount === "number") {
+                    setLeads((prev) =>
+                        prev.map((l) =>
+                            l.id === leadId
+                                ? { ...l, contactCount: data.contactCount, hasContacted: true }
+                                : l
+                        )
+                    );
+                    if (selectedLead && selectedLead.id === leadId) {
+                        setSelectedLead((prev) =>
+                            prev ? { ...prev, contactCount: data.contactCount, hasContacted: true } : null
+                        );
+                    }
+                }
+            }
+        } catch (error) {
+            console.error("Error recording lead contact:", error);
+        }
+    };
+
     const updateLeadStatus = async (leadId: string, status: string) => {
         setUpdating(true);
         try {
@@ -141,39 +197,17 @@ export default function TeacherLeadsPage() {
             (contact.displayEmail && contact.displayEmail.toLowerCase().includes(searchTerm.toLowerCase())) ||
             (lead.subject && lead.subject.toLowerCase().includes(searchTerm.toLowerCase()));
 
-        const matchesStatus = statusFilter === "ALL" || lead.status === statusFilter;
+        let matchesStatus = true;
+        if (statusFilter === "ACTIVE") {
+            matchesStatus = lead.status !== "CONVERTED" && lead.status !== "REJECTED";
+        } else if (statusFilter === "MY_CONTACTED") {
+            matchesStatus = Boolean(lead.hasContacted);
+        } else if (statusFilter !== "ALL") {
+            matchesStatus = lead.status === statusFilter;
+        }
 
         return matchesSearch && matchesStatus;
     });
-
-    const getStatusBadge = (status: string) => {
-        switch (status) {
-            case "CONTACTED":
-                return (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-blue-50 text-blue-700 border border-blue-200/60">
-                        <MessageCircle className="w-3.5 h-3.5" />
-                        Contacted
-                    </span>
-                );
-            case "CONVERTED":
-                return (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        Assigned Tutor
-                    </span>
-                );
-            case "REJECTED":
-                return (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-red-50 text-red-600 border border-red-200/60">
-                        <X className="w-3.5 h-3.5" />
-                        Closed
-                    </span>
-                );
-            case "PENDING":
-            default:
-                return null; // Will render buttons in the UI instead
-        }
-    };
 
     return (
         <div className="space-y-8 font-sans pb-12 p-6 sm:p-8 bg-slate-50 min-h-[calc(100vh-70px)]">
@@ -212,8 +246,8 @@ export default function TeacherLeadsPage() {
                         className="w-full px-4 py-3 text-xs font-bold border border-slate-200 rounded-xl focus:border-[#ffb800] outline-none bg-slate-50/50 cursor-pointer"
                     >
                         <option value="ALL">All Application Status</option>
-                        <option value="PENDING">Action Needed (Pending)</option>
-                        <option value="CONTACTED">Contacted</option>
+                        <option value="ACTIVE">Active Tuition Requests</option>
+                        <option value="MY_CONTACTED">Leads I Contacted</option>
                         <option value="CONVERTED">Assigned Tutor</option>
                         <option value="REJECTED">Closed</option>
                     </select>
@@ -279,14 +313,24 @@ export default function TeacherLeadsPage() {
                                     </div>
                                 </div>
                                 <div className="self-start sm:self-auto flex items-center gap-2">
-                                    {lead.status === "PENDING" ? (
+                                    {lead.status === "CONVERTED" ? (
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                                            <CheckCircle2 className="w-3.5 h-3.5" />
+                                            Assigned Tutor
+                                        </span>
+                                    ) : lead.status === "REJECTED" ? (
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-red-50 text-red-600 border border-red-200/60">
+                                            <X className="w-3.5 h-3.5" />
+                                            Closed
+                                        </span>
+                                    ) : (
                                         <>
                                             {contact.displayPhone ? (
                                                 <a
                                                     href={`https://wa.me/91${contact.displayPhone.replace(/\D/g, "").slice(-10)}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    onClick={(e) => { e.stopPropagation(); updateLeadStatus(lead.id, "CONTACTED"); }}
+                                                    onClick={(e) => { e.stopPropagation(); handleContactLead(lead.id); }}
                                                     className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-extrabold bg-[#0a1829] text-white hover:bg-slate-800 transition-colors shadow-sm"
                                                 >
                                                     <MessageCircle className="w-3.5 h-3.5 text-amber-400" />
@@ -296,7 +340,7 @@ export default function TeacherLeadsPage() {
                                             {contact.displayPhone && (
                                                 <a
                                                     href={`tel:${contact.displayPhone}`}
-                                                    onClick={(e) => { e.stopPropagation(); updateLeadStatus(lead.id, "CONTACTED"); }}
+                                                    onClick={(e) => { e.stopPropagation(); handleContactLead(lead.id); }}
                                                     className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-extrabold bg-amber-400 text-slate-900 hover:bg-amber-500 transition-colors shadow-sm"
                                                 >
                                                     <Phone className="w-3.5 h-3.5" />
@@ -304,10 +348,22 @@ export default function TeacherLeadsPage() {
                                                 </a>
                                             )}
                                         </>
-                                    ) : (
-                                        getStatusBadge(lead.status)
                                     )}
                                 </div>
+                            </div>
+
+                            {/* Tutors Contacted Count Badge & You Contacted indicator */}
+                            <div className="flex flex-wrap items-center gap-2">
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-50/90 text-slate-800 border border-amber-200">
+                                    <Users className="w-3.5 h-3.5 text-amber-600" />
+                                    <span>number of tutors contacted: <strong className="text-slate-950 font-black">{String(lead.contactCount ?? 0).padStart(2, "0")}</strong></span>
+                                </span>
+                                {lead.hasContacted && (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black bg-blue-50 text-blue-700 border border-blue-200">
+                                        <CheckCircle className="w-3.5 h-3.5 text-blue-600" />
+                                        <span>You contacted</span>
+                                    </span>
+                                )}
                             </div>
 
                             {/* Tags */}
@@ -343,7 +399,7 @@ export default function TeacherLeadsPage() {
                             <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
                                 <div className="flex items-center gap-4 text-slate-500 font-bold">
                                     <span className="flex items-center gap-1">
-                                        Status: <span className="text-slate-700 uppercase">{lead.status}</span>
+                                        Status: <span className="text-slate-700 uppercase">{lead.status === "CONVERTED" ? "ASSIGNED" : lead.status === "REJECTED" ? "CLOSED" : "ACTIVE"}</span>
                                     </span>
                                 </div>
                                 <span className="text-[11px] font-bold text-slate-400">
@@ -383,12 +439,28 @@ export default function TeacherLeadsPage() {
                             </button>
                         </div>
 
+                        {/* Contact Count & Status in Modal */}
+                        <div className="flex flex-wrap items-center justify-between gap-2 p-3 bg-amber-50/70 border border-amber-200/70 rounded-2xl">
+                            <div className="flex items-center gap-2">
+                                <Users className="w-4 h-4 text-amber-600" />
+                                <span className="text-xs font-bold text-slate-800">
+                                    number of tutors contacted: <strong className="text-slate-950 font-black text-sm">{String(selectedLead.contactCount ?? 0).padStart(2, "0")}</strong>
+                                </span>
+                            </div>
+                            {selectedLead.hasContacted && (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-black bg-blue-50 text-blue-700 border border-blue-200">
+                                    <CheckCircle className="w-3 h-3 text-blue-600" />
+                                    <span>You contacted</span>
+                                </span>
+                            )}
+                        </div>
+
                         {/* Contact Buttons */}
                         <div className="grid grid-cols-2 gap-3">
                             {contact.displayPhone ? (
                                 <a
                                     href={`tel:${contact.displayPhone}`}
-                                    onClick={() => updateLeadStatus(selectedLead.id, "CONTACTED")}
+                                    onClick={() => handleContactLead(selectedLead.id)}
                                     className="py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-md transition-colors"
                                 >
                                     <Phone className="w-4 h-4" />
@@ -403,7 +475,7 @@ export default function TeacherLeadsPage() {
                                     href={`https://wa.me/91${contact.displayPhone.replace(/\D/g, "").slice(-10)}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    onClick={() => updateLeadStatus(selectedLead.id, "CONTACTED")}
+                                    onClick={() => handleContactLead(selectedLead.id)}
                                     className="py-3 px-4 bg-[#ffb800] hover:bg-[#ffa000] text-slate-900 font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-md transition-colors"
                                 >
                                     <MessageCircle className="w-4 h-4" />
@@ -447,25 +519,18 @@ export default function TeacherLeadsPage() {
                         {/* Update Status Buttons */}
                         <div className="pt-2 border-t border-slate-100">
                             <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Update Application Status</label>
-                            <div className="grid grid-cols-3 gap-2">
-                                <button
-                                    onClick={() => updateLeadStatus(selectedLead.id, "CONTACTED")}
-                                    disabled={updating}
-                                    className="py-2.5 px-3 bg-blue-50 text-blue-700 border border-blue-200/60 rounded-xl text-xs font-extrabold hover:bg-blue-100 transition-colors disabled:opacity-50"
-                                >
-                                    Contacted
-                                </button>
+                            <div className="grid grid-cols-2 gap-2">
                                 <button
                                     onClick={() => updateLeadStatus(selectedLead.id, "CONVERTED")}
                                     disabled={updating}
-                                    className="py-2.5 px-3 bg-emerald-50 text-emerald-700 border border-emerald-200/60 rounded-xl text-xs font-extrabold hover:bg-emerald-100 transition-colors disabled:opacity-50"
+                                    className="py-2.5 px-3 bg-emerald-50 text-emerald-700 border border-emerald-200/60 rounded-xl text-xs font-extrabold hover:bg-emerald-100 transition-colors disabled:opacity-50 cursor-pointer"
                                 >
-                                    Assigned
+                                    Assigned Tutor
                                 </button>
                                 <button
                                     onClick={() => updateLeadStatus(selectedLead.id, "REJECTED")}
                                     disabled={updating}
-                                    className="py-2.5 px-3 bg-rose-50 text-rose-700 border border-rose-200/60 rounded-xl text-xs font-extrabold hover:bg-rose-100 transition-colors disabled:opacity-50"
+                                    className="py-2.5 px-3 bg-rose-50 text-rose-700 border border-rose-200/60 rounded-xl text-xs font-extrabold hover:bg-rose-100 transition-colors disabled:opacity-50 cursor-pointer"
                                 >
                                     Close Lead
                                 </button>

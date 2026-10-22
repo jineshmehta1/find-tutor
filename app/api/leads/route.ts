@@ -162,8 +162,20 @@ export async function GET(request: NextRequest) {
         let leads;
 
         if (session.user.role === "TEACHER" || role === "teacher") {
-            // Show all student leads to all teachers
-            leads = await prisma.lead.findMany({
+            const currentTeacher = await prisma.teacher.findFirst({
+                where: { user: { email: session.user.email } },
+                select: { id: true, createdAt: true }
+            });
+
+            // Show leads created on or after the teacher's profile registration date (so older historical leads are hidden)
+            const dateFilter = currentTeacher?.createdAt ? {
+                createdAt: {
+                    gte: currentTeacher.createdAt
+                }
+            } : {};
+
+            const rawLeads = await prisma.lead.findMany({
+                where: dateFilter,
                 include: {
                     student: {
                         include: {
@@ -190,11 +202,23 @@ export async function GET(request: NextRequest) {
                             },
                         },
                     },
+                    contacts: {
+                        select: {
+                            teacherId: true,
+                            createdAt: true,
+                        }
+                    }
                 },
                 orderBy: {
                     createdAt: "desc",
                 },
             });
+
+            leads = rawLeads.map((l) => ({
+                ...l,
+                contactCount: l.contacts?.length || 0,
+                hasContacted: currentTeacher ? Boolean(l.contacts?.some((c) => c.teacherId === currentTeacher.id)) : false,
+            }));
         } else if (session.user.role === "STUDENT") {
             // Get leads from this student
             const student = await prisma.student.findFirst({
@@ -277,20 +301,64 @@ export async function PATCH(request: NextRequest) {
         }
 
         const teacher = await prisma.teacher.findFirst({
-            where: { user: { email: session.user.email } }
+            where: { user: { email: session.user.email } },
+            select: { id: true }
         });
 
+        if (!teacher) {
+            return NextResponse.json({ error: "Teacher profile not found" }, { status: 404 });
+        }
+
+        if (status === "CONTACTED") {
+            // Record this tutor's contact in LeadContact table without flipping lead to dead/closed
+            await prisma.leadContact.upsert({
+                where: {
+                    leadId_teacherId: {
+                        leadId,
+                        teacherId: teacher.id
+                    }
+                },
+                create: {
+                    leadId,
+                    teacherId: teacher.id
+                },
+                update: {}
+            });
+
+            const contactCount = await prisma.leadContact.count({
+                where: { leadId }
+            });
+
+            const lead = await prisma.lead.findUnique({
+                where: { id: leadId },
+            });
+
+            return NextResponse.json({
+                message: "Contact recorded successfully",
+                lead,
+                contactCount,
+                hasContacted: true,
+            });
+        }
+
+        // For CONVERTED, REJECTED, PENDING
         const lead = await prisma.lead.update({
             where: { id: leadId },
             data: { 
                 status,
-                teacherId: teacher?.id
+                teacherId: status === "CONVERTED" ? teacher.id : undefined
             },
+        });
+
+        const contactCount = await prisma.leadContact.count({
+            where: { leadId }
         });
 
         return NextResponse.json({
             message: "Lead status updated",
             lead,
+            contactCount,
+            hasContacted: true,
         });
     } catch (error) {
         console.error("Error updating lead:", error);

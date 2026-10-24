@@ -524,7 +524,7 @@ export default function StudentDashboard() {
                                 <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500 transition-colors" />
                             </Link>
 
-                            {/* Action 3: Messages */}
+                            {/* Action 2: Messages */}
                             <Link href="/student/messages" className="flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100 group">
                                 <div className="flex items-center gap-3">
                                     <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0">
@@ -538,7 +538,7 @@ export default function StudentDashboard() {
                                 <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500 transition-colors" />
                             </Link>
 
-                            {/* Action 4: Demo Class */}
+                            {/* Action 3: Demo Class */}
                             <Link href="/student/schedule" className="flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100 group text-left">
                                 <div className="flex items-center gap-3">
                                     <div className="w-8 h-8 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center shrink-0">

@@ -7,7 +7,7 @@ import {
     LayoutDashboard, Users, User, LogOut, Menu, X, FileText,
     Crown, Clock, Sparkles, Home, Bell, Star, Calendar,
     MessageSquare, Upload, ChevronRight, Award, BarChart3, DollarSign,
-    Phone, Settings, HelpCircle, BookMarked, BookOpen
+    Phone, Settings, HelpCircle, BookMarked, BookOpen, Globe
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -28,6 +28,7 @@ const sidebarGroups: SidebarGroup[] = [
     {
         label: "MAIN",
         items: [
+            { label: "Visit Website",   href: "/",                      icon: Home },
             { label: "Dashboard",       href: "/teacher",              icon: LayoutDashboard },
             { label: "Leads",           href: "/teacher/leads",         icon: FileText },
             { label: "Messages",        href: "/teacher/messages",      icon: MessageSquare },
@@ -190,18 +191,28 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
         <div className="min-h-screen bg-slate-50 flex font-sans antialiased text-slate-800">
             {/* Mobile Header Bar */}
             <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-[#0c1e35] text-white px-4 py-3 flex items-center justify-between shadow-md">
-                <div className="flex items-center gap-2.5">
+                <Link href="/" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
                     <div className="w-8 h-8 rounded-lg bg-white p-0.5 shadow-md flex items-center justify-center shrink-0">
                         <img src="/image.png" alt="Aacharya Logo" className="w-full h-full object-contain" />
                     </div>
                     <span className="font-extrabold text-sm tracking-tight">Aacharya Teacher</span>
+                </Link>
+                <div className="flex items-center gap-2">
+                    <Link
+                        href="/"
+                        className="text-xs font-bold bg-white/10 hover:bg-white/20 text-white px-2.5 py-1.5 rounded-xl border border-white/15 flex items-center gap-1.5 transition-colors"
+                        title="Go to Website"
+                    >
+                        <Globe className="w-3.5 h-3.5" />
+                        <span className="text-[11px] font-black uppercase tracking-wider">Website</span>
+                    </Link>
+                    <button
+                        onClick={() => setIsOpen(!isOpen)}
+                        className="bg-white/10 hover:bg-white/20 text-white p-2 rounded-xl border border-white/15 transition-all"
+                    >
+                        {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                    </button>
                 </div>
-                <button
-                    onClick={() => setIsOpen(!isOpen)}
-                    className="bg-white/10 hover:bg-white/20 text-white p-2 rounded-xl border border-white/15 transition-all"
-                >
-                    {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                </button>
             </div>
 
             {/* Backdrop for mobile sidebar */}
@@ -336,6 +347,15 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
                     </div>
                     
                     <div className="flex items-center gap-6">
+                        {/* Go to Website Button */}
+                        <Link
+                            href="/"
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 text-slate-700 hover:text-slate-900 hover:border-slate-300 hover:bg-slate-50 transition-all text-xs font-bold shadow-sm"
+                        >
+                            <Globe className="w-3.5 h-3.5 text-amber-500" />
+                            <span>Go to Website</span>
+                        </Link>
+
                         {/* Notification Bell */}
                         <Link href="/teacher/notifications" className="relative cursor-pointer hover:bg-slate-50 p-2 rounded-xl transition-colors block">
                             <Bell className="w-5 h-5 text-slate-600" />

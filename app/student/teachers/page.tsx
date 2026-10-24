@@ -1,17 +1,36 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import {
-    Search, MapPin, BookOpen, Filter, Star, Phone,
-    User, GraduationCap, Briefcase, Award, X, Loader2,
-    Sparkles, ShieldCheck, CheckCircle2, ArrowRight
+    Search, MapPin, BookOpen, Star, Phone,
+    User, GraduationCap, Award, X, Loader2,
+    Sparkles, ShieldCheck, CheckCircle2, ArrowRight,
+    MessageSquare, Users, Locate, RotateCcw, Clock,
+    Laptop, Briefcase
 } from "lucide-react";
 import { toast } from "sonner";
-import { getPublicLocality } from "@/lib/geoUtils";
-import { matchesClassLevel } from "@/lib/classConstants";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import MapLocationPicker from "@/components/ui/DynamicMapPicker";
+import {
+    smartReverseGeocode,
+    getBrowserCoordinates,
+    getPublicLocality,
+    calculateHaversineDistance,
+    matchesTeachingMode
+} from "@/lib/geoUtils";
+import {
+    STANDARD_CLASSES,
+    ACADEMIC_SUBJECTS,
+    ACTIVITY_SUBJECTS,
+    ALL_STANDARD_SUBJECTS,
+    STANDARD_TEACHING_MODES,
+    matchesClassLevel
+} from "@/lib/classConstants";
+import TutorCard from "@/components/TutorCard";
 
-
-    interface Teacher {
+interface Teacher {
     id: string;
     userId: string;
     name: string;
@@ -19,24 +38,69 @@ import { matchesClassLevel } from "@/lib/classConstants";
     phone: string;
     profilePhoto: string | null;
     address: string;
+    latitude?: number | null;
+    longitude?: number | null;
     education: string;
     experience: string;
     subjects: string[];
     teachingMode?: string;
+    expectedFee?: number | null;
+    feeType?: string | null;
+    classesOrAgeGroup?: any;
+    qualificationLevel?: string | null;
+    qualificationName?: string | null;
+    isApproved?: boolean;
     distanceKm?: number | null;
 }
 
-const SUBJECTS = [
-    "All Subjects", "Mathematics", "Physics", "Chemistry", "Biology", "English",
-    "Hindi", "History", "Geography", "Computer Science", "Economics", "Abacus", "Chess", "Coding"
-];
+// Clean subjects list (strip raw class breakdown suffix e.g. "Mathematics (Class 1-10)" -> "Mathematics")
+const cleanSubjectName = (sub: string): string => {
+    return (sub || "").replace(/\s*\(.*?\)$/, "").trim();
+};
 
-export default function TeachersPage() {
+const isActivityTutor = (subjects: string[]): boolean => {
+    return (subjects || []).some(sub => {
+        const lower = (sub || "").toLowerCase();
+        return (
+            lower.includes("chess") ||
+            lower.includes("yoga") ||
+            lower.includes("abacus") ||
+            lower.includes("music") ||
+            lower.includes("dance") ||
+            lower.includes("cricket") ||
+            lower.includes("coach") ||
+            lower.includes("drawing") ||
+            lower.includes("art") ||
+            lower.includes("sports") ||
+            lower.includes("coding") ||
+            lower.includes("robotics") ||
+            ACTIVITY_SUBJECTS.some(act => lower.includes(act.toLowerCase()))
+        );
+    });
+};
+
+function TeachersDirectory() {
+    const searchParams = useSearchParams();
+
     const [teachers, setTeachers] = useState<Teacher[]>([]);
     const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [selectedSubject, setSelectedSubject] = useState("All Subjects");
-    const [areaFilter, setAreaFilter] = useState("");
+
+    // Search Tabs: "all" | "academics" | "activities"
+    const [activeSearchTab, setActiveSearchTab] = useState<"all" | "academics" | "activities">("all");
+
+    // Search Fields matching homepage
+    const [searchTerm, setSearchTerm] = useState(searchParams.get("q") || "");
+    const [searchSubject, setSearchSubject] = useState(searchParams.get("subject") || "");
+    const [searchClass, setSearchClass] = useState(searchParams.get("classLevel") || "");
+    const [searchLocation, setSearchLocation] = useState(searchParams.get("location") || "");
+    const [searchLat, setSearchLat] = useState<number | null>(
+        searchParams.get("lat") ? parseFloat(searchParams.get("lat")!) : null
+    );
+    const [searchLng, setSearchLng] = useState<number | null>(
+        searchParams.get("lng") ? parseFloat(searchParams.get("lng")!) : null
+    );
+    const [searchMode, setSearchMode] = useState(searchParams.get("mode") || "");
+    const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
 
     useEffect(() => {
         fetchTeachers();
@@ -45,11 +109,14 @@ export default function TeachersPage() {
     const fetchTeachers = async () => {
         setLoading(true);
         try {
-            const res = await fetch("/api/teachers");
+            // Fetch all approved and registered teachers
+            const res = await fetch("/api/teachers?approved=false", { cache: "no-store" });
             if (!res.ok) throw new Error();
             const data = await res.json();
             if (Array.isArray(data)) {
-                setTeachers(data);
+                // Prioritize approved teachers first
+                const sorted = [...data].sort((a: any, b: any) => (b.isApproved ? 1 : 0) - (a.isApproved ? 1 : 0));
+                setTeachers(sorted);
             }
         } catch {
             toast.error("Failed to load tutors directory");
@@ -58,157 +125,444 @@ export default function TeachersPage() {
         }
     };
 
-    const filteredTeachers = teachers.filter(t => {
-        const matchesSearch = t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            t.education.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesSubject = selectedSubject === "All Subjects" ||
-            t.subjects.some(s => s.toLowerCase().includes(selectedSubject.toLowerCase()));
-        
-        let matchesArea = true;
-        if (areaFilter.trim()) {
-            const terms = areaFilter.toLowerCase().split(/[\s,]+/).filter(Boolean);
-            matchesArea = t.address ? terms.some(term => t.address.toLowerCase().includes(term)) : false;
+    // Location detection via browser GPS
+    const handleDetectLocation = async () => {
+        const loadingToast = toast.loading("Detecting your location...");
+        try {
+            const { latitude, longitude } = await getBrowserCoordinates(8000);
+            setSearchLat(latitude);
+            setSearchLng(longitude);
+            const cleanAddress = await smartReverseGeocode(latitude, longitude);
+            setSearchLocation(cleanAddress);
+            toast.success(`Location detected: ${cleanAddress}`, { id: loadingToast });
+        } catch {
+            toast.error("Unable to detect GPS location. Please select on map.", { id: loadingToast });
         }
+    };
 
-        return matchesSearch && matchesSubject && matchesArea;
-    });
+    // Quick select popular search pill
+    const selectPopularSearch = (subjectName: string, isCoach = false) => {
+        setSearchSubject(subjectName);
+        if (isCoach) {
+            setActiveSearchTab("activities");
+        } else {
+            setActiveSearchTab("academics");
+        }
+    };
 
+    // Reset filters
+    const handleResetFilters = () => {
+        setSearchTerm("");
+        setSearchSubject("");
+        setSearchClass("");
+        setSearchLocation("");
+        setSearchLat(null);
+        setSearchLng(null);
+        setSearchMode("");
+        setActiveSearchTab("all");
+        toast.info("Filters reset");
+    };
+
+    // Current subjects list according to active tab
+    const currentSubjectOptions = useMemo(() => {
+        if (activeSearchTab === "academics") return ACADEMIC_SUBJECTS;
+        if (activeSearchTab === "activities") return ACTIVITY_SUBJECTS;
+        return ALL_STANDARD_SUBJECTS;
+    }, [activeSearchTab]);
+
+    // Robust client-side filter
+    const filteredTeachers = useMemo(() => {
+        return teachers.filter((tutor) => {
+            const subjectsList = Array.isArray(tutor.subjects) ? tutor.subjects : [];
+            const isCoach = isActivityTutor(subjectsList);
+
+            // Tab filter
+            if (activeSearchTab === "academics") {
+                const teachesAcademic = subjectsList.some(s =>
+                    ACADEMIC_SUBJECTS.some(ac => s.toLowerCase().includes(ac.toLowerCase()))
+                );
+                if (!teachesAcademic && isCoach) return false;
+            } else if (activeSearchTab === "activities") {
+                if (!isCoach) return false;
+            }
+
+            // Search by Tutor Name / Keyword / Education
+            if (searchTerm.trim()) {
+                const term = searchTerm.toLowerCase().trim();
+                const nameMatch = (tutor.name || "").toLowerCase().includes(term);
+                const eduMatch = (tutor.education || "").toLowerCase().includes(term);
+                const qualMatch = (tutor.qualificationName || "").toLowerCase().includes(term);
+                const subMatch = subjectsList.some(s => (s || "").toLowerCase().includes(term));
+                if (!nameMatch && !eduMatch && !qualMatch && !subMatch) {
+                    return false;
+                }
+            }
+
+            // Subject Filter
+            if (searchSubject && searchSubject !== "All Subjects") {
+                const subTerm = searchSubject.toLowerCase().trim();
+                const matchesSub = subjectsList.some(s => (s || "").toLowerCase().includes(subTerm));
+                if (!matchesSub) return false;
+            }
+
+            // Class Level Filter
+            if (searchClass && searchClass !== "All" && searchClass !== "") {
+                if (!matchesClassLevel(tutor.classesOrAgeGroup, searchClass, tutor.subjects)) {
+                    return false;
+                }
+            }
+
+            // Mode Filter
+            if (searchMode && searchMode !== "All" && searchMode !== "") {
+                if (!matchesTeachingMode(tutor.teachingMode, searchMode)) {
+                    return false;
+                }
+            }
+
+            // Location Filter
+            if (searchLat !== null && searchLng !== null && tutor.latitude && tutor.longitude) {
+                const dist = calculateHaversineDistance(searchLat, searchLng, tutor.latitude, tutor.longitude);
+                if (dist > 50) return false;
+            } else if (searchLocation.trim()) {
+                const terms = searchLocation.toLowerCase().split(/[\s,]+/).filter(Boolean);
+                const addr = (tutor.address || "").toLowerCase();
+                const matchesLoc = terms.some(term => addr.includes(term));
+                if (!matchesLoc) return false;
+            }
+
+            return true;
+        });
+    }, [teachers, activeSearchTab, searchTerm, searchSubject, searchClass, searchMode, searchLocation, searchLat, searchLng]);
+
+    const activeFilterCount = [
+        searchTerm,
+        searchSubject,
+        searchClass,
+        searchLocation,
+        searchMode,
+        activeSearchTab !== "all" ? activeSearchTab : ""
+    ].filter(Boolean).length;
 
     return (
-        <div className="space-y-8 pb-12 p-6 sm:p-8 bg-slate-50 min-h-[calc(100vh-70px)] font-sans">
+        <div className="space-y-6 pb-12 p-4 sm:p-6 md:p-8 bg-slate-50 min-h-[calc(100vh-70px)] font-sans">
+            
             {/* Header banner */}
-            <div className="bg-[#ffb800] p-6 sm:p-10 rounded-3xl text-slate-950 shadow-xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+            <div className="bg-[#ffb800] p-6 sm:p-8 rounded-3xl text-slate-950 shadow-lg relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none" />
                 <div className="relative z-10 space-y-2">
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-950/10 text-slate-900 text-xs font-bold rounded-full border border-slate-950/10">
                         <GraduationCap className="w-3.5 h-3.5" />
                         <span>Educator Directory</span>
                     </div>
-                    <h1 className="text-2xl sm:text-4xl font-black tracking-tight">Verified Mentors & Tutors</h1>
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight">Verified Mentors & Tutors</h1>
                     <p className="text-xs sm:text-sm text-slate-900/85 font-medium max-w-xl">
-                        Directly connect with top-rated tutors near Vijayawada via message or call.
+                        Directly connect with top-rated tutors and coaches near your area via message or call.
                     </p>
                 </div>
             </div>
 
-            {/* Filters panel */}
-            <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {/* Search name */}
-                    <div className="relative flex items-center">
-                        <Search className="absolute left-4 w-4 h-4 text-slate-400" />
-                        <input
-                            type="text"
-                            placeholder="Search tutor name or education..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-11 pr-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50"
-                        />
-                    </div>
-                    {/* Area filter */}
-                    <div className="relative flex items-center">
-                        <MapPin className="absolute left-4 w-4 h-4 text-slate-400" />
-                        <input
-                            type="text"
-                            placeholder="Filter by locality (e.g. Benz Circle)..."
-                            value={areaFilter}
-                            onChange={(e) => setAreaFilter(e.target.value)}
-                            className="w-full pl-11 pr-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50"
-                        />
-                    </div>
-                    {/* Select subject */}
-                    <div className="relative flex items-center">
-                        <BookOpen className="absolute left-4 w-4 h-4 text-slate-400" />
-                        <select
-                            value={selectedSubject}
-                            onChange={(e) => setSelectedSubject(e.target.value)}
-                            className="w-full pl-11 pr-4 py-3 text-xs font-bold border border-slate-200 rounded-2xl outline-none focus:border-[#ffb800] bg-slate-50/50 appearance-none cursor-pointer"
+            {/* HOMEPAGE-PARITY SEARCH BAR WIDGET */}
+            <div className="bg-white rounded-3xl shadow-md border border-slate-200/80 p-4 sm:p-6 space-y-4">
+                
+                <div className="flex items-center justify-between">
+                    <h3 className="text-slate-900 font-extrabold text-sm md:text-base text-left">
+                        What are you looking for?
+                    </h3>
+                    {activeFilterCount > 0 && (
+                        <button
+                            type="button"
+                            onClick={handleResetFilters}
+                            className="text-xs font-bold text-amber-600 hover:text-amber-700 flex items-center gap-1 cursor-pointer transition-colors"
                         >
-                            {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
-                        </select>
+                            <RotateCcw className="w-3.5 h-3.5" />
+                            <span>Reset Filters ({activeFilterCount})</span>
+                        </button>
+                    )}
+                </div>
+
+                {/* Tab Toggles (Matching Homepage) */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 border-b border-slate-100 pb-3.5">
+                    
+                    {/* Tab 0: All Mentors */}
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setActiveSearchTab("all");
+                            setSearchSubject("");
+                        }}
+                        className={`flex items-center gap-2.5 p-3 rounded-2xl transition-all text-left border cursor-pointer ${
+                            activeSearchTab === "all"
+                                ? "bg-amber-50/70 border-amber-300 text-slate-900 shadow-xs"
+                                : "bg-white border-slate-200 text-slate-400 hover:bg-slate-50"
+                        }`}
+                    >
+                        <div className={`p-2 rounded-xl shrink-0 ${activeSearchTab === "all" ? "bg-amber-100 text-amber-700" : "bg-slate-100 text-slate-400"}`}>
+                            <Sparkles className="w-4 h-4" />
+                        </div>
+                        <div className="leading-tight">
+                            <span className="block font-black text-xs">All Mentors</span>
+                            <span className="text-[10px] text-slate-400 block mt-0.5">Teachers & Coaches</span>
+                        </div>
+                    </button>
+
+                    {/* Tab 1: Academics */}
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setActiveSearchTab("academics");
+                            setSearchSubject("");
+                        }}
+                        className={`flex items-center gap-2.5 p-3 rounded-2xl transition-all text-left border cursor-pointer ${
+                            activeSearchTab === "academics"
+                                ? "bg-[#fef9eb] border-[#fbebc6] text-slate-900 shadow-xs"
+                                : "bg-white border-slate-200 text-slate-400 hover:bg-slate-50"
+                        }`}
+                    >
+                        <div className={`p-2 rounded-xl shrink-0 ${activeSearchTab === "academics" ? "bg-amber-100 text-amber-600" : "bg-slate-100 text-slate-400"}`}>
+                            <GraduationCap className="w-4 h-4" />
+                        </div>
+                        <div className="leading-tight">
+                            <span className="block font-black text-xs">Find a Teacher (Academics)</span>
+                            <span className="text-[10px] text-slate-400 block mt-0.5">For Classes 1 to 12 Subjects</span>
+                        </div>
+                    </button>
+
+                    {/* Tab 2: Activities */}
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setActiveSearchTab("activities");
+                            setSearchSubject("");
+                        }}
+                        className={`flex items-center gap-2.5 p-3 rounded-2xl transition-all text-left border cursor-pointer ${
+                            activeSearchTab === "activities"
+                                ? "bg-[#f5f5ff] border-[#e0e0ff] text-slate-900 shadow-xs"
+                                : "bg-white border-slate-200 text-slate-400 hover:bg-slate-50"
+                        }`}
+                    >
+                        <div className={`p-2 rounded-xl shrink-0 ${activeSearchTab === "activities" ? "bg-indigo-100 text-indigo-600" : "bg-slate-100 text-slate-400"}`}>
+                            <Users className="w-4 h-4" />
+                        </div>
+                        <div className="leading-tight">
+                            <span className="block font-black text-xs">Find a Coach (Activities)</span>
+                            <span className="text-[10px] text-slate-400 block mt-0.5">Curricular & Co-curricular</span>
+                        </div>
+                    </button>
+
+                </div>
+
+                {/* Search Input Row Form (Matching Homepage 5-column grid) */}
+                <form onSubmit={(e) => e.preventDefault()} className="space-y-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2.5 sm:gap-3 items-center">
+                        
+                        {/* 1. Tutor Name / Keyword Search */}
+                        <div className="text-left lg:col-span-3">
+                            <div className="relative flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2.5 transition-colors focus-within:border-amber-500 shadow-xs">
+                                <Search className="w-4 h-4 text-slate-400 mr-2 shrink-0" />
+                                <input
+                                    type="text"
+                                    placeholder="Search tutor name, education..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-full bg-transparent border-none text-[12px] font-bold outline-none text-slate-800 py-1"
+                                />
+                                {searchTerm && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setSearchTerm("")}
+                                        className="p-1 text-slate-400 hover:text-slate-600 cursor-pointer"
+                                    >
+                                        <X className="w-3.5 h-3.5" />
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* 2. Subject Dropdown */}
+                        <div className="text-left lg:col-span-3">
+                            <div className="relative flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2.5 transition-colors focus-within:border-amber-500 shadow-xs">
+                                <BookOpen className="w-4 h-4 text-slate-400 mr-2 shrink-0" />
+                                <select
+                                    value={searchSubject}
+                                    onChange={(e) => setSearchSubject(e.target.value)}
+                                    className="w-full bg-transparent border-none text-[12px] font-bold outline-none text-slate-800 py-1 cursor-pointer"
+                                >
+                                    <option value="">All Subjects & Activities</option>
+                                    {currentSubjectOptions.map((sub) => (
+                                        <option key={sub} value={sub}>{sub}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* 3. Class Level Dropdown */}
+                        <div className="text-left lg:col-span-2">
+                            <div className="relative flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2.5 transition-colors focus-within:border-amber-500 shadow-xs">
+                                <GraduationCap className="w-4 h-4 text-slate-400 mr-2 shrink-0" />
+                                <select
+                                    value={searchClass}
+                                    onChange={(e) => setSearchClass(e.target.value)}
+                                    className="w-full bg-transparent border-none text-[12px] font-bold outline-none text-slate-800 py-1 cursor-pointer"
+                                >
+                                    <option value="">Select Level</option>
+                                    <option value="All">All Grades</option>
+                                    {STANDARD_CLASSES.map((c) => (
+                                        <option key={c} value={c}>{c}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* 4. Location with Autocomplete Modal & GPS Detect */}
+                        <div className="text-left lg:col-span-2">
+                            <div
+                                className="relative flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2 transition-colors hover:border-amber-500 cursor-pointer shadow-xs"
+                                onClick={() => setIsLocationModalOpen(true)}
+                            >
+                                <MapPin className="w-4 h-4 text-slate-400 mr-2 shrink-0" />
+                                <input
+                                    type="text"
+                                    placeholder="Select Location"
+                                    value={searchLocation}
+                                    readOnly
+                                    className="w-full bg-transparent border-none text-[12px] font-bold outline-none text-slate-800 py-1 cursor-pointer pointer-events-none truncate pr-6 placeholder:text-slate-800 placeholder:font-bold"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDetectLocation();
+                                    }}
+                                    title="Detect Current Location"
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-amber-500 transition-colors cursor-pointer flex items-center justify-center border-none bg-transparent"
+                                >
+                                    <Locate className="w-4 h-4" />
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* 5. Mode of Teaching Dropdown */}
+                        <div className="text-left lg:col-span-2">
+                            <div className="relative flex items-center bg-white border border-slate-200 rounded-xl px-3 py-2.5 transition-colors focus-within:border-amber-500 shadow-xs">
+                                <Users className="w-4 h-4 text-slate-400 mr-2 shrink-0" />
+                                <select
+                                    value={searchMode}
+                                    onChange={(e) => setSearchMode(e.target.value)}
+                                    className="w-full bg-transparent border-none text-[12px] font-bold outline-none text-slate-800 py-1 cursor-pointer"
+                                >
+                                    <option value="">All Learning Modes</option>
+                                    {STANDARD_TEACHING_MODES.map((m) => (
+                                        <option key={m.value} value={m.value}>{m.label}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
                     </div>
+                </form>
+
+                {/* Popular Searches Row (Matching Homepage) */}
+                <div className="border-t border-slate-100 pt-3 flex flex-wrap gap-2 items-center text-[11px] text-slate-500 font-bold">
+                    <span className="text-slate-400">Popular Searches:</span>
+                    <button type="button" onClick={() => selectPopularSearch("Mathematics")} className="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 rounded-lg text-slate-700 border border-slate-150 transition-colors cursor-pointer">Maths Teacher</button>
+                    <button type="button" onClick={() => selectPopularSearch("Physics")} className="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 rounded-lg text-slate-700 border border-slate-150 transition-colors cursor-pointer">Physics Teacher</button>
+                    <button type="button" onClick={() => selectPopularSearch("Chemistry")} className="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 rounded-lg text-slate-700 border border-slate-150 transition-colors cursor-pointer">Chemistry Teacher</button>
+                    <button type="button" onClick={() => selectPopularSearch("English")} className="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 rounded-lg text-slate-700 border border-slate-150 transition-colors cursor-pointer">English Teacher</button>
+                    <button type="button" onClick={() => selectPopularSearch("Yoga", true)} className="px-2.5 py-1 bg-[#fff9eb] border border-[#ffe082] rounded-lg text-amber-900 transition-colors cursor-pointer">Yoga Coach</button>
+                    <button type="button" onClick={() => selectPopularSearch("Abacus", true)} className="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 rounded-lg text-slate-700 border border-slate-150 transition-colors cursor-pointer">Abacus Teacher</button>
+                    <button type="button" onClick={() => selectPopularSearch("Chess", true)} className="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 rounded-lg text-slate-700 border border-slate-150 transition-colors cursor-pointer">Chess Coach</button>
+                    <button type="button" onClick={() => selectPopularSearch("Coding", true)} className="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 rounded-lg text-slate-700 border border-slate-150 transition-colors cursor-pointer">Coding Coach</button>
+                </div>
+
+            </div>
+
+            {/* Results Counter Header */}
+            <div className="flex items-center justify-between px-1">
+                <div>
+                    <h2 className="text-sm font-black text-slate-900 uppercase tracking-wider">
+                        {filteredTeachers.length} {filteredTeachers.length === 1 ? "Educator" : "Educators"} Available
+                    </h2>
+                    <p className="text-[11px] text-slate-400 font-bold">
+                        {activeFilterCount > 0 ? "Showing filtered mentors matching your criteria" : "Showing all verified teachers and coaches"}
+                    </p>
                 </div>
             </div>
 
             {/* Tutors Grid */}
             {loading ? (
-                <div className="flex flex-col items-center justify-center py-24 space-y-3">
+                <div className="flex flex-col items-center justify-center py-24 space-y-3 bg-white rounded-3xl border border-slate-200/80 shadow-xs">
                     <Loader2 className="w-8 h-8 text-[#ffb800] animate-spin" />
-                    <p className="text-slate-400 font-bold uppercase tracking-wider text-xs">Loading tutors...</p>
+                    <p className="text-slate-400 font-bold uppercase tracking-wider text-xs">Loading tutors directory...</p>
                 </div>
             ) : filteredTeachers.length === 0 ? (
-                <div className="bg-white rounded-3xl border border-slate-200/80 p-16 text-center space-y-4 shadow-sm">
-                    <div className="text-5xl">🔍</div>
-                    <div className="space-y-1">
-                        <h3 className="text-lg font-black text-slate-800">No matching tutors found</h3>
-                        <p className="text-xs text-slate-400 font-medium max-w-xs mx-auto">Try clearing search filters or broadening your area check.</p>
+                <div className="bg-white rounded-3xl border border-slate-200/80 p-12 sm:p-16 text-center space-y-4 shadow-sm">
+                    <div className="w-16 h-16 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto text-2xl">
+                        🔍
                     </div>
+                    <div className="space-y-1">
+                        <h3 className="text-base font-black text-slate-800">No matching tutors found</h3>
+                        <p className="text-xs text-slate-400 font-medium max-w-sm mx-auto">
+                            We couldn't find any educators matching your current search filters. Try clearing your filters or broadening your locality search.
+                        </p>
+                    </div>
+                    {activeFilterCount > 0 && (
+                        <button
+                            type="button"
+                            onClick={handleResetFilters}
+                            className="px-5 py-2.5 bg-[#0a1829] hover:bg-amber-500 hover:text-slate-900 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md cursor-pointer inline-flex items-center gap-1.5"
+                        >
+                            <RotateCcw className="w-3.5 h-3.5" />
+                            <span>Clear All Filters</span>
+                        </button>
+                    )}
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredTeachers.map(tutor => (
-                        <div key={tutor.id} className="bg-white rounded-3xl border border-slate-200/80 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group relative">
-                            <div className="space-y-4">
-                                <div className="flex items-start gap-4">
-                                    <div className="relative w-14 h-14 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
-                                        {tutor.profilePhoto ? (
-                                            <img src={tutor.profilePhoto} alt={tutor.name} className="w-full h-full object-cover" />
-                                        ) : (
-                                            <div className="w-full h-full bg-[#ffb800]/10 flex items-center justify-center text-[#ffb800] font-black text-lg">
-                                                {tutor.name[0]}
-                                            </div>
-                                        )}
-                                        <span className="absolute bottom-0.5 right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white" />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-1 text-amber-500 mb-0.5">
-                                            <Star className="w-3.5 h-3.5 fill-current" />
-                                            <span className="text-xs font-black text-slate-800">4.9</span>
-                                        </div>
-                                        <h3 className="font-black text-sm text-slate-900 truncate leading-snug group-hover:text-[#ffb800] transition-colors">{tutor.name}</h3>
-                                        <p className="text-[11px] font-bold text-slate-400 truncate mt-0.5">{tutor.education}</p>
-                                    </div>
-                                </div>
-
-                                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100 space-y-1.5 text-[11px] font-bold text-slate-500">
-                                    <div className="flex items-center gap-2 truncate">
-                                        <Award className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                                        <span>{tutor.experience || "Verified Educator"}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 truncate">
-                                        <MapPin className="w-3.5 h-3.5 text-[#ffb800] shrink-0" />
-                                        <span className="truncate">{getPublicLocality(tutor.address)}</span>
-
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <div className="text-[9px] font-black uppercase tracking-wider text-slate-400 mb-1.5">Subjects Taught</div>
-                                    <div className="flex flex-wrap gap-1">
-                                        {tutor.subjects.map(sub => (
-                                            <span key={sub} className="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-md text-[10px] font-bold">
-                                                {sub}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="pt-4 mt-4 border-t border-slate-100 grid grid-cols-2 gap-2">
-                                <a href={`https://wa.me/91${tutor.phone?.replace(/\D/g, "").slice(-10)}`} target="_blank" rel="noopener noreferrer"
-                                    className="w-full py-2.5 bg-[#ffb800] hover:bg-[#ffa000] text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors">
-                                    <Sparkles className="w-3.5 h-3.5 text-amber-300" /> Message
-                                </a>
-                                <a href={`tel:${tutor.phone}`}
-                                    className="w-full py-2.5 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 border border-slate-200 transition-colors">
-                                    <Phone className="w-3.5 h-3.5 text-amber-600" /> Call Tutor
-                                </a>
-                            </div>
-                        </div>
+                    {filteredTeachers.map((tutor) => (
+                        <TutorCard key={tutor.id} tutor={tutor} />
                     ))}
                 </div>
             )}
 
+            {/* Location Selection Modal (Interactive Map & Autocomplete) */}
+            <Dialog open={isLocationModalOpen} onOpenChange={setIsLocationModalOpen}>
+                <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden border-0 bg-white rounded-2xl shadow-2xl">
+                    <DialogHeader className="p-5 pb-0">
+                        <DialogTitle className="text-sm font-extrabold uppercase tracking-widest text-slate-900 flex items-center gap-2">
+                            Select Location
+                        </DialogTitle>
+                    </DialogHeader>
+                    <div className="p-5 pt-4">
+                        <MapLocationPicker
+                            initialAddress={searchLocation}
+                            onLocationSelect={(loc) => {
+                                setSearchLocation(loc.address);
+                                if (loc.latitude && loc.longitude) {
+                                    setSearchLat(loc.latitude);
+                                    setSearchLng(loc.longitude);
+                                }
+                                setIsLocationModalOpen(false);
+                            }}
+                            height="280px"
+                            compact={false}
+                        />
+                    </div>
+                </DialogContent>
+            </Dialog>
+
         </div>
+    );
+}
+
+export default function TeachersPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex flex-col items-center justify-center py-24 space-y-3">
+                <Loader2 className="w-8 h-8 text-[#ffb800] animate-spin" />
+                <p className="text-slate-400 font-bold uppercase tracking-wider text-xs">Loading Directory...</p>
+            </div>
+        }>
+            <TeachersDirectory />
+        </Suspense>
     );
 }

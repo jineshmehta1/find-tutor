@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import MapLocationPicker from "@/components/ui/DynamicMapPicker";
+import TutorCard from "@/components/TutorCard";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { calculateHaversineDistance, geocodeAddressToCoords, getPublicLocality, matchesTeachingMode } from "@/lib/geoUtils";
 import { 
@@ -1183,230 +1184,19 @@ function FindTutorNearbyPageContent() {
             </div>
         </div>
     ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
-            {processedTeachers.map((t, idx) => {
-                // Clean subjects list (strip raw class breakdown suffix e.g. "Maths (Class 1, 2...)")
-                const cleanSubjects = (t.subjects || []).map((s: string) => s.replace(/\s*\(.*?\)$/, "").trim()).filter(Boolean);
-                const coverUrl = getSubjectCover(cleanSubjects[0] || t.qualificationName);
-
-                // Parse teaching modes cleanly
-                let modes: string[] = [];
-                if (t.teachingMode) {
-                    try {
-                        const parsed = JSON.parse(t.teachingMode);
-                        if (Array.isArray(parsed)) modes = parsed;
-                        else if (typeof parsed === "string") modes = [parsed];
-                    } catch {
-                        modes = t.teachingMode.split(",").map((s: string) => s.trim());
-                    }
-                }
-                const formattedModes = modes.map((m: string) => {
-                    const clean = String(m).replace(/^["'\[\]]+|["'\[\]]+$/g, '').trim();
-                    const upper = clean.toUpperCase();
-                    if (upper.includes("STUDENT") || upper.includes("HOME TUTOR")) return "At Student Home";
-                    if (upper.includes("TEACHER") || upper.includes("CENTRE")) return "At Teacher Home";
-                    if (upper.includes("ONLINE")) return "Online Mode";
-                    return clean;
-                }).filter(Boolean);
-
-                // Parse classes taught cleanly into a compact summary string
-                let classesList: string[] = [];
-                if (t.classesOrAgeGroup) {
-                    try {
-                        const parsed = typeof t.classesOrAgeGroup === "string" ? JSON.parse(t.classesOrAgeGroup) : t.classesOrAgeGroup;
-                        if (Array.isArray(parsed)) classesList = parsed;
-                    } catch {
-                        if (Array.isArray(t.classesOrAgeGroup)) classesList = t.classesOrAgeGroup;
-                    }
-                }
-                let classesSummary = "All Grades";
-                if (classesList.length > 0) {
-                    if (classesList.length >= 4) {
-                        classesSummary = `${classesList[0]} to ${classesList[classesList.length - 1]}`;
-                    } else {
-                        classesSummary = classesList.join(", ");
-                    }
-                }
-
-                return (
-                    <motion.div 
-                        key={t.id}
-                        initial={{ opacity: 0, y: 15 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: (idx % 4) * 0.05 }}
-                        className="bg-white rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl hover:border-amber-200/80 transition-all duration-300 flex flex-col justify-between overflow-hidden group text-left h-full"
-                    >
-                        {/* Cover Image Header with floating badges */}
-                        <div className="relative h-28 w-full overflow-hidden shrink-0 bg-slate-100">
-                            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/30 via-transparent to-transparent z-10" />
-                            <img 
-                                src={coverUrl} 
-                                alt={cleanSubjects[0] || "Tutor"} 
-                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                            />
-                            {/* Floating Top Badges */}
-                            <div className="absolute top-2.5 left-2.5 right-2.5 z-20 flex items-center justify-between gap-1.5">
-                                {t.isApproved ? (
-                                    <span className="flex items-center gap-1 px-2 py-0.5 bg-emerald-500 text-white rounded-full text-[9px] font-black shadow-sm">
-                                        <ShieldCheck className="w-3 h-3 text-white" />
-                                        <span>Verified</span>
-                                    </span>
-                                ) : (
-                                    <span className="flex items-center gap-1 px-2 py-0.5 bg-amber-500 text-white rounded-full text-[9px] font-black shadow-sm">
-                                        <Clock className="w-3 h-3 text-white" />
-                                        <span>Pending</span>
-                                    </span>
-                                )}
-                                <span className="flex items-center gap-1 px-2 py-0.5 bg-white/90 backdrop-blur-sm text-amber-700 rounded-full text-[10px] font-black shadow-sm">
-                                    <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
-                                    <span>{t.rating || "5.0"}</span>
-                                    {t.reviewsCount > 0 && <span className="text-slate-400 font-normal text-[9px]">({t.reviewsCount})</span>}
-                                </span>
-                            </div>
-
-                            {/* Floating Rate / Fee Badge */}
-                            <div className="absolute bottom-2.5 right-2.5 z-20">
-                                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-950/80 backdrop-blur-md text-amber-400 rounded-xl text-xs font-black shadow-md border border-white/15">
-                                    <span>{t.expectedFee ? `₹${t.expectedFee.toLocaleString()}` : "Contact"}</span>
-                                    <span className="text-[9px] font-semibold text-slate-300">
-                                        {t.expectedFee ? (t.feeType ? (t.feeType.startsWith("/") ? t.feeType : `/${t.feeType}`) : "/hr") : "for Fee"}
-                                    </span>
-                                </span>
-                            </div>
-                        </div>
-
-                        {/* Profile Info & Content */}
-                        <div className="p-4 pt-0 flex-1 flex flex-col justify-between space-y-3">
-                            
-                            {/* Profile Avatar overlapping cover */}
-                            <div className="flex items-start gap-3 relative z-20 pt-1">
-                                <div 
-                                    onClick={() => router.push(`/tutor/${t.id}`)}
-                                    className="relative w-14 h-14 shrink-0 -mt-7 rounded-full overflow-hidden border-3 border-white shadow-md bg-white cursor-pointer group-hover:scale-105 transition-transform"
-                                >
-                                    {t.profilePhoto ? (
-                                        <img 
-                                            src={t.profilePhoto} 
-                                            alt={t.name} 
-                                            className="w-full h-full object-cover" 
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full bg-gradient-to-tr from-amber-400 to-amber-500 text-slate-950 font-black text-xl flex items-center justify-center">
-                                            {t.name?.[0] || "T"}
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="min-w-0 flex-1 pt-1">
-                                    <h4 
-                                        onClick={() => router.push(`/tutor/${t.id}`)}
-                                        className="font-extrabold text-sm sm:text-base text-slate-900 group-hover:text-amber-600 transition-colors truncate leading-tight cursor-pointer"
-                                    >
-                                        {t.name}
-                                    </h4>
-                                    <p className="text-[10px] text-slate-400 font-bold truncate mt-0.5">
-                                        {t.qualificationName || t.education || "Qualified Mentor"}
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Details Area */}
-                            <div className="space-y-2 w-full">
-                                {/* Subjects Offered */}
-                                <div className="flex flex-wrap gap-1 items-center">
-                                    {cleanSubjects.slice(0, 2).map((s: string) => (
-                                        <span key={s} className="px-2 py-0.5 rounded-md text-[9px] font-black tracking-wide uppercase bg-amber-50 text-amber-800 border border-amber-200/60 truncate max-w-[120px]">
-                                            {s}
-                                        </span>
-                                    ))}
-                                    {cleanSubjects.length > 2 && (
-                                        <span className="px-1.5 py-0.5 rounded-md text-[9px] font-bold bg-slate-100 text-slate-500">
-                                            +{cleanSubjects.length - 2}
-                                        </span>
-                                    )}
-                                </div>
-
-                                {/* Teaching Mode Badges */}
-                                {formattedModes.length > 0 && (
-                                    <div className="flex flex-wrap gap-1 items-center">
-                                        {formattedModes.slice(0, 2).map((m, i) => (
-                                            <span key={i} className="px-2 py-0.5 rounded-md text-[9px] font-extrabold bg-blue-50 text-blue-800 border border-blue-100/80">
-                                                {m}
-                                            </span>
-                                        ))}
-                                    </div>
-                                )}
-
-                                {/* Classes Taught */}
-                                <div className="text-[10px] text-slate-500 font-semibold truncate">
-                                    <span className="text-slate-400 uppercase font-black text-[9px] tracking-wider mr-1">Grades:</span>
-                                    <span className="text-slate-700 font-bold">{classesSummary}</span>
-                                </div>
-
-                                {/* Location & Distance Row */}
-                                <div className="flex items-center justify-between text-[10px] text-slate-500 font-bold pt-1 border-t border-slate-50">
-                                    <span className="flex items-center gap-1 truncate max-w-[110px]" title={getPublicLocality(t.address)}>
-                                        <MapPin className="w-3 h-3 text-amber-500 shrink-0" />
-                                        <span className="truncate">{getPublicLocality(t.address)}</span>
-                                    </span>
-                                    {t.distanceKm !== undefined && t.distanceKm !== null && t.distanceKm < 900 ? (
-                                        <span className="text-amber-700 font-extrabold text-[9px] bg-amber-50 px-1.5 py-0.5 rounded-md border border-amber-200/60 shrink-0">
-                                            🧭 {t.distanceKm < 1 ? `${Math.round(t.distanceKm * 1000)}m` : `${t.distanceKm.toFixed(1)}km`}
-                                        </span>
-                                    ) : (
-                                        <span className="flex items-center gap-1 text-slate-400 font-bold text-[9px] shrink-0">
-                                            <Clock className="w-3 h-3 text-amber-500" />
-                                            <span>{t.experience || "Exp."}</span>
-                                        </span>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Footer / CTA Actions: 3 buttons side-by-side full width */}
-                        <div className="p-2.5 sm:p-3 bg-slate-50/80 border-t border-slate-100 grid grid-cols-3 gap-1 sm:gap-1.5">
-                            <button 
-                                onClick={() => {
-                                    if (t.phone) {
-                                        const cleanPhone = t.phone.replace(/\D/g, "").slice(-10);
-                                        window.open(`https://wa.me/91${cleanPhone}?text=${encodeURIComponent(`Hi ${t.name}, I found your tutoring profile on Aacharya Academy and would like to inquire about classes.`)}`, "_blank");
-                                    } else {
-                                        router.push(`/tutor/${t.id}`);
-                                    }
-                                }}
-                                title="Message Tutor"
-                                className="py-2.5 px-1 bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-[9.5px] xs:text-[10px] sm:text-[11px] rounded-xl transition-all shadow-xs active:scale-95 cursor-pointer flex items-center justify-center gap-0.5 sm:gap-1 border-none"
-                            >
-                                <MessageSquare className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
-                                <span className="truncate">Message</span>
-                            </button>
-                            <button 
-                                onClick={() => {
-                                    if (t.phone) {
-                                        window.open(`tel:${t.phone}`, "_self");
-                                    } else {
-                                        router.push(`/tutor/${t.id}`);
-                                    }
-                                }}
-                                title="Call Tutor"
-                                className="py-2.5 px-1 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[9.5px] xs:text-[10px] sm:text-[11px] rounded-xl transition-all shadow-xs active:scale-95 cursor-pointer flex items-center justify-center gap-0.5 sm:gap-1 border-none"
-                            >
-                                <Phone className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
-                                <span>Call</span>
-                            </button>
-                            <button 
-                                onClick={() => router.push(`/tutor/${t.id}`)}
-                                title="View Full Profile"
-                                className="py-2.5 px-1 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white font-black text-[9.5px] xs:text-[10px] sm:text-[11px] rounded-xl transition-all shadow-xs active:scale-95 cursor-pointer flex items-center justify-center gap-0.5 sm:gap-1 border-none"
-                            >
-                                <span className="truncate"><span className="hidden xs:inline">Full </span>Profile</span>
-                                <ArrowRight className="w-3 h-3 shrink-0" />
-                            </button>
-                        </div>
-                    </motion.div>
-                );
-            })}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {processedTeachers.map((t, idx) => (
+                <motion.div
+                    key={t.id}
+                    initial={{ opacity: 0, y: 15 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: (idx % 4) * 0.05 }}
+                    className="h-full"
+                >
+                    <TutorCard tutor={t} />
+                </motion.div>
+            ))}
         </div>
     )}
 </section>

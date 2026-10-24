@@ -573,7 +573,7 @@ export async function geocodeAddressToCoords(
  * Format address for public view (Zomato/Swiggy style).
  * Strips exact door numbers, house numbers, flat numbers, and returns "Locality, City".
  */
-export function getPublicLocality(fullAddress: string): string {
+export function getPublicLocality(fullAddress?: string | null): string {
   if (!fullAddress || !fullAddress.trim()) return "Vijayawada";
   const parts = fullAddress.split(",").map((p) => p.trim()).filter(Boolean);
   

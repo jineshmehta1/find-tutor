@@ -773,7 +773,7 @@ export default function HomePage() {
           </div>
 
           {/* Grid of Mixed Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {apiError ? (
               <div className="col-span-full py-12 text-center text-red-500 font-bold text-xs uppercase tracking-widest bg-red-50 border border-dashed border-red-200 rounded-[2rem] p-4">
                 Error: {apiError}

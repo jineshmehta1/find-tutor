@@ -195,7 +195,7 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
                     <div className="w-8 h-8 rounded-lg bg-white p-0.5 shadow-md flex items-center justify-center shrink-0">
                         <img src="/image.png" alt="Aacharya Logo" className="w-full h-full object-contain" />
                     </div>
-                    <span className="font-extrabold text-sm tracking-tight">Aacharya Teacher</span>
+                    <span className="font-extrabold text-sm tracking-tight">Aacharya Academy</span>
                 </Link>
                 <div className="flex items-center gap-2">
                     <Link
@@ -237,13 +237,30 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
                             </div>
                             <div className="flex flex-col">
                                 <span className="text-[15px] font-black text-white leading-none tracking-wider font-sans uppercase">
-                                    Aacharya
+                                    Aacharya Academy
                                 </span>
                                 <span className="text-[8px] font-black text-slate-400 leading-none tracking-widest mt-1 uppercase">
                                     Find Tutors Nearby
                                 </span>
                             </div>
                         </Link>
+                    </div>
+
+                    {/* User Profile Bar for Mobile Sidebar */}
+                    <div className="px-4 py-3 bg-[#0d2037] border-b border-slate-900/60 lg:hidden flex items-center gap-3 shrink-0">
+                        <div className="w-9 h-9 rounded-full overflow-hidden bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0">
+                            {profilePhoto ? (
+                                <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="w-full h-full bg-[#ffb800] text-slate-950 font-black flex items-center justify-center text-xs uppercase">
+                                    {session?.user?.name ? session.user.name.slice(0, 2) : "T"}
+                                </div>
+                            )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                            <p className="text-xs font-black text-white truncate">{session?.user?.name || "Teacher"}</p>
+                            <p className="text-[10px] text-slate-400 font-semibold truncate">Teacher Account</p>
+                        </div>
                     </div>
 
                     {/* Nav Menu */}

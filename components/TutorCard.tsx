@@ -134,22 +134,22 @@ export default function TutorCard({ tutor, onSelect }: TutorCardProps) {
     const reviewsCount = tutor.reviewsCount || 24;
 
     return (
-        <div className="relative bg-white rounded-[2rem] border border-slate-200/90 p-5 sm:p-6 shadow-sm hover:shadow-xl hover:border-amber-300 transition-all duration-300 overflow-hidden flex flex-col justify-between group h-full text-left">
+        <div className="relative bg-white rounded-[1.75rem] sm:rounded-[2rem] border border-slate-200/90 p-4 sm:p-6 shadow-sm hover:shadow-xl hover:border-amber-300 transition-all duration-300 overflow-hidden flex flex-col justify-between group h-full text-left">
             
             {/* Top-left decorative curved yellow arc matching mockup */}
-            <div className="absolute top-0 left-0 w-44 h-24 overflow-hidden pointer-events-none -z-0">
+            <div className="absolute top-0 left-0 w-36 sm:w-44 h-20 sm:h-24 overflow-hidden pointer-events-none -z-0">
                 <svg viewBox="0 0 180 100" fill="none" className="w-full h-full">
                     <path d="M0 0 H 180 C 115 35, 45 68, 0 68 Z" fill="#ffb800" />
                 </svg>
             </div>
 
-            <div className="space-y-4 relative z-10">
+            <div className="space-y-3.5 sm:space-y-4 relative z-10">
                 
                 {/* ──── TOP ROW: AVATAR + TITLES + VERIFIED & RATING ──── */}
-                <div className="flex items-start justify-between gap-3 pt-1">
+                <div className="flex items-start justify-between gap-2.5 sm:gap-3 pt-1">
                     
                     {/* Avatar with Green Verified Badge */}
-                    <div className="relative w-20 h-20 sm:w-22 sm:h-22 rounded-full border-4 border-white shadow-md bg-white shrink-0 z-10">
+                    <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full border-3 sm:border-4 border-white shadow-md bg-white shrink-0 z-10">
                         {photoUrl && !imgError ? (
                             <img
                                 src={photoUrl}
@@ -158,86 +158,86 @@ export default function TutorCard({ tutor, onSelect }: TutorCardProps) {
                                 onError={() => setImgError(true)}
                             />
                         ) : (
-                            <div className="w-full h-full rounded-full bg-gradient-to-tr from-amber-400 to-orange-500 text-white font-black text-2xl flex items-center justify-center">
+                            <div className="w-full h-full rounded-full bg-gradient-to-tr from-amber-400 to-orange-500 text-white font-black text-xl sm:text-2xl flex items-center justify-center">
                                 {(tutor.name || "T")[0]}
                             </div>
                         )}
                         {/* Green Checkmark Circle Badge */}
-                        <div className="absolute bottom-0 right-0 w-6 h-6 bg-[#00b074] text-white rounded-full flex items-center justify-center border-2 border-white shadow-xs z-20">
-                            <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        <div className="absolute bottom-0 right-0 w-5 h-5 sm:w-6 sm:h-6 bg-[#00b074] text-white rounded-full flex items-center justify-center border-2 border-white shadow-xs z-20">
+                            <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[3]" />
                         </div>
                     </div>
 
                     {/* Tutor Name & Headline */}
-                    <div className="flex-1 min-w-0 pl-1 pt-1">
+                    <div className="flex-1 min-w-0 pl-0.5 sm:pl-1 pt-0.5">
                         <Link href={`/tutor/${tutor.id}`}>
-                            <h3 className="text-xl sm:text-2xl font-black text-slate-900 group-hover:text-amber-500 transition-colors leading-tight truncate cursor-pointer">
+                            <h3 className="text-[15px] sm:text-xl font-black text-slate-900 group-hover:text-amber-500 transition-colors leading-snug break-words cursor-pointer">
                                 {tutor.name}
                             </h3>
                         </Link>
-                        <p className="text-xs sm:text-sm font-bold text-slate-700 mt-1 truncate">
+                        <p className="text-[11px] sm:text-xs font-bold text-slate-700 mt-0.5 leading-tight line-clamp-1">
                             {tutor.qualificationName || (cleanSubjects[0] ? `${cleanSubjects[0]} Educator` : "Dedicated Mentor")}
                         </p>
-                        <p className="text-[11px] sm:text-xs font-semibold text-slate-400 mt-0.5 truncate">
+                        <p className="text-[10px] sm:text-[11px] font-semibold text-slate-400 mt-0.5 leading-tight line-clamp-1">
                             {tutor.education || "Qualified Mentor"}
                         </p>
                     </div>
 
                     {/* Verification & Rating Badges (Top Right) */}
-                    <div className="flex flex-col items-end gap-1.5 shrink-0 pt-0.5">
+                    <div className="flex flex-col items-end gap-1 shrink-0 pt-0.5">
                         {tutor.isApproved !== false ? (
-                            <div className="px-3 py-1 bg-[#ffdf78] text-slate-950 font-black rounded-full text-xs flex items-center gap-1.5 shadow-2xs border border-amber-300">
-                                <CheckCircle2 className="w-3.5 h-3.5 fill-slate-950 text-[#ffdf78]" />
+                            <div className="px-2 sm:px-2.5 py-0.5 sm:py-1 bg-[#ffdf78] text-slate-950 font-black rounded-full text-[10px] sm:text-xs flex items-center gap-1 shadow-2xs border border-amber-300">
+                                <CheckCircle2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-slate-950 text-[#ffdf78]" />
                                 <span>Verified</span>
                             </div>
                         ) : (
-                            <div className="px-3 py-1 bg-amber-50 text-amber-800 font-black rounded-full text-xs flex items-center gap-1.5 border border-amber-200/60">
+                            <div className="px-2 sm:px-2.5 py-0.5 sm:py-1 bg-amber-50 text-amber-800 font-black rounded-full text-[10px] sm:text-xs flex items-center gap-1 border border-amber-200/60">
                                 <span>Verified</span>
                             </div>
                         )}
 
                         <Link
                             href={`/tutor/${tutor.id}`}
-                            className="flex items-center gap-1 text-xs font-black text-slate-800 mt-1.5 hover:text-amber-600 transition-colors"
+                            className="flex items-center gap-1 text-[11px] sm:text-xs font-black text-slate-800 mt-1 hover:text-amber-600 transition-colors"
                         >
-                            <Star className="w-4 h-4 fill-amber-400 text-amber-400 shrink-0" />
+                            <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-amber-400 text-amber-400 shrink-0" />
                             <span>{ratingValue}</span>
                             <span className="text-slate-400 font-bold">({reviewsCount})</span>
-                            <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                            <ChevronRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-400 shrink-0" />
                         </Link>
                     </div>
 
                 </div>
 
                 {/* ──── SUBJECT & PROFICIENCY ROW ──── */}
-                <div className="bg-[#fffdf7] border border-amber-100/90 rounded-2xl p-2.5 flex flex-wrap items-center gap-2">
-                    <div className="flex items-center gap-2 pl-1 pr-2">
-                        <SubjectIcon className="w-4 h-4 text-slate-800 shrink-0" />
-                        <span className="font-black text-sm sm:text-base text-slate-900 truncate">
+                <div className="bg-[#fffdf7] border border-amber-100/90 rounded-2xl p-2 sm:p-2.5 flex flex-wrap items-center gap-1.5 sm:gap-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2 pl-0.5 sm:pl-1 pr-1.5 sm:pr-2">
+                        <SubjectIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-800 shrink-0" />
+                        <span className="font-black text-xs sm:text-sm md:text-base text-slate-900 truncate">
                             {primarySubject}
                         </span>
                     </div>
 
                     {/* Tags matching mockup */}
-                    <div className="flex flex-wrap items-center gap-1.5 ml-auto">
+                    <div className="flex flex-wrap items-center gap-1 sm:gap-1.5 ml-auto">
                         {cleanSubjects.length > 1 ? (
                             cleanSubjects.slice(1, 4).map((sub, i) => (
                                 <span
                                     key={i}
-                                    className="px-2.5 py-1 bg-amber-50/80 text-amber-900 rounded-xl text-[11px] font-bold border border-amber-200/50"
+                                    className="px-2 sm:px-2.5 py-0.5 sm:py-1 bg-amber-50/80 text-amber-900 rounded-xl text-[10px] sm:text-[11px] font-bold border border-amber-200/50"
                                 >
                                     {sub}
                                 </span>
                             ))
                         ) : (
                             <>
-                                <span className="px-2.5 py-1 bg-amber-50/80 text-amber-900 rounded-xl text-[11px] font-bold border border-amber-200/50">
+                                <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 bg-amber-50/80 text-amber-900 rounded-xl text-[10px] sm:text-[11px] font-bold border border-amber-200/50">
                                     Beginner
                                 </span>
-                                <span className="px-2.5 py-1 bg-amber-50/80 text-amber-900 rounded-xl text-[11px] font-bold border border-amber-200/50">
+                                <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 bg-amber-50/80 text-amber-900 rounded-xl text-[10px] sm:text-[11px] font-bold border border-amber-200/50">
                                     Intermediate
                                 </span>
-                                <span className="px-2.5 py-1 bg-amber-50/80 text-amber-900 rounded-xl text-[11px] font-bold border border-amber-200/50">
+                                <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 bg-amber-50/80 text-amber-900 rounded-xl text-[10px] sm:text-[11px] font-bold border border-amber-200/50">
                                     Advanced
                                 </span>
                             </>
@@ -246,48 +246,48 @@ export default function TutorCard({ tutor, onSelect }: TutorCardProps) {
                 </div>
 
                 {/* ──── 3-COLUMN STATS GRID (Classes, Experience, Location) ──── */}
-                <div className="grid grid-cols-3 gap-2 py-1 items-start">
+                <div className="grid grid-cols-3 gap-1.5 sm:gap-2 py-1 items-start">
                     
                     {/* Classes Taught */}
-                    <div className="flex items-start gap-2 min-w-0">
-                        <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-amber-100/90 text-amber-700 flex items-center justify-center shrink-0 shadow-2xs mt-0.5">
-                            <GraduationCap className="w-4 h-4" />
+                    <div className="flex items-start gap-1.5 sm:gap-2 min-w-0">
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-amber-100/90 text-amber-700 flex items-center justify-center shrink-0 shadow-2xs mt-0.5">
+                            <GraduationCap className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         </div>
                         <div className="min-w-0 leading-tight">
-                            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
+                            <span className="text-[8.5px] sm:text-[10px] text-slate-400 font-extrabold uppercase tracking-wider block leading-tight">
                                 Classes Taught
                             </span>
-                            <span className="text-xs sm:text-[13px] font-black text-slate-900 block truncate mt-0.5" title={classesSummary}>
+                            <span className="text-[11px] sm:text-xs font-black text-slate-900 block leading-tight break-words line-clamp-2 mt-0.5" title={classesSummary}>
                                 {classesSummary}
                             </span>
                         </div>
                     </div>
 
                     {/* Experience */}
-                    <div className="flex items-start gap-2 min-w-0">
-                        <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-amber-100/90 text-amber-700 flex items-center justify-center shrink-0 shadow-2xs mt-0.5">
-                            <Briefcase className="w-4 h-4" />
+                    <div className="flex items-start gap-1.5 sm:gap-2 min-w-0">
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-amber-100/90 text-amber-700 flex items-center justify-center shrink-0 shadow-2xs mt-0.5">
+                            <Briefcase className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         </div>
                         <div className="min-w-0 leading-tight">
-                            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
+                            <span className="text-[8.5px] sm:text-[10px] text-slate-400 font-extrabold uppercase tracking-wider block leading-tight">
                                 Experience
                             </span>
-                            <span className="text-xs sm:text-[13px] font-black text-slate-900 block truncate mt-0.5">
+                            <span className="text-[11px] sm:text-xs font-black text-slate-900 block leading-tight break-words line-clamp-2 mt-0.5">
                                 {experienceSummary}
                             </span>
                         </div>
                     </div>
 
                     {/* Location */}
-                    <div className="flex items-start gap-2 min-w-0">
-                        <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-amber-100/90 text-amber-700 flex items-center justify-center shrink-0 shadow-2xs mt-0.5">
-                            <MapPin className="w-4 h-4" />
+                    <div className="flex items-start gap-1.5 sm:gap-2 min-w-0">
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-amber-100/90 text-amber-700 flex items-center justify-center shrink-0 shadow-2xs mt-0.5">
+                            <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         </div>
                         <div className="min-w-0 leading-tight">
-                            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
+                            <span className="text-[8.5px] sm:text-[10px] text-slate-400 font-extrabold uppercase tracking-wider block leading-tight">
                                 Location
                             </span>
-                            <span className="text-xs sm:text-[13px] font-black text-slate-900 block truncate mt-0.5" title={locationDisplay}>
+                            <span className="text-[11px] sm:text-xs font-black text-slate-900 block leading-tight break-words line-clamp-2 mt-0.5" title={locationDisplay}>
                                 {locationDisplay}
                             </span>
                         </div>
@@ -296,37 +296,37 @@ export default function TutorCard({ tutor, onSelect }: TutorCardProps) {
                 </div>
 
                 {/* ──── TEACHING MODE ──── */}
-                <div className="space-y-1.5 pt-1">
-                    <span className="text-xs font-bold text-slate-600 block">Teaching Mode</span>
-                    <div className="flex flex-wrap gap-2 items-center">
-                        <span className="px-3 py-1.5 rounded-xl bg-blue-50/80 text-blue-700 border border-blue-100 text-xs font-bold flex items-center gap-1.5">
-                            <Home className="w-3.5 h-3.5 text-blue-600" />
+                <div className="space-y-1 sm:space-y-1.5 pt-0.5">
+                    <span className="text-[11px] sm:text-xs font-bold text-slate-600 block">Teaching Mode</span>
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2 items-center">
+                        <span className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl bg-blue-50/80 text-blue-700 border border-blue-100 text-[10.5px] sm:text-xs font-bold flex items-center gap-1 sm:gap-1.5">
+                            <Home className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-600" />
                             <span>At Student Home</span>
                         </span>
-                        <span className="px-3 py-1.5 rounded-xl bg-blue-50/80 text-blue-700 border border-blue-100 text-xs font-bold flex items-center gap-1.5">
-                            <Home className="w-3.5 h-3.5 text-blue-600" />
+                        <span className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl bg-blue-50/80 text-blue-700 border border-blue-100 text-[10.5px] sm:text-xs font-bold flex items-center gap-1 sm:gap-1.5">
+                            <Home className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-600" />
                             <span>At Teacher Home</span>
                         </span>
-                        <span className="px-3 py-1.5 rounded-xl bg-blue-50/80 text-blue-700 border border-blue-100 text-xs font-bold flex items-center gap-1.5">
-                            <Laptop className="w-3.5 h-3.5 text-blue-600" />
+                        <span className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl bg-blue-50/80 text-blue-700 border border-blue-100 text-[10.5px] sm:text-xs font-bold flex items-center gap-1 sm:gap-1.5">
+                            <Laptop className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-600" />
                             <span>Online</span>
                         </span>
                     </div>
                 </div>
 
                 {/* ──── FEE RATE CONTAINER (HOURLY) ──── */}
-                <div className="bg-[#fffcf4] border border-[#fdeec8] rounded-2xl p-3.5 sm:p-4 flex items-center gap-3.5 shadow-2xs">
-                    <div className="w-11 h-11 rounded-2xl bg-amber-500/15 text-amber-600 flex items-center justify-center shrink-0">
-                        <Wallet className="w-5 h-5 text-amber-600" />
+                <div className="bg-[#fffcf4] border border-[#fdeec8] rounded-2xl p-3 sm:p-4 flex items-center gap-3 sm:gap-3.5 shadow-2xs">
+                    <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-amber-500/15 text-amber-600 flex items-center justify-center shrink-0">
+                        <Wallet className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
                     </div>
                     <div className="min-w-0">
-                        <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider block leading-tight">
+                        <span className="text-[9.5px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider block leading-tight">
                             Fee (Hourly)
                         </span>
-                        <span className="text-base sm:text-lg font-black text-amber-600 block mt-0.5 leading-tight">
+                        <span className="text-sm sm:text-base md:text-lg font-black text-amber-600 block mt-0.5 leading-tight">
                             {hourlyFeeDisplay}
                         </span>
-                        <span className="text-[10px] text-slate-400 font-semibold block mt-0.5">
+                        <span className="text-[9px] sm:text-[10px] text-slate-400 font-semibold block mt-0.5">
                             Flexible timings available
                         </span>
                     </div>
@@ -335,7 +335,7 @@ export default function TutorCard({ tutor, onSelect }: TutorCardProps) {
             </div>
 
             {/* ──── ACTION BUTTONS (Message, Call, View Profile) ──── */}
-            <div className="grid grid-cols-3 gap-2 pt-4 mt-4 border-t border-slate-100">
+            <div className="grid grid-cols-3 gap-1.5 sm:gap-2 pt-3 sm:pt-4 mt-3 sm:mt-4 border-t border-slate-100">
                 <button
                     type="button"
                     onClick={() => {
@@ -351,10 +351,10 @@ export default function TutorCard({ tutor, onSelect }: TutorCardProps) {
                             window.location.href = `/tutor/${tutor.id}`;
                         }
                     }}
-                    className="py-3 px-2 bg-[#ffb800] hover:bg-[#ffa000] text-slate-950 font-black text-xs rounded-2xl transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer active:scale-95 border-none"
+                    className="py-2.5 sm:py-3 px-1 sm:px-2 bg-[#ffb800] hover:bg-[#ffa000] text-slate-950 font-black text-[10.5px] sm:text-xs rounded-xl sm:rounded-2xl transition-all flex items-center justify-center gap-1 sm:gap-1.5 shadow-xs cursor-pointer active:scale-95 border-none"
                     title="Message Tutor"
                 >
-                    <MessageSquare className="w-4 h-4 shrink-0" />
+                    <MessageSquare className="w-3.5 h-3.5 shrink-0" />
                     <span>Message</span>
                 </button>
 
@@ -367,20 +367,20 @@ export default function TutorCard({ tutor, onSelect }: TutorCardProps) {
                             window.location.href = `/tutor/${tutor.id}`;
                         }
                     }}
-                    className="py-3 px-2 bg-[#00b074] hover:bg-[#009c66] text-white font-black text-xs rounded-2xl transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer active:scale-95 border-none"
+                    className="py-2.5 sm:py-3 px-1 sm:px-2 bg-[#00b074] hover:bg-[#009c66] text-white font-black text-[10.5px] sm:text-xs rounded-xl sm:rounded-2xl transition-all flex items-center justify-center gap-1 sm:gap-1.5 shadow-xs cursor-pointer active:scale-95 border-none"
                     title="Call Tutor"
                 >
-                    <Phone className="w-4 h-4 shrink-0" />
+                    <Phone className="w-3.5 h-3.5 shrink-0" />
                     <span>Call</span>
                 </button>
 
                 <Link
                     href={`/tutor/${tutor.id}`}
-                    className="py-3 px-2 bg-[#0f172a] hover:bg-slate-800 text-white font-black text-xs rounded-2xl transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer active:scale-95 text-center"
+                    className="py-2.5 sm:py-3 px-1 sm:px-2 bg-[#0f172a] hover:bg-slate-800 text-white font-black text-[10.5px] sm:text-xs rounded-xl sm:rounded-2xl transition-all flex items-center justify-center gap-1 sm:gap-1.5 shadow-xs cursor-pointer active:scale-95 text-center"
                     title="View Full Profile"
                 >
-                    <span className="truncate">View Profile</span>
-                    <ArrowRight className="w-3.5 h-3.5 shrink-0" />
+                    <span className="whitespace-nowrap">View Profile</span>
+                    <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
                 </Link>
             </div>
 

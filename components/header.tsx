@@ -74,8 +74,8 @@ const Header: React.FC = () => {
       <header
         className={`w-full transition-all duration-300 ${
           scrolled
-            ? "fixed top-0 glass-header shadow-sm py-2.5"
-            : "relative bg-white/40 backdrop-blur-md py-2.5 md:py-3.5 border-b border-slate-100/50"
+            ? "fixed top-0 glass-header shadow-sm py-2 sm:py-2.5"
+            : "relative bg-white/95 backdrop-blur-md py-2.5 md:py-3.5 border-b border-slate-100"
         }`}
       >
         <div className="max-w-[1400px] mx-auto px-4 md:px-8 flex items-center justify-between">

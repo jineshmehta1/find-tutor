@@ -53,9 +53,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Mobile Header Bar */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-[#0a1829] text-white px-4 py-3 flex items-center justify-between shadow-md">
-        <Link href="/admin" className="flex items-center gap-2">
+        <Link href="/admin" className="flex items-center gap-2.5">
           <img src="/image.png" alt="Aacharya Logo" className="h-8 w-auto object-contain bg-white/90 p-1 rounded-lg" />
-          <span className="font-black text-sm tracking-tight text-white">ADMIN PORTAL</span>
+          <div className="flex items-center gap-2">
+            <span className="font-extrabold text-sm tracking-tight text-white">Aacharya Academy</span>
+            <span className="text-[9px] font-black uppercase tracking-wider bg-amber-400 text-slate-950 px-1.5 py-0.5 rounded-md">Admin</span>
+          </div>
         </Link>
         <button
           onClick={() => setIsOpen(!isOpen)}
@@ -87,7 +90,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <img src="/image.png" alt="Aacharya Academy" className="h-7 w-auto object-contain" />
               </div>
               <div>
-                <h1 className="text-base font-black text-white leading-tight tracking-tight">Aacharya</h1>
+                <h1 className="text-base font-black text-white leading-tight tracking-tight">Aacharya Academy</h1>
                 <p className="text-[10px] text-amber-200 uppercase tracking-widest font-extrabold flex items-center gap-1">
                   <ShieldCheck className="w-3 h-3 text-amber-300" />
                   Admin Panel

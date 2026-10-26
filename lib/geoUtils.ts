@@ -434,7 +434,8 @@ export const KNOWN_LOCALITIES: Record<string, { lat: number; lng: number; pincod
   "gannavaram": { lat: 16.5380, lng: 80.8030, pincode: "521101", displayName: "Gannavaram, Vijayawada Region, Andhra Pradesh, 521101, India" },
   "kondapalli": { lat: 16.6180, lng: 80.5360, pincode: "521228", displayName: "Kondapalli, Vijayawada Region, Andhra Pradesh, 521228, India" },
   "ibrahimpatnam": { lat: 16.5860, lng: 80.5180, pincode: "521456", displayName: "Ibrahimpatnam, Vijayawada Region, Andhra Pradesh, 521456, India" },
-  "nunna": { lat: 16.5850, lng: 80.6650, pincode: "521212", displayName: "Nunna, Vijayawada, NTR District, Andhra Pradesh, 521212, India" },
+  "kanchikacherla": { lat: 16.6854, lng: 80.3920, pincode: "521180", displayName: "Kanchikacherla, NTR District, Andhra Pradesh, 521180, India" },
+  "mulapadu": { lat: 16.6116, lng: 80.4683, pincode: "521456", displayName: "Mulapadu, Ibrahimpatnam Mandal, NTR District, Andhra Pradesh, 521456, India" },
   "vijayawada": { lat: 16.5062, lng: 80.6480, pincode: "520001", displayName: "Vijayawada, NTR District, Andhra Pradesh, India" },
 
   // Andhra Pradesh Major Cities & Localities

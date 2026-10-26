@@ -191,6 +191,23 @@ export default function RequestTutorPage() {
     };
 
     try {
+      // 1. Create lead record in database linked to student
+      await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          location: formData.location,
+          subject: formData.subject,
+          classLevel: formData.classLevel || "General",
+          mode: formData.mode || "Home Tuition",
+          message: payload.message,
+          name: formData.parentName,
+          email: formData.email,
+          phone: formData.phone,
+        }),
+      });
+
+      // 2. Dispatch notification email
       const response = await fetch("/api/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

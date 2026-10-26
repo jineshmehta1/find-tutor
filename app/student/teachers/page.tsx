@@ -18,7 +18,9 @@ import {
     getBrowserCoordinates,
     getPublicLocality,
     calculateHaversineDistance,
-    matchesTeachingMode
+    matchesTeachingMode,
+    geocodeAddressToCoords,
+    KNOWN_LOCALITIES
 } from "@/lib/geoUtils";
 import {
     STANDARD_CLASSES,
@@ -104,6 +106,28 @@ function TeachersDirectory() {
 
     useEffect(() => {
         fetchTeachers();
+
+        // If no location in search params, prefill logged-in student's location
+        if (!searchParams.get("location") && !searchParams.get("lat")) {
+            fetch("/api/students")
+                .then(r => r.ok ? r.json() : null)
+                .then(async (profile) => {
+                    if (profile?.address) {
+                        setSearchLocation(profile.address);
+                        if (profile.latitude && profile.longitude) {
+                            setSearchLat(profile.latitude);
+                            setSearchLng(profile.longitude);
+                        } else {
+                            const coords = await geocodeAddressToCoords(profile.address);
+                            if (coords) {
+                                setSearchLat(coords.latitude);
+                                setSearchLng(coords.longitude);
+                            }
+                        }
+                    }
+                })
+                .catch(() => {});
+        }
     }, []);
 
     const fetchTeachers = async () => {
@@ -172,7 +196,30 @@ function TeachersDirectory() {
 
     // Robust client-side filter
     const filteredTeachers = useMemo(() => {
-        return teachers.filter((tutor) => {
+        const withDist = teachers.map((tutor) => {
+            let distanceKm: number | null = tutor.distanceKm ?? null;
+            let tLat = tutor.latitude;
+            let tLng = tutor.longitude;
+
+            // If coordinates not directly on tutor, look up known locality
+            if ((tLat === null || tLat === undefined || tLng === null || tLng === undefined) && tutor.address) {
+                const cleanAddr = tutor.address.toLowerCase().trim();
+                for (const [key, coords] of Object.entries(KNOWN_LOCALITIES)) {
+                    if (cleanAddr.includes(key)) {
+                        tLat = coords.lat;
+                        tLng = coords.lng;
+                        break;
+                    }
+                }
+            }
+
+            if (searchLat !== null && searchLng !== null && tLat && tLng) {
+                distanceKm = calculateHaversineDistance(searchLat, searchLng, tLat, tLng);
+            }
+            return { ...tutor, latitude: tLat, longitude: tLng, distanceKm };
+        });
+
+        const list = withDist.filter((tutor) => {
             const subjectsList = Array.isArray(tutor.subjects) ? tutor.subjects : [];
             const isCoach = isActivityTutor(subjectsList);
 
@@ -221,8 +268,7 @@ function TeachersDirectory() {
 
             // Location Filter
             if (searchLat !== null && searchLng !== null && tutor.latitude && tutor.longitude) {
-                const dist = calculateHaversineDistance(searchLat, searchLng, tutor.latitude, tutor.longitude);
-                if (dist > 50) return false;
+                if (tutor.distanceKm !== null && tutor.distanceKm > 50) return false;
             } else if (searchLocation.trim()) {
                 const terms = searchLocation.toLowerCase().split(/[\s,]+/).filter(Boolean);
                 const addr = (tutor.address || "").toLowerCase();
@@ -232,6 +278,17 @@ function TeachersDirectory() {
 
             return true;
         });
+
+        if (searchLat !== null && searchLng !== null) {
+            list.sort((a, b) => {
+                if (a.distanceKm !== null && b.distanceKm !== null) return a.distanceKm - b.distanceKm;
+                if (a.distanceKm !== null) return -1;
+                if (b.distanceKm !== null) return 1;
+                return 0;
+            });
+        }
+
+        return list;
     }, [teachers, activeSearchTab, searchTerm, searchSubject, searchClass, searchMode, searchLocation, searchLat, searchLng]);
 
     const activeFilterCount = [

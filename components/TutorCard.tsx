@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
     Star, MapPin, GraduationCap, Briefcase, Phone,
     MessageSquare, ArrowRight, Check, CheckCircle2, ChevronRight,
-    Wallet, Home, Laptop, Swords, BookOpen, Music, Code, ShieldCheck
+    Wallet, Home, Laptop, Swords, BookOpen, Music, Code, ShieldCheck, Clock
 } from "lucide-react";
 import { getPublicLocality } from "@/lib/geoUtils";
 
@@ -42,8 +42,14 @@ export interface TutorCardProps {
 export default function TutorCard({ tutor, onSelect }: TutorCardProps) {
     const [imgError, setImgError] = useState(false);
 
-    // Profile photo resolution
-    const photoUrl = tutor.profilePhoto || tutor.image;
+    // Profile photo resolution: check tutor.profilePhoto, tutor.user.profilePhoto, tutor.image, tutor.avatar
+    const rawPhoto =
+        tutor.profilePhoto ||
+        (tutor as any).user?.profilePhoto ||
+        tutor.image ||
+        (tutor as any).avatar ||
+        (tutor as any).user?.image;
+    const photoUrl = typeof rawPhoto === "string" && rawPhoto.trim().length > 0 ? rawPhoto.trim() : null;
 
     // Subjects list parsing
     let parsedSubjects: string[] = [];
@@ -151,16 +157,39 @@ export default function TutorCard({ tutor, onSelect }: TutorCardProps) {
         }
     }
 
-    // Hourly Fee resolution (User asked: "keep hourly price in place of monthly")
-    let rawFee = tutor.hourlyRate || tutor.expectedFee || "400";
-    if (typeof rawFee === "string") {
-        rawFee = rawFee.replace(/[^\d]/g, "") || "400";
-    }
-    const hourlyFeeDisplay = `₹${Number(rawFee).toLocaleString()} / hr`;
+    // Distance from selected location resolution
+    const hasDistance = tutor.distanceKm !== undefined && tutor.distanceKm !== null && !isNaN(Number(tutor.distanceKm)) && Number(tutor.distanceKm) < 999;
+    const distanceKmNum = hasDistance ? Number(tutor.distanceKm) : null;
+    const distanceBadge = distanceKmNum !== null ? (distanceKmNum < 0.1 ? "< 100m" : distanceKmNum < 1 ? `${Math.round(distanceKmNum * 1000)}m` : `${distanceKmNum.toFixed(1)} km`) : null;
+    const distanceAwayText = distanceKmNum !== null ? (distanceKmNum < 0.1 ? "Nearby (< 100m)" : distanceKmNum < 1 ? `${Math.round(distanceKmNum * 1000)}m away` : `${distanceKmNum.toFixed(1)} km away`) : null;
 
-    // Rating
-    const ratingValue = tutor.rating || "4.8";
-    const reviewsCount = tutor.reviewsCount || 24;
+    // Properly map fee and feeType directly from the tutor's record
+    const isMonthly = Boolean(
+        tutor.feeType === "/month" ||
+        tutor.feeType === "month" ||
+        tutor.feeType === "per month" ||
+        (typeof tutor.feeType === "string" && tutor.feeType.toLowerCase().includes("month")) ||
+        (typeof tutor.expectedFee === "string" && tutor.expectedFee.toLowerCase().includes("month"))
+    );
+
+    let rawFee = tutor.expectedFee || tutor.hourlyRate || "500";
+    if (typeof rawFee === "string") {
+        rawFee = rawFee.replace(/[^\d]/g, "") || "500";
+    }
+    const feeNum = Number(rawFee) > 0 ? Number(rawFee) : 500;
+    const feeUnit = isMonthly ? "/ month" : "/ hr";
+    const feeLabel = isMonthly ? "Fee (Monthly)" : "Fee (Hourly)";
+    const feeDisplay = `₹${feeNum.toLocaleString()} ${feeUnit}`;
+    const feeSubtitle = isMonthly ? "Per month fee" : "Flexible timings available";
+
+    // Real Review & Rating resolution
+    const realReviewsCount = tutor.reviewsCount !== undefined && tutor.reviewsCount !== null && !isNaN(Number(tutor.reviewsCount))
+        ? Number(tutor.reviewsCount)
+        : null;
+
+    const realRating = tutor.rating !== undefined && tutor.rating !== null && !isNaN(Number(tutor.rating)) && Number(tutor.rating) > 0
+        ? Number(tutor.rating).toFixed(1)
+        : null;
 
     return (
         <div className="relative bg-white rounded-[1.75rem] sm:rounded-[2rem] border border-slate-200/90 p-4 sm:p-5 shadow-sm hover:shadow-xl hover:border-amber-300 transition-all duration-300 overflow-hidden flex flex-col justify-between group h-full text-left">
@@ -177,7 +206,7 @@ export default function TutorCard({ tutor, onSelect }: TutorCardProps) {
                 {/* ──── TOP ROW: AVATAR + TITLES + VERIFIED & RATING ──── */}
                 <div className="flex items-start justify-between gap-2.5 sm:gap-3 pt-1">
                     
-                    {/* Avatar with Green Verified Badge */}
+                    {/* Avatar with Green Verified Badge ONLY if isApproved === true */}
                     <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full border-2 sm:border-3 border-white shadow-md bg-white shrink-0 z-10">
                         {photoUrl && !imgError ? (
                             <img
@@ -191,10 +220,12 @@ export default function TutorCard({ tutor, onSelect }: TutorCardProps) {
                                 {(tutor.name || "T")[0]}
                             </div>
                         )}
-                        {/* Green Checkmark Circle Badge */}
-                        <div className="absolute bottom-0 right-0 w-4.5 h-4.5 sm:w-5 sm:h-5 bg-[#00b074] text-white rounded-full flex items-center justify-center border-2 border-white shadow-xs z-20">
-                            <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3 stroke-[3]" />
-                        </div>
+                        {/* Green Checkmark Circle Badge ONLY IF VERIFIED */}
+                        {tutor.isApproved && (
+                            <div className="absolute bottom-0 right-0 w-4.5 h-4.5 sm:w-5 sm:h-5 bg-[#00b074] text-white rounded-full flex items-center justify-center border-2 border-white shadow-xs z-20" title="Verified Tutor">
+                                <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3 stroke-[3]" />
+                            </div>
+                        )}
                     </div>
 
                     {/* Tutor Name & Headline */}
@@ -214,24 +245,43 @@ export default function TutorCard({ tutor, onSelect }: TutorCardProps) {
 
                     {/* Verification & Rating Badges (Top Right) */}
                     <div className="flex flex-col items-end gap-1 shrink-0 pt-0.5">
-                        {tutor.isApproved !== false ? (
-                            <div className="px-2 py-0.5 bg-[#ffdf78] text-slate-950 font-black rounded-full text-[10px] flex items-center gap-1 shadow-2xs border border-amber-300">
-                                <CheckCircle2 className="w-3 h-3 fill-slate-950 text-[#ffdf78]" />
-                                <span>Verified</span>
-                            </div>
-                        ) : (
-                            <div className="px-2 py-0.5 bg-amber-50 text-amber-800 font-black rounded-full text-[10px] flex items-center gap-1 border border-amber-200/60">
-                                <span>Verified</span>
-                            </div>
-                        )}
+                        <div className="flex items-center gap-1">
+                            {hasDistance && (
+                                <div className="px-2 py-0.5 bg-emerald-50 text-emerald-800 font-black rounded-full text-[10px] flex items-center gap-1 border border-emerald-200/70 shadow-2xs" title={`Distance from your location: ${distanceAwayText}`}>
+                                    <MapPin className="w-2.5 h-2.5 text-emerald-600 shrink-0" />
+                                    <span>{distanceBadge}</span>
+                                </div>
+                            )}
+                            {tutor.isApproved ? (
+                                <div className="px-2.5 py-0.5 bg-[#ffdf78] text-slate-950 font-black rounded-full text-[10px] flex items-center gap-1 shadow-2xs border border-amber-300" title="Verified Tutor">
+                                    <CheckCircle2 className="w-3 h-3 fill-slate-950 text-[#ffdf78]" />
+                                    <span>Verified</span>
+                                </div>
+                            ) : (
+                                <div className="px-2 py-0.5 bg-slate-100 text-slate-600 font-bold rounded-full text-[10px] flex items-center gap-1 border border-slate-200" title="Pending Admin Verification">
+                                    <Clock className="w-2.5 h-2.5 text-slate-400" />
+                                    <span>Pending</span>
+                                </div>
+                            )}
+                        </div>
 
                         <Link
                             href={`/tutor/${tutor.id}`}
                             className="flex items-center gap-1 text-[11px] font-black text-slate-800 mt-0.5 hover:text-amber-600 transition-colors"
+                            title={realReviewsCount !== null && realReviewsCount > 0 ? `${realReviewsCount} verified review(s)` : "New tutor on Aacharya"}
                         >
-                            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 shrink-0" />
-                            <span>{ratingValue}</span>
-                            <span className="text-slate-400 font-bold">({reviewsCount})</span>
+                            <Star className={`w-3.5 h-3.5 shrink-0 ${realReviewsCount !== null && realReviewsCount > 0 ? "fill-amber-400 text-amber-400" : "text-amber-400"}`} />
+                            {realReviewsCount !== null && realReviewsCount > 0 ? (
+                                <>
+                                    <span>{realRating || "5.0"}</span>
+                                    <span className="text-slate-400 font-bold">({realReviewsCount})</span>
+                                </>
+                            ) : (
+                                <>
+                                    <span className="text-amber-600 font-black">New</span>
+                                    <span className="text-slate-400 font-medium">(0)</span>
+                                </>
+                            )}
                             <ChevronRight className="w-3 h-3 text-slate-400 shrink-0" />
                         </Link>
                     </div>
@@ -304,16 +354,34 @@ export default function TutorCard({ tutor, onSelect }: TutorCardProps) {
                     </div>
 
                     {/* Location */}
-                    <div className="bg-[#fcfaf5] border border-amber-200/50 rounded-xl p-2 flex flex-col justify-between min-w-0" title={fullLocationDisplay}>
-                        <div className="flex items-center gap-1 text-slate-500">
-                            <MapPin className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                            <span className="text-[8.5px] sm:text-[9.5px] font-extrabold uppercase tracking-wider truncate">
-                                Location
-                            </span>
+                    <div className="bg-[#fcfaf5] border border-amber-200/50 rounded-xl p-2 flex flex-col justify-between min-w-0" title={`${fullLocationDisplay}${distanceAwayText ? ` • ${distanceAwayText}` : ""}`}>
+                        <div className="flex items-center justify-between gap-1 text-slate-500">
+                            <div className="flex items-center gap-1 min-w-0">
+                                <MapPin className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                                <span className="text-[8.5px] sm:text-[9.5px] font-extrabold uppercase tracking-wider truncate">
+                                    Location
+                                </span>
+                            </div>
+                            {distanceBadge && (
+                                <span className="text-[8px] sm:text-[8.5px] font-black text-amber-800 bg-amber-100/90 px-1.5 py-0.5 rounded-md border border-amber-300/70 shrink-0 shadow-2xs">
+                                    {distanceBadge}
+                                </span>
+                            )}
                         </div>
-                        <div className="text-[11px] sm:text-[11.5px] font-black text-slate-900 leading-tight mt-1.5 break-normal line-clamp-2">
-                            {locationDisplay}
-                        </div>
+                        {distanceAwayText ? (
+                            <div className="mt-1 min-w-0 leading-tight">
+                                <div className="text-[11px] sm:text-[11.5px] font-black text-slate-900 truncate">
+                                    {locationDisplay}
+                                </div>
+                                <div className="text-[9px] sm:text-[9.5px] font-extrabold text-amber-700 truncate mt-0.5 flex items-center gap-0.5">
+                                    <span>📍 {distanceAwayText}</span>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="text-[11px] sm:text-[11.5px] font-black text-slate-900 leading-tight mt-1.5 break-normal line-clamp-2">
+                                {locationDisplay}
+                            </div>
+                        )}
                     </div>
 
                 </div>
@@ -337,22 +405,29 @@ export default function TutorCard({ tutor, onSelect }: TutorCardProps) {
                     </div>
                 </div>
 
-                {/* ──── FEE RATE CONTAINER (HOURLY) ──── */}
-                <div className="bg-[#fffcf4] border border-[#fdeec8] rounded-2xl p-3 sm:p-3.5 flex items-center gap-3 sm:gap-3.5 shadow-2xs">
-                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-500/15 text-amber-600 flex items-center justify-center shrink-0">
-                        <Wallet className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-amber-600" />
+                {/* ──── FEE RATE CONTAINER ──── */}
+                <div className="bg-[#fffcf4] border border-[#fdeec8] rounded-2xl p-3 sm:p-3.5 flex items-center justify-between gap-2.5 shadow-2xs">
+                    <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-500/15 text-amber-600 flex items-center justify-center shrink-0">
+                            <Wallet className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-amber-600" />
+                        </div>
+                        <div className="min-w-0">
+                            <span className="text-[9.5px] sm:text-[10.5px] font-bold text-slate-500 uppercase tracking-wider block leading-tight">
+                                {feeLabel}
+                            </span>
+                            <span className="text-sm sm:text-base font-black text-amber-600 block mt-0.5 leading-tight">
+                                {feeDisplay}
+                            </span>
+                            <span className="text-[9px] sm:text-[9.5px] text-slate-400 font-semibold block mt-0.5 truncate">
+                                {feeSubtitle}
+                            </span>
+                        </div>
                     </div>
-                    <div className="min-w-0">
-                        <span className="text-[9.5px] sm:text-[10.5px] font-bold text-slate-500 uppercase tracking-wider block leading-tight">
-                            Fee (Hourly)
-                        </span>
-                        <span className="text-sm sm:text-base font-black text-amber-600 block mt-0.5 leading-tight">
-                            {hourlyFeeDisplay}
-                        </span>
-                        <span className="text-[9px] sm:text-[9.5px] text-slate-400 font-semibold block mt-0.5">
-                            Flexible timings available
-                        </span>
-                    </div>
+
+                    {/* Badge displaying tutor's actual billing unit */}
+                    <span className="px-2.5 py-1 bg-amber-100/80 text-amber-900 border border-amber-300/60 rounded-xl text-[10px] font-extrabold shrink-0">
+                        {isMonthly ? "Per Month" : "Per Hour"}
+                    </span>
                 </div>
 
             </div>

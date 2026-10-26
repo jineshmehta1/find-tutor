@@ -86,7 +86,15 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        // Map teachers with distance calculation
+        // Fetch all reviews to compute accurate ratings and review counts
+        const allReviews = await prisma.review.findMany({
+            select: {
+                pageKey: true,
+                rating: true,
+            }
+        });
+
+        // Map teachers with distance calculation and reviews
         let mappedTeachers = filteredTeachers.map((teacher) => {
             let distanceKm: number | null = null;
             if (reqLat !== null && reqLng !== null && teacher.user.latitude && teacher.user.longitude) {
@@ -98,13 +106,22 @@ export async function GET(request: NextRequest) {
                 );
             }
 
+            // Calculate rating and review count from database
+            const teacherReviews = allReviews.filter(
+                (r) => r.pageKey === teacher.id || r.pageKey === teacher.user.name || r.pageKey === teacher.userId
+            );
+            const reviewsCount = teacherReviews.length;
+            const rating = reviewsCount > 0
+                ? Math.round((teacherReviews.reduce((sum, r) => sum + r.rating, 0) / reviewsCount) * 10) / 10
+                : 0;
+
             return {
                 id: teacher.id,
                 userId: teacher.userId,
                 name: teacher.user.name,
                 email: teacher.user.email,
                 phone: teacher.user.phone,
-                profilePhoto: teacher.user.profilePhoto,
+                profilePhoto: teacher.user.profilePhoto || null,
                 address: teacher.user.address,
                 latitude: teacher.user.latitude,
                 longitude: teacher.user.longitude,
@@ -115,12 +132,14 @@ export async function GET(request: NextRequest) {
                 subjects: JSON.parse(teacher.subjects || "[]"),
                 teachingMode: teacher.teachingMode,
                 expectedFee: teacher.expectedFee,
-                feeType: teacher.feeType,
+                feeType: teacher.feeType || "/hr",
                 classesOrAgeGroup: teacher.classesOrAgeGroup ? (() => { try { return JSON.parse(teacher.classesOrAgeGroup); } catch { return teacher.classesOrAgeGroup; } })() : null,
                 qualificationLevel: teacher.qualificationLevel,
                 qualificationName: teacher.qualificationName,
                 achievements: teacher.achievements,
                 isApproved: teacher.isApproved,
+                rating,
+                reviewsCount,
                 createdAt: teacher.createdAt,
             };
         });

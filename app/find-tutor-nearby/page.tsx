@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo, useCallback, Suspense } from "react";
+import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import MapLocationPicker from "@/components/ui/DynamicMapPicker";
+import StructuredAddressForm from "@/components/ui/DynamicStructuredAddressForm";
 import TutorCard from "@/components/TutorCard";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { calculateHaversineDistance, geocodeAddressToCoords, getPublicLocality, matchesTeachingMode } from "@/lib/geoUtils";
@@ -15,19 +17,21 @@ import {
     ACADEMIC_SUBJECTS, 
     ACTIVITY_SUBJECTS, 
     ALL_STANDARD_SUBJECTS, 
+    ALL_SUBJECT_SECTIONS,
     STANDARD_TEACHING_MODES 
 } from "@/lib/classConstants";
 import {
     Search, MapPin, ChevronRight,
     Beaker, Mic2, Languages, Music, Swords,
     Accessibility, Car, Code, BookOpen, GraduationCap,
-    Heart, Star, Award, Zap, Clock, CheckCircle2, X,
+    Heart, Star, Award, Zap, Clock, CheckCircle2, X, Check,
     MessageSquare, Rocket, BrainCircuit, Target,
     ShieldCheck, Users, TrendingUp, Lightbulb,
     HelpCircle, PhoneCall, Mail, Facebook, Twitter, 
     Instagram, Linkedin, ArrowUpRight, ArrowRight, Filter,
     CheckCircle, UserCheck, Timer, Smile, Laptop, 
-    Home, School, BookMarked, Sparkles, Loader2, Phone, Compass, Lock
+    Home, School, BookMarked, Sparkles, Loader2, Phone, Compass, Lock,
+    Brain, Palette, Cpu, Send, UserPlus, LogIn, HeartHandshake
 } from "lucide-react";
 
 
@@ -50,6 +54,41 @@ const RADIUS_OPTIONS = [
 const SUBJECTS = ALL_STANDARD_SUBJECTS;
 const CLASSES = STANDARD_CLASSES;
 const MODES = STANDARD_TEACHING_MODES;
+
+const POPULAR_REQ_SUBJECTS = [
+    "Mathematics", "Physics", "Chemistry", "Biology",
+    "Spoken English", "Chess", "Coding", "Abacus",
+    "Keyboard", "Drawing"
+];
+
+const getSubjectMeta = (subjectName: string) => {
+    for (const group of ALL_SUBJECT_SECTIONS) {
+        if (group.subjects.some(s => s.toLowerCase() === subjectName.toLowerCase())) {
+            return {
+                category: group.name,
+                badge: group.badge,
+                iconName: group.iconName,
+            };
+        }
+    }
+    return {
+        category: "Academic & Skill",
+        badge: "Curriculum",
+        iconName: "book",
+    };
+};
+
+const renderSubjectIcon = (iconName: string) => {
+    switch (iconName) {
+        case "brain": return <Brain className="w-3.5 h-3.5 text-amber-500 shrink-0" />;
+        case "palette": return <Palette className="w-3.5 h-3.5 text-pink-500 shrink-0" />;
+        case "music": return <Music className="w-3.5 h-3.5 text-rose-500 shrink-0" />;
+        case "sparkles": return <Sparkles className="w-3.5 h-3.5 text-purple-500 shrink-0" />;
+        case "message": return <MessageSquare className="w-3.5 h-3.5 text-sky-500 shrink-0" />;
+        case "cpu": return <Cpu className="w-3.5 h-3.5 text-emerald-500 shrink-0" />;
+        default: return <BookOpen className="w-3.5 h-3.5 text-blue-500 shrink-0" />;
+    }
+};
 
 
 const POPULAR_CITIES = [
@@ -226,7 +265,9 @@ interface Teacher {
     experience: string; certifications: any[]; subjects: string[];
     teachingMode: string | null; classesOrAgeGroup: string[] | null;
     qualificationLevel: string | null; qualificationName: string | null;
-    achievements: string | null;
+    achievements: string | null; isApproved?: boolean;
+    rating?: number; reviewsCount?: number; distanceKm?: number | null;
+    expectedFee?: number | null; feeType?: string | null;
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -308,46 +349,117 @@ function FindTutorNearbyPageContent() {
 
     const [faqOpen, setFaqOpen] = useState<number | null>(null);
 
-    /* ── 4.2 Form States ── */
+    /* ── 4.2 Requirement Form States (Aligned with RequestTutor) ── */
     const [reqLocation, setReqLocation] = useState("");
     const [reqLat, setReqLat] = useState<number | undefined>();
     const [reqLng, setReqLng] = useState<number | undefined>();
     const [reqSubject, setReqSubject] = useState("");
     const [reqClass, setReqClass] = useState("");
-    const [reqMode, setReqMode] = useState("");
-    const [reqMessage, setReqMessage] = useState("");
+    const [reqMode, setReqMode] = useState("Home Tuition");
+    const [reqParentName, setReqParentName] = useState("");
+    const [reqStudentName, setReqStudentName] = useState("");
+    const [reqPhone, setReqPhone] = useState("");
+    const [reqEmail, setReqEmail] = useState("");
+    const [reqGoals, setReqGoals] = useState("");
     const [submittingReq, setSubmittingReq] = useState(false);
+    const [reqSubmitStatus, setReqSubmitStatus] = useState<"success" | "error" | null>(null);
+    const [showAuthModal, setShowAuthModal] = useState(false);
+    const [showReqSubjectSuggestions, setShowReqSubjectSuggestions] = useState(false);
 
     /* ── 4.3 Refs ── */
     const heroMapRef = useRef<HTMLDivElement>(null);
     const subjectRef = useRef<HTMLDivElement>(null);
+    const reqSubjectContainerRef = useRef<HTMLDivElement>(null);
     const listingRef = useRef<HTMLDivElement>(null);
 
-    /* ── 4.4 Click Outside & Restore Saved Requirement ── */
+    /* ── 4.4 Autocomplete & Subject Filtering ── */
+    const filteredReqSubjects = useMemo(() => {
+        const query = reqSubject.trim().toLowerCase();
+        if (!query) return ALL_STANDARD_SUBJECTS;
+        return ALL_STANDARD_SUBJECTS.filter(s => s.toLowerCase().includes(query));
+    }, [reqSubject]);
+
+    const handleSelectReqSubject = (selectedSubject: string) => {
+        setReqSubject(selectedSubject);
+        setShowReqSubjectSuggestions(false);
+    };
+
+    /* ── 4.5 Save Draft Helper ── */
+    const saveRequirementDraft = useCallback(() => {
+        const draft = {
+            subject: reqSubject,
+            classLevel: reqClass,
+            mode: reqMode || "Home Tuition",
+            location: reqLocation,
+            latitude: reqLat,
+            longitude: reqLng,
+            parentName: reqParentName,
+            studentName: reqStudentName,
+            phone: reqPhone,
+            email: reqEmail,
+            goals: reqGoals,
+            // Cross-compatible keys
+            reqSubject,
+            reqClass,
+            reqMode: reqMode || "Home Tuition",
+            reqLocation,
+            reqLat,
+            reqLng,
+            reqParentName,
+            reqStudentName,
+            reqPhone,
+            reqEmail,
+            reqGoals,
+            reqMessage: reqGoals
+        };
+        try {
+            sessionStorage.setItem("pending_nearby_requirement", JSON.stringify(draft));
+            sessionStorage.setItem("pending_tutor_request", JSON.stringify(draft));
+        } catch (e) {}
+    }, [reqSubject, reqClass, reqMode, reqLocation, reqLat, reqLng, reqParentName, reqStudentName, reqPhone, reqEmail, reqGoals]);
+
+    /* ── 4.6 Click Outside Handlers ── */
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (heroMapRef.current && !heroMapRef.current.contains(event.target as Node)) setShowHeroMap(false);
             if (subjectRef.current && !subjectRef.current.contains(event.target as Node)) setShowSubjectSuggestions(false);
+            if (reqSubjectContainerRef.current && !reqSubjectContainerRef.current.contains(event.target as Node)) setShowReqSubjectSuggestions(false);
         };
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    /* ── 4.7 Prefill User Details If Signed In ── */
+    useEffect(() => {
+        if (session?.user) {
+            if (session.user.role === "STUDENT") {
+                setReqParentName(prev => prev || session.user.name || "");
+                setReqEmail(prev => prev || session.user.email || "");
+            } else {
+                setReqEmail(prev => prev || session.user.email || "");
+            }
+        }
+    }, [session]);
+
+    /* ── 4.8 Restore Saved Draft from Session Storage ── */
     useEffect(() => {
         try {
-            const saved = sessionStorage.getItem("pending_nearby_requirement");
+            const saved = sessionStorage.getItem("pending_nearby_requirement") || sessionStorage.getItem("pending_tutor_request");
             if (saved) {
                 const p = JSON.parse(saved);
-                if (p.reqLocation) setReqLocation(p.reqLocation);
-                if (p.reqLat) setReqLat(p.reqLat);
-                if (p.reqLng) setReqLng(p.reqLng);
-                if (p.reqSubject) setReqSubject(p.reqSubject);
-                if (p.reqClass) setReqClass(p.reqClass);
-                if (p.reqMode) setReqMode(p.reqMode);
-                if (p.reqMessage) setReqMessage(p.reqMessage);
+                if (p.subject || p.reqSubject) setReqSubject(p.subject || p.reqSubject);
+                if (p.classLevel || p.reqClass) setReqClass(p.classLevel || p.reqClass);
+                if (p.mode || p.reqMode) setReqMode(p.mode || p.reqMode);
+                if (p.location || p.reqLocation) setReqLocation(p.location || p.reqLocation);
+                if (p.latitude || p.reqLat) setReqLat(p.latitude || p.reqLat);
+                if (p.longitude || p.reqLng) setReqLng(p.longitude || p.reqLng);
+                if (p.parentName || p.reqParentName) setReqParentName(p.parentName || p.reqParentName);
+                if (p.studentName || p.reqStudentName) setReqStudentName(p.studentName || p.reqStudentName);
+                if (p.phone || p.reqPhone) setReqPhone(p.phone || p.reqPhone);
+                if (p.email || p.reqEmail) setReqEmail(p.email || p.reqEmail);
+                if (p.goals || p.reqGoals || p.message || p.reqMessage) setReqGoals(p.goals || p.reqGoals || p.message || p.reqMessage);
                 if (session?.user) {
                     toast.success("Welcome back! Your saved requirement details were restored.");
-                    sessionStorage.removeItem("pending_nearby_requirement");
                 }
             }
         } catch (e) {}
@@ -362,28 +474,17 @@ function FindTutorNearbyPageContent() {
                 if (!res.ok) throw new Error("Network response was not ok");
                 const data = await res.json();
                 
-                // Fetch reviews for each teacher to calculate rating and reviewsCount
-                const teachersWithReviews = await Promise.all(data.map(async (t: any) => {
-                    let rating = 5.0;
-                    let reviewsCount = 0;
-                    try {
-                        const revRes = await fetch(`/api/review?pageKey=${t.id}`);
-                        if (revRes.ok) {
-                            const revs = await revRes.json();
-                            reviewsCount = revs.length;
-                            if (reviewsCount > 0) {
-                                const sum = revs.reduce((acc: number, r: any) => acc + r.rating, 0);
-                                rating = Math.round((sum / reviewsCount) * 100) / 100;
-                            }
-                        }
-                    } catch (e) {
-                        console.error(e);
-                    }
-                    return { ...t, rating, reviewsCount };
+                // Use data returned directly from /api/teachers which includes real rating and reviewsCount
+                const teachersMapped = data.map((t: any) => ({
+                    ...t,
+                    rating: t.rating !== undefined ? t.rating : 0,
+                    reviewsCount: t.reviewsCount !== undefined ? t.reviewsCount : 0,
+                    profilePhoto: t.profilePhoto || null,
+                    isApproved: Boolean(t.isApproved),
                 }));
 
-                setTeachers(teachersWithReviews);
-                setFiltered(teachersWithReviews);
+                setTeachers(teachersMapped);
+                setFiltered(teachersMapped);
             } catch (err) {
                 console.error("Failed to fetch tutors:", err);
                 toast.error("Could not load tutors. Please try refreshing.");
@@ -438,6 +539,9 @@ function FindTutorNearbyPageContent() {
             hasParams = true;
         }
 
+        const parsedLat = urlLat ? parseFloat(urlLat) : undefined;
+        const parsedLng = urlLng ? parseFloat(urlLng) : undefined;
+
         if (hasParams) {
             performSearch(
                 urlSubject || undefined, 
@@ -446,7 +550,9 @@ function FindTutorNearbyPageContent() {
                 urlClass || undefined, 
                 urlMode || undefined, 
                 undefined, 
-                false
+                false,
+                parsedLat,
+                parsedLng
             );
         }
     }, [teachers, searchParams]);
@@ -459,7 +565,9 @@ function FindTutorNearbyPageContent() {
         overrideClass?: string,
         overrideMode?: string,
         overrideSort?: string,
-        scroll = true
+        scroll = true,
+        overrideLat?: number,
+        overrideLng?: number
     ) => {
         const s = overrideSub !== undefined ? overrideSub : subject;
         const l = overrideLoc !== undefined ? overrideLoc : location;
@@ -472,11 +580,11 @@ function FindTutorNearbyPageContent() {
         setLoading(true);
         setAutoExpandedBanner(null);
 
-        let curLat: number | undefined = undefined;
-        let curLng: number | undefined = undefined;
+        let curLat: number | undefined = overrideLat !== undefined ? overrideLat : locationLat;
+        let curLng: number | undefined = overrideLng !== undefined ? overrideLng : locationLng;
 
-        // If user entered address or location is specified, geocode it fresh every time
-        if (l && l.trim()) {
+        // If user entered address or location is specified and coordinates not yet available, geocode it
+        if ((curLat === undefined || curLng === undefined) && l && l.trim()) {
             const coords = await geocodeAddressToCoords(l);
             if (coords) {
                 curLat = coords.latitude;
@@ -484,9 +592,9 @@ function FindTutorNearbyPageContent() {
                 setLocationLat(curLat);
                 setLocationLng(curLng);
             }
-        } else if (locationLat !== undefined && locationLng !== undefined) {
-            curLat = locationLat;
-            curLng = locationLng;
+        } else if (curLat !== undefined && curLng !== undefined) {
+            setLocationLat(curLat);
+            setLocationLng(curLng);
         }
 
         // Map all teachers with dynamic distance calculation
@@ -495,8 +603,9 @@ function FindTutorNearbyPageContent() {
             let tLat = t.latitude;
             let tLng = t.longitude;
 
-            if ((tLat === null || tLat === undefined || tLng === null || tLng === undefined) && t.address) {
-                const derived = await geocodeAddressToCoords(t.address);
+            const teacherAddress = t.address || t.location || "";
+            if ((tLat === null || tLat === undefined || tLng === null || tLng === undefined) && teacherAddress) {
+                const derived = await geocodeAddressToCoords(teacherAddress);
                 if (derived) {
                     tLat = derived.latitude;
                     tLng = derived.longitude;
@@ -614,7 +723,8 @@ function FindTutorNearbyPageContent() {
         setSelectedClass("All");
         setSelectedRadius("5");
         setSortBy("default");
-        setFiltered(teachers);
+        const resetDistances = teachers.map(t => ({ ...t, distanceKm: null }));
+        setFiltered(resetDistances);
         setSearched(false);
         setAutoExpandedBanner(null);
         toast.info("All search filters have been reset.");
@@ -706,40 +816,95 @@ function FindTutorNearbyPageContent() {
         };
     }, [location, locationLat, locationLng, processedTeachers]);
 
-    const handlePostRequirement = async () => {
-        if (!session) {
-            try {
-                sessionStorage.setItem("pending_nearby_requirement", JSON.stringify({
-                    reqLocation, reqLat, reqLng, reqSubject, reqClass, reqMode, reqMessage
-                }));
-            } catch (e) {}
-            toast.error("Account required. Please sign in or create an account to post your requirement.");
-            router.push("/signup/student?redirect=/find-tutor-nearby");
+    const handlePostRequirement = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+
+        // 1. Validate required fields
+        if (!reqSubject || !reqParentName || !reqPhone || !reqLocation) {
+            toast.error("Please fill in all required fields (Subject, Location, Parent Name, Mobile Number).");
             return;
         }
-        if (!reqSubject || !reqLocation) {
-            toast.error("Please provide at least a subject and location.");
+
+        // 2. Enforce student authentication
+        if (!session) {
+            saveRequirementDraft();
+            setShowAuthModal(true);
+            toast.error("Account required. Please sign in or create a student account to post your requirement.");
+            return;
+        }
+
+        // 3. Enforce student role
+        if (session.user.role !== "STUDENT") {
+            toast.error("Only students or parents can submit tuition requirements. Please switch to a student account.");
             return;
         }
 
         setSubmittingReq(true);
+        setReqSubmitStatus(null);
+
+        const contactHeader = reqStudentName && reqStudentName !== reqParentName
+            ? `Parent: ${reqParentName} | Student: ${reqStudentName}`
+            : `Parent / Contact: ${reqParentName}`;
+        const fullMessage = `${contactHeader} | Location: ${reqLocation}. Learning Goals: ${reqGoals || "Not specified"}`;
+
         try {
-            const res = await fetch("/api/leads", {
+            // 1. Create lead in database linked to student account
+            const leadRes = await fetch("/api/leads", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    location: reqLocation, latitude: reqLat, longitude: reqLng,
-                    subject: reqSubject, classLevel: reqClass, mode: reqMode, message: reqMessage,
+                    location: reqLocation,
+                    latitude: reqLat,
+                    longitude: reqLng,
+                    subject: reqSubject,
+                    classLevel: reqClass || "General",
+                    mode: reqMode || "Home Tuition",
+                    message: fullMessage,
+                    name: reqParentName,
+                    email: reqEmail || session.user.email,
+                    phone: reqPhone,
                 }),
             });
-            if (!res.ok) throw new Error("Submission failed");
-            try {
-                sessionStorage.removeItem("pending_nearby_requirement");
-            } catch (e) {}
-            toast.success("Success! Verified tutors will reach out to you within 24 hours.");
-            setReqLocation(""); setReqSubject(""); setReqMessage(""); setReqClass(""); setReqMode("");
+
+            // 2. Dispatch email notification via /api/send
+            await fetch("/api/send", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    parentName: reqParentName,
+                    studentName: reqStudentName || reqParentName,
+                    email: reqEmail || session.user.email,
+                    phone: reqPhone,
+                    course: reqSubject,
+                    experience: reqClass || "General",
+                    age: reqMode || "Home Tuition",
+                    message: fullMessage,
+                }),
+            });
+
+            if (leadRes.ok) {
+                setReqSubmitStatus("success");
+                try {
+                    sessionStorage.removeItem("pending_nearby_requirement");
+                    sessionStorage.removeItem("pending_tutor_request");
+                } catch (e) {}
+                toast.success("Tutor Request Submitted! Our coordinator will call you within 2 hours.");
+                setReqSubject("");
+                setReqClass("");
+                setReqLocation("");
+                setReqLat(undefined);
+                setReqLng(undefined);
+                setReqPhone("");
+                setReqGoals("");
+                setReqStudentName("");
+                setTimeout(() => setReqSubmitStatus(null), 8000);
+            } else {
+                setReqSubmitStatus("error");
+                toast.error("Failed to post requirement. Please try again.");
+            }
         } catch (err) {
-            toast.error("Failed to post requirement. Please try again later.");
+            setReqSubmitStatus("error");
+            toast.error("Something went wrong. Please check your connection.");
         } finally {
             setSubmittingReq(false);
         }
@@ -897,6 +1062,7 @@ function FindTutorNearbyPageContent() {
                                                         setLocationLat(loc.latitude); 
                                                         setLocationLng(loc.longitude);
                                                         setShowHeroMap(false);
+                                                        performSearch(subject, loc.address, selectedRadius, selectedClass, selectedMode, sortBy, false, loc.latitude, loc.longitude);
                                                     }}
                                                     initialAddress={location} height="280px" compact={true} accentColor="amber"
                                                 />
@@ -977,7 +1143,17 @@ function FindTutorNearbyPageContent() {
                         {POPULAR_CITIES.slice(0, 5).map(city => (
                             <button 
                                 key={city} 
-                                onClick={() => { setLocation(city); performSearch(subject, city); }} 
+                                onClick={async () => { 
+                                    setLocation(city); 
+                                    const coords = await geocodeAddressToCoords(city);
+                                    if (coords) {
+                                        setLocationLat(coords.latitude);
+                                        setLocationLng(coords.longitude);
+                                        performSearch(subject, city, selectedRadius, selectedClass, selectedMode, sortBy, true, coords.latitude, coords.longitude);
+                                    } else {
+                                        performSearch(subject, city); 
+                                    }
+                                }} 
                                 className="text-[10px] font-bold text-slate-900 hover:text-primary underline underline-offset-4 md:underline-offset-8 decoration-primary/20 uppercase tracking-tighter cursor-pointer"
                             >
                                 {city}
@@ -1222,8 +1398,10 @@ function FindTutorNearbyPageContent() {
                                         if (coords) {
                                             setLocationLat(coords.latitude);
                                             setLocationLng(coords.longitude);
+                                            performSearch(subject, searchQuery, selectedRadius, selectedClass, selectedMode, sortBy, true, coords.latitude, coords.longitude);
+                                        } else {
+                                            performSearch(subject, searchQuery);
                                         }
-                                        performSearch(subject, searchQuery);
                                         if (listingRef.current) {
                                             listingRef.current.scrollIntoView({ behavior: "smooth" });
                                         }
@@ -1239,165 +1417,463 @@ function FindTutorNearbyPageContent() {
                 </div>
             </section>
 
-            {/* ──── 5.4 POST REQUIREMENT MEGA FORM ──── */}
-           <section className="py-16 md:py-24 lg:py-32 bg-white relative z-10">
-    <div className="container mx-auto px-4 md:px-6">
-        <div className="max-w-7xl mx-auto bg-slate-50 rounded-[2.5rem] md:rounded-[4rem] lg:rounded-[5rem] p-6 md:p-12 lg:p-24 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.08)] border border-slate-100 flex flex-col lg:flex-row gap-12 lg:gap-24">
-            
-            {/* LEFT SIDE: INFO & SUPPORT */}
-            <div className="space-y-8 md:space-y-12 lg:w-1/3">
-                <SectionTitle title="Can't Find Your match?" subTitle="LET US HELP" />
-                
-                <ul className="space-y-4 md:space-y-6 lg:space-y-8">
-                    {[
-                        { text: "100% Free Consultation", icon: CheckCircle },
-                        { text: "Lead Matching Within 12hrs", icon: Timer },
-                        { text: "Verified Experts Only", icon: UserCheck },
-                        { text: "Personal Support Desk", icon: PhoneCall },
-                    ].map((li, i) => (
-                        <li key={i} className="flex items-center gap-4 md:gap-6 text-slate-800 font-[900] text-[10px] md:text-[11px] uppercase tracking-widest group cursor-default">
-                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-primary flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform shrink-0">
-                                <li.icon className="w-5 h-5 md:w-6 md:h-6" />
-                            </div>
-                            <span>{li.text}</span>
-                        </li>
-                    ))}
-                </ul>
-
-                {/* CALL SUPPORT CARD */}
-                <div className="p-6 md:p-10 bg-white rounded-[2rem] md:rounded-[3rem] border border-slate-100 shadow-sm space-y-3 md:space-y-4">
-                    <h4 className="text-lg md:text-xl font-[1000] text-slate-900 uppercase">Need a quick call?</h4>
-                    <p className="text-[10px] md:text-xs font-bold text-slate-400 leading-relaxed">
-                        Our relationship managers are available from 10 AM to 7 PM.
-                    </p>
-                    <button 
-                        onClick={() => window.open("tel:+918074103400", "_self")}
-                        className="flex items-center gap-2 text-primary font-[1000] uppercase text-[10px] md:text-xs hover:gap-4 transition-all cursor-pointer"
-                    >
-                        Connect Now <ArrowUpRight className="w-4 h-4" />
-                    </button>
-                </div>
-            </div>
-
-            {/* RIGHT SIDE: THE FORM */}
-            <div className="lg:w-2/3">
-                <div className="bg-white rounded-[2rem] md:rounded-[3rem] lg:rounded-[4rem] p-6 md:p-10 lg:p-16 shadow-2xl border border-slate-50 relative">
-                    {/* AUTH STATUS NOTIFICATION */}
-                    {session?.user ? (
-                        <div className="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 flex items-center justify-between gap-3 text-xs">
-                            <div className="flex items-center gap-2.5">
-                                <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
-                                <span className="font-bold">Posting as {session.user.name || session.user.email} (Linked to your student account)</span>
-                            </div>
-                            <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase">Verified</span>
+            {/* ──── 5.4 POST REQUIREMENT MEGA FORM (Aligned with /request-tutor) ──── */}
+            <section className="py-16 md:py-24 bg-slate-50/70 border-t border-slate-200/80 relative z-10">
+                <div className="container mx-auto px-4 md:px-6 max-w-7xl">
+                    <div className="text-center max-w-3xl mx-auto mb-10 md:mb-14 space-y-3">
+                        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold tracking-wider uppercase border border-amber-200">
+                            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                            <span>Can&apos;t Find Your Match?</span>
                         </div>
-                    ) : (
-                        <div className="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
-                            <div className="flex items-center gap-2.5">
-                                <Lock className="w-4 h-4 text-amber-600 shrink-0" />
-                                <div>
-                                    <span className="font-extrabold block">Account Required to Post Requirements</span>
-                                    <span className="text-[11px] text-amber-800 font-medium">Please sign in or register so verified tutors can connect directly with you.</span>
+                        <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
+                            Post Your Requirement & Let Verified Tutors Come to You
+                        </h2>
+                        <p className="text-xs sm:text-sm text-slate-500 font-medium leading-relaxed">
+                            We match your child with physically verified local instructors in Vijayawada & nearby areas for CBSE, ICSE, JEE/NEET, Coding, Abacus & Chess. Zero agency cuts.
+                        </p>
+                    </div>
+
+                    <div className="grid lg:grid-cols-12 gap-8 items-start">
+                        {/* LEFT SIDE PANEL: Trust Guarantees & Features */}
+                        <div className="lg:col-span-5 space-y-6">
+                            <div className="bg-white p-5 sm:p-8 rounded-3xl border border-slate-200/80 shadow-md space-y-6">
+                                <h3 className="text-lg font-black text-slate-900 tracking-tight">Why Parents Choose Aacharya</h3>
+                                
+                                <div className="space-y-4">
+                                    <div className="flex items-start gap-3.5">
+                                        <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold shrink-0">
+                                            <ShieldCheck className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-extrabold text-xs sm:text-sm text-slate-900">Physically Audited Credentials</h4>
+                                            <p className="text-[11px] text-slate-500 font-medium leading-relaxed mt-0.5">
+                                                Identity proofs and academic marksheets are audited in person by our Bhavanipuram center team.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-start gap-3.5">
+                                        <div className="w-10 h-10 rounded-xl bg-amber-50 text-[#ffb800] flex items-center justify-center font-bold shrink-0">
+                                            <HeartHandshake className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-extrabold text-xs sm:text-sm text-slate-900">0% Commission Cut</h4>
+                                            <p className="text-[11px] text-slate-500 font-medium leading-relaxed mt-0.5">
+                                                No middleman agency fees. You directly settle tuition billing with your assigned instructor.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-start gap-3.5">
+                                        <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold shrink-0">
+                                            <Clock className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-extrabold text-xs sm:text-sm text-slate-900">Direct Contact with Tutors</h4>
+                                            <p className="text-[11px] text-slate-500 font-medium leading-relaxed mt-0.5">
+                                                Assess the tutor&apos;s teaching style and student compatibility before scheduling monthly slots.
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2 shrink-0">
-                                <button 
-                                    onClick={() => {
-                                        try {
-                                            sessionStorage.setItem("pending_nearby_requirement", JSON.stringify({
-                                                reqLocation, reqLat, reqLng, reqSubject, reqClass, reqMode, reqMessage
-                                            }));
-                                        } catch (e) {}
-                                        router.push("/login?callbackUrl=/find-tutor-nearby");
-                                    }}
-                                    className="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-800 font-bold hover:bg-slate-50 cursor-pointer"
-                                >
-                                    Sign In
-                                </button>
-                                <button 
-                                    onClick={() => {
-                                        try {
-                                            sessionStorage.setItem("pending_nearby_requirement", JSON.stringify({
-                                                reqLocation, reqLat, reqLng, reqSubject, reqClass, reqMode, reqMessage
-                                            }));
-                                        } catch (e) {}
-                                        router.push("/signup/student?redirect=/find-tutor-nearby");
-                                    }}
-                                    className="px-3 py-1.5 rounded-xl bg-primary text-white font-extrabold hover:bg-primary/90 cursor-pointer"
-                                >
-                                    Sign Up
-                                </button>
-                            </div>
-                        </div>
-                    )}
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10 mb-8 lg:mb-10">
-                        {/* INPUTS COLUMN */}
-                        <div className="space-y-6 lg:space-y-8">
-                            <div className="space-y-2 md:space-y-3">
-                                <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Learning Subject</label>
-                                <select value={reqSubject} onChange={e => setReqSubject(e.target.value)} className="w-full h-14 md:h-16 px-6 md:px-8 bg-slate-50 border-none rounded-2xl md:rounded-[2rem] outline-none focus:ring-4 ring-primary/20 font-black text-slate-700 appearance-none shadow-inner text-sm cursor-pointer">
-                                    <option value="">Select Subject</option>
-                                    <optgroup label="Academic Subjects">
-                                        {ACADEMIC_SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
-                                    </optgroup>
-                                    <optgroup label="Activities & Coaching">
-                                        {ACTIVITY_SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
-                                    </optgroup>
-                                </select>
-                            </div>
-                            <div className="space-y-2 md:space-y-3">
-                                <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Target Class</label>
-                                <select value={reqClass} onChange={e => setReqClass(e.target.value)} className="w-full h-14 md:h-16 px-6 md:px-8 bg-slate-50 border-none rounded-2xl md:rounded-[2rem] outline-none focus:ring-4 ring-primary/20 font-black text-slate-700 appearance-none shadow-inner text-sm cursor-pointer">
-                                    <option value="">Choose Class / Grade</option>
-                                    {CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
-                                </select>
-                            </div>
-                            <div className="space-y-2 md:space-y-3">
-                                <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Learning Mode</label>
-                                <select value={reqMode} onChange={e => setReqMode(e.target.value)} className="w-full h-14 md:h-16 px-6 md:px-8 bg-slate-50 border-none rounded-2xl md:rounded-[2rem] outline-none focus:ring-4 ring-primary/20 font-black text-slate-700 appearance-none shadow-inner text-sm cursor-pointer">
-                                    <option value="">Select Learning Mode</option>
-                                    {MODES.map(m => (
-                                        <option key={m.value} value={m.value}>{m.label}</option>
-                                    ))}
-                                </select>
+                            {/* Helpline Info Card */}
+                            <div className="bg-slate-900 p-6 rounded-3xl text-white shadow-xl space-y-3">
+                                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-black uppercase tracking-wider border border-emerald-500/30">
+                                    <Phone className="w-3 h-3" />
+                                    <span>Instant Support</span>
+                                </div>
+                                <h4 className="text-base font-black text-white">Prefer to speak directly?</h4>
+                                <p className="text-xs text-slate-300 font-medium leading-relaxed">
+                                    Call our Vijayawada desk at <strong className="text-white">+91 80741 03400</strong> for instant tutor matching within 2 hours.
+                                </p>
                             </div>
                         </div>
 
-                        {/* MAP COLUMN */}
-                        <div className="space-y-2 md:space-y-3">
-                            <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Exact Area / Pin</label>
-                            <div className="rounded-[1.5rem] md:rounded-[2.5rem] p-2 sm:p-3 bg-slate-50/80 border-2 md:border-4 border-slate-50 shadow-inner relative">
-                                <MapLocationPicker
-                                    onLocationSelect={(loc) => { setReqLocation(loc.address); setReqLat(loc.latitude); setReqLng(loc.longitude); }}
-                                    initialAddress={reqLocation} height="240px" compact={true} accentColor="amber"
-                                />
+                        {/* RIGHT SIDE FORM CARD */}
+                        <div className="lg:col-span-7">
+                            <div className="bg-white rounded-3xl p-4 sm:p-8 md:p-10 shadow-xl border border-slate-200/80 relative">
+                                <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
+                                    <div>
+                                        <h3 className="text-xl font-black text-slate-900 tracking-tight">Post Your Requirement</h3>
+                                        <p className="text-xs font-semibold text-slate-500 mt-0.5">Get matched with top tutors nearby within 2 hours</p>
+                                    </div>
+                                    <div className="hidden sm:flex items-center gap-1 bg-amber-50 text-amber-800 border border-amber-200 px-3 py-1 rounded-full text-xs font-extrabold">
+                                        <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                                        Free Matching
+                                    </div>
+                                </div>
+
+                                {/* AUTHENTICATION STATUS BANNER */}
+                                {session?.user ? (
+                                    session.user.role === "STUDENT" ? (
+                                        <div className="mb-6 p-3.5 rounded-2xl bg-emerald-50/90 border border-emerald-200 text-emerald-900 flex items-center justify-between gap-3 text-xs">
+                                            <div className="flex items-center gap-2.5">
+                                                <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                                                    <CheckCircle2 className="w-4 h-4" />
+                                                </div>
+                                                <div>
+                                                    <p className="font-black text-slate-900">
+                                                        Posting as <span className="text-emerald-700 font-extrabold">{session.user.name || session.user.email}</span>
+                                                    </p>
+                                                    <p className="text-[11px] text-slate-500 font-medium">Verified Account • Requirement will be linked to your student dashboard</p>
+                                                </div>
+                                            </div>
+                                            <span className="hidden sm:inline-block px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider shrink-0">
+                                                Logged In
+                                            </span>
+                                        </div>
+                                    ) : (
+                                        <div className="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 flex items-center justify-between gap-3 text-xs">
+                                            <div className="flex items-center gap-2.5">
+                                                <div className="w-8 h-8 rounded-xl bg-amber-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                                                    <Lock className="w-4 h-4" />
+                                                </div>
+                                                <div>
+                                                    <p className="font-black text-slate-900">
+                                                        Logged in as <span className="font-extrabold">{session.user.email}</span> ({session.user.role})
+                                                    </p>
+                                                    <p className="text-[11px] text-amber-800 font-medium">Student or Parent account required to post requirement.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )
+                                ) : (
+                                    <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/90 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                                        <div className="flex items-start gap-3">
+                                            <div className="w-10 h-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-md">
+                                                <Lock className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <h4 className="text-xs sm:text-sm font-black text-slate-900 flex items-center gap-1.5">
+                                                    Account Required to Post Requirements
+                                                    <span className="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-amber-200/70 text-amber-900">
+                                                        Signup Needed
+                                                    </span>
+                                                </h4>
+                                                <p className="text-[11px] sm:text-xs text-slate-600 font-medium mt-0.5 leading-relaxed">
+                                                    Please sign in or create a student account so verified tutors can connect with you directly.
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    saveRequirementDraft();
+                                                    router.push("/login?callbackUrl=/find-tutor-nearby");
+                                                }}
+                                                className="flex-1 sm:flex-none text-center px-3.5 py-2 rounded-xl border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 font-bold text-xs transition-all shadow-xs cursor-pointer"
+                                            >
+                                                Sign In
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    saveRequirementDraft();
+                                                    router.push("/signup/student?redirect=/find-tutor-nearby");
+                                                }}
+                                                className="flex-1 sm:flex-none text-center px-4 py-2 rounded-xl bg-[#ffb800] hover:bg-[#ffa000] text-white font-extrabold text-xs transition-all shadow-md flex items-center justify-center gap-1 cursor-pointer"
+                                            >
+                                                <span>Sign Up</span>
+                                                <ArrowRight className="w-3.5 h-3.5" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <form onSubmit={handlePostRequirement} className="space-y-4">
+                                    {/* 1. Subject with Auto-suggestions */}
+                                    <div ref={reqSubjectContainerRef} className="relative">
+                                        <div className="flex items-center justify-between mb-1">
+                                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">
+                                                1. Subject or Skill Required *
+                                            </label>
+                                            <span className="text-[10px] font-bold text-amber-600">
+                                                Auto-suggestions for Academics & Activities
+                                            </span>
+                                        </div>
+
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                name="reqSubject"
+                                                value={reqSubject}
+                                                onChange={(e) => {
+                                                    setReqSubject(e.target.value);
+                                                    setShowReqSubjectSuggestions(true);
+                                                }}
+                                                onFocus={() => setShowReqSubjectSuggestions(true)}
+                                                placeholder="Type or select (e.g. Chess, Coding, Mathematics, Music, Spoken English)"
+                                                required
+                                                autoComplete="off"
+                                                className="w-full pl-4 pr-10 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#ffb800]/20 focus:border-[#ffb800] focus:bg-white text-xs font-bold transition-all"
+                                            />
+
+                                            {reqSubject ? (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setReqSubject("");
+                                                        setShowReqSubjectSuggestions(true);
+                                                    }}
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
+                                                    title="Clear subject"
+                                                >
+                                                    <X className="w-3.5 h-3.5" />
+                                                </button>
+                                            ) : (
+                                                <Search className="w-3.5 h-3.5 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                            )}
+                                        </div>
+
+                                        {/* Quick Select Popular Pills */}
+                                        <div className="flex flex-wrap gap-1.5 mt-2">
+                                            {POPULAR_REQ_SUBJECTS.map((pop) => (
+                                                <button
+                                                    key={pop}
+                                                    type="button"
+                                                    onClick={() => handleSelectReqSubject(pop)}
+                                                    className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all border cursor-pointer ${
+                                                        reqSubject.toLowerCase() === pop.toLowerCase()
+                                                            ? "bg-amber-400 text-slate-950 border-amber-400 shadow-xs"
+                                                            : "bg-slate-100 hover:bg-amber-50 hover:border-amber-200 text-slate-600 border-slate-200/80"
+                                                    }`}
+                                                >
+                                                    {pop === "Chess" ? "♟️ " : pop === "Coding" ? "💻 " : pop === "Keyboard" ? "🎹 " : ""}
+                                                    {pop}
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        {/* Auto-suggest dropdown */}
+                                        {showReqSubjectSuggestions && (
+                                            <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 bg-white rounded-2xl shadow-2xl border border-slate-200 max-h-72 overflow-y-auto p-2 divide-y divide-slate-100 animate-in fade-in slide-in-from-top-2 duration-150">
+                                                <div className="px-2.5 py-1.5 flex items-center justify-between text-[10px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/80 rounded-xl mb-1">
+                                                    <span>
+                                                        {reqSubject.trim() 
+                                                            ? `Matching Subjects & Activities (${filteredReqSubjects.length})` 
+                                                            : "All Available Subjects & Activities"}
+                                                    </span>
+                                                    <span className="text-amber-600 font-extrabold">Tap to select</span>
+                                                </div>
+
+                                                <div className="space-y-0.5 pt-1">
+                                                    {filteredReqSubjects.length > 0 ? (
+                                                        filteredReqSubjects.slice(0, 30).map((subj) => {
+                                                            const meta = getSubjectMeta(subj);
+                                                            const isSelected = reqSubject.toLowerCase() === subj.toLowerCase();
+                                                            return (
+                                                                <button
+                                                                    key={subj}
+                                                                    type="button"
+                                                                    onClick={() => handleSelectReqSubject(subj)}
+                                                                    className={`w-full px-3 py-2 rounded-xl text-left flex items-center justify-between text-xs font-bold transition-colors cursor-pointer ${
+                                                                        isSelected 
+                                                                            ? "bg-amber-500 text-slate-950 font-black" 
+                                                                            : "hover:bg-amber-50 text-slate-800 hover:text-slate-950"
+                                                                    }`}
+                                                                >
+                                                                    <div className="flex items-center gap-2.5 min-w-0">
+                                                                        {renderSubjectIcon(meta.iconName)}
+                                                                        <span className="truncate">{subj}</span>
+                                                                    </div>
+                                                                    <span className={`text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider shrink-0 ${
+                                                                        isSelected 
+                                                                            ? "bg-slate-950 text-amber-300" 
+                                                                            : "bg-slate-100 text-slate-500"
+                                                                    }`}>
+                                                                        {meta.category}
+                                                                    </span>
+                                                                </button>
+                                                            );
+                                                        })
+                                                    ) : (
+                                                        <div className="p-3 text-center">
+                                                            <p className="text-xs text-slate-500 font-medium">No exact match in dictionary.</p>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setShowReqSubjectSuggestions(false)}
+                                                                className="mt-2 text-xs font-black text-amber-600 hover:underline cursor-pointer"
+                                                            >
+                                                                Use custom: &quot;{reqSubject}&quot;
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        {/* 2. Class Level */}
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
+                                                2. Grade / Class Level *
+                                            </label>
+                                            <select
+                                                value={reqClass}
+                                                onChange={(e) => setReqClass(e.target.value)}
+                                                required
+                                                className="w-full px-3 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#ffb800]/20 focus:border-[#ffb800] focus:bg-white text-xs font-bold transition-all cursor-pointer"
+                                            >
+                                                <option value="">Select Level</option>
+                                                <option value="Nursery">Nursery</option>
+                                                <option value="LKG">LKG</option>
+                                                <option value="UKG">UKG</option>
+                                                <option value="Class 1">Class 1</option>
+                                                <option value="Class 2">Class 2</option>
+                                                <option value="Class 3">Class 3</option>
+                                                <option value="Class 4">Class 4</option>
+                                                <option value="Class 5">Class 5</option>
+                                                <option value="Class 6">Class 6</option>
+                                                <option value="Class 7">Class 7</option>
+                                                <option value="Class 8">Class 8</option>
+                                                <option value="Class 9">Class 9</option>
+                                                <option value="Class 10">Class 10</option>
+                                                <option value="Class 11">Class 11</option>
+                                                <option value="Class 12">Class 12</option>
+                                            </select>
+                                        </div>
+
+                                        {/* 3. Mode */}
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
+                                                3. Tuition Mode *
+                                            </label>
+                                            <select
+                                                value={reqMode}
+                                                onChange={(e) => setReqMode(e.target.value)}
+                                                required
+                                                className="w-full px-3 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#ffb800]/20 focus:border-[#ffb800] focus:bg-white text-xs font-bold transition-all cursor-pointer"
+                                            >
+                                                <option value="Home Tuition">At Student Home</option>
+                                                <option value="Online Tutor">Online mode</option>
+                                                <option value="At Centre">At Teacher Home</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    {/* 4. Location with Map & Area Selection */}
+                                    <div>
+                                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                                            4. Location & Area (Street / Area / Landmark) *
+                                        </label>
+                                        <StructuredAddressForm
+                                            onAddressChange={(data) => {
+                                                setReqLocation(data.fullAddress);
+                                                if (data.latitude) setReqLat(data.latitude);
+                                                if (data.longitude) setReqLng(data.longitude);
+                                            }}
+                                            initialAddress={reqLocation}
+                                            initialLat={reqLat}
+                                            initialLng={reqLng}
+                                            accentColor="amber"
+                                            height="200px"
+                                            required={true}
+                                            hideDoorAndHouse={true}
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        {/* 5. Parent Name */}
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
+                                                5. Parent / Contact Name *
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={reqParentName}
+                                                onChange={(e) => setReqParentName(e.target.value)}
+                                                placeholder="e.g. Rajesh Kumar"
+                                                required
+                                                className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#ffb800]/20 focus:border-[#ffb800] focus:bg-white text-xs font-bold transition-all"
+                                            />
+                                        </div>
+
+                                        {/* 6. Phone */}
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
+                                                6. Mobile Number *
+                                            </label>
+                                            <input
+                                                type="tel"
+                                                value={reqPhone}
+                                                onChange={(e) => setReqPhone(e.target.value)}
+                                                placeholder="e.g. 98765 43210"
+                                                required
+                                                className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#ffb800]/20 focus:border-[#ffb800] focus:bg-white text-xs font-bold transition-all"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* 7. Additional Goals */}
+                                    <div>
+                                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
+                                            7. Learning Goals & Timing Notes (Optional)
+                                        </label>
+                                        <textarea
+                                            value={reqGoals}
+                                            onChange={(e) => setReqGoals(e.target.value)}
+                                            rows={3}
+                                            placeholder="Specify preferred timing, days per week, or academic goals..."
+                                            className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#ffb800]/20 focus:border-[#ffb800] focus:bg-white text-xs font-medium transition-all"
+                                        />
+                                    </div>
+
+                                    {reqSubmitStatus === "success" && (
+                                        <div className="p-4 bg-emerald-50 text-emerald-900 text-xs font-bold rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border border-emerald-200">
+                                            <div className="flex items-center gap-2.5">
+                                                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                                                <div>
+                                                    <p className="font-black text-slate-900">Request received successfully!</p>
+                                                    <p className="text-[11px] text-emerald-700 font-medium">Our coordinator will call you within 2 hours. You can also view matching tutors in your dashboard.</p>
+                                                </div>
+                                            </div>
+                                            <Link
+                                                href="/student/leads"
+                                                className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-black text-[11px] shrink-0 transition-all flex items-center gap-1 shadow-xs"
+                                            >
+                                                <span>View Leads</span>
+                                                <ArrowRight className="w-3.5 h-3.5" />
+                                            </Link>
+                                        </div>
+                                    )}
+                                    {reqSubmitStatus === "error" && (
+                                        <div className="p-3 bg-red-50 text-red-700 text-xs font-bold rounded-xl border border-red-200">
+                                            Submission failed. Please check connection and try again.
+                                        </div>
+                                    )}
+
+                                    <button 
+                                        type="submit"
+                                        disabled={submittingReq}
+                                        className="w-full bg-[#ffb800] hover:bg-[#ffa000] text-white font-black py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-70 text-xs uppercase tracking-wider cursor-pointer"
+                                    >
+                                        {submittingReq ? (
+                                            <>
+                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                <span>Submitting Request...</span>
+                                            </>
+                                        ) : !session ? (
+                                            <>
+                                                <Lock className="w-4 h-4" />
+                                                <span>Sign In / Sign Up to Submit Requirement &rarr;</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Send className="w-4 h-4" />
+                                                <span>Submit Request & Get Matched &rarr;</span>
+                                            </>
+                                        )}
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
-
-                    {/* TEXTAREA */}
-                    <div className="space-y-2 md:space-y-3 mb-8 md:mb-12">
-                        <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Additional Instructions (Optional)</label>
-                        <textarea 
-                            value={reqMessage} onChange={e => setReqMessage(e.target.value)} 
-                            placeholder="Specific goals, timing preferences, or teacher gender preference..."
-                            className="w-full p-6 md:p-8 bg-slate-50 border-none rounded-[1.5rem] md:rounded-[2.5rem] min-h-[120px] md:min-h-[160px] outline-none focus:ring-4 ring-primary/20 font-bold text-slate-700 shadow-inner resize-none text-sm"
-                        />
-                    </div>
-
-                    {/* SUBMIT BUTTON */}
-                    <button 
-                        onClick={handlePostRequirement} disabled={submittingReq}
-                        className="w-full h-16 md:h-20 bg-primary hover:bg-primary/95 text-white font-[1000] rounded-[1.5rem] md:rounded-[2.5rem] transition-all duration-300 shadow-2xl shadow-primary/20 active:scale-95 disabled:opacity-50 uppercase text-xs md:text-sm tracking-[0.25em] cursor-pointer"
-                    >
-                        {submittingReq ? "Submitting Request..." : !session ? "Sign In / Sign Up to Submit Requirement" : "Submit Requirement Now"}
-                    </button>
                 </div>
-            </div>
-        </div>
-    </div>
-</section>
+            </section>
 
             {/* ──── 5.5 WHAT ARE YOU LOOKING FOR? (Persona Selection) ──── */}
             <section className="py-16 md:py-24 bg-slate-900 text-white relative overflow-hidden">
@@ -1736,8 +2212,11 @@ function FindTutorNearbyPageContent() {
                         <MapLocationPicker
                             initialAddress={location}
                             onLocationSelect={(loc) => {
-                                setLocation(loc.address); setLocationLat(loc.latitude); setLocationLng(loc.longitude);
+                                setLocation(loc.address); 
+                                setLocationLat(loc.latitude); 
+                                setLocationLng(loc.longitude);
                                 setIsLocationModalOpen(false);
+                                performSearch(subject, loc.address, selectedRadius, selectedClass, selectedMode, sortBy, false, loc.latitude, loc.longitude);
                             }}
                             height="280px"
                             compact={false}
@@ -1745,6 +2224,81 @@ function FindTutorNearbyPageContent() {
                     </div>
                 </DialogContent>
             </Dialog>
+
+            {/* AUTH REQUIRED MODAL */}
+            {showAuthModal && (
+                <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+                    <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 relative space-y-5 animate-in zoom-in-95 duration-200">
+                        <button
+                            type="button"
+                            onClick={() => setShowAuthModal(false)}
+                            className="absolute top-5 right-5 p-1.5 text-slate-400 hover:text-slate-800 rounded-full hover:bg-slate-100 transition-colors cursor-pointer"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+
+                        <div className="w-14 h-14 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center mx-auto shadow-inner">
+                            <Lock className="w-7 h-7" />
+                        </div>
+
+                        <div className="text-center space-y-1.5">
+                            <h3 className="text-xl font-black text-slate-900 tracking-tight">Account Required</h3>
+                            <p className="text-xs text-slate-500 font-medium">
+                                To post a tuition requirement and get matched with verified tutors, you must sign up or sign in as a student.
+                            </p>
+                        </div>
+
+                        {/* Preserved details indicator */}
+                        <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-1">
+                            <div className="flex items-center justify-between">
+                                <span className="font-extrabold text-slate-700">Requirement Preserved:</span>
+                                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                                    Draft Saved
+                                </span>
+                            </div>
+                            <p className="text-slate-600 font-bold truncate">
+                                {reqSubject || "Subject not picked"} • {reqClass || "General"} • {reqMode}
+                            </p>
+                            {reqLocation && (
+                                <p className="text-[11px] text-slate-500 truncate flex items-center gap-1">
+                                    <MapPin className="w-3 h-3 shrink-0 text-amber-500" />
+                                    <span>{reqLocation}</span>
+                                </p>
+                            )}
+                        </div>
+
+                        <div className="space-y-2.5 pt-2">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    saveRequirementDraft();
+                                    router.push("/signup/student?redirect=/find-tutor-nearby");
+                                }}
+                                className="w-full py-3.5 bg-[#ffb800] hover:bg-[#ffa000] text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                            >
+                                <UserPlus className="w-4 h-4" />
+                                <span>Create Student / Parent Account</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    saveRequirementDraft();
+                                    router.push("/login?callbackUrl=/find-tutor-nearby");
+                                }}
+                                className="w-full py-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+                            >
+                                <LogIn className="w-4 h-4 text-amber-500" />
+                                <span>Sign In to Existing Account</span>
+                            </button>
+                        </div>
+
+                        <p className="text-center text-[10px] text-slate-400 font-semibold">
+                            ✨ Your requirement details are automatically restored right after you sign in.
+                        </p>
+                    </div>
+                </div>
+            )}
 
         </main>
     );

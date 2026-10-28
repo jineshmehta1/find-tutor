@@ -15,7 +15,8 @@ import { cn } from "@/lib/utils";
 import { 
     ALL_STANDARD_SUBJECTS, 
     ACADEMIC_SUBJECTS, 
-    ALL_SUBJECT_SECTIONS 
+    ALL_SUBJECT_SECTIONS,
+    sortClassLevels
 } from "@/lib/classConstants";
 
 const ALL_SUBJECTS = ALL_STANDARD_SUBJECTS;
@@ -429,12 +430,12 @@ export default function TeacherSettingsPage() {
                     levels.forEach(lvl => allLevelsSet.add(lvl));
                 });
             }
-            const extractedClasses = Array.from(allLevelsSet);
+            const extractedClasses = sortClassLevels(Array.from(allLevelsSet));
 
             // Build payload subjects with levels
             const payloadSubjects = tutorType === "teacher"
                 ? formData.subjects.map(subj => {
-                    const levels = subjectLevels[subj] || [];
+                    const levels = sortClassLevels(subjectLevels[subj] || []);
                     return levels.length > 0 ? `${subj} (${levels.join(", ")})` : subj;
                   })
                 : formData.subjects;

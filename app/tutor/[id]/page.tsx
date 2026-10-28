@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { getPublicLocality } from "@/lib/geoUtils";
+import { sortClassLevels } from "@/lib/classConstants";
 
 
 interface Tutor {
@@ -306,7 +307,7 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
               <div className="pt-4 border-t border-slate-50 space-y-2">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Classes & Grades Taught</p>
                 <div className="flex flex-wrap gap-2">
-                  {tutor.classesOrAgeGroup.map((cls) => (
+                  {sortClassLevels(tutor.classesOrAgeGroup).map((cls) => (
                     <span key={cls} className="px-3 py-1.5 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-100 shadow-xs">
                       {cls}
                     </span>
@@ -326,7 +327,8 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
                 {tutor.subjects.map((sub, idx) => {
                   const match = sub.match(/^(.*?)\s*\((.*?)\)$/);
                   const title = match ? match[1] : sub;
-                  const levels = match ? match[2].split(",").map(x => x.trim()) : [];
+                  const rawLevels = match ? match[2].split(",").map(x => x.trim()).filter(Boolean) : [];
+                  const levels = sortClassLevels(rawLevels);
                   return (
                     <div key={idx} className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
                       <h4 className="font-extrabold text-slate-900 text-sm flex items-center gap-2">

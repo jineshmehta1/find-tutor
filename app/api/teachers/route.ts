@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { calculateHaversineDistance, matchesTeachingMode } from "@/lib/geoUtils";
-import { matchesClassLevel } from "@/lib/classConstants";
+import { matchesClassLevel, sortClassLevels, sortSubjectLevels } from "@/lib/classConstants";
 
 export const dynamic = "force-dynamic";
 
@@ -129,11 +129,25 @@ export async function GET(request: NextRequest) {
                 education: teacher.education,
                 experience: teacher.experience,
                 certifications: JSON.parse(teacher.certifications || "[]"),
-                subjects: JSON.parse(teacher.subjects || "[]"),
+                subjects: (() => {
+                    try {
+                        const parsed = JSON.parse(teacher.subjects || "[]");
+                        return Array.isArray(parsed) ? parsed.map(sortSubjectLevels) : [];
+                    } catch {
+                        return [];
+                    }
+                })(),
                 teachingMode: teacher.teachingMode,
                 expectedFee: teacher.expectedFee,
                 feeType: teacher.feeType || "/hr",
-                classesOrAgeGroup: teacher.classesOrAgeGroup ? (() => { try { return JSON.parse(teacher.classesOrAgeGroup); } catch { return teacher.classesOrAgeGroup; } })() : null,
+                classesOrAgeGroup: teacher.classesOrAgeGroup ? (() => { 
+                    try { 
+                        const parsed = JSON.parse(teacher.classesOrAgeGroup); 
+                        return Array.isArray(parsed) ? sortClassLevels(parsed) : sortClassLevels([teacher.classesOrAgeGroup]); 
+                    } catch { 
+                        return typeof teacher.classesOrAgeGroup === "string" ? sortClassLevels(teacher.classesOrAgeGroup.split(",")) : teacher.classesOrAgeGroup; 
+                    } 
+                })() : null,
                 qualificationLevel: teacher.qualificationLevel,
                 qualificationName: teacher.qualificationName,
                 achievements: teacher.achievements,

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { sortClassLevels, sortSubjectLevels } from "@/lib/classConstants";
 
 export async function GET(
     request: NextRequest,
@@ -83,11 +84,25 @@ export async function GET(
             education: teacher.education,
             experience: teacher.experience,
             certifications: (() => { try { return JSON.parse(teacher.certifications || "[]"); } catch { return []; } })(),
-            subjects: (() => { try { return JSON.parse(teacher.subjects || "[]"); } catch { return []; } })(),
+            subjects: (() => { 
+                try { 
+                    const parsed = JSON.parse(teacher.subjects || "[]"); 
+                    return Array.isArray(parsed) ? parsed.map(sortSubjectLevels) : []; 
+                } catch { 
+                    return []; 
+                } 
+            })(),
             teachingMode: teacher.teachingMode,
             expectedFee: teacher.expectedFee,
             feeType: teacher.feeType,
-            classesOrAgeGroup: teacher.classesOrAgeGroup ? (() => { try { return JSON.parse(teacher.classesOrAgeGroup); } catch { return teacher.classesOrAgeGroup; } })() : null,
+            classesOrAgeGroup: teacher.classesOrAgeGroup ? (() => { 
+                try { 
+                    const parsed = JSON.parse(teacher.classesOrAgeGroup); 
+                    return Array.isArray(parsed) ? sortClassLevels(parsed) : sortClassLevels([teacher.classesOrAgeGroup]); 
+                } catch { 
+                    return typeof teacher.classesOrAgeGroup === "string" ? sortClassLevels(teacher.classesOrAgeGroup.split(",")) : teacher.classesOrAgeGroup; 
+                } 
+            })() : null,
             qualificationLevel: teacher.qualificationLevel,
             qualificationName: teacher.qualificationName,
             achievements: teacher.achievements,

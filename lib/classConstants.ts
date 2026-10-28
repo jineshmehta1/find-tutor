@@ -445,3 +445,129 @@ export function matchesClassLevel(
     });
 }
 
+/**
+ * Assigns an educational hierarchy rank to any class/grade level string.
+ * Used to sort classes chronologically (Nursery -> LKG -> UKG -> Class 1..12 -> Degree -> Competitive).
+ */
+export function getClassLevelRank(cls: string): number {
+    if (!cls || typeof cls !== "string") return 999;
+    const clean = cls.trim();
+    const lower = clean.toLowerCase();
+
+    // Early childhood
+    if (lower === "playgroup" || lower.includes("nursery") || lower.includes("pre-kg") || lower.includes("pre kg")) return 1;
+    if (lower === "lkg" || lower.includes("jr") || lower === "kg 1" || lower === "kg1") return 2;
+    if (lower === "ukg" || lower.includes("sr") || lower === "kg 2" || lower === "kg2" || lower === "kg" || lower.includes("kindergarten")) return 3;
+
+    // Check for numeric range (e.g., "Class 1-5", "Class 9-10", "1 to 12")
+    const rangeMatch = lower.match(/(\d+)\s*(?:-|to)\s*(\d+)/);
+    if (rangeMatch) {
+        const start = parseInt(rangeMatch[1], 10);
+        const end = parseInt(rangeMatch[2], 10);
+        return 10 + start + (end / 100);
+    }
+
+    // Numbered individual class (e.g. "Class 1", "Class 10", "Grade 5", "5th")
+    const numMatch = lower.match(/(?:class|grade|std|standard|\b)\s*(\d+)(?:st|nd|rd|th)?\b/);
+    if (numMatch && numMatch[1]) {
+        const num = parseInt(numMatch[1], 10);
+        if (num >= 1 && num <= 12) {
+            return 10 + num;
+        }
+    }
+
+    // Intermediate / Higher Secondary / +2
+    if (lower.includes("intermediate") || lower.includes("inter") || lower.includes("higher secondary") || lower.includes("+2") || lower.includes("puc")) {
+        return 22;
+    }
+
+    // Degree / Graduation / College
+    if (lower.includes("degree") || lower.includes("graduation") || lower.includes("btech") || lower.includes("b.tech") || lower.includes("college") || lower.includes("undergraduate")) {
+        return 30;
+    }
+
+    // Post-graduation / Masters
+    if (lower.includes("post") || lower.includes("masters") || lower.includes("mtech") || lower.includes("mba")) {
+        return 40;
+    }
+
+    // Competitive Exams
+    if (lower.includes("jee") || lower.includes("neet") || lower.includes("upsc") || lower.includes("entrance") || lower.includes("competitive")) {
+        return 50;
+    }
+
+    return 100;
+}
+
+/**
+ * Sorts an array of class/grade levels chronologically in educational order.
+ * Example: ["Class 7", "Class 1", "Class 3", "Class 2"] -> ["Class 1", "Class 2", "Class 3", "Class 7"]
+ */
+export function sortClassLevels(classes: (string | null | undefined)[]): string[] {
+    if (!Array.isArray(classes)) return [];
+    const valid = classes
+        .filter((c): c is string => typeof c === "string" && c.trim().length > 0)
+        .map((c) => c.trim());
+
+    // Deduplicate while preserving case
+    const uniqueMap = new Map<string, string>();
+    for (const c of valid) {
+        const key = c.toLowerCase();
+        if (!uniqueMap.has(key)) {
+            uniqueMap.set(key, c);
+        }
+    }
+
+    const uniqueList = Array.from(uniqueMap.values());
+
+    return uniqueList.sort((a, b) => {
+        const rankA = getClassLevelRank(a);
+        const rankB = getClassLevelRank(b);
+        if (rankA !== rankB) return rankA - rankB;
+        return a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" });
+    });
+}
+
+/**
+ * Sorts the class breakdown inside a subject string like "English (Class 7, Class 1, Class 3)"
+ * into "English (Class 1, Class 3, Class 7)"
+ */
+export function sortSubjectLevels(sub: string): string {
+    if (!sub || typeof sub !== "string") return sub;
+    const match = sub.match(/^(.*?)\s*\((.*?)\)$/);
+    if (!match) return sub;
+    const title = match[1].trim();
+    const rawLevels = match[2].split(",").map((s) => s.trim()).filter(Boolean);
+    if (rawLevels.length === 0) return title;
+    const sortedLevels = sortClassLevels(rawLevels);
+    return `${title} (${sortedLevels.join(", ")})`;
+}
+
+/**
+ * Produces a clean, concise class range summary from an array or JSON string.
+ * Example: ["Class 7", "Class 1", "Class 3", ..., "Class 9"] -> "Class 1 - Class 9"
+ */
+export function formatClassSummary(rawClasses: any): string {
+    let classes: string[] = [];
+    if (Array.isArray(rawClasses)) {
+        classes = rawClasses;
+    } else if (typeof rawClasses === "string") {
+        try {
+            const parsed = JSON.parse(rawClasses);
+            if (Array.isArray(parsed)) classes = parsed;
+            else classes = rawClasses.split(",").map((s) => s.trim());
+        } catch {
+            classes = rawClasses.split(",").map((s) => s.trim());
+        }
+    }
+
+    const sorted = sortClassLevels(classes);
+    if (sorted.length === 0) return "All Grades";
+    if (sorted.length === 1) return sorted[0];
+    if (sorted.length <= 3) return sorted.join(", ");
+
+    const first = sorted[0];
+    const last = sorted[sorted.length - 1];
+    return `${first} - ${last}`;
+}
+

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { BookMarked, Settings, Sparkles, CheckCircle2, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { sortClassLevels, sortSubjectLevels } from "@/lib/classConstants";
 
 export default function TeacherSubjectsPage() {
     const [subjects, setSubjects] = useState<string[]>([]);
@@ -16,8 +17,14 @@ export default function TeacherSubjectsPage() {
                 if (res.ok) {
                     const data = await res.json();
                     if (data.teacher) {
-                        try { setSubjects(JSON.parse(data.teacher.subjects || "[]")); } catch {}
-                        try { setClasses(JSON.parse(data.teacher.classesOrAgeGroup || "[]")); } catch {}
+                        try { 
+                            const parsedSubj = JSON.parse(data.teacher.subjects || "[]");
+                            setSubjects(Array.isArray(parsedSubj) ? parsedSubj.map(sortSubjectLevels) : []);
+                        } catch {}
+                        try { 
+                            const parsedCls = JSON.parse(data.teacher.classesOrAgeGroup || "[]");
+                            setClasses(Array.isArray(parsedCls) ? sortClassLevels(parsedCls) : []);
+                        } catch {}
                     }
                 }
             } catch {}

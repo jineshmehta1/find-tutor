@@ -18,7 +18,8 @@ import {
   STANDARD_CLASSES,
   ACADEMIC_SUBJECTS,
   ACTIVITY_SUBJECTS,
-  STANDARD_TEACHING_MODES
+  STANDARD_TEACHING_MODES,
+  formatClassSummary
 } from "@/lib/classConstants";
 import TutorCard from "@/components/TutorCard";
 
@@ -161,24 +162,8 @@ export default function HomePage() {
             return clean;
           }).filter(Boolean);
 
-          // Parse classes taught summary
-          let classesSummary = "All Grades";
-          let parsedClasses: string[] = [];
-          if (item.classesOrAgeGroup) {
-            try {
-              const p = typeof item.classesOrAgeGroup === "string" ? JSON.parse(item.classesOrAgeGroup) : item.classesOrAgeGroup;
-              if (Array.isArray(p)) parsedClasses = p;
-            } catch {
-              if (Array.isArray(item.classesOrAgeGroup)) parsedClasses = item.classesOrAgeGroup;
-            }
-          }
-          if (parsedClasses.length > 0) {
-            if (parsedClasses.length >= 4) {
-              classesSummary = `${parsedClasses[0]} to ${parsedClasses[parsedClasses.length - 1]}`;
-            } else {
-              classesSummary = parsedClasses.join(", ");
-            }
-          }
+          // Parse classes taught summary: always sorted chronologically
+          const classesSummary = item.classesOrAgeGroup ? formatClassSummary(item.classesOrAgeGroup) : "All Grades";
 
           // Convert raw user / teacher record to display properties
           const formatted = {
@@ -193,6 +178,7 @@ export default function HomePage() {
             subject: cleanSubjects[0] || (isActivity ? "Co-curricular Coach" : "Academic Teacher"),
             subjectsList: cleanSubjects,
             classes: classesSummary,
+            classesOrAgeGroup: item.classesOrAgeGroup,
             experience: item.experience ? `${item.experience} Exp.` : "Experienced",
             location: getPublicLocality(item.address),
             rating: item.rating ?? 0,

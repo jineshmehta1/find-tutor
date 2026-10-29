@@ -183,7 +183,7 @@ export default function TutorCard({ tutor, onSelect }: TutorCardProps) {
         : null;
 
     return (
-        <div className="relative bg-white rounded-[1.75rem] sm:rounded-[2rem] border border-slate-200/90 p-4 sm:p-5 shadow-sm hover:shadow-xl hover:border-amber-300 transition-all duration-300 overflow-hidden flex flex-col justify-between group h-full text-left">
+        <div className="relative bg-gradient-to-b from-white via-white to-amber-50/20 rounded-[1.75rem] sm:rounded-[2rem] border-2 border-slate-200 hover:border-amber-400 p-4 sm:p-5 shadow-md hover:shadow-2xl shadow-slate-200/80 transition-all duration-300 overflow-hidden flex flex-col justify-between group h-full text-left">
             
             {/* Top-left decorative curved yellow arc matching mockup */}
             <div className="absolute top-0 left-0 w-36 sm:w-44 h-20 sm:h-24 overflow-hidden pointer-events-none -z-0">
@@ -404,7 +404,7 @@ export default function TutorCard({ tutor, onSelect }: TutorCardProps) {
             </div>
 
             {/* ──── ACTION BUTTONS (Message, Call, View Profile) ──── */}
-            <div className="grid grid-cols-3 gap-1.5 sm:gap-2 pt-3 sm:pt-3.5 mt-3 sm:mt-3.5 border-t border-slate-100">
+            <div className="grid grid-cols-3 gap-1.5 sm:gap-2 pt-3 sm:pt-3.5 mt-3 sm:mt-3.5 border-t border-slate-200/80">
                 <button
                     type="button"
                     onClick={() => {

@@ -189,7 +189,7 @@ export function TutorSpotlight({ onBookDemo }: TutorSpotlightProps) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             whileHover={{ y: -6 }}
-            className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative group"
+            className="bg-gradient-to-b from-white via-white to-amber-50/20 rounded-3xl border-2 border-slate-200 hover:border-amber-400 p-6 shadow-md hover:shadow-2xl shadow-slate-200/80 transition-all duration-300 flex flex-col justify-between relative group"
           >
             <div>
               {/* Badge & Avatar Header */}

@@ -240,7 +240,7 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
                                     Aacharya Academy
                                 </span>
                                 <span className="text-[8px] font-black text-slate-400 leading-none tracking-widest mt-1 uppercase">
-                                    Find Tutors Nearby
+                                    Find Home Tutors Nearby
                                 </span>
                             </div>
                         </Link>

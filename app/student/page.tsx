@@ -414,7 +414,7 @@ export default function StudentDashboard() {
                         ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                 {teachers.slice(0, 4).map((tutor) => (
-                                    <div key={tutor.id} className="bg-white rounded-3xl border border-slate-200/50 shadow-sm p-4 flex flex-col justify-between hover:shadow-md transition-shadow relative group">
+                                    <div key={tutor.id} className="bg-gradient-to-b from-white via-white to-amber-50/20 rounded-3xl border-2 border-slate-200 hover:border-amber-400 shadow-md p-4 flex flex-col justify-between hover:shadow-xl transition-all relative group">
                                         
                                         {/* Unfilled heart icon on top right */}
                                         <button 

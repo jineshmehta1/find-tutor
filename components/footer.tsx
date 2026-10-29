@@ -121,7 +121,7 @@ export default function Footer() {
                   AACHARYA
                 </span>
                 <span className="text-[7px] font-black text-amber-500 tracking-wider mt-0.5 uppercase">
-                  FIND TUTORS NEARBY
+                  FIND HOME TUTORS NEARBY
                 </span>
               </div>
             </a>

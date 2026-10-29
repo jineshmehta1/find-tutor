@@ -1418,12 +1418,12 @@ function FindTutorNearbyPageContent() {
             </section>
 
             {/* ──── 5.4 POST REQUIREMENT MEGA FORM (Aligned with /request-tutor) ──── */}
-            <section className="py-16 md:py-24 bg-slate-50/70 border-t border-slate-200/80 relative z-10">
+            <section className="py-16 md:py-24 bg-gradient-to-b from-slate-100/90 via-slate-50 to-slate-100/90 border-t border-slate-200/80 relative z-10">
                 <div className="container mx-auto px-4 md:px-6 max-w-7xl">
                     <div className="text-center max-w-3xl mx-auto mb-10 md:mb-14 space-y-3">
-                        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold tracking-wider uppercase border border-amber-200">
+                        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-black tracking-wider uppercase border border-amber-300 shadow-2xs">
                             <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                            <span>Can&apos;t Find Your Match?</span>
+                            <span>Couldn&apos;t Find Tutors? Post Your Requirement Here</span>
                         </div>
                         <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
                             Post Your Requirement & Let Verified Tutors Come to You
@@ -1434,73 +1434,20 @@ function FindTutorNearbyPageContent() {
                     </div>
 
                     <div className="grid lg:grid-cols-12 gap-8 items-start">
-                        {/* LEFT SIDE PANEL: Trust Guarantees & Features */}
-                        <div className="lg:col-span-5 space-y-6">
-                            <div className="bg-white p-5 sm:p-8 rounded-3xl border border-slate-200/80 shadow-md space-y-6">
-                                <h3 className="text-lg font-black text-slate-900 tracking-tight">Why Parents Choose Aacharya</h3>
-                                
-                                <div className="space-y-4">
-                                    <div className="flex items-start gap-3.5">
-                                        <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold shrink-0">
-                                            <ShieldCheck className="w-5 h-5" />
-                                        </div>
-                                        <div>
-                                            <h4 className="font-extrabold text-xs sm:text-sm text-slate-900">Physically Audited Credentials</h4>
-                                            <p className="text-[11px] text-slate-500 font-medium leading-relaxed mt-0.5">
-                                                Identity proofs and academic marksheets are audited in person by our Bhavanipuram center team.
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-start gap-3.5">
-                                        <div className="w-10 h-10 rounded-xl bg-amber-50 text-[#ffb800] flex items-center justify-center font-bold shrink-0">
-                                            <HeartHandshake className="w-5 h-5" />
-                                        </div>
-                                        <div>
-                                            <h4 className="font-extrabold text-xs sm:text-sm text-slate-900">0% Commission Cut</h4>
-                                            <p className="text-[11px] text-slate-500 font-medium leading-relaxed mt-0.5">
-                                                No middleman agency fees. You directly settle tuition billing with your assigned instructor.
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-start gap-3.5">
-                                        <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold shrink-0">
-                                            <Clock className="w-5 h-5" />
-                                        </div>
-                                        <div>
-                                            <h4 className="font-extrabold text-xs sm:text-sm text-slate-900">Direct Contact with Tutors</h4>
-                                            <p className="text-[11px] text-slate-500 font-medium leading-relaxed mt-0.5">
-                                                Assess the tutor&apos;s teaching style and student compatibility before scheduling monthly slots.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Helpline Info Card */}
-                            <div className="bg-slate-900 p-6 rounded-3xl text-white shadow-xl space-y-3">
-                                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-black uppercase tracking-wider border border-emerald-500/30">
-                                    <Phone className="w-3 h-3" />
-                                    <span>Instant Support</span>
-                                </div>
-                                <h4 className="text-base font-black text-white">Prefer to speak directly?</h4>
-                                <p className="text-xs text-slate-300 font-medium leading-relaxed">
-                                    Call our Vijayawada desk at <strong className="text-white">+91 80741 03400</strong> for instant tutor matching within 2 hours.
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* RIGHT SIDE FORM CARD */}
+                        {/* PRIMARY FORM CARD (Given Top Priority) */}
                         <div className="lg:col-span-7">
-                            <div className="bg-white rounded-3xl p-4 sm:p-8 md:p-10 shadow-xl border border-slate-200/80 relative">
-                                <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
+                            <div className="bg-gradient-to-b from-[#fffef8] via-amber-50/40 to-[#fffdf5] rounded-3xl p-4 sm:p-8 md:p-10 shadow-2xl border-2 border-amber-200/90 relative">
+                                <div className="flex items-center justify-between border-b border-amber-200/70 pb-4 mb-6">
                                     <div>
-                                        <h3 className="text-xl font-black text-slate-900 tracking-tight">Post Your Requirement</h3>
-                                        <p className="text-xs font-semibold text-slate-500 mt-0.5">Get matched with top tutors nearby within 2 hours</p>
+                                        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-black uppercase tracking-wider mb-2 border border-amber-300">
+                                            <Sparkles className="w-3 h-3 text-amber-600" />
+                                            <span>Tutor Requirement Form</span>
+                                        </div>
+                                        <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Post Your Requirement</h3>
+                                        <p className="text-xs font-semibold text-slate-600 mt-0.5">Get matched with top tutors nearby within 2 hours</p>
                                     </div>
-                                    <div className="hidden sm:flex items-center gap-1 bg-amber-50 text-amber-800 border border-amber-200 px-3 py-1 rounded-full text-xs font-extrabold">
-                                        <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                                    <div className="hidden sm:flex items-center gap-1.5 bg-amber-100 text-amber-900 border border-amber-300 px-3.5 py-1.5 rounded-full text-xs font-extrabold shadow-2xs">
+                                        <Sparkles className="w-3.5 h-3.5 text-amber-600" />
                                         Free Matching
                                     </div>
                                 </div>
@@ -1586,12 +1533,14 @@ function FindTutorNearbyPageContent() {
                                 <form onSubmit={handlePostRequirement} className="space-y-4">
                                     {/* 1. Subject with Auto-suggestions */}
                                     <div ref={reqSubjectContainerRef} className="relative">
-                                        <div className="flex items-center justify-between mb-1">
-                                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">
-                                                1. Subject or Skill Required *
+                                        <div className="flex items-center justify-between mb-1.5">
+                                            <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                                                <span className="w-5 h-5 rounded-md bg-[#ffb800] text-slate-950 font-black text-[10px] inline-flex items-center justify-center shrink-0 shadow-2xs">1</span>
+                                                <span>Subject or Skill Required</span>
+                                                <span className="text-amber-600 font-black">*</span>
                                             </label>
-                                            <span className="text-[10px] font-bold text-amber-600">
-                                                Auto-suggestions for Academics & Activities
+                                            <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-200">
+                                                Academics & Activities
                                             </span>
                                         </div>
 
@@ -1608,7 +1557,7 @@ function FindTutorNearbyPageContent() {
                                                 placeholder="Type or select (e.g. Chess, Coding, Mathematics, Music, Spoken English)"
                                                 required
                                                 autoComplete="off"
-                                                className="w-full pl-4 pr-10 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#ffb800]/20 focus:border-[#ffb800] focus:bg-white text-xs font-bold transition-all"
+                                                className="w-full pl-4 pr-10 py-3 rounded-xl bg-white border-2 border-slate-200 hover:border-slate-300 focus:outline-none focus:ring-4 focus:ring-amber-500/15 focus:border-amber-500 text-xs font-bold text-slate-900 placeholder:text-slate-400 shadow-xs transition-all"
                                             />
 
                                             {reqSubject ? (
@@ -1637,8 +1586,8 @@ function FindTutorNearbyPageContent() {
                                                     onClick={() => handleSelectReqSubject(pop)}
                                                     className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all border cursor-pointer ${
                                                         reqSubject.toLowerCase() === pop.toLowerCase()
-                                                            ? "bg-amber-400 text-slate-950 border-amber-400 shadow-xs"
-                                                            : "bg-slate-100 hover:bg-amber-50 hover:border-amber-200 text-slate-600 border-slate-200/80"
+                                                            ? "bg-[#ffb800] text-slate-950 border-amber-500 shadow-xs font-black"
+                                                            : "bg-white hover:bg-amber-100 hover:border-amber-300 text-slate-700 border-slate-200 shadow-2xs font-bold"
                                                     }`}
                                                 >
                                                     {pop === "Chess" ? "♟️ " : pop === "Coding" ? "💻 " : pop === "Keyboard" ? "🎹 " : ""}
@@ -1709,14 +1658,16 @@ function FindTutorNearbyPageContent() {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         {/* 2. Class Level */}
                                         <div>
-                                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
-                                                2. Grade / Class Level *
+                                            <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-800 mb-1.5 flex items-center gap-1.5">
+                                                <span className="w-5 h-5 rounded-md bg-[#ffb800] text-slate-950 font-black text-[10px] inline-flex items-center justify-center shrink-0 shadow-2xs">2</span>
+                                                <span>Grade / Class Level</span>
+                                                <span className="text-amber-600 font-black">*</span>
                                             </label>
                                             <select
                                                 value={reqClass}
                                                 onChange={(e) => setReqClass(e.target.value)}
                                                 required
-                                                className="w-full px-3 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#ffb800]/20 focus:border-[#ffb800] focus:bg-white text-xs font-bold transition-all cursor-pointer"
+                                                className="w-full px-3.5 py-3 rounded-xl bg-white border-2 border-slate-200 hover:border-slate-300 focus:outline-none focus:ring-4 focus:ring-amber-500/15 focus:border-amber-500 text-xs font-bold text-slate-900 shadow-xs transition-all cursor-pointer"
                                             >
                                                 <option value="">Select Level</option>
                                                 <option value="Nursery">Nursery</option>
@@ -1739,14 +1690,16 @@ function FindTutorNearbyPageContent() {
 
                                         {/* 3. Mode */}
                                         <div>
-                                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
-                                                3. Tuition Mode *
+                                            <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-800 mb-1.5 flex items-center gap-1.5">
+                                                <span className="w-5 h-5 rounded-md bg-[#ffb800] text-slate-950 font-black text-[10px] inline-flex items-center justify-center shrink-0 shadow-2xs">3</span>
+                                                <span>Tuition Mode</span>
+                                                <span className="text-amber-600 font-black">*</span>
                                             </label>
                                             <select
                                                 value={reqMode}
                                                 onChange={(e) => setReqMode(e.target.value)}
                                                 required
-                                                className="w-full px-3 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#ffb800]/20 focus:border-[#ffb800] focus:bg-white text-xs font-bold transition-all cursor-pointer"
+                                                className="w-full px-3.5 py-3 rounded-xl bg-white border-2 border-slate-200 hover:border-slate-300 focus:outline-none focus:ring-4 focus:ring-amber-500/15 focus:border-amber-500 text-xs font-bold text-slate-900 shadow-xs transition-all cursor-pointer"
                                             >
                                                 <option value="Home Tuition">At Student Home</option>
                                                 <option value="Online Tutor">Online mode</option>
@@ -1757,8 +1710,10 @@ function FindTutorNearbyPageContent() {
 
                                     {/* 4. Location with Map & Area Selection */}
                                     <div>
-                                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-                                            4. Location & Area (Street / Area / Landmark) *
+                                        <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-800 mb-1.5 flex items-center gap-1.5">
+                                            <span className="w-5 h-5 rounded-md bg-[#ffb800] text-slate-950 font-black text-[10px] inline-flex items-center justify-center shrink-0 shadow-2xs">4</span>
+                                            <span>Location & Area (Street / Area / Landmark)</span>
+                                            <span className="text-amber-600 font-black">*</span>
                                         </label>
                                         <StructuredAddressForm
                                             onAddressChange={(data) => {
@@ -1779,8 +1734,10 @@ function FindTutorNearbyPageContent() {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         {/* 5. Parent Name */}
                                         <div>
-                                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
-                                                5. Parent / Contact Name *
+                                            <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-800 mb-1.5 flex items-center gap-1.5">
+                                                <span className="w-5 h-5 rounded-md bg-[#ffb800] text-slate-950 font-black text-[10px] inline-flex items-center justify-center shrink-0 shadow-2xs">5</span>
+                                                <span>Parent / Contact Name</span>
+                                                <span className="text-amber-600 font-black">*</span>
                                             </label>
                                             <input
                                                 type="text"
@@ -1788,14 +1745,16 @@ function FindTutorNearbyPageContent() {
                                                 onChange={(e) => setReqParentName(e.target.value)}
                                                 placeholder="e.g. Rajesh Kumar"
                                                 required
-                                                className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#ffb800]/20 focus:border-[#ffb800] focus:bg-white text-xs font-bold transition-all"
+                                                className="w-full px-4 py-3 rounded-xl bg-white border-2 border-slate-200 hover:border-slate-300 focus:outline-none focus:ring-4 focus:ring-amber-500/15 focus:border-amber-500 text-xs font-bold text-slate-900 placeholder:text-slate-400 shadow-xs transition-all"
                                             />
                                         </div>
 
                                         {/* 6. Phone */}
                                         <div>
-                                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
-                                                6. Mobile Number *
+                                            <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-800 mb-1.5 flex items-center gap-1.5">
+                                                <span className="w-5 h-5 rounded-md bg-[#ffb800] text-slate-950 font-black text-[10px] inline-flex items-center justify-center shrink-0 shadow-2xs">6</span>
+                                                <span>Mobile Number</span>
+                                                <span className="text-amber-600 font-black">*</span>
                                             </label>
                                             <input
                                                 type="tel"
@@ -1803,22 +1762,23 @@ function FindTutorNearbyPageContent() {
                                                 onChange={(e) => setReqPhone(e.target.value)}
                                                 placeholder="e.g. 98765 43210"
                                                 required
-                                                className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#ffb800]/20 focus:border-[#ffb800] focus:bg-white text-xs font-bold transition-all"
+                                                className="w-full px-4 py-3 rounded-xl bg-white border-2 border-slate-200 hover:border-slate-300 focus:outline-none focus:ring-4 focus:ring-amber-500/15 focus:border-amber-500 text-xs font-bold text-slate-900 placeholder:text-slate-400 shadow-xs transition-all"
                                             />
                                         </div>
                                     </div>
 
                                     {/* 7. Additional Goals */}
                                     <div>
-                                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
-                                            7. Learning Goals & Timing Notes (Optional)
+                                        <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center gap-1.5">
+                                            <span className="w-5 h-5 rounded-md bg-slate-200 text-slate-700 font-black text-[10px] inline-flex items-center justify-center shrink-0">7</span>
+                                            <span>Learning Goals & Timing Notes (Optional)</span>
                                         </label>
                                         <textarea
                                             value={reqGoals}
                                             onChange={(e) => setReqGoals(e.target.value)}
                                             rows={3}
                                             placeholder="Specify preferred timing, days per week, or academic goals..."
-                                            className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#ffb800]/20 focus:border-[#ffb800] focus:bg-white text-xs font-medium transition-all"
+                                            className="w-full px-4 py-3 rounded-xl bg-white border-2 border-slate-200 hover:border-slate-300 focus:outline-none focus:ring-4 focus:ring-amber-500/15 focus:border-amber-500 text-xs font-medium text-slate-900 placeholder:text-slate-400 shadow-xs transition-all"
                                         />
                                     </div>
 
@@ -1869,6 +1829,63 @@ function FindTutorNearbyPageContent() {
                                         )}
                                     </button>
                                 </form>
+                            </div>
+                        </div>
+
+                        {/* TRUST GUARANTEES & FEATURES (Brought Down / Secondary) */}
+                        <div className="lg:col-span-5 space-y-6">
+                            <div className="bg-white p-5 sm:p-8 rounded-3xl border-2 border-slate-200/90 shadow-md space-y-6">
+                                <h3 className="text-lg font-black text-slate-900 tracking-tight">Why Parents Choose Aacharya</h3>
+                                
+                                <div className="space-y-4">
+                                    <div className="flex items-start gap-3.5">
+                                        <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold shrink-0">
+                                            <ShieldCheck className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-extrabold text-xs sm:text-sm text-slate-900">Physically Audited Credentials</h4>
+                                            <p className="text-[11px] text-slate-500 font-medium leading-relaxed mt-0.5">
+                                                Identity proofs and academic marksheets are audited in person by our Bhavanipuram center team.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-start gap-3.5">
+                                        <div className="w-10 h-10 rounded-xl bg-amber-50 text-[#ffb800] flex items-center justify-center font-bold shrink-0">
+                                            <HeartHandshake className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-extrabold text-xs sm:text-sm text-slate-900">0% Commission Cut</h4>
+                                            <p className="text-[11px] text-slate-500 font-medium leading-relaxed mt-0.5">
+                                                No middleman agency fees. You directly settle tuition billing with your assigned instructor.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-start gap-3.5">
+                                        <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold shrink-0">
+                                            <Clock className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-extrabold text-xs sm:text-sm text-slate-900">Direct Contact with Tutors</h4>
+                                            <p className="text-[11px] text-slate-500 font-medium leading-relaxed mt-0.5">
+                                                Assess the tutor&apos;s teaching style and student compatibility before scheduling monthly slots.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Helpline Info Card */}
+                            <div className="bg-slate-900 p-6 rounded-3xl text-white shadow-xl space-y-3">
+                                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-black uppercase tracking-wider border border-emerald-500/30">
+                                    <Phone className="w-3 h-3" />
+                                    <span>Instant Support</span>
+                                </div>
+                                <h4 className="text-base font-black text-white">Prefer to speak directly?</h4>
+                                <p className="text-xs text-slate-300 font-medium leading-relaxed">
+                                    Call our Vijayawada desk at <strong className="text-white">+91 80741 03400</strong> for instant tutor matching within 2 hours.
+                                </p>
                             </div>
                         </div>
                     </div>

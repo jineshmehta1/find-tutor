@@ -346,11 +346,11 @@ export default function HomePage() {
             <div className="lg:col-span-7 space-y-4 text-left self-center pb-6 lg:pb-12">
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-extrabold tracking-tight leading-[1.12] text-[#0f223a]">
                 Find the Right <br />
-                Teacher <span className="text-[#ffb800]">Near You</span>
+                Tutors &amp; Coaches <span className="text-[#ffb800]">Near You</span>
               </h1>
 
               <p className="text-slate-600 text-xs sm:text-sm md:text-[15px] font-medium leading-relaxed max-w-xl">
-                <strong className="font-extrabold text-[#0f223a]">AACHARYA</strong> connects students and parents with trusted teachers and coaches for Classes 1 to 12 – Academics, Activities & More.
+                <strong className="font-extrabold text-[#0f223a]">Aacharya</strong> connects students and parents with trusted tutors for academic subjects and coaches for various activities.
               </p>
             </div>
 
@@ -374,11 +374,14 @@ export default function HomePage() {
             </div>
 
             {/* FULL-WIDTH CARD WIDGET: OVERLAPS BOTTOM ROW */}
-            <div className="lg:col-span-12 bg-white rounded-3xl shadow-xl border border-slate-100 p-4 sm:p-5 md:p-6 space-y-4">
+            <div className="lg:col-span-12 bg-white rounded-3xl shadow-xl border-2 border-slate-200/90 p-4 sm:p-5 md:p-6 space-y-4 shadow-slate-200/60">
 
-              <h3 className="text-slate-900 font-extrabold text-sm md:text-base text-left">
-                What are you looking for?
-              </h3>
+              <div className="flex items-center gap-2.5 pb-0.5">
+                <span className="w-2.5 h-6 rounded-full bg-[#ffb800] shrink-0" />
+                <h3 className="text-slate-900 font-black text-base sm:text-lg md:text-xl tracking-tight text-left">
+                  What are you looking for?
+                </h3>
+              </div>
 
               {/* Tab Toggles */}
               <div className="flex flex-col sm:flex-row border-b border-slate-100 pb-3.5 gap-3 sm:gap-4">
@@ -550,44 +553,53 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
 
             {/* Banner 1: For Students & Parents */}
-            <div className="bg-[#fff9e6] rounded-3xl p-5 sm:p-6 md:p-8 flex flex-col sm:flex-row items-start gap-4 sm:gap-5 border border-[#ffeebf] hover:shadow-lg transition-all duration-300">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-amber-500 rounded-2xl sm:rounded-full flex items-center justify-center shrink-0 text-slate-950">
+            <div className="bg-[#fff9e6] rounded-3xl p-5 sm:p-6 md:p-8 flex flex-col sm:flex-row items-start gap-4 sm:gap-5 border-2 border-amber-200/80 hover:border-amber-300 shadow-md hover:shadow-xl transition-all duration-300">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-amber-500 rounded-2xl sm:rounded-full flex items-center justify-center shrink-0 text-slate-950 shadow-md">
                 <BookOpen className="w-6 h-6 sm:w-7 sm:h-7" />
               </div>
-              <div className="space-y-4 w-full">
+              <div className="space-y-4 w-full text-left">
                 <div>
-                  <h3 className="text-lg md:text-xl font-black text-slate-900 leading-tight">For Students & Parents</h3>
-                  <p className="text-slate-500 text-xs md:text-sm font-medium mt-1">
-                    Find verified teachers and coaches nearby for the best learning experience.
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-black uppercase tracking-wider mb-2 border border-amber-200">
+                    <span>Verified Nearby Mentors</span>
+                  </div>
+                  <h3 className="text-lg md:text-xl font-black text-slate-900 leading-tight">For Students &amp; Parents</h3>
+                  <p className="text-slate-600 text-xs md:text-sm font-medium mt-1">
+                    Find verified tutors and certified coaches nearby for the best personalized learning experience.
                   </p>
                 </div>
                 <button
                   onClick={() => router.push("/find-tutor-nearby")}
-                  className="w-full sm:w-auto px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs uppercase tracking-widest rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
+                  className="w-full sm:w-auto px-6 py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs uppercase tracking-widest rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm cursor-pointer"
                 >
-                  <span>Browse Teachers & Coaches</span>
+                  <span>Browse Tutors &amp; Coaches</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
 
-            {/* Banner 2: Can't Find Right Teacher */}
-            <div className="bg-[#eef4fc] rounded-3xl p-5 sm:p-6 md:p-8 flex flex-col sm:flex-row items-start gap-4 sm:gap-5 border border-[#d6e4f8] hover:shadow-lg transition-all duration-300">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-blue-600 rounded-2xl sm:rounded-full flex items-center justify-center shrink-0 text-white">
-                <Users className="w-6 h-6 sm:w-7 sm:h-7" />
+            {/* Banner 2: Couldn't Find Tutors? Post Your Requirement Here */}
+            <div className="bg-gradient-to-br from-[#fffdf5] via-amber-50/60 to-amber-100/40 rounded-3xl p-5 sm:p-6 md:p-8 flex flex-col sm:flex-row items-start gap-4 sm:gap-5 border-2 border-amber-300 hover:border-amber-400 shadow-md hover:shadow-xl transition-all duration-300 relative overflow-hidden group">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-[#ffb800] rounded-2xl sm:rounded-full flex items-center justify-center shrink-0 text-slate-950 shadow-md">
+                <Sparkles className="w-6 h-6 sm:w-7 sm:h-7" />
               </div>
-              <div className="space-y-4 w-full">
+              <div className="space-y-4 w-full text-left">
                 <div>
-                  <h3 className="text-lg md:text-xl font-black text-slate-900 leading-tight">Can't Find the Right Teacher?</h3>
-                  <p className="text-slate-500 text-xs md:text-sm font-medium mt-1">
-                    Post your requirement and we'll help you find the perfect match.
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-200/80 text-amber-950 text-[10px] font-black uppercase tracking-wider mb-2 border border-amber-300/80">
+                    <Sparkles className="w-3 h-3 text-amber-700" />
+                    <span>Free Matching Service</span>
+                  </div>
+                  <h3 className="text-lg md:text-xl font-black text-slate-950 leading-tight">
+                    Couldn&apos;t Find Tutors? <span className="text-amber-600">Post Your Requirement Here</span>
+                  </h3>
+                  <p className="text-slate-600 text-xs md:text-sm font-medium mt-1">
+                    Tell us what subject or skill you need, and our academic coordinator will match you with verified tutors within 2 hours.
                   </p>
                 </div>
                 <button
                   onClick={() => router.push("/request-tutor")}
-                  className="w-full sm:w-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
+                  className="w-full sm:w-auto px-6 py-3 bg-[#0a1829] hover:bg-[#ffb800] hover:text-slate-950 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer"
                 >
-                  <span>Post Requirement</span>
+                  <span>Post Requirement Here</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -702,14 +714,17 @@ export default function HomePage() {
         <div className="max-w-[1400px] mx-auto px-4 md:px-8 space-y-6 md:space-y-8">
 
           {/* Section Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-            <div>
-              <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
-                <GraduationCap className="w-6 h-6 text-amber-500" />
-                <span>Featured Teachers & Coaches</span>
-              </h3>
-              <p className="text-xs text-slate-400 font-medium mt-1">
-                Find trusted academic teachers and activity coaches near you
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-amber-200/70 pb-5">
+            <div className="space-y-1.5 text-left">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-black uppercase tracking-wider border border-amber-300 shadow-2xs">
+                <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                <span>Verified Mentors Nearby</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl md:text-3.5xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
+                <span>Featured <span className="text-[#ffb800]">Tutors &amp; Coaches</span></span>
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 font-medium">
+                Find trusted academic tutors and certified activity coaches near you
               </p>
             </div>
 
@@ -903,12 +918,21 @@ export default function HomePage() {
       </section>
 
       {/* 6. POPULAR ACTIVITIES & SUBJECTS */}
-      <section className="py-16 md:py-20 bg-white border-b border-slate-100">
-        <div className="max-w-[1400px] mx-auto px-4 md:px-8 text-center space-y-12">
+      <section className="py-16 md:py-20 bg-gradient-to-b from-white via-amber-50/20 to-white border-b border-slate-200/80">
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8 text-center space-y-10">
 
-          <div className="space-y-2">
-            <h2 className="text-2xl md:text-3.5xl font-black text-slate-900 tracking-tight">Popular Activities & Subjects</h2>
-            <div className="w-12 h-1 bg-amber-500 mx-auto rounded-full" />
+          <div className="space-y-3 max-w-2xl mx-auto">
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-black uppercase tracking-wider border border-amber-300 shadow-2xs">
+              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+              <span>Explore Top Categories</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
+              Popular <span className="text-[#ffb800]">Activities &amp; Subjects</span>
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
+              Explore trending academic tuitions, competitive exam coaching, and skill development classes in your city
+            </p>
+            <div className="w-16 h-1 bg-[#ffb800] mx-auto rounded-full shadow-xs" />
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-[1200px] mx-auto">

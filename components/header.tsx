@@ -92,7 +92,7 @@ const Header: React.FC = () => {
                 AACHARYA
               </span>
               <span className="text-[7.5px] sm:text-[8.5px] md:text-[9px] font-black text-amber-500 tracking-wider mt-0.5 uppercase">
-                FIND TUTORS NEARBY
+                FIND HOME TUTORS NEARBY
               </span>
             </div>
           </a>

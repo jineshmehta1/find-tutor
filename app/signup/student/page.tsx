@@ -12,6 +12,7 @@ import {
 import { toast } from "sonner";
 import MapLocationPicker from "@/components/ui/DynamicMapPicker";
 import StructuredAddressForm from "@/components/ui/DynamicStructuredAddressForm";
+import ImageCropModal from "@/components/ui/ImageCropModal";
 import { cn } from "@/lib/utils";
 
 const CLOUDINARY_CLOUD_NAME = "dx2o9yq2t";
@@ -60,6 +61,8 @@ function StudentSignupContent() {
 
     const [isGoogleVerified, setIsGoogleVerified] = useState(false);
     const [isUploadingProfile, setIsUploadingProfile] = useState(false);
+    const [cropFile, setCropFile] = useState<File | null>(null);
+    const [isCropOpen, setIsCropOpen] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -90,10 +93,8 @@ function StudentSignupContent() {
         }
     };
 
-    // Handle profile photo upload to Cloudinary
-    const handleProfilePhotoUpload = async (
-        e: React.ChangeEvent<HTMLInputElement>
-    ) => {
+    // Handle profile photo select and open crop modal
+    const handleProfilePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
@@ -102,16 +103,22 @@ function StudentSignupContent() {
             return;
         }
 
-        if (file.size > 4 * 1024 * 1024) {
-            toast.error("Image must be less than 4MB");
+        if (file.size > 10 * 1024 * 1024) {
+            toast.error("Image must be less than 10MB");
             return;
         }
 
+        setCropFile(file);
+        setIsCropOpen(true);
+        e.target.value = "";
+    };
+
+    const handleCroppedPhotoUpload = async (croppedFile: File) => {
         setIsUploadingProfile(true);
 
         try {
             const formDataUpload = new FormData();
-            formDataUpload.append("file", file);
+            formDataUpload.append("file", croppedFile);
             formDataUpload.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
             formDataUpload.append("folder", "profiles");
 
@@ -132,8 +139,10 @@ function StudentSignupContent() {
                 profilePhoto: data.secure_url,
             }));
 
-            toast.success("Profile photo uploaded!");
-        } catch (error) {
+            toast.success("Profile photo adjusted and uploaded!");
+            setIsCropOpen(false);
+            setCropFile(null);
+        } catch {
             toast.error("Upload failed. Please try again.");
         } finally {
             setIsUploadingProfile(false);
@@ -1117,6 +1126,18 @@ function StudentSignupContent() {
                     </button>
                 )}
             </div>
+
+            <ImageCropModal
+                isOpen={isCropOpen}
+                imageFile={cropFile}
+                onClose={() => {
+                    setIsCropOpen(false);
+                    setCropFile(null);
+                }}
+                onCropComplete={handleCroppedPhotoUpload}
+                title="Crop & Adjust Student Photo"
+                description="Drag to center your face, zoom in/out or rotate for the best portrait."
+            />
         </div>
     );
 }

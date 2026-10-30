@@ -11,6 +11,7 @@ import {
 import { toast } from "sonner";
 import MapLocationPicker from "@/components/ui/DynamicMapPicker";
 import StructuredAddressForm from "@/components/ui/DynamicStructuredAddressForm";
+import ImageCropModal from "@/components/ui/ImageCropModal";
 import { cn } from "@/lib/utils";
 import { 
     ALL_STANDARD_SUBJECTS, 
@@ -98,6 +99,8 @@ export default function TeacherSettingsPage() {
     };
 
     const [isUploadingProfile, setIsUploadingProfile] = useState(false);
+    const [cropFile, setCropFile] = useState<File | null>(null);
+    const [isCropOpen, setIsCropOpen] = useState(false);
     const [isUploadingCertImage, setIsUploadingCertImage] = useState(false);
     const [isUploadingQualCert, setIsUploadingQualCert] = useState(false);
     const [isUploadingIdentityProof, setIsUploadingIdentityProof] = useState(false);
@@ -250,21 +253,43 @@ export default function TeacherSettingsPage() {
         setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
-    const handleProfilePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleProfilePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+            toast.error("Please select an image file");
+            return;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            toast.error("Profile picture must be less than 10MB");
+            return;
+        }
+
+        setCropFile(file);
+        setIsCropOpen(true);
+        e.target.value = "";
+    };
+
+    const handleCroppedPhotoUpload = async (croppedFile: File) => {
         setIsUploadingProfile(true);
         try {
             const form = new FormData();
-            form.append("file", file);
+            form.append("file", croppedFile);
             form.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
             form.append("folder", "profiles");
             const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: form });
             if (!res.ok) throw new Error();
             const data = await res.json();
             setFormData(prev => ({ ...prev, profilePhoto: data.secure_url }));
-            toast.success("Profile photo uploaded!");
-        } catch { toast.error("Upload failed."); } finally { setIsUploadingProfile(false); }
+            toast.success("Profile photo adjusted and updated!");
+            setIsCropOpen(false);
+            setCropFile(null);
+        } catch { 
+            toast.error("Upload failed."); 
+        } finally { 
+            setIsUploadingProfile(false); 
+        }
     };
 
     const handleCertImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1325,6 +1350,18 @@ export default function TeacherSettingsPage() {
                     </button>
                 </div>
             </form>
+
+            <ImageCropModal
+                isOpen={isCropOpen}
+                imageFile={cropFile}
+                onClose={() => {
+                    setIsCropOpen(false);
+                    setCropFile(null);
+                }}
+                onCropComplete={handleCroppedPhotoUpload}
+                title="Crop & Adjust Profile Photo"
+                description="Drag to center your face, zoom in/out or rotate for the best portrait."
+            />
         </div>
     );
 }

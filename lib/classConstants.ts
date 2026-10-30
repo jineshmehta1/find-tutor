@@ -571,3 +571,20 @@ export function formatClassSummary(rawClasses: any): string {
     return `${first} - ${last}`;
 }
 
+/**
+ * Calculates a person's age in completed years from their Date of Birth.
+ * Returns null if dob is missing or invalid.
+ */
+export function calculateAge(dob: string | Date | null | undefined): number | null {
+    if (!dob) return null;
+    const birthDate = new Date(dob);
+    if (isNaN(birthDate.getTime())) return null;
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+    return age > 0 && age < 120 ? age : null;
+}
+

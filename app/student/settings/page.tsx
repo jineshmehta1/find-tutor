@@ -11,6 +11,7 @@ import {
 import { toast } from "sonner";
 import { smartReverseGeocode, getBrowserCoordinates } from "@/lib/geoUtils";
 import StructuredAddressForm from "@/components/ui/DynamicStructuredAddressForm";
+import ImageCropModal from "@/components/ui/ImageCropModal";
 
 const SUBJECTS = [
     "Mathematics", "Physics", "Chemistry", "Biology", "English",
@@ -43,6 +44,8 @@ export default function StudentSettingsPage() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
+    const [cropFile, setCropFile] = useState<File | null>(null);
+    const [isCropOpen, setIsCropOpen] = useState(false);
     const [detectingLocation, setDetectingLocation] = useState(false);
     const profileInputRef = useRef<HTMLInputElement>(null);
 
@@ -116,13 +119,31 @@ export default function StudentSettingsPage() {
         }
     };
 
-    const handleUploadAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleUploadAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+            toast.error("Please select an image file");
+            return;
+        }
+
+        if (file.size > 10 * 1024 * 1024) {
+            toast.error("Image must be less than 10MB");
+            return;
+        }
+
+        setCropFile(file);
+        setIsCropOpen(true);
+        e.target.value = "";
+    };
+
+    const handleCroppedAvatarUpload = async (croppedFile: File) => {
         setIsUploading(true);
         const formData = new FormData();
-        formData.append("file", file);
+        formData.append("file", croppedFile);
         formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+        formData.append("folder", "profiles");
 
         try {
             const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
@@ -132,7 +153,9 @@ export default function StudentSettingsPage() {
             const data = await res.json();
             if (data.secure_url) {
                 setProfile(prev => prev ? { ...prev, profilePhoto: data.secure_url } : null);
-                toast.success("Profile photo uploaded!");
+                toast.success("Profile photo adjusted and updated!");
+                setIsCropOpen(false);
+                setCropFile(null);
             }
         } catch {
             toast.error("Photo upload failed.");
@@ -253,8 +276,16 @@ export default function StudentSettingsPage() {
                                 <input ref={profileInputRef} type="file" accept="image/*" className="hidden" onChange={handleUploadAvatar} />
                             </div>
                             <div className="text-center sm:text-left space-y-1">
-                                <h4 className="text-xs font-black text-slate-900">Upload Profile Photo</h4>
-                                <p className="text-[9px] text-slate-400 font-bold leading-normal">Image format: JPG or PNG. Max size 2MB.</p>
+                                <h4 className="text-xs font-black text-slate-900">Profile Photo</h4>
+                                <p className="text-[10px] text-slate-400 font-bold leading-normal">Interactive crop &amp; zoom supported. Max 10MB.</p>
+                                <button
+                                    type="button"
+                                    onClick={() => profileInputRef.current?.click()}
+                                    disabled={isUploading}
+                                    className="mt-1 px-3 py-1 bg-white text-slate-700 text-[10px] font-bold rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer disabled:opacity-50"
+                                >
+                                    {isUploading ? "Uploading..." : profile?.profilePhoto ? "Change Photo" : "Upload Photo"}
+                                </button>
                             </div>
                         </div>
 
@@ -494,6 +525,17 @@ export default function StudentSettingsPage() {
 
             </div>
 
+            <ImageCropModal
+                isOpen={isCropOpen}
+                imageFile={cropFile}
+                onClose={() => {
+                    setIsCropOpen(false);
+                    setCropFile(null);
+                }}
+                onCropComplete={handleCroppedAvatarUpload}
+                title="Crop & Adjust Profile Photo"
+                description="Drag to center your face, zoom in/out or rotate for the best portrait."
+            />
         </div>
     );
 }

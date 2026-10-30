@@ -10,6 +10,7 @@ import {
     Calendar, Globe, DollarSign, Sparkles, AlertTriangle, ExternalLink
 } from "lucide-react";
 import { toast } from "sonner";
+import { calculateAge } from "@/lib/classConstants";
 
 interface TeacherProfile {
     id: string;
@@ -589,8 +590,8 @@ export default function AdminTutorReviewPage() {
                                 <div className="flex items-center gap-2.5">
                                     <Calendar className="w-4 h-4 text-blue-500 shrink-0" />
                                     <div>
-                                        <span className="text-[10px] text-slate-400 block uppercase">Date of Birth</span>
-                                        <span>{teacher.user.dob ? new Date(teacher.user.dob).toLocaleDateString("en-IN") : "N/A"}</span>
+                                        <span className="text-[10px] text-slate-400 block uppercase">Age & Date of Birth</span>
+                                        <span>{teacher.user.dob ? `${calculateAge(teacher.user.dob)} years old (${new Date(teacher.user.dob).toLocaleDateString("en-IN")})` : "N/A"}</span>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2.5">

@@ -106,6 +106,7 @@ export function TutorSpotlight({ onBookDemo }: TutorSpotlightProps) {
                 name: t.name,
                 qualification: t.education || t.qualificationName || "Educator",
                 experience: t.experience || "Verified Tutor",
+                age: t.age || null,
                 location: t.address || "Vijayawada",
                 subjects: t.subjects || [],
                 rating,
@@ -232,7 +233,7 @@ export function TutorSpotlight({ onBookDemo }: TutorSpotlightProps) {
                   <span className="text-slate-400 text-[10px] font-semibold font-sans">({tutor.reviewsCount})</span>
                 </div>
                 <div className="text-slate-600 font-bold text-[11px]">
-                  {tutor.experience}
+                  {tutor.experience}{(tutor as any).age ? ` • ${(tutor as any).age} yrs` : ""}
                 </div>
               </div>
 

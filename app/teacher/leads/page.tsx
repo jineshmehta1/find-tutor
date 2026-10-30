@@ -4,8 +4,10 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import {
     Users, Search, Mail, Phone, MapPin, User, Loader2,
-    CheckCircle2, Clock, X, MessageCircle, BookOpen, GraduationCap, Home, Sparkles, Filter, CheckCircle, ShieldCheck
+    CheckCircle2, Clock, X, MessageCircle, BookOpen, GraduationCap, Home, Sparkles, Filter, CheckCircle, ShieldCheck,
+    Crown, Lock, ArrowRight
 } from "lucide-react";
+import Link from "next/link";
 import { toast } from "sonner";
 
 interface Lead {
@@ -19,6 +21,7 @@ interface Lead {
     createdAt: string;
     contactCount?: number;
     hasContacted?: boolean;
+    isLocked?: boolean;
     student: {
         id: string;
         subjects: string;
@@ -42,7 +45,16 @@ interface Lead {
     } | null;
 }
 
-function getLeadDisplayInfo(lead: Lead, sessionUser?: { name?: string | null; email?: string | null }) {
+function maskPhoneDisplay(phone: string): string {
+    if (!phone) return "";
+    const cleaned = phone.replace(/\D/g, "");
+    if (cleaned.length >= 10) {
+        return `+91 ${cleaned.slice(-10, -5)} •••••`;
+    }
+    return "+91 ••••• •••••";
+}
+
+function getLeadDisplayInfo(lead: Lead, sessionUser?: { name?: string | null; email?: string | null }, hasAccess: boolean = true) {
     let parentName = "";
     let studentName = "";
 
@@ -78,7 +90,9 @@ function getLeadDisplayInfo(lead: Lead, sessionUser?: { name?: string | null; em
     const displayEmail = (!isTeacherEmail && !isDummyEmail && rawEmail) ? rawEmail : "";
 
     // Contact phone
-    const displayPhone = lead.student?.user?.phone && lead.student.user.phone !== "0000000000" ? lead.student.user.phone : "";
+    const rawPhone = lead.student?.user?.phone && lead.student.user.phone !== "0000000000" ? lead.student.user.phone : "";
+    const isPhoneLocked = !hasAccess || Boolean(lead.isLocked) || rawPhone.includes("*");
+    const displayPhone = isPhoneLocked && rawPhone ? maskPhoneDisplay(rawPhone) : rawPhone;
 
     return {
         displayName: primaryName,
@@ -97,10 +111,33 @@ export default function TeacherLeadsPage() {
     const [statusFilter, setStatusFilter] = useState("ALL");
     const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
     const [updating, setUpdating] = useState(false);
+    const [subscription, setSubscription] = useState<{
+        hasAccess: boolean;
+        status: string;
+        isApproved: boolean;
+        daysRemaining: number;
+    } | null>(null);
+    const [checkingSubscription, setCheckingSubscription] = useState(true);
+    const [showSubscribeModal, setShowSubscribeModal] = useState(false);
 
     useEffect(() => {
         fetchLeads();
+        fetchSubscription();
     }, []);
+
+    const fetchSubscription = async () => {
+        try {
+            const res = await fetch("/api/teacher/subscription");
+            if (res.ok) {
+                const data = await res.json();
+                setSubscription(data);
+            }
+        } catch (error) {
+            console.error("Failed to load subscription info", error);
+        } finally {
+            setCheckingSubscription(false);
+        }
+    };
 
     const fetchLeads = async () => {
         try {
@@ -191,7 +228,7 @@ export default function TeacherLeadsPage() {
     };
 
     const filteredLeads = leads.filter((lead) => {
-        const contact = getLeadDisplayInfo(lead, session?.user);
+        const contact = getLeadDisplayInfo(lead, session?.user, Boolean(subscription?.hasAccess));
         const matchesSearch = contact.displayName.toLowerCase().includes(searchTerm.toLowerCase()) ||
             contact.parentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
             (contact.displayEmail && contact.displayEmail.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -225,6 +262,36 @@ export default function TeacherLeadsPage() {
                     </p>
                 </div>
             </div>
+
+            {/* Subscription Warning Banner if Teacher doesn't have active subscription */}
+            {!checkingSubscription && !subscription?.hasAccess && (
+                <div className="bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-orange-500/15 border-2 border-amber-300 rounded-3xl p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+                    <div className="flex items-start gap-3.5">
+                        <div className="w-10 h-10 rounded-2xl bg-[#ffb800] text-slate-950 flex items-center justify-center shrink-0 shadow-md">
+                            <Crown className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <h3 className="font-black text-slate-900 text-sm sm:text-base flex items-center gap-2">
+                                <span>Active Subscription Required to Contact Leads</span>
+                                <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-200 text-amber-900">
+                                    Premium Feature
+                                </span>
+                            </h3>
+                            <p className="text-xs text-slate-600 font-medium mt-1 leading-relaxed">
+                                Direct parent phone numbers, instant WhatsApp messaging, and student calling are unlocked for subscribed tutors.
+                            </p>
+                        </div>
+                    </div>
+                    <Link
+                        href="/teacher/subscription"
+                        className="px-5 py-2.5 bg-[#0a1829] hover:bg-[#ffb800] hover:text-slate-950 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-md shrink-0 flex items-center gap-2"
+                    >
+                        <Crown className="w-4 h-4 text-amber-400" />
+                        <span>Subscribe to Unlock</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                </div>
+            )}
 
             {/* Filter Toolbar */}
             <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-sm border border-slate-200/80 grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
@@ -280,7 +347,7 @@ export default function TeacherLeadsPage() {
             ) : (
                 <div className="space-y-4">
                     {filteredLeads.map((lead) => {
-                        const contact = getLeadDisplayInfo(lead, session?.user);
+                        const contact = getLeadDisplayInfo(lead, session?.user, Boolean(subscription?.hasAccess));
                         return (
                         <div
                             key={lead.id}
@@ -323,7 +390,7 @@ export default function TeacherLeadsPage() {
                                             <X className="w-3.5 h-3.5" />
                                             Closed
                                         </span>
-                                    ) : (
+                                    ) : subscription?.hasAccess && !lead.isLocked ? (
                                         <>
                                             {contact.displayPhone ? (
                                                 <a
@@ -348,6 +415,18 @@ export default function TeacherLeadsPage() {
                                                 </a>
                                             )}
                                         </>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setShowSubscribeModal(true);
+                                            }}
+                                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black bg-[#ffb800] hover:bg-amber-500 text-slate-950 transition-all shadow-sm cursor-pointer"
+                                        >
+                                            <Crown className="w-3.5 h-3.5" />
+                                            <span>Subscribe to Contact</span>
+                                        </button>
                                     )}
                                 </div>
                             </div>
@@ -413,7 +492,7 @@ export default function TeacherLeadsPage() {
 
             {/* Lead Detail & Status Modal */}
             {selectedLead && (() => {
-                const contact = getLeadDisplayInfo(selectedLead, session?.user);
+                const contact = getLeadDisplayInfo(selectedLead, session?.user, Boolean(subscription?.hasAccess));
                 return (
                 <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                     <div className="bg-white rounded-3xl w-full max-w-lg p-6 sm:p-8 space-y-6 shadow-2xl">
@@ -455,36 +534,58 @@ export default function TeacherLeadsPage() {
                             )}
                         </div>
 
-                        {/* Contact Buttons */}
-                        <div className="grid grid-cols-2 gap-3">
-                            {contact.displayPhone ? (
-                                <a
-                                    href={`tel:${contact.displayPhone}`}
-                                    onClick={() => handleContactLead(selectedLead.id)}
-                                    className="py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-md transition-colors"
-                                >
-                                    <Phone className="w-4 h-4" />
-                                    <span>Call Parent</span>
-                                </a>
-                            ) : (
-                                <div className="py-3 px-4 bg-slate-100 text-slate-400 font-bold text-xs rounded-xl text-center">No Phone Provided</div>
-                            )}
+                        {/* Contact Buttons with Subscription Verification */}
+                        {subscription?.hasAccess && !selectedLead.isLocked ? (
+                            <div className="grid grid-cols-2 gap-3">
+                                {contact.displayPhone ? (
+                                    <a
+                                        href={`tel:${contact.displayPhone}`}
+                                        onClick={() => handleContactLead(selectedLead.id)}
+                                        className="py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-md transition-colors"
+                                    >
+                                        <Phone className="w-4 h-4" />
+                                        <span>Call Parent</span>
+                                    </a>
+                                ) : (
+                                    <div className="py-3 px-4 bg-slate-100 text-slate-400 font-bold text-xs rounded-xl text-center">No Phone Provided</div>
+                                )}
 
-                            {contact.displayPhone ? (
-                                <a
-                                    href={`https://wa.me/91${contact.displayPhone.replace(/\D/g, "").slice(-10)}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    onClick={() => handleContactLead(selectedLead.id)}
-                                    className="py-3 px-4 bg-[#ffb800] hover:bg-[#ffa000] text-slate-900 font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-md transition-colors"
+                                {contact.displayPhone ? (
+                                    <a
+                                        href={`https://wa.me/91${contact.displayPhone.replace(/\D/g, "").slice(-10)}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        onClick={() => handleContactLead(selectedLead.id)}
+                                        className="py-3 px-4 bg-[#ffb800] hover:bg-[#ffa000] text-slate-900 font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-md transition-colors"
+                                    >
+                                        <MessageCircle className="w-4 h-4" />
+                                        <span>Message on WA</span>
+                                    </a>
+                                ) : (
+                                    <div className="py-3 px-4 bg-slate-100 text-slate-400 font-bold text-xs rounded-xl text-center">No WhatsApp Available</div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-300 rounded-2xl text-center space-y-3">
+                                <div className="w-10 h-10 rounded-2xl bg-[#ffb800] text-slate-950 flex items-center justify-center mx-auto shadow-md">
+                                    <Crown className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <h4 className="text-sm font-black text-slate-900">Direct Contact Details Locked</h4>
+                                    <p className="text-xs text-slate-600 font-medium mt-1 leading-relaxed">
+                                        Please subscribe to an active tutor plan to unlock parent's full phone number, initiate direct phone calls, and send WhatsApp messages.
+                                    </p>
+                                </div>
+                                <Link
+                                    href="/teacher/subscription"
+                                    className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 bg-[#0a1829] hover:bg-[#ffb800] hover:text-slate-950 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-md cursor-pointer"
                                 >
-                                    <MessageCircle className="w-4 h-4" />
-                                    <span>Message on WA</span>
-                                </a>
-                            ) : (
-                                <div className="py-3 px-4 bg-slate-100 text-slate-400 font-bold text-xs rounded-xl text-center">No WhatsApp Available</div>
-                            )}
-                        </div>
+                                    <Crown className="w-4 h-4 text-amber-400" />
+                                    <span>View Subscription Plans & Unlock</span>
+                                    <ArrowRight className="w-3.5 h-3.5" />
+                                </Link>
+                            </div>
+                        )}
 
                         {/* Requirement Info */}
                         <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-2 text-xs font-bold text-slate-700">

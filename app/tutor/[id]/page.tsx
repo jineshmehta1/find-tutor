@@ -4,14 +4,14 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { 
-  MapPin, Star, GraduationCap, Users, ShieldCheck, 
+  MapPin, Calendar, Star, GraduationCap, Users, ShieldCheck, 
   Sparkles, BookOpen, Music, Code, Beaker, Swords, ArrowRight,
   CheckCircle, MessageSquare, Laptop, Home, School, Clock, 
   UserCheck, Award, Briefcase, ChevronRight, X, AlertCircle, Loader2, Phone 
 } from "lucide-react";
 import { toast } from "sonner";
 import { getPublicLocality } from "@/lib/geoUtils";
-import { sortClassLevels } from "@/lib/classConstants";
+import { sortClassLevels, calculateAge } from "@/lib/classConstants";
 
 
 interface Tutor {
@@ -34,6 +34,7 @@ interface Tutor {
   achievements: string | null;
   isApproved: boolean;
   dob: string;
+  age?: number | null;
   gender: string | null;
   preferredLanguage: string | null;
   achievementCertificate: string | null;
@@ -197,6 +198,9 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
               <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-amber-400" /> {getPublicLocality(tutor.address)}</span>
               <span className="flex items-center gap-1.5"><Briefcase className="w-4 h-4 text-amber-400" /> {tutor.experience} Experience</span>
               <span className="flex items-center gap-1.5"><GraduationCap className="w-4 h-4 text-amber-400" /> {tutor.qualificationName || tutor.qualificationLevel || tutor.education}</span>
+              {(tutor.age || calculateAge(tutor.dob)) && (
+                <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-amber-400" /> {tutor.age || calculateAge(tutor.dob)} yrs old</span>
+              )}
               {tutor.gender && (
                 <span className="flex items-center gap-1.5 capitalize"><UserCheck className="w-4 h-4 text-amber-400" /> {tutor.gender}</span>
               )}
@@ -279,6 +283,13 @@ export default function TutorDetailPage({ params }: { params: { id: string } }) 
                   })()}
                 </div>
               </div>
+
+              {(tutor.age || calculateAge(tutor.dob)) && (
+                <div className="space-y-1 bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Age</p>
+                  <p className="font-extrabold text-slate-800 text-sm">{tutor.age || calculateAge(tutor.dob)} years old</p>
+                </div>
+              )}
 
               {tutor.preferredLanguage && (
                 <div className="space-y-1 bg-slate-50 p-3.5 rounded-2xl border border-slate-100">

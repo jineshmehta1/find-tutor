@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { calculateHaversineDistance, matchesTeachingMode } from "@/lib/geoUtils";
-import { matchesClassLevel, sortClassLevels, sortSubjectLevels } from "@/lib/classConstants";
+import { matchesClassLevel, sortClassLevels, sortSubjectLevels, calculateAge } from "@/lib/classConstants";
 
 export const dynamic = "force-dynamic";
 
@@ -43,6 +43,8 @@ export async function GET(request: NextRequest) {
                         address: true,
                         latitude: true,
                         longitude: true,
+                        dob: true,
+                        gender: true,
                     },
                 },
             },
@@ -123,6 +125,9 @@ export async function GET(request: NextRequest) {
                 phone: teacher.user.phone,
                 profilePhoto: teacher.user.profilePhoto || null,
                 address: teacher.user.address,
+                dob: teacher.user.dob,
+                age: calculateAge(teacher.user.dob),
+                gender: teacher.user.gender,
                 latitude: teacher.user.latitude,
                 longitude: teacher.user.longitude,
                 distanceKm,

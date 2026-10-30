@@ -8,13 +8,15 @@ import {
     Wallet, Home, Laptop, Swords, BookOpen, Music, Code, ShieldCheck, Clock
 } from "lucide-react";
 import { getPublicLocality } from "@/lib/geoUtils";
-import { formatClassSummary } from "@/lib/classConstants";
+import { formatClassSummary, calculateAge } from "@/lib/classConstants";
 
 export interface TutorCardProps {
     tutor: {
         id: string;
         name: string;
         phone?: string | null;
+        dob?: string | Date | null;
+        age?: number | string | null;
         profilePhoto?: string | null;
         image?: string | null;
         education?: string | null;
@@ -129,6 +131,9 @@ export default function TutorCard({ tutor, onSelect }: TutorCardProps) {
         experienceSummary = `${experienceSummary} Exp.`;
     }
 
+    // Tutor age resolution (calculated from dob or passed directly)
+    const tutorAge = tutor.age || calculateAge(tutor.dob || (tutor as any).user?.dob);
+
     // Clean locality extraction
     const rawLocation = tutor.location || getPublicLocality(tutor.address || "") || "Vijayawada";
     const fullLocationDisplay = rawLocation;
@@ -227,7 +232,7 @@ export default function TutorCard({ tutor, onSelect }: TutorCardProps) {
                             </h3>
                         </Link>
                         <p className="text-[11px] sm:text-xs font-bold text-slate-700 mt-0.5 leading-tight break-normal line-clamp-1" title={tutor.qualificationName || ""}>
-                            {tutor.qualificationName || (cleanSubjects[0] ? `${cleanSubjects[0]} Educator` : "Dedicated Mentor")}
+                            {tutor.qualificationName || (cleanSubjects[0] ? `${cleanSubjects[0]} Educator` : "Dedicated Mentor")}{tutorAge ? ` • ${tutorAge} yrs` : ""}
                         </p>
                         <p className="text-[10px] sm:text-[10.5px] font-semibold text-slate-400 mt-0.5 leading-tight break-normal line-clamp-1" title={tutor.education || ""}>
                             {tutor.education || "Qualified Mentor"}
@@ -325,8 +330,8 @@ export default function TutorCard({ tutor, onSelect }: TutorCardProps) {
                         </div>
                     </div>
 
-                    {/* Experience */}
-                    <div className="bg-[#fcfaf5] border border-amber-200/50 rounded-xl p-2 flex flex-col justify-between min-w-0" title={experienceSummary}>
+                    {/* Experience & Age */}
+                    <div className="bg-[#fcfaf5] border border-amber-200/50 rounded-xl p-2 flex flex-col justify-between min-w-0" title={`${experienceSummary}${tutorAge ? ` • Age: ${tutorAge} yrs` : ""}`}>
                         <div className="flex items-center gap-1 text-slate-500">
                             <Briefcase className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                             <span className="text-[8.5px] sm:text-[9.5px] font-extrabold uppercase tracking-wider truncate">
@@ -335,6 +340,7 @@ export default function TutorCard({ tutor, onSelect }: TutorCardProps) {
                         </div>
                         <div className="text-[11px] sm:text-[11.5px] font-black text-slate-900 leading-tight mt-1.5 break-normal line-clamp-2">
                             {experienceSummary}
+                            {tutorAge ? <span className="block text-[9.5px] font-extrabold text-amber-700 mt-0.5">Age: {tutorAge} yrs</span> : null}
                         </div>
                     </div>
 

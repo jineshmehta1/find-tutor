@@ -164,8 +164,18 @@ export async function GET(request: NextRequest) {
         if (session.user.role === "TEACHER" || role === "teacher") {
             const currentTeacher = await prisma.teacher.findFirst({
                 where: { user: { email: session.user.email } },
-                select: { id: true, createdAt: true }
+                select: { id: true, createdAt: true, isApproved: true, subscriptionStatus: true, subscriptionEnd: true }
             });
+
+            const now = new Date();
+            let teacherHasAccess = false;
+            if (currentTeacher?.isApproved) {
+                if (currentTeacher.subscriptionStatus === "trial" || currentTeacher.subscriptionStatus === "active") {
+                    if (currentTeacher.subscriptionEnd && new Date(currentTeacher.subscriptionEnd) > now) {
+                        teacherHasAccess = true;
+                    }
+                }
+            }
 
             // Show leads created on or after the teacher's profile registration date (so older historical leads are hidden)
             const dateFilter = currentTeacher?.createdAt ? {
@@ -214,11 +224,29 @@ export async function GET(request: NextRequest) {
                 },
             });
 
-            leads = rawLeads.map((l) => ({
-                ...l,
-                contactCount: l.contacts?.length || 0,
-                hasContacted: currentTeacher ? Boolean(l.contacts?.some((c) => c.teacherId === currentTeacher.id)) : false,
-            }));
+            leads = rawLeads.map((l) => {
+                const userPhone = l.student?.user?.phone || "";
+                let maskedPhone = "";
+                if (userPhone && userPhone !== "0000000000") {
+                    const cleaned = userPhone.replace(/\D/g, "");
+                    maskedPhone = cleaned.length >= 10 ? `${cleaned.slice(-10, -5)}*****` : "*****";
+                }
+
+                return {
+                    ...l,
+                    isLocked: !teacherHasAccess,
+                    contactCount: l.contacts?.length || 0,
+                    hasContacted: currentTeacher ? Boolean(l.contacts?.some((c) => c.teacherId === currentTeacher.id)) : false,
+                    student: {
+                        ...l.student,
+                        user: {
+                            ...l.student.user,
+                            phone: teacherHasAccess ? userPhone : maskedPhone,
+                            email: teacherHasAccess ? l.student.user.email : "",
+                        }
+                    }
+                };
+            });
         } else if (session.user.role === "STUDENT") {
             // Get leads from this student
             const student = await prisma.student.findFirst({

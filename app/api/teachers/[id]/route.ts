@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { sortClassLevels, sortSubjectLevels } from "@/lib/classConstants";
+import { sortClassLevels, sortSubjectLevels, calculateAge } from "@/lib/classConstants";
 
 export async function GET(
     request: NextRequest,
@@ -79,6 +79,7 @@ export async function GET(
             latitude: teacher.user.latitude,
             longitude: teacher.user.longitude,
             dob: teacher.user.dob,
+            age: calculateAge(teacher.user.dob),
             gender: teacher.user.gender,
             preferredLanguage: teacher.user.preferredLanguage,
             education: teacher.education,

@@ -113,7 +113,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-xs font-black text-white truncate">{session?.user?.name || "System Admin"}</p>
-              <p className="text-[10px] text-amber-200 truncate">{session?.user?.email || "admin@aacharya.net"}</p>
+              <p className="text-[10px] text-amber-200 truncate">{session?.user?.email || "aacharyateam@gmail.com"}</p>
             </div>
           </div>
 

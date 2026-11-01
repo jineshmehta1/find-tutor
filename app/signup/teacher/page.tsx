@@ -888,7 +888,7 @@ export default function TeacherSignupPage() {
                                                     value={formData.email}
                                                     onChange={(e) => updateField("email", e.target.value)}
                                                     className="w-full pl-9 pr-4 py-2.5 text-xs font-bold border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none bg-slate-50/50"
-                                                    placeholder="rajesh@aacharya.net"
+                                                    placeholder="name@gmail.com"
                                                     disabled={isGoogleVerified}
                                                 />
                                             </div>

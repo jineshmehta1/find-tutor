@@ -107,7 +107,7 @@ const ContactSection: React.FC = () => {
                               </div>
                               <div>
                                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Call Support</p>
-                                 <p className="text-base font-bold text-white">+91 80741 03400</p>
+                                 <a href="tel:+918074103400" className="text-base font-bold text-white hover:text-amber-400 transition-colors">+91 80741 03400</a>
                               </div>
                            </div>
 
@@ -118,7 +118,7 @@ const ContactSection: React.FC = () => {
                               </div>
                               <div>
                                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Email Team</p>
-                                 <p className="text-base font-bold text-white">aacharyateam@gmail.com</p>
+                                 <a href="mailto:aacharyateam@gmail.com" className="text-base font-bold text-white hover:text-amber-400 transition-colors">aacharyateam@gmail.com</a>
                               </div>
                            </div>
 

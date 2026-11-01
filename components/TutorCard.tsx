@@ -330,8 +330,8 @@ export default function TutorCard({ tutor, onSelect }: TutorCardProps) {
                         </div>
                     </div>
 
-                    {/* Experience & Age */}
-                    <div className="bg-[#fcfaf5] border border-amber-200/50 rounded-xl p-2 flex flex-col justify-between min-w-0" title={`${experienceSummary}${tutorAge ? ` • Age: ${tutorAge} yrs` : ""}`}>
+                    {/* Experience */}
+                    <div className="bg-[#fcfaf5] border border-amber-200/50 rounded-xl p-2 flex flex-col justify-between min-w-0" title={experienceSummary}>
                         <div className="flex items-center gap-1 text-slate-500">
                             <Briefcase className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                             <span className="text-[8.5px] sm:text-[9.5px] font-extrabold uppercase tracking-wider truncate">
@@ -340,7 +340,6 @@ export default function TutorCard({ tutor, onSelect }: TutorCardProps) {
                         </div>
                         <div className="text-[11px] sm:text-[11.5px] font-black text-slate-900 leading-tight mt-1.5 break-normal line-clamp-2">
                             {experienceSummary}
-                            {tutorAge ? <span className="block text-[9.5px] font-extrabold text-amber-700 mt-0.5">Age: {tutorAge} yrs</span> : null}
                         </div>
                     </div>
 

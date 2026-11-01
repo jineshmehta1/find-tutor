@@ -106,7 +106,7 @@ export default function Footer() {
       </div>
 
       <div className="max-w-[1400px] mx-auto px-4 md:px-8 relative z-10">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 md:gap-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
 
           {/* 1. BRAND INFO */}
           <div className="space-y-5 lg:col-span-1">
@@ -159,7 +159,7 @@ export default function Footer() {
                 { name: "Post Requirement", href: "/request-tutor" },
                 { name: "Browse Subjects/Activities", href: "/find-tutor-nearby" },
                 { name: "Browse Locations", href: "/find-tutor-nearby" },
-                { name: "Help Center", href: "/contact" },
+                { name: "About Us", href: "/about" },
               ].map((link) => (
                 <li key={link.name}>
                   <a href={link.href} className="hover:text-amber-500 transition-colors">
@@ -193,29 +193,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* 4. SUPPORT */}
-          <div>
-            <h3 className="text-white font-bold text-sm mb-4 tracking-wide uppercase">
-              Support
-            </h3>
-            <ul className="space-y-2.5 text-[12px]">
-              {[
-                { name: "Help Center", href: "/contact" },
-                { name: "Contact Us", href: "/contact" },
-                { name: "Safety & Verification", href: "/about" },
-                { name: "About Us", href: "/about" },
-                { name: "Student Reviews", href: "/reviews" },
-              ].map((link) => (
-                <li key={link.name}>
-                  <a href={link.href} className="hover:text-amber-500 transition-colors">
-                    {link.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* 5. CONTACT US */}
+          {/* 4. CONTACT US */}
           <div className="space-y-4 text-[12px]">
             <h3 className="text-white font-bold text-sm mb-4 tracking-wide uppercase">
               Contact Us
@@ -227,7 +205,7 @@ export default function Footer() {
               </div>
               <div className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-amber-500 shrink-0" />
-                <a href="mailto:support@aacharya.net" className="hover:text-amber-500 break-words-anywhere">support@aacharya.net</a>
+                <a href="mailto:aacharyateam@gmail.com" className="hover:text-amber-500 break-words-anywhere">aacharyateam@gmail.com</a>
               </div>
               <div className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />

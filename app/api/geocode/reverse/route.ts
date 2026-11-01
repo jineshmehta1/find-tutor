@@ -150,7 +150,7 @@ export async function GET(request: Request) {
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
         {
           headers: {
-            "User-Agent": "AacharyaAcademy/1.0 (contact@aacharya.academy)",
+            "User-Agent": "AacharyaAcademy/1.0 (aacharyateam@gmail.com)",
             "Accept-Language": "en-US,en;q=0.9",
           },
           cache: "no-store",

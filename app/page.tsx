@@ -22,6 +22,7 @@ import {
   formatClassSummary
 } from "@/lib/classConstants";
 import TutorCard from "@/components/TutorCard";
+import HomeFAQSection from "@/components/home-faq-section";
 
 // Static constants TEACHERS and COACHES removed to force real database content only.
 
@@ -1060,7 +1061,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 8. ARE YOU A TEACHER OR COACH? CTA BANNER */}
+      {/* 8. FREQUENTLY ASKED QUESTIONS (TOP 5 FEATURED) */}
+      <HomeFAQSection />
+
+      {/* 9. ARE YOU A TEACHER OR COACH? CTA BANNER */}
       <section className="py-12 bg-white font-sans">
         <div className="max-w-[1400px] mx-auto px-4 md:px-8">
           <div className="bg-[#091a30] text-white rounded-3xl md:rounded-[2.5rem] p-6 sm:p-8 md:p-12 flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8 md:gap-12 relative overflow-hidden shadow-2xl">

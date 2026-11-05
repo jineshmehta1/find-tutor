@@ -66,6 +66,7 @@ const Header: React.FC = () => {
     { name: "Find Coaches", href: "/find-tutor-nearby?type=coach" },
     { name: "How It Works", href: "/#how-it-works" },
     { name: "About Us", href: "/about" },
+    { name: "FAQs", href: "/faqs" },
     { name: "Contact Us", href: "/contact" },
   ];
 
@@ -98,7 +99,7 @@ const Header: React.FC = () => {
           </a>
 
           {/* Desktop Navigation - Hidden below XL (1280px) to prevent crowding */}
-          <nav className="hidden xl:flex items-center gap-8 2xl:gap-10">
+          <nav className="hidden xl:flex items-center gap-5 2xl:gap-8">
             {navItems.map((item) => {
               const isActive = pathname === item.href || (item.href !== "/" && pathname?.startsWith(item.href?.split("?")[0] || ""));
               return (

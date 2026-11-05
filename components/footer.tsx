@@ -160,6 +160,7 @@ export default function Footer() {
                 { name: "Browse Subjects/Activities", href: "/find-tutor-nearby" },
                 { name: "Browse Locations", href: "/find-tutor-nearby" },
                 { name: "About Us", href: "/about" },
+                { name: "FAQs", href: "/faqs" },
               ].map((link) => (
                 <li key={link.name}>
                   <a href={link.href} className="hover:text-amber-500 transition-colors">

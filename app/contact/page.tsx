@@ -1,7 +1,30 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { HelpCircle, ArrowRight } from "lucide-react";
 import ContactBanner from "@/components/ui/ContactBanner";
 import ContactSection from "@/components/ui/ContactSection";
+
+export const metadata: Metadata = {
+  title: "Contact Us – AACHARYA Support & Helpdesk",
+  description:
+    "Get in touch with AACHARYA. Speak directly with our Vijayawada desk at +91 80741 03400 or email aacharyateam@gmail.com for tutor discovery, demo scheduling, and partner support.",
+  keywords: [
+    "AACHARYA contact",
+    "tutor support Vijayawada",
+    "contact AACHARYA",
+    "tutor helpdesk",
+  ],
+  alternates: {
+    canonical: "/contact",
+  },
+  openGraph: {
+    title: "Contact Us – AACHARYA Support & Helpdesk",
+    description:
+      "Reach out to AACHARYA via phone, WhatsApp, or email for guidance on finding tutors and coaches.",
+    url: "/contact",
+    type: "website",
+  },
+};
 
 export default function ContactPage() {
   return (

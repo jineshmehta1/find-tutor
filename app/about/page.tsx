@@ -52,13 +52,13 @@ export const metadata: Metadata = {
     title: "About AACHARYA – Find Tutors & Coaches Nearby",
     description:
       "Connecting parents and students with verified academic tutors, activity coaches and skill trainers nearby.",
-    url: "https://aacharya.net/about",
+    url: "https://aacharya-tutor.vercel.app/about",
     siteName: "AACHARYA",
     locale: "en_IN",
     type: "website",
     images: [
       {
-        url: "https://aacharya.net/chess-cen.jpeg",
+        url: "https://aacharya-tutor.vercel.app/image.png",
         width: 1200,
         height: 630,
         alt: "AACHARYA - Find Tutors & Coaches Nearby"

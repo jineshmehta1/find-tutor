@@ -10,7 +10,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://aacharya-tutor.vercel.app"),
   title: {
-    default: "AACHARYA – Find Home Tutors, Academic Teachers & Coaches Nearby",
+    default: "AACHARYA TUTORS– Find Home Tutors, Academic Teachers & Coaches Nearby",
     template: "%s | AACHARYA",
   },
   description:

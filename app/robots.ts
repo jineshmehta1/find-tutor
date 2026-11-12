@@ -1,9 +1,10 @@
 import type { MetadataRoute } from "next";
+import { getRequestBaseUrl } from "@/lib/siteUrl";
+
+export const dynamic = "force-dynamic";
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ||
-    "https://aacharya-tutor.vercel.app";
+  const baseUrl = getRequestBaseUrl();
 
   return {
     rules: [
@@ -16,4 +17,3 @@ export default function robots(): MetadataRoute.Robots {
     sitemap: `${baseUrl}/sitemap.xml`,
   };
 }
-

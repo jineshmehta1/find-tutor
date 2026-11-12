@@ -1,73 +1,67 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
+import { getRequestBaseUrl } from "@/lib/siteUrl";
 
-export const revalidate = 3600; // Revalidate sitemap every hour
+export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ||
-    "https://aacharya-tutor.vercel.app";
+  const baseUrl = getRequestBaseUrl();
+  const now = new Date();
 
   const staticRoutes: MetadataRoute.Sitemap = [
     {
-      url: `${baseUrl}`,
-      lastModified: new Date(),
+      url: `${baseUrl}/`,
+      lastModified: now,
       changeFrequency: "daily",
       priority: 1.0,
     },
     {
       url: `${baseUrl}/find-tutor-nearby`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: "daily",
       priority: 0.9,
     },
     {
       url: `${baseUrl}/request-tutor`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: "weekly",
       priority: 0.9,
     },
     {
       url: `${baseUrl}/about`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: "monthly",
       priority: 0.8,
     },
     {
       url: `${baseUrl}/faqs`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: "weekly",
       priority: 0.8,
     },
     {
       url: `${baseUrl}/contact`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: "monthly",
       priority: 0.7,
     },
     {
       url: `${baseUrl}/reviews`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: "weekly",
       priority: 0.7,
     },
     {
       url: `${baseUrl}/signup/teacher`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: "monthly",
       priority: 0.8,
     },
     {
       url: `${baseUrl}/signup/student`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: "monthly",
       priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/login`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.5,
     },
   ];
 
@@ -86,8 +80,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
 
     tutorRoutes = approvedTeachers.map((teacher) => ({
-      url: `${baseUrl}/tutor/${teacher.id}`,
-      lastModified: teacher.updatedAt || new Date(),
+      url: `${baseUrl}/tutor/${encodeURIComponent(teacher.id)}`,
+      lastModified: teacher.updatedAt || now,
       changeFrequency: "weekly",
       priority: 0.7,
     }));
@@ -97,4 +91,3 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [...staticRoutes, ...tutorRoutes];
 }
-

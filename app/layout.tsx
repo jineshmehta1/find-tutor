@@ -10,12 +10,13 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://aacharya-tutor.vercel.app"),
   title: {
-    default: "AACHARYA TUTORS– Find Home Tutors, Academic Teachers & Coaches Nearby",
-    template: "%s | AACHARYA",
+    default: "AACHARYA TUTORS – Find Home Tutors, Academic Teachers & Coaches Nearby",
+    template: "%s | AACHARYA TUTORS",
   },
   description:
     "Discover verified home tutors, online teachers, and activity coaches for CBSE, ICSE, State Boards, Chess, Robotics, Abacus, Coding, Music and Arts nearby. 0% commission for parents.",
   keywords: [
+    "AACHARYA TUTORS",
     "AACHARYA",
     "home tutors nearby",
     "find tutors nearby",
@@ -28,9 +29,9 @@ export const metadata: Metadata = {
     "ICSE tuition",
     "post tuition requirement",
   ],
-  authors: [{ name: "AACHARYA Team" }],
-  creator: "AACHARYA",
-  publisher: "AACHARYA",
+  authors: [{ name: "AACHARYA TUTORS Team" }],
+  creator: "AACHARYA TUTORS",
+  publisher: "AACHARYA TUTORS",
   formatDetection: {
     email: true,
     address: true,
@@ -40,11 +41,11 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "AACHARYA – Find Home Tutors, Academic Teachers & Coaches Nearby",
+    title: "AACHARYA TUTORS – Find Home Tutors, Academic Teachers & Coaches Nearby",
     description:
-      "Connect with verified local tutors and skill development coaches for academic subjects, board exams, chess, coding, and extracurricular activities.",
+      "Discover verified home tutors, online teachers, and activity coaches for CBSE, ICSE, State Boards, Chess, Robotics, Abacus, Coding, Music and Arts nearby. 0% commission for parents.",
     url: "https://aacharya-tutor.vercel.app",
-    siteName: "AACHARYA",
+    siteName: "AACHARYA TUTORS",
     locale: "en_IN",
     type: "website",
     images: [
@@ -52,15 +53,15 @@ export const metadata: Metadata = {
         url: "/image.png",
         width: 800,
         height: 600,
-        alt: "AACHARYA – Find Tutors & Coaches Nearby",
+        alt: "AACHARYA TUTORS – Find Home Tutors, Academic Teachers & Coaches Nearby",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "AACHARYA – Find Home Tutors, Academic Teachers & Coaches Nearby",
+    title: "AACHARYA TUTORS – Find Home Tutors, Academic Teachers & Coaches Nearby",
     description:
-      "Connect with verified local tutors and skill development coaches for academic subjects, board exams, chess, coding, and extracurricular activities.",
+      "Discover verified home tutors, online teachers, and activity coaches for CBSE, ICSE, State Boards, Chess, Robotics, Abacus, Coding, Music and Arts nearby. 0% commission for parents.",
     images: ["/image.png"],
   },
   robots: {
@@ -95,7 +96,7 @@ export default function RootLayout({
         "@type": "WebSite",
         "@id": "https://aacharya-tutor.vercel.app/#website",
         "url": "https://aacharya-tutor.vercel.app",
-        "name": "AACHARYA",
+        "name": "AACHARYA TUTORS",
         "description": "Find Home Tutors, Academic Teachers & Coaches Nearby",
         "potentialAction": {
           "@type": "SearchAction",
@@ -106,10 +107,10 @@ export default function RootLayout({
       {
         "@type": "Organization",
         "@id": "https://aacharya-tutor.vercel.app/#organization",
-        "name": "AACHARYA",
+        "name": "AACHARYA TUTORS",
         "url": "https://aacharya-tutor.vercel.app",
         "logo": "https://aacharya-tutor.vercel.app/image.png",
-        "description": "Online tutor and coach discovery platform connecting parents and students with verified academic tutors, home teachers, and activity mentors.",
+        "description": "Discover verified home tutors, online teachers, and activity coaches for CBSE, ICSE, State Boards, Chess, Robotics, Abacus, Coding, Music and Arts nearby. 0% commission for parents.",
         "founder": {
           "@type": "Person",
           "name": "Dr. Rajesh Gunti",
